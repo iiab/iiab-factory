@@ -1,0 +1,26 @@
+#!/bin/bash
+
+./rach-rename-mod ap_didact en-ap_didact
+./rach-rename-mod asst_medical en-asst_medical
+./rach-rename-mod bibliofilo es-bibliofilo
+./rach-rename-mod biblioteca es-biblioteca
+./rach-rename-mod ck12 en-ck12
+./rach-rename-mod cnbguatemala es-cnbguatemala
+./rach-rename-mod ebooks-en en-ebooks
+./rach-rename-mod ebooks-es es-ebooks
+./rach-rename-mod edison en-edison
+./rach-rename-mod GCF2015 en-GCF2015
+./rach-rename-mod hesperian_health en-hesperian_health
+./rach-rename-mod iicba en-iicba
+./rach-rename-mod infonet en-infonet
+./rach-rename-mod math_expression en-math_expression
+./rach-rename-mod medline_plus en-medline_plus
+./rach-rename-mod musictheory en-musictheory
+./rach-rename-mod olpc en-olpc
+./rach-rename-mod PhET en-PhET
+./rach-rename-mod phet-html en-phet-html
+./rach-rename-mod powertyping en-powertyping
+./rach-rename-mod practical_action en-practical_action
+./rach-rename-mod radiolab en-radiolab
+./rach-rename-mod scratch en-scratch
+./rach-rename-mod understanding_algebra en-understanding_algebra

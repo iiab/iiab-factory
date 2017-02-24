@@ -1,0 +1,18 @@
+#!/bin/bash
+
+if [ ! -f "get-cp-vars" ]; then
+  echo "get-cp-vars not found. Please cd to scripts directory."
+  exit 1
+fi
+
+source get-cp-vars
+
+mkdir -p  $DEST/var/www/html/home
+mkdir -p  $DEST/var/www/html/common/html
+
+cp /library/128G/home-en/128g-en-index.html  $DEST/var/www/html/home/index.html
+cp /library/128G/home-en/xsce-home-page.conf $DEST/etc/httpd/conf.d
+
+rsync -av /library/128G/home-en/common/images/  $DEST/var/www/html/common/images
+rsync -av /library/128G/home-en/common/html/  $DEST/var/www/html/common/html
+rsync -av /library/128G/home-en/common/css/  $DEST/var/www/html/common/css

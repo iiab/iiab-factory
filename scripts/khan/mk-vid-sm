@@ -1,0 +1,29 @@
+#!/bin/bash
+# reduce size of video using Handbrake
+
+HandBrakeCLI \
+--encoder x264  \
+--quality 32.0 \
+--audio 1 \
+--aencoder faac \
+--ab 48 \
+--mixdown mono \
+--arate auto \
+--drc 0.0 \
+--audio-copy-mask aac,ac3,dtshd,dts,mp3 \
+--audio-fallback ffac3 \
+--format mp4 \
+--loose-anamorphic \
+--modulus 2 \
+--markers \
+--x264-preset medium \
+--h264-profile baseline \
+--h264-level 3.0 \
+--x264-tune fastdecode \
+--optimize \
+--maxWidth 700 \
+--maxHeight 392 \
+--crop 0:0:0:0 \
+--ipod-atom \
+--input videos/$1.mp4 \
+--output videos/sm-$1.mp4

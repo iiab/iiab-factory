@@ -1,0 +1,8 @@
+#!/bin/bash
+# get contents of update table to stdout
+# instructions:
+#       go into kalite and select the video subset
+#       click to download, and then immediately cancel the download
+#       direct the stdout of this script to a properly named list
+#       use the cpy_ka_list_to_sd
+sqlite3 /library/ka-lite/database/data.sqlite 'select youtube_id from updates_videofile'

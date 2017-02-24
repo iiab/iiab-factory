@@ -1,0 +1,4 @@
+/usr/bin/unzip -uo /library/downloads/zims/kiwix-0.9+$1 -d /library/working/zims/$1
+mv /library/working/zims/$1/data/content/*.zim* /library/zims/content/
+mv /library/working/zims/$1/data/index/*.idx /library/zims/index/
+

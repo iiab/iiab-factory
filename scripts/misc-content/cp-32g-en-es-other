@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if [ ! -f "get-cp-vars" ]; then
+  echo "get-cp-vars not found. Please cd to scripts directory."
+  exit 1
+fi
+
+source get-cp-vars
+
+rsync -av $SRC/content/CuentosDigitales $DEST/library/content/
+rsync -av $SRC/content/Libros $DEST/library/content/
+
+rsync -av $SRC/../32G/home-en-es/ $DEST/library/

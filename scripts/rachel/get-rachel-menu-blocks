@@ -1,0 +1,57 @@
+#!/usr/bin/python
+
+"""
+
+   Reads rachel menu fragments for every item in catalog at http://dev.worldpossible.org/cgi/json_api_v1.pl
+
+   Author: Tim Moody <tim(at)timmoody(dot)com>
+
+"""
+import xml.etree.ElementTree as ET
+import json
+import csv
+import operator
+import base64
+import os.path
+import sys
+import urllib2
+import time
+import subprocess
+import shlex
+
+rachel_catalog_url = "http://dev.worldpossible.org/cgi/json_api_v1.pl"
+response = urllib2.urlopen(rachel_catalog_url)
+rachel_catalog = json.loads(response.read())
+response.close()
+
+for module in rachel_catalog:
+    print module['moddir']
+    cmdstr = " rsync -Pavz " + module['rsync_url'] + "/rachel-index.php " + module['moddir'] + ".php"
+    outp = subproc_cmd(cmdstr)
+    print outp
+    logo = module['logo_url']
+    logo_ext = logo.split('/')[-1].split('.')[-1]
+    cmdstr = " wget " + module['logo_url'] + " -O images/" + module['moddir'] + "." + logo_ext
+
+    outp = subproc_cmd(cmdstr)
+    print outp
+
+
+subproc_cmd(cmdstr):
+    print cmdstr
+    args = shlex.split(cmdstr)
+    outp = subprocess.check_output(args)
+    return (outp)
+
+for module in rachel_catalog:
+    logo = module['logo_url']
+    logo_ext = logo.split('/')[-1].split('.')[-1]
+    cmdstr = " wget " + module['logo_url'] + " -O images/" + module['moddir'] + "." + logo_ext
+    args = shlex.split(cmdstr)
+    outp = subprocess.check_output(args)
+
+
+
+
+
+

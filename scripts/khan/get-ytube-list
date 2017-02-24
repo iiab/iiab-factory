@@ -1,0 +1,27 @@
+#!/bin/bash
+# script to download youtube videos from list of youtube_ids
+# writes to videos directory below current directory
+
+disable=
+case $# in
+0)
+   echo "\nPass the list name, and any non_blank to test,but not copy"
+   exit 1
+   ;;
+2)
+   disable="1"
+   ;;
+esac
+
+if [ ! -f $1 ];then
+    echo Could not find $1. Quitting.
+    exit 1
+fi
+
+# rm -f youtube-dl.log
+for f in `cat $1`; do
+   echo $f
+   if [ -z "$disable" ];then
+      youtube-dl -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]' --ignore-errors --no-overwrites -o 'videos/%(id)s.%(ext)s' --merge-output-format mp4 -- $f >>youtube-dl.log
+   fi
+done

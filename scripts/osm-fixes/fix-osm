@@ -1,0 +1,16 @@
+#!/bin/bash
+# copy patches to osm portion of IIAB
+
+if [ -d "/usr/lib/python2.7/site-packages/iiab" ]; then
+  IIAB=/usr/lib/python2.7/site-packages/iiab
+elif [ -d "/usr/local/lib/python2.7/dist-packages/iiab" ]; then
+  IIAB=/usr/local/lib/python2.7/dist-packages/iiab
+else
+  echo "IIAB not found."
+  exit 1
+fi
+
+cp etc.iiab.conf /etc/iiab.conf
+cp -f map_search.py $IIAB
+cp -f map.html $IIAB/static/
+cp -f l.control.geosearch.js $IIAB/static/lib/leaflet/geosearch/

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [ ! -f "get-cp-vars" ]; then
+  echo "get-cp-vars not found. Please cd to scripts directory."
+  exit 1
+fi
+
+source get-cp-vars
+
+mkdir -p $DEST/library/content/
+
+rsync -av $SRC/content/KreyolContent $DEST/library/content/
+rsync -av $SRC/content/ebook_library_nk_fr $DEST/library/content/
+rsync -av $SRC/content/fr_canope $DEST/library/content/
+chown xsce-admin:xsce-admin $DEST/library/content

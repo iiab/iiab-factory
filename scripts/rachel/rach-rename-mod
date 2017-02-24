@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# 1st arg is current name, 2nd is new name
+
+if [ -d $1 ]; then
+  echo renaming $1 to $2
+  mv $1 $2
+  if [ -d $2 ]; then
+    ln -s $2 $1
+  fi
+fi

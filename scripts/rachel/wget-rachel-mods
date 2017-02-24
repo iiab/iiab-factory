@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# EN
+wget http://dev.worldpossible.org/mods/ck12.zip
+wget http://dev.worldpossible.org/mods/ebooks-en.zip
+wget http://dev.worldpossible.org/mods/hesperian_health.zip
+wget http://dev.worldpossible.org/mods/iicba.zip
+wget http://dev.worldpossible.org/mods/infonet.zip
+wget http://dev.worldpossible.org/mods/math_expression.zip
+wget http://dev.worldpossible.org/mods/asst_medical.zip
+wget http://dev.worldpossible.org/mods/medline_plus.zip
+wget http://dev.worldpossible.org/mods/musictheory.zip
+wget http://dev.worldpossible.org/mods/olpc.zip
+wget http://dev.worldpossible.org/mods/PhET.zip
+wget http://dev.worldpossible.org/mods/powertyping.zip
+wget http://dev.worldpossible.org/mods/practical_action.zip
+wget http://dev.worldpossible.org/mods/scratch.zip
+wget http://dev.worldpossible.org/mods/understanding_algebra.zip
+
+# ES
+wget http://dev.worldpossible.org/mods/ebooks-es.zip
+wget http://dev.worldpossible.org/mods/ap_didact.zip
+wget http://dev.worldpossible.org/mods/bibliofilo.zip
+wget http://dev.worldpossible.org/mods/biblioteca.zip
+wget http://dev.worldpossible.org/mods/cnbguatemala.zip
+
+# Large
+# wget http://dev.worldpossible.org/mods/radiolab.zip

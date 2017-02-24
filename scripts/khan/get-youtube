@@ -1,0 +1,12 @@
+#!/bin/bash
+
+echo $1
+
+# get title in name of file
+
+#youtube-dl -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]' --ignore-errors --no-overwrites --restrict-filenames --merge-output-format mp4 $1 >>youtube-dl.log
+
+
+# just get id in file name and no fancy selection of video, just [best] mp4
+
+youtube-dl -f 'mp4' --ignore-errors --no-overwrites -o 'videos/%(id)s.%(ext)s'  -- $1 >>youtube-dl.log
