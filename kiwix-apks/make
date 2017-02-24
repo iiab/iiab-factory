@@ -1,0 +1,6 @@
+# Start this from the directory holding the json files
+# arg is name of apk to build without .json
+KIWIX_DIR=/curation/tools/kiwix-android_v2.10
+cd $KIWIX_DIR/android
+./gen-custom-android-build.py /curation/iiab-factory/kiwix-apks/$1.json --on=armeabi
+cd -
