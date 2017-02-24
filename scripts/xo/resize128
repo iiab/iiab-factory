@@ -1,0 +1,15 @@
+#!/bin/bash -x
+# script to make the shrunken OS image as big as the SD card
+
+dev=/dev/sdb
+target=127.8
+umount ${dev}2
+parted -s $dev rm 2
+parted -s $dev mkpart primary 71.3MB ${target}GB
+e2fsck -f ${dev}2
+umount ${dev}2
+resize2fs ${dev}2
+e2fsck -f ${dev}2
+parted $dev print
+umount ${dev}1
+umount ${dev}2

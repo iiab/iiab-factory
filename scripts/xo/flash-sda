@@ -1,0 +1,9 @@
+#!/bin/bash -x
+# script to flash image to SD card
+
+dev=/dev/sda
+umount ${dev}1
+umount ${dev}2
+dd if=160106_xo1_minimal.img of=${dev} bs=4M
+umount ${dev}1
+umount ${dev}2

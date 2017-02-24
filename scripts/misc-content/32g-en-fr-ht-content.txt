@@ -1,0 +1,18 @@
+wikipedia_en_simple_all_2015-10
+wikipedia_fr_all_2015-03*
+wikipedia_ht_all_2015-11*
+wiktionary_fr_all_2015-05*
+
+content/syans
+content/livkreyol
+
+OK, based on actual Haitians' careful assessment in Boston this past weekend, please also add Those That Fit going down this near-final ordered list:
+1.	http://schoolserver.xsce.org/content/KreyolContent/syans/  SIZE?
+2.	Great Books in French (ebooks-fr if obtainable from RACHEL?  SIZE?)
+3.	Other quality French materials Denny Baumann!  Or from RACHEL?
+4.	Simple English Wikipedia (~1.4G if we believe http://download.kiwix.org/portable/wikipedia/kiwix-0.9+wikipedia_en_simple_all_2015-10.zip ?)
+5.	http://schoolserver.xsce.org/content/KreyolContent/livkreyol/  SIZE?
+6.	Practical Action, even if in English (1.0G)
+7.	CK-12 Textbooks (2.1G)
+8.	Infornet-biovision (0.39G)
+9.	OLPC (0.13G)

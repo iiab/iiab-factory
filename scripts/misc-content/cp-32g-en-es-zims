@@ -1,0 +1,23 @@
+#!/bin/bash
+
+if [ ! -f "get-cp-vars" ]; then
+  echo "get-cp-vars not found. Please cd to scripts directory."
+  exit 1
+fi
+
+source get-cp-vars
+
+rm -f $DEST/library/zims/content/test.zim
+
+rsync -av $ZIMSRC/zims/content/wikipedia_en_for_schools_opt_2013* $DEST/library/zims/content/
+rsync -av $ZIMSRC/zims/content/wikipedia_es_all_2015-10* $DEST/library/zims/content/
+rsync -av $ZIMSRC/zims/content/wikispecies_en_all_2015-10* $DEST/library/zims/content/
+rsync -av $ZIMSRC/zims/content/wiktionary_es_all_2015-10* $DEST/library/zims/content/
+
+rsync -av $ZIMSRC/zims/index/wikipedia_en_for_schools_opt_2013.zim.idx $DEST/library/zims/index/
+rsync -av $ZIMSRC/zims/index/wikipedia_es_all_2015-10.zim.idx $DEST/library/zims/index/
+rsync -av $ZIMSRC/zims/index/wikispecies_en_all_2015-10.zim.idx $DEST/library/zims/index/
+rsync -av $ZIMSRC/zims/index/wiktionary_es_all_2015-10.zim.idx $DEST/library/zims/index/
+
+cp $SRC/scripts/make-kiwix-lib $DEST/library/zims
+$SRC/scripts/make-kiwix-lib $DEST/library/zims

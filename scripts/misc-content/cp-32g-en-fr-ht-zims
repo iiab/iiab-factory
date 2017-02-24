@@ -1,0 +1,39 @@
+#!/bin/bash
+
+if [ ! -f "get-cp-vars" ]; then
+  echo "get-cp-vars not found. Please cd to scripts directory."
+  exit 1
+fi
+
+source get-cp-vars
+
+rm -f $DEST/library/zims/content/test.zim
+
+#rsync -av $ZIMSRC/zims/content/wikipedia_en_for_schools_opt_2013* $DEST/library/zims/content/
+rsync -av $ZIMSRC/zims/content/wikipedia_fr_all_2015-03* $DEST/library/zims/content/
+rsync -av $ZIMSRC/zims/content/wikipedia_ht_all_2015-11* $DEST/library/zims/content/
+rsync -av $ZIMSRC/zims/content/wiktionary_fr_all_2015-05* $DEST/library/zims/content/
+rsync -av $ZIMSRC/zims/content/wikipedia_en_simple_all_2015-10* $DEST/library/zims/content/
+rsync -av $ZIMSRC/zims/content/la_chaine_de_maths_et_tiques_fr_all_2015-07* $DEST/library/zims/content/
+rsync -av $ZIMSRC/zims/content/universcience-tv_fr_all_2015-03* $DEST/library/zims/content/
+rsync -av $ZIMSRC/zims/content/tedxlausanne-2014_fr_all_2015-03* $DEST/library/zims/content/
+rsync -av $ZIMSRC/zims/content/* $DEST/library/zims/content/
+rsync -av $ZIMSRC/zims/content/* $DEST/library/zims/content/
+rsync -av $ZIMSRC/zims/content/* $DEST/library/zims/content/
+
+#rsync -av $ZIMSRC/zims/index/wikipedia_en_for_schools_opt_2013.zim.idx $DEST/library/zims/index/
+rsync -av $ZIMSRC/zims/index/wikipedia_fr_all_2015-03.zim.idx $DEST/library/zims/index/
+rsync -av $ZIMSRC/zims/index/wikipedia_ht_all_2015-11.zim.idx $DEST/library/zims/index/
+rsync -av $ZIMSRC/zims/index/wiktionary_fr_all_2015-05.zim.idx $DEST/library/zims/index/
+rsync -av $ZIMSRC/zims/index/wikipedia_en_simple_all_2015-10.zim.idx $DEST/library/zims/index/
+rsync -av $ZIMSRC/zims/index/la_chaine_de_maths_et_tiques_fr_all_2015-07.zim.idx $DEST/library/zims/index/
+rsync -av $ZIMSRC/zims/index/universcience-tv_fr_all_2015-03.zim.idx $DEST/library/zims/index/
+rsync -av $ZIMSRC/zims/index/tedxlausanne-2014_fr_all_2015-03.zim.idx $DEST/library/zims/index/
+rsync -av $ZIMSRC/zims/index/ $DEST/library/zims/index/
+rsync -av $ZIMSRC/zims/index/ $DEST/library/zims/index/
+rsync -av $ZIMSRC/zims/index/ $DEST/library/zims/index/
+rsync -av $ZIMSRC/zims/index/ $DEST/library/zims/index/
+rsync -av $ZIMSRC/zims/index/ $DEST/library/zims/index/
+
+cp $SRC/scripts/make-kiwix-lib $DEST/library/zims
+$SRC/scripts/make-kiwix-lib $DEST/library/zims

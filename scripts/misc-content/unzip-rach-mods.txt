@@ -1,0 +1,22 @@
+cd /library/rachel/www/modules
+ unzip  /media/usb0/IIAB-2/rachel/modules/ap_didact.zip
+ unzip  /media/usb0/IIAB-2/rachel/modules/asst_medical.zip
+ unzip  /media/usb0/IIAB-2/rachel/modules/bibliofilo.zip
+ unzip  /media/usb0/IIAB-2/rachel/modules/biblioteca.zip
+ unzip  /media/usb0/IIAB-2/rachel/modules/ck12.zip
+ unzip  /media/usb0/IIAB-2/rachel/modules/cnbguatemala.zip
+ unzip  /media/usb0/IIAB-2/rachel/modules/ebooks-en.zip
+ unzip  /media/usb0/IIAB-2/rachel/modules/ebooks-es.zip
+ unzip  /media/usb0/IIAB-2/rachel/modules/hesperian_health.zip
+ unzip  /media/usb0/IIAB-2/rachel/modules/iicba.zip
+ unzip  /media/usb0/IIAB-2/rachel/modules/infonet.zip
+ unzip  /media/usb0/IIAB-2/rachel/modules/math_expression.zip
+ unzip  /media/usb0/IIAB-2/rachel/modules/medline_plus.zip
+ unzip  /media/usb0/IIAB-2/rachel/modules/musictheory.zip
+ unzip  /media/usb0/IIAB-2/rachel/modules/olpc.zip
+ unzip  /media/usb0/IIAB-2/rachel/modules/PhET.zip
+ unzip  /media/usb0/IIAB-2/rachel/modules/powertyping.zip
+ unzip  /media/usb0/IIAB-2/rachel/modules/practical_action.zip
+ unzip  /media/usb0/IIAB-2/rachel/modules/radiolab.zip
+ unzip  /media/usb0/IIAB-2/rachel/modules/scratch.zip
+ unzip  /media/usb0/IIAB-2/rachel/modules/understanding_algebra.zip

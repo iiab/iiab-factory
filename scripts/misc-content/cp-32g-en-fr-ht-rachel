@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [ ! -f "get-cp-vars" ]; then
+  echo "get-cp-vars not found. Please cd to scripts directory."
+  exit 1
+fi
+
+source get-cp-vars
+
+mkdir -p $DEST/library/rachel/www/modules
+
+rsync -av $SRC/rachel/modules/olpc  $DEST/library/rachel/www/modules
+rsync -av $SRC/rachel/modules/practical_action  $DEST/library/rachel/www/modules
+#rsync -av $SRC/rachel/modules/infonet  $DEST/library/rachel/www/modules
+#rsync -av $SRC/rachel/modules/ck12  $DEST/library/rachel/www/modules

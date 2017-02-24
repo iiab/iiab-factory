@@ -1,0 +1,19 @@
+#!/bin/bash
+
+if [ ! -f "get-cp-vars" ]; then
+  echo "get-cp-vars not found. Please cd to scripts directory."
+  exit 1
+fi
+
+source get-cp-vars
+
+mkdir -p $DEST/library/knowledge/modules
+
+rsync -av $SRC/knowledge/modules/geonames_index  $DEST/library/knowledge/modules
+rsync -av $SRC/knowledge/modules/openstreetmap  $DEST/library/knowledge/modules
+
+IIAB=/usr/lib/python2.7/site-packages/iiab
+cp ../osm-fixes/etc.iiab.conf /etc/iiab.conf
+cp -f ../osm-fixes/map_search.py $IIAB
+cp -f ../osm-fixes/map.html $IIAB/static/
+cp -f ../osm-fixes/l.control.geosearch.js $IIAB/static/lib/leaflet/geosearch/

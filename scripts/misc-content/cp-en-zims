@@ -1,0 +1,27 @@
+#!/bin/bash
+
+if [ ! -f "get-cp-vars" ]; then
+  echo "get-cp-vars not found. Please cd to scripts directory."
+  exit 1
+fi
+
+source get-cp-vars
+
+rm -f $DEST/library/zims/content/test.zim
+
+rsync -av $SRC/zims/content/wikipedia_en_all_2016-05.zim* $DEST/library/zims/content/
+rsync -av $SRC/zims/content/wikispecies_en_all_2015-10* $DEST/library/zims/content/
+rsync -av $SRC/zims/content/wiktionary_en_all_2016-05* $DEST/library/zims/content/
+rsync -av $SRC/zims/content/ted_en_science_2015-02* $DEST/library/zims/content/
+rsync -av $SRC/zims/content/ted_en_technology_2015-02* $DEST/library/zims/content/
+rsync -av $SRC/zims/content/wikipedia_en_for_schools_opt_20132* $DEST/library/zims/content/
+
+rsync -av $SRC/zims/index/wikipedia_en_all_2016-05.zim.idx $DEST/library/zims/index
+rsync -av $SRC/zims/index/wikispecies_en_all_2015-10.zim.idx $DEST/library/zims/index/
+rsync -av $SRC/zims/index/wiktionary_en_all_2016-05.zim.idx $DEST/library/zims/index/
+rsync -av $SRC/zims/index/ted_en_science_2015-02.zim.idx $DEST/library/zims/index/
+rsync -av $SRC/zims/index/ted_en_technology_2015-02.zim.idx $DEST/library/zims/index/
+rsync -av $SRC/zims/index/wikipedia_en_for_schools_opt_2013.zim.idx $DEST/library/zims/index/
+
+cp $SRC/scripts/make-kiwix-lib $DEST/library/zims
+$SRC/scripts/make-kiwix-lib $DEST/library/zims

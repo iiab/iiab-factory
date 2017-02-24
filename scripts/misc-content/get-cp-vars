@@ -1,0 +1,23 @@
+# Source and Destination for content copying
+# May be overridden by passing argument to cp scripts
+
+SRC=/media/usb1/IIAB-2
+DEST=""
+ZIMSRC=$SRC
+#ZIMSRC=/library
+
+if [ ! -d $SRC ];then
+  echo "Source directory $SRC not found."
+  exit 1
+fi
+
+if [ "$1X" != "X" ]; then
+  DEST=$1
+fi
+
+if [ ! -d $DEST ];then
+  echo "Destination directory $DEST not found."
+  exit 1
+fi
+
+echo "Copying from $SRC to $DEST."

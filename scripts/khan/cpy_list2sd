@@ -1,0 +1,35 @@
+#!/bin/bash -x
+# script to test whether the youtube_id exist in our cache
+hits=0
+misses=0
+bytes=0
+disable=
+case $# in
+0)
+   echo "\nPass the list name, and any non_blank to test,but not copy"
+   exit 1
+   ;;
+2)
+   disable="1"
+   ;;
+esac
+
+if [ ! -f $1 ];then
+    echo Could not find $1. Quitting.
+    exit 1
+fi
+
+rm -f missing_en_arith_algII
+for f in `cat $1`; do
+   if [ -f /library/IIAB-2/kalite/videos/en/$f.mp4 ]; then
+      hits=$((hits+1))
+      fsize=`ls -l /library/IIAB-2/kalite/videos/en/$f.mp4|awk '{print $5}'`
+      bytes=$((bytes + fsize))
+      if [ -z "$disable" ];then
+         rsync -a /library/IIAB-2/kalite/videos/en/$f.* /mnt/dest-sd/versions/run/18/library/ka-lite/content/en
+      fi
+   else
+      misses=$((misses+1))
+      echo $f >> missing_en_arith_algII
+   fi
+done

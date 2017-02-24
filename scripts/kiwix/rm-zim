@@ -1,0 +1,10 @@
+#!/bin/bash
+
+#TARGET=/curation/XSCE-Content/IIAB-2
+TARGET=/library
+
+if [[ -d $TARGET/zims/index/$1.zim.idx ]]; then
+  rm -f $TARGET/zims/content/$1.zim*
+  rm -rf $TARGET/zims/index/$1.zim.idx
+else echo "Zim $1 not found"
+fi
