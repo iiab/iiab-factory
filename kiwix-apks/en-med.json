@@ -1,0 +1,10 @@
+{
+  "app_name": "Medical Wikipedia",
+  "package": "org.xsce.kiwix.wikipedia.medicine.en",
+  "version_name": "2016-07",
+  "version_code": "2",
+  "zim_file": "/curation/XSCE-Content/IIAB-2/zims/content/wikipedia_en_medicine_2016-07.zim",
+  "embed_zim": true,
+  "ic_launcher": "en-med.png",
+  "enforced_lang": "en"
+}
