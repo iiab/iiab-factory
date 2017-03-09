@@ -1,0 +1,34 @@
+#!/bin/bash
+# param 1 is name of module
+# optional param 2 is size needed
+
+DOCROOT=/library/www/html
+MODULES=$DOCROOT/modules
+
+mkdir -p $MODULES
+cd $MODULES
+
+if [ $#  -eq 0 ]; then
+  echo "Usage: $0 <module> <optional required size in K>"
+  exit 1
+fi
+
+if [ "$2x" != "x" ]; then
+  space_avail=`df -k $MODULES |grep /dev |gawk  '{print $4}'`
+  if [ $2 -gt $space_avail ]; then
+    echo "Space requested ($2 K) not available."
+    echo "Only $space_avail K available for /library."
+    exit 1
+  fi
+fi
+
+rsync -Pavz --size-only rsync://dev.worldpossible.org/rachelmods/$1 .
+rc=$?
+
+if [ "$rc" == "0" ]; then
+  echo 'OK'
+  exit 0
+else
+  echo "error"
+  exit 1
+fi

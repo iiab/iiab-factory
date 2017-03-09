@@ -1,0 +1,15 @@
+#!/bin/bash
+# EN rachel modules for 128G
+
+./get-rachel-mod en-ck12 .
+
+./get-rachel-mod en-ebooks .
+./get-rachel-mod en-hesperian_health .
+./get-rachel-mod en-infonet .
+./get-rachel-mod en-medline_plus .
+#./get-rachel-mod en-olpc .
+./get-rachel-mod en-practical_action .
+
+./get-rachel-mod en-powertyping .
+#./get-rachel-mod en-radiolab .
+#./get-rachel-mod en-scratch .
