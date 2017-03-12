@@ -61,7 +61,4 @@ fi
 cd /opt/schoolserver/xsce/scripts
 ./refresh-wiki-docs.sh
 
-# set the flag that causes the rootfs to be expanded
-touch /.resize-rootfs
-
 
