@@ -20,6 +20,47 @@ bash  ./fix-osm
   ./cp-menus
 
 # adjust the flags in local_vars
+# xsce_hostname: box
+# xsce_home_url: /home
+# host_ssid: "Internet in a Box"
+# hostapd_secure: False
+# hostapd_password: "MYPASSWORD"
+
+grep xsce_hostname /opt/schoolserver/xsce/vars/local_vars.yml
+if [ $? -ne 0 ]; then
+  echo "xsce_hostname: box" >> /opt/schoolserver/xsce/vars/local_vars.yml
+else
+  sed -i -e '/^xsce_hostname.*/xsce_hostname: box/' /opt/schoolserver/xsce/vars/local_vars.yml
+fi
+
+grep xsce_home_url /opt/schoolserver/xsce/vars/local_vars.yml
+if [ $? -ne 0 ]; then
+  echo "xsce_home_url: /home" >> /opt/schoolserver/xsce/vars/local_vars.yml
+else
+  sed -i -e '/^xsce_home_url.*/xsce_home_url: /home' /opt/schoolserver/xsce/vars/local_vars.yml
+fi
+
+grep host_ssid /opt/schoolserver/xsce/vars/local_vars.yml
+if [ $? -ne 0 ]; then
+  echo "host_ssid: 'Internet in a Box'" >> /opt/schoolserver/xsce/vars/local_vars.yml
+else
+  sed -i -e '/^host_ssid.*/host_ssid: "Internet in a Box"' /opt/schoolserver/xsce/vars/local_vars.yml
+fi
+
+grep hostapd_secure /opt/schoolserver/xsce/vars/local_vars.yml
+if [ $? -ne 0 ]; then
+  echo "host_secure: False" >> /opt/schoolserver/xsce/vars/local_vars.yml
+else
+  sed -i -e '/^host_secure.*/host_secure: False' /opt/schoolserver/xsce/vars/local_vars.yml
+fi
+
+grep host_password /opt/schoolserver/xsce/vars/local_vars.yml
+if [ $? -ne 0 ]; then
+  echo "host_password: MYPASSWORD" >> /opt/schoolserver/xsce/vars/local_vars.yml
+else
+  sed -i -e '/^host_password.*/host_password: MYPASSWORD' /opt/schoolserver/xsce/vars/local_vars.yml
+fi
+
 grep xsce_gateway_enabled /opt/schoolserver/xsce/vars/local_vars.yml
 if [ $? -ne 0 ]; then
   echo "xsce_gateway_enabled: false" >> /opt/schoolserver/xsce/vars/local_vars.yml
