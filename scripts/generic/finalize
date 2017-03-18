@@ -7,6 +7,10 @@ PLATFORM=`cat /etc/*release|grep ^ID=|cut -f2 -d=`
 # use environmnt variables discovered by XSCE
 source /etc/xsce/xsce.env
 
+if [ -f /etc/lightdm/lightdm.conf -a "$PLATFORM" = "raspbian"]; then
+  history -cw
+fi
+
 rm -f /root/.bash_aliases
 rm -f /root/.ssh/*
 rm -f /etc/xsce/uuid
@@ -44,6 +48,9 @@ if [ "$OS"  = "debian" ]; then
    EOF | \
    sqlite3 /opt/schoolserver/xsce_cmdsrv/xsce_cmdsrv.0.2.db
 fi
+
+# put our own aliases in place, destroying any others in the process
+cp -f bash_aliases /home/xsce-admin/.bash_aliases
 
 rm -rf /root/iiab-factory
 rm -rf /root/tools

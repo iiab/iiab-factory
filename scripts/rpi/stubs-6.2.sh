@@ -2,16 +2,25 @@
 # keep a list of all that finalizes rpi images for 6.2
 set -e
 
-# this script can be run repeatedly. As the last step, run sysprep script.
-#  sysprep resets authorized keys to authorized developers -- wipes private keys
+# Try to determin if this is raspbian
+PLATFORM=`cat /etc/*release|grep ^ID=|cut -f2 -d=`
+
+# this script can be run repeatedly. As the last step, run finalize script.
+#  finalize resets authorized keys to authorized developers -- wipes private keys
 
 cd /opt/schoolserver/xsce
 git pull origin release-6.2
 
 # get the iiab-factory
 cd 
-git clone https://github.com/iiab/iiab-factory
-cd iiab-factory/scripts/osm-fixes
+if [ ! -d iiab-factory ]; then
+  git clone https://github.com/iiab/iiab-factory
+  cd iiab-factory
+else
+  cd iiab-factory
+  git pull origin master
+fi
+cd scripts/osm-fixes
 bash  ./fix-osm
 
 # copy the menu files into doc root-- if they are not already there
@@ -30,62 +39,60 @@ grep xsce_hostname /opt/schoolserver/xsce/vars/local_vars.yml
 if [ $? -ne 0 ]; then
   echo "xsce_hostname: box" >> /opt/schoolserver/xsce/vars/local_vars.yml
 else
-  sed -i -e '/^xsce_hostname.*/xsce_hostname: box/' /opt/schoolserver/xsce/vars/local_vars.yml
+  sed -i -e 's/^xsce_hostname.*/xsce_hostname: box/' /opt/schoolserver/xsce/vars/local_vars.yml
 fi
-
+set +e
 grep xsce_home_url /opt/schoolserver/xsce/vars/local_vars.yml
 if [ $? -ne 0 ]; then
   echo "xsce_home_url: /home" >> /opt/schoolserver/xsce/vars/local_vars.yml
 else
-  sed -i -e '/^xsce_home_url.*/xsce_home_url: /home' /opt/schoolserver/xsce/vars/local_vars.yml
+  sed -i -e 's/^xsce_home_url.*/xsce_home_url: /home' /opt/schoolserver/xsce/vars/local_vars.yml
 fi
 
 grep host_ssid /opt/schoolserver/xsce/vars/local_vars.yml
 if [ $? -ne 0 ]; then
   echo "host_ssid: 'Internet in a Box'" >> /opt/schoolserver/xsce/vars/local_vars.yml
 else
-  sed -i -e '/^host_ssid.*/host_ssid: "Internet in a Box"' /opt/schoolserver/xsce/vars/local_vars.yml
+  sed -i -e 's/^host_ssid.*/host_ssid: "Internet in a Box"' /opt/schoolserver/xsce/vars/local_vars.yml
 fi
 
 grep hostapd_secure /opt/schoolserver/xsce/vars/local_vars.yml
 if [ $? -ne 0 ]; then
-  echo "host_secure: False" >> /opt/schoolserver/xsce/vars/local_vars.yml
+  echo "hostapd_secure: False" >> /opt/schoolserver/xsce/vars/local_vars.yml
 else
-  sed -i -e '/^host_secure.*/host_secure: False' /opt/schoolserver/xsce/vars/local_vars.yml
+  sed -i -e 's/^hostapd_secure.*/host_secure: False' /opt/schoolserver/xsce/vars/local_vars.yml
 fi
 
 grep host_password /opt/schoolserver/xsce/vars/local_vars.yml
 if [ $? -ne 0 ]; then
   echo "host_password: MYPASSWORD" >> /opt/schoolserver/xsce/vars/local_vars.yml
 else
-  sed -i -e '/^host_password.*/host_password: MYPASSWORD' /opt/schoolserver/xsce/vars/local_vars.yml
+  sed -i -e 's/^host_password.*/host_password: MYPASSWORD' /opt/schoolserver/xsce/vars/local_vars.yml
 fi
 
 grep xsce_gateway_enabled /opt/schoolserver/xsce/vars/local_vars.yml
 if [ $? -ne 0 ]; then
   echo "xsce_gateway_enabled: false" >> /opt/schoolserver/xsce/vars/local_vars.yml
 else
-  sed -i -e /^xsce_gateway_enabled.*/xsce_gateway_enabled: false/ /opt/schoolserver/xsce/vars/local_vars.yml
+  sed -i -e 's/^xsce_gateway_enabled.*/xsce_gateway_enabled: false/' /opt/schoolserver/xsce/vars/local_vars.yml
 fi
 
 grep services_externally_visible /opt/schoolserver/xsce/vars/local_vars.yml
 if [ $? -ne 0 ]; then
   echo "services_externally_visible: true" >> /opt/schoolserver/xsce/vars/local_vars.yml
 else
-  sed -i -e /^services_externally_visible.*/services_externally_visible: true/ /opt/schoolserver/xsce/vars/local_vars.yml
+  sed -i -e 's/^services_externally_visible.*/services_externally_visible: true/' /opt/schoolserver/xsce/vars/local_vars.yml
 fi
 
-# blast the services enabled into config-vars
-#cp ./config_vars.yml /etc/xsce/config_vars.yml
-
+set -e
 # don't let the /home directory be empty
 if [ ! -f /library/www/html/home/index.html ]; then
-   cp /library/www/html/iiab-menu/samples/content-ready-index.html /library/www/html/home/index.html
+   cp /library/www/html/iiab-menu/samples/sampler.html /library/www/html/home/index.html
 fi
 
 # fetch the openstreetmap up to level 8 --adds 200MB
-rsync -av xsce.org:/downloads/content/osm8.tar.gz /tmp
-tar xzf /tmp/osm8.tar.gz --directory /library/knowledge
+wget -c http://xsce.org:/downloads/content/osm8.tar.gz -P /tmp
+tar xzf /tmp/osm8.tar.gz --directory /library
 
 # We need to replace kalite 0.16 with 0.17 -- not every time this script is run
 # and only if image was created with 0.16
@@ -96,10 +103,24 @@ if [ -f /usr/share/kalite/docs/_build ]; then
    ./runtags kalite
 fi
 
-./runansible
+# getting content is best done interactively
+# get some zim content
+#wget http://download.kiwix.org/portable/wikipedia/kiwix-0.9+wikipedia_en_ray_charles_2015-06.zip 
+
+# change the default user for raspbian pixel from pi to xsce-admin
+if [ -f /etc/lightdm/lightdm.conf ]; then
+  sed -i -e 's/^autologin-user=pi/autologin-user=xsce-admin/' /etc/lightdm/lightdm.conf
+  # if lightdm exists this is pixel -- remove history
+else
+  if [ $PLATFORM = "raspberry" ]; then
+    # this is a headless install -- so disable pi password login
+    sed -i -e 's/^pi\:.*/pi\:\*\:17228\:0\:99999\:\:\:\:' /etc/shadow
+  fi
+fi
 
 # fetch the online documents into image for offline use
 cd /opt/schoolserver/xsce/scripts
 ./refresh-wiki-docs.sh
 
-
+cd /opt/schoolserver/xsce/
+./runansible
