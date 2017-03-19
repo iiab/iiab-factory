@@ -37,6 +37,7 @@ fi
 
 mkdir -p $IMAGE_DIR
 cd $IMAGE_DIR
+mkdir -p /mnt/sdcard
 
 umount $PARTITION
 umount /media/usb*
@@ -48,7 +49,12 @@ mount $PARTITION /mnt/sdcard
 touch /mnt/sdcard/.resize-rootfs
 
 # create id for image
-echo $1 > /mnt/sdcard/.xsce-image
+pushd /mnt/sdcard/opt/schoolserver/xsce
+HASH=`git describe |cut -d- -f3`
+YMD=$(date +%y%m%d)
+FILENAME=$(printf "%s_%s_%s.img" $YMD $1 $HASH)
+echo $FILENAME > /mnt/sdcard/.xsce-image
+popd
 
 umount /mnt/sdcard
 
