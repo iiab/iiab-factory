@@ -37,6 +37,7 @@ fi
 
 mkdir -p $IMAGE_DIR
 cd $IMAGE_DIR
+mkdir -p /mnt/sdcard
 
 umount $PARTITION
 umount /media/usb*
@@ -48,7 +49,12 @@ mount $PARTITION /mnt/sdcard
 touch /mnt/sdcard/.resize-rootfs
 
 # create id for image
-echo $1 > /mnt/sdcard/.xsce-image
+pushd /mnt/sdcard/opt/schoolserver/xsce
+HASH=`git describe |cut -d- -f3`
+YMD=$(date +%y%m%d)
+FILENAME=$(printf "%s_%s_%s.img" $YMD $1 $HASH)
+echo $FILENAME > /mnt/sdcard/.xsce-image
+popd
 
 umount /mnt/sdcard
 
@@ -66,7 +72,9 @@ prior_sectors=$(( root_start - 1 ))
 # resize root file system
 umount $PARTITION
 e2fsck -fy $PARTITION
-resize2fs -M $PARTITION |grep Nothing
+minsize=`resize2fs -P $PARTITION | cut -d" " -f7`
+block4k=$(( minsize + 100000 )) # add 400MB OS claims 5% by default
+resize2fs $PARTITION $block4k
 
 umount $PARTITION
 e2fsck -fy $PARTITION
@@ -87,6 +95,9 @@ parted -s $DEVICE unit s mkpart primary ext4 $root_start $root_end
 
 umount $PARTITION
 e2fsck -fy $PARTITION
+# set the percentage reserved by OS to 1 percent
+tune2fs -m 1 $PARTITION
+ 
 
 # recalc last sector and read that many sectors from card
 last_sector=`parted -s $DEVICE unit s print |tail -2 |head -1| awk '{print $3}'`
