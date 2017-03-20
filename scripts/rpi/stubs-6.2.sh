@@ -28,6 +28,9 @@ bash  ./fix-osm
   git pull
   ./cp-menus
 
+# blast the gui selected settings into place to standardize images
+# cp -f ./config_vars.yml /etc/xsce/
+
 # adjust the flags in local_vars
 # xsce_hostname: box
 # xsce_home_url: /home
