@@ -11,6 +11,10 @@ PLATFORM=`cat /etc/*release|grep ^ID=|cut -f2 -d=`
 cd /opt/schoolserver/xsce
 git pull origin release-6.2
 
+# make sure the base operating system is updated -- the base image may be stale
+apt-get -y update
+apt-get -y upgrade
+
 # get the iiab-factory
 cd 
 if [ ! -d iiab-factory ]; then
