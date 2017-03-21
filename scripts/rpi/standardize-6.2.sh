@@ -133,4 +133,5 @@ cd /opt/schoolserver/xsce/scripts
 ./refresh-wiki-docs.sh
 
 cd /opt/schoolserver/xsce/
-./runansible
+# perhaps no need for the next step, because "Install Configured Optins" button #   does almost the same
+#./runansible
