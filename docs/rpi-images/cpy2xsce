@@ -1,0 +1,3 @@
+#!/bin/bash -x
+# copy the README.html to the public place
+scp README.html timmoody@xsce.org:/home/timmoody/public_html/xsce/downloads/xsce-release-6.2/rpi/

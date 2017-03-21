@@ -15,6 +15,9 @@ fi
 rm -f /root/.bash_aliases
 rm -f /root/.ssh/*
 
+# place developers keys enabling remote root access
+cp -f ../keys/developers_authorized_keys /root/.ssh/authorized_keys
+
 # decided to let the expansion service handle -- works all platforms
 #grep init_resize.sh /boot/cmdline.txt
 #if [ $? -ne 0 ] &&[ "$PLATFORM" = "raspbian" ]; then
@@ -28,16 +31,6 @@ rm -f /home/xsce-admin/.bash_aliases
 # put our own aliases in place, destroying any others in the process
 cp -f bash_aliases /home/xsce-admin/.bash_aliases
 
-# Maybe this could be accomplished via deletion of xsce_cmdsrv.0.2.db
-#if [ "$OS"  = "debian" ]; then
-if [ 1 -eq 0 ]; then
-   apt-get install sqlite3
-   cat <<EOF > sqlite3 /opt/schoolserver/xsce_cmdsrv/xsce_cmdsrv.0.2.db
-
-   delete * from commands;
-   delete * from jobs;
-   EOF 
-fi
 
 # none of the FINAL images should have openvpn enabled
 systemctl disable openvpn@xscenet.service

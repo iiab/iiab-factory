@@ -55,7 +55,7 @@
   <p><b>Please note</b> that on some of the images this has already been done.</p>
   <p>Also, <b>please note</b> that after running runansible, you will not be able to ssh in as root anymore. You will have to login as xsce-admin with default password g0adm1n.</p>
   <p>xsce-admin is a sudoer, so you will still have root privileges.</p>
-  <p><b>N.B:</b> Some images may have authorized public keys for people who can offer support. Please remove them from root's .ssh directory if you do not want to permit this access. (Use "rm -f /home/xsce-admin/.ssh/authorized_keys").</p>
+  <p><b>N.B:</b> Some images may have authorized public keys for people who can offer support. Please remove them from root's .ssh directory if you do not want to permit this access. (Use "rm -f /home/root/.ssh/authorized_keys").</p>
 
   <h2>Real Time Clock</h2>
   <p>If your RPi will operate with no internet connection it needs a RTC.</p>
@@ -73,7 +73,7 @@
   <h2>Pixel Lite Image Details</h2>
   <h3>raspbian-lite-content-ready-2017-2-4.img.zip</h3>
   <p>The steps up to and including ./runansible have already been performed in this image.</p>
-  <p>An initial configuration was performed following <a href="https://github.com/XSCE/xsce/wiki/IIAB-Installation#configuring-the-server"> Configuration</a>.</p>
+  <p>An initial configuration was performed following <a href="https://github.com/XSCE/xsce/wiki/IIAB-Installation#configure-the-server"> Configuration</a>.</p>
 
   <p>Networking was set up as follows:</p>
   <ul>
@@ -95,7 +95,7 @@
   	<li>Sugarizer</li>
   	<li>Owncloud</li>
   </ul>
-  <p>You are now ready for <a href="https://github.com/XSCE/xsce/wiki/IIAB-Installation#adding-content">Adding Content</a>.</p>
+  <p>You are now ready for <a href="https://github.com/XSCE/xsce/wiki/IIAB-Installation#add-content">Adding Content</a>.</p>
   <p>You can also access the Admin Console to select additional features for your server.</p>
 
   <h3>raspbian-lite-post-runansible-2017-2-1.img.zip</h3>
