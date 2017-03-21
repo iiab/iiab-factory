@@ -42,6 +42,7 @@ bash  ./fix-osm
 # hostapd_secure: False
 # hostapd_password: "MYPASSWORD"
 
+set +e
 grep xsce_hostname /opt/schoolserver/xsce/vars/local_vars.yml
 if [ $? -ne 0 ]; then
   echo "xsce_hostname: box" >> /opt/schoolserver/xsce/vars/local_vars.yml
