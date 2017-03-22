@@ -8,12 +8,12 @@ PLATFORM=`cat /etc/*release|grep ^ID=|cut -f2 -d=`
 # this script can be run repeatedly. As the last step, run finalize script.
 #  finalize resets authorized keys to authorized developers -- wipes private keys
 
-cd /opt/schoolserver/xsce
-git pull origin release-6.2
-
 # make sure the base operating system is updated -- the base image may be stale
 apt-get -y update
 apt-get -y dist-upgrade
+
+cd /opt/schoolserver/xsce
+git pull origin release-6.2
 
 # get the iiab-factory
 cd 
@@ -24,16 +24,18 @@ else
   cd iiab-factory
   git pull origin master
 fi
-cd scripts/osm-fixes
+pushd ./scripts/osm-fixes
 bash  ./fix-osm
+popd
 
 # copy the menu files into doc root-- if they are not already there
-  cd /opt/iiab-menu
+  pushd /opt/iiab-menu
   git pull
   ./cp-menus
+  popd
 
 # blast the gui selected settings into place to standardize images
-# cp -f ./config_vars.yml /etc/xsce/
+# cp -f scripts/rpi/config_vars.yml /etc/xsce/
 
 # adjust the flags in local_vars
 # xsce_hostname: box
@@ -133,5 +135,5 @@ cd /opt/schoolserver/xsce/scripts
 ./refresh-wiki-docs.sh
 
 cd /opt/schoolserver/xsce/
-# perhaps no need for the next step, because "Install Configured Optins" button #   does almost the same
+# perhaps no need for the next step, because "Install Configured Options" button #   does almost the same
 #./runansible

@@ -6,7 +6,7 @@ if [ -d "/usr/lib/python2.7/site-packages/iiab" ]; then
 elif [ -d "/usr/local/lib/python2.7/dist-packages/iiab" ]; then
   IIAB=/usr/local/lib/python2.7/dist-packages/iiab
 else
-  echo "IIAB not found."
+  echo "IIAB not found. Has runansible completed successfully?"
   exit 1
 fi
 
