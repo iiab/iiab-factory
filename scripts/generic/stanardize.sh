@@ -122,9 +122,12 @@ if [ -f /etc/lightdm/lightdm.conf ]; then
 else
   if [ $PLATFORM = "raspberry" ]; then
     # this is a headless install -- so disable pi password login
-    sed -i -e 's/^pi\:.*/pi\:\*\:17228\:0\:99999\:\:\:\:' /etc/shadow
+    sed -i -e 's/^pi\:.*/pi\:\*\:17228\:0\:99999\:\:\:\:/' /etc/shadow
   fi
 fi
+
+# prevent root password
+sed -i -e 's/^root\:.*/root\:\*\:17228\:0\:99999\:\:\:\:/' /etc/shadow
 
 # fetch the online documents into image for offline use
 cd /opt/schoolserver/xsce/scripts
