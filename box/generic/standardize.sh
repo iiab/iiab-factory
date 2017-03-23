@@ -20,7 +20,7 @@ else
   cd /root/iiab-factory
   git pull origin master
 fi
-pushd ./scripts/osm-fixes
+pushd ./box/osm-fixes
 bash  ./fix-osm
 popd
 
@@ -31,7 +31,7 @@ popd
   popd
 
 # blast the gui selected settings into place to standardize images
-# cp -f scripts/generic/config_vars.yml /etc/xsce/
+# cp -f box/generic/config_vars.yml /etc/xsce/
 
 # adjust the flags in local_vars
 # xsce_hostname: box
