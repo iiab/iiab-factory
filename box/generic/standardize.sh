@@ -20,7 +20,7 @@ else
   cd /root/iiab-factory
   git pull origin master
 fi
-pushd ./box/osm-fixes
+pushd ./content/osm-fixes
 bash  ./fix-osm
 popd
 
