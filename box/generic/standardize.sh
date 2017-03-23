@@ -133,6 +133,9 @@ sed -i -e 's/^root\:.*/root\:\*\:17228\:0\:99999\:\:\:\:/' /etc/shadow
 cd /opt/schoolserver/xsce/scripts
 ./refresh-wiki-docs.sh
 
+# the kiwix index is no longer initialized by cp-menu
+/usr/bin/xsce-make-kiwix-lib
+
 cd /opt/schoolserver/xsce/
 # perhaps no need for the next step, because "Install Configured Options" button #   does almost the same
 #./runansible
