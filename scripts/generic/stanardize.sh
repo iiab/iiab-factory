@@ -1,5 +1,5 @@
 #!/bin/bash -x
-# keep a list of all that finalizes rpi images for 6.2
+# keep a list of all that finalizes images
 set -e
 
 # Try to determin if this is raspbian
@@ -8,20 +8,16 @@ PLATFORM=`cat /etc/*release|grep ^ID=|cut -f2 -d=`
 # this script can be run repeatedly. As the last step, run finalize script.
 #  finalize resets authorized keys to authorized developers -- wipes private keys
 
-# make sure the base operating system is updated -- the base image may be stale
-apt-get -y update
-apt-get -y dist-upgrade
-
 cd /opt/schoolserver/xsce
 git pull origin release-6.2
 
 # get the iiab-factory
-cd 
+cd /root
 if [ ! -d iiab-factory ]; then
   git clone https://github.com/iiab/iiab-factory
   cd iiab-factory
 else
-  cd iiab-factory
+  cd /root/iiab-factory
   git pull origin master
 fi
 pushd ./scripts/osm-fixes
@@ -35,7 +31,7 @@ popd
   popd
 
 # blast the gui selected settings into place to standardize images
-# cp -f scripts/rpi/config_vars.yml /etc/xsce/
+# cp -f scripts/generic/config_vars.yml /etc/xsce/
 
 # adjust the flags in local_vars
 # xsce_hostname: box
@@ -121,8 +117,8 @@ fi
 
 # change the default user for raspbian pixel from pi to xsce-admin
 if [ -f /etc/lightdm/lightdm.conf ]; then
-  sed -i -e 's/^autologin-user=pi/autologin-user=xsce-admin/' /etc/lightdm/lightdm.conf
-  # if lightdm exists this is pixel -- remove history
+#  sed -i -e 's/^autologin-user=pi/autologin-user=xsce-admin/' /etc/lightdm/lightdm.conf
+   sleep 1
 else
   if [ $PLATFORM = "raspberry" ]; then
     # this is a headless install -- so disable pi password login
@@ -137,3 +133,10 @@ cd /opt/schoolserver/xsce/scripts
 cd /opt/schoolserver/xsce/
 # perhaps no need for the next step, because "Install Configured Options" button #   does almost the same
 #./runansible
+
+# make sure the base operating system is updated -- the base image may be stale
+apt-get -y update
+apt-get -y dist-upgrade
+apt-get -y clean
+apt-get autoremove
+reboot
