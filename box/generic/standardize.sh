@@ -31,7 +31,7 @@ popd
   popd
 
 # blast the gui selected settings into place to standardize images
-# cp -f box/generic/config_vars.yml /etc/xsce/
+# cp -f /root/tools/config_vars.yml /etc/xsce/
 
 # adjust the flags in local_vars
 # xsce_hostname: box
