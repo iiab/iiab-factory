@@ -11,8 +11,7 @@ import sys, yaml, os.path, argparse
 local_vars = {}
 merged_vars = {}
 
-var_path = 'devel/'
-# var_path = '/opt/schoolserver/xsce/vars/'
+var_path = '/opt/schoolserver/xsce/vars/'
 
 parser = argparse.ArgumentParser(description="Merge a file with local_vars")
 parser.add_argument("file_path", help="the full path to the file you want to merge")
