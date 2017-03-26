@@ -20,7 +20,7 @@ rm -f /root/.ssh/*
 mkdir -p /home/xsce-admin/.ssh
 cp -f ../keys/developers_authorized_keys /home/xsce-admin/.ssh/authorized_keys
 chown xsce-admin:xsce-admin /home/xsce-admin/.ssh/authorized_keys
-chmod 640 /home/xsce-admin/.ssh/zuthorized_keys
+chmod 640 /home/xsce-admin/.ssh/authorized_keys
 
 # decided to let the expansion service handle -- works all platforms
 #grep init_resize.sh /boot/cmdline.txt
