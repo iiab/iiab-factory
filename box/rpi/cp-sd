@@ -16,13 +16,16 @@ if [ $# -eq 0 ]; then
    exit 1
 fi
 
+# get the current settings
+source ../../factory-settings
+
 if [ -z $2 ]; then
    PARTITION=/dev/sdg2
 else
    PARTITION=$2
 fi
 
-# create a standard filename yymmdd-$1-<git hash>.img
+# create a standard filename <product>-<version>-yymmdd-$1-<git hash>.img
 # fetch the git hash
 mount $PARTITION /mnt
 pushd /mnt/opt/schoolserver/xsce
@@ -31,7 +34,7 @@ YMD=$(date +%y%m%d)
 popd
 umount $PARTITION
  
-FILENAME=$(printf "%s_%s_%s.img" $YMD $1 $HASH)
+FILENAME=$(printf "%s-%s-%s-%s-%s.img" $PRODUCT $VERSION $YMD $1 $HASH)
  
 if [ ! -b $PARTITION ];then
    echo "Device $PARTITION not found".

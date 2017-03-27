@@ -16,6 +16,9 @@ if [ $# -eq 0 ]; then
    exit 1
 fi
 
+# get the current settings
+source ../../factory-settings
+
 FILENAME=$1.img
 
 if [ -z $2 ]; then
