@@ -144,5 +144,5 @@ cd /opt/schoolserver/xsce/
 apt-get -y update
 apt-get -y dist-upgrade
 apt-get -y clean
-apt-get autoremove
+apt-get -y autoremove
 reboot
