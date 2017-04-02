@@ -96,12 +96,6 @@ if [ ! -f /library/www/html/home/index.html ]; then
    cp /library/www/html/iiab-menu/samples/sampler.html /library/www/html/home/index.html
 fi
 
-# fetch the openstreetmap up to level 8 --adds 200MB
-wget -c http://xsce.org:/downloads/content/osm8.tar.gz -P /tmp
-if [ ! -d /library/knowledge/modules/openstreetmap ];then
-  tar xzf /tmp/osm8.tar.gz --directory /library
-fi	
-
 # We need to replace kalite 0.16 with 0.17 -- not every time this script is run
 # and only if image was created with 0.16
 if [ -e /usr/share/kalite/docs/_build ]; then
