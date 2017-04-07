@@ -69,5 +69,4 @@ dd if=$DEVICE of=$FILENAME bs=4K count=$last
 echo "last sector: $last"
 
 zip $FILENAME.zip $FILENAME
-md5sum $FILENAME > $FILENAME.md5.txt
 md5sum $FILENAME.zip > $FILENAME.zip.md5.txt
