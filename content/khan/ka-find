@@ -1,0 +1,28 @@
+#!/usr/bin/python
+import sys, yaml, os.path, argparse, sqlite3
+
+kalite_dbase_dir = "/library/ka-lite/database/"
+
+parser = argparse.ArgumentParser(description="Find topic path for a video id")
+parser.add_argument("id", help="youtube video id to search (no .mp4)")
+parser.add_argument("-l", "--lang", type=str, default='en', required=False, help="language to select (default en)")
+
+args = parser.parse_args()
+
+lang = args.lang.lower()
+sqlite_file = kalite_dbase_dir + "/content_khan_" + lang + ".sqlite"
+
+if not os.path.isfile(sqlite_file):
+    print "Database " + sqlite_file + " not found."
+    sys.exit(1)
+
+conn = sqlite3.connect(sqlite_file)
+c = conn.cursor()
+c.execute("select path from item where kind = 'Video' and youtube_id = ?", (args.id,))
+all_rows = c.fetchall()
+for i in all_rows:
+    print i[0]
+
+conn.close()
+
+sys.exit(0)

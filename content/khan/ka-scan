@@ -1,0 +1,51 @@
+#!/usr/bin/python
+# Scan KA Lite content for mismatches between databases and actual files
+
+import sys, yaml, os.path, argparse, sqlite3
+
+kalite_content_dir = "/library/ka-lite/content/"
+kalite_dbase_dir = "/library/ka-lite/database/"
+rename_dir = "/library/ka-videos/obsolete/"
+
+os.system("mkdir -p " + rename_dir)
+
+video_ids = []
+
+video_files = os.listdir(kalite_content_dir)
+
+db_files = os.listdir(kalite_dbase_dir)
+
+for db in db_files:
+    if "content_khan_" in db:
+        sqlite_file = kalite_dbase_dir + db
+        conn = sqlite3.connect(sqlite_file)
+        c = conn.cursor()
+        c.execute('SELECT youtube_id FROM item where kind = "Video"')
+        all_rows = c.fetchall()
+        for v in all_rows:
+            video_ids.append(str(v[0]))
+        conn.close()
+found = 0
+not_found = 0
+for f in video_files:
+    if ".mp4" in f:
+        v = f.split(".mp4")[0]
+        if v not in video_ids:
+            print str(v) + " not found"
+            not_found += 1
+            src = kalite_content_dir + f
+            dst = rename_dir + f
+            #print src, dst
+            os.rename(src, dst)
+            src = kalite_content_dir + v + ".png"
+            dst = rename_dir + v + ".png"
+            #print src, dst
+            os.rename(src, dst)
+
+        else:
+            found += 1
+
+print str(found) + " found."
+print str(not_found) + " not found."
+
+sys.exit(0)

@@ -1,0 +1,96 @@
+#!/usr/bin/python
+# List youtube video ids by topic or list sub topics
+
+import sys, yaml, os, stat, shutil, argparse, sqlite3
+
+dest_dir = "/library/ka-lite/content"
+kalite_dbase_dir = "/library/ka-lite/database"
+src_dir = None
+force = False
+
+parser = argparse.ArgumentParser(description="List videos or sub-topics for a Khan Academy Topic optionally copying or moving them")
+parser.add_argument("topic_path", help="the full path to the topic you want to list starting with khan/")
+parser.add_argument("-l", "--lang", type=str, default='en', required=False, help="language to select (default en)")
+parser.add_argument("-p", "--path", help="also print logical path to each video when listing", action="store_true")
+parser.add_argument("-s", "--sub", help="list sub topics instead of videos", action="store_true")
+
+parser.add_argument("-c", "--copy", metavar="SRC_DIR", help="copy video list from this source directory (use '.' for cwd). only copy if target does not exist, but see --force.")
+parser.add_argument("--dest", help="override target directory for copy or move (default " + dest_dir + ").")
+parser.add_argument("-f", "--force", help="copy even if target exists", action="store_true")
+parser.add_argument("-m", "--move", metavar="SRC_DIR", help="move video list from this source directory (use '.' for cwd). only move if target does not exist.")
+
+
+
+args = parser.parse_args()
+
+lang = args.lang.lower()
+sqlite_file = kalite_dbase_dir + "/content_khan_" + lang + ".sqlite"
+topic = args.topic_path
+
+if not os.path.isfile(sqlite_file):
+    print "Database " + sqlite_file + " not found."
+    sys.exit(1)
+
+if args.copy and args.move:
+    print "Can not both --copy and --move."
+    sys.exit(1)
+
+force = args.force
+if args.force and args.move:
+    force = False
+    print "Ignoring --force for --move."
+
+src_dir = args.copy
+if args.copy:
+    src_dir = args.copy
+
+if args.move:
+    src_dir = args.move
+
+if src_dir and not os.path.isdir(src_dir):
+    print "Source directory " + src_dir + " not found."
+    sys.exit(1)
+
+if args.dest:
+    dest_dir = args.dest
+
+conn = sqlite3.connect(sqlite_file)
+c = conn.cursor()
+
+if args.sub:
+    c.execute("select path from item where kind = 'Topic' and parent_id = (select pk from item where path = ?) order by sort_order", (topic,))
+    all_rows = c.fetchall()
+    for i in all_rows:
+        print i[0]
+
+else:
+    topic = topic + '%'
+    c.execute('SELECT youtube_id, path FROM item WHERE kind = "Video" and youtube_id is not null and path like ?', (topic,))
+    all_rows = c.fetchall()
+    for i in all_rows:
+        if args.copy or args.move:
+            v = i[0] + ".mp4"
+            p = i[0] + ".png"
+            #print v,p
+            for f in [p,v]:
+                src = src_dir + "/" + f
+                if not os.path.isfile(dest_dir + "/" + f) or force:
+                    if os.path.isfile(src):
+                        if args.copy:
+                            shutil.copy2(src, dest_dir)
+                            print "copying " + src + " to " + dest_dir
+                        else:
+                            shutil.move(src, dest_dir)
+                            print "moving " + src + " to " + dest_dir
+                    else:
+                        print "source " + src + " not found - skipping"
+                else:
+                    print f + " destination already exists - skipping"
+        else:
+            if args.path:
+                print i[0], i[1]
+            else:
+                print i[0]
+
+conn.close()
+sys.exit(0)
