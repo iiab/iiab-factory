@@ -29,7 +29,7 @@ fi
 # fetch the git hash
 mount $PARTITION /mnt
 pushd /mnt/opt/schoolserver/xsce
-HASH=`git describe |cut -d- -f3`
+HASH=`git log --pretty=format:'g%h' -n 1`
 YMD=$(date +%y%m%d)
 popd
 umount $PARTITION

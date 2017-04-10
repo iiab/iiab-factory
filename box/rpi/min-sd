@@ -53,7 +53,7 @@ touch /mnt/sdcard/.resize-rootfs
 
 # create id for image
 pushd /mnt/sdcard/opt/schoolserver/xsce
-HASH=`git describe |cut -d- -f3`
+HASH=`git log --pretty=format:'g%h' -n 1`
 YMD=$(date +%y%m%d)
 FILENAME=$(printf "%s-%s-%s-%s-%s.img" $PRODUCT $VERSION $YMD $1 $HASH)
 echo $FILENAME > /mnt/sdcard/.xsce-image
