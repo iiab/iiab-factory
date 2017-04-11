@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if [ -z "$ZIM_SRC" ]; then
+  echo 'export ZIM_SRC=<directory containing zim/content to copy'
+  exit 1
+fi
+
+CP_ZIM=../../kiwix/cp-zim
+
+$CP_ZIM wikipedia_es_all
+$CP_ZIM wiktionary_es_all
+$CP_ZIM wikibooks_es_all
+$CP_ZIM wikisource_es_all
+$CP_ZIM wikiversity_es_all
+$CP_ZIM wikivoyage_es_all
+$CP_ZIM wikipedia_en_for_schools_opt
