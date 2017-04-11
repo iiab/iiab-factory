@@ -1,9 +1,6 @@
 #!/bin/bash
 
-if [ -z "$ZIM_SRC" ]; then
-  echo 'export ZIM_SRC=<directory containing zim/content to copy'
-  exit 1
-fi
+source ../find-source
 
 CP_ZIM=../../kiwix/cp-zim
 
