@@ -1,0 +1,26 @@
+#!/bin/bash
+if [ $# -ne 1 ]; then
+	echo "usage: $0 <module name (the name of the directory in modules)> (MOD_SRC is in environment)"
+	exit 1
+fi
+
+if [ -z "$MOD_SRC" ]; then
+  echo 'export MOD_SRC=<full path to modules directory from which to copy'
+  exit 1
+fi
+
+#SRC from environment
+SRC=$MOD_SRC
+MODULE=$1
+
+if [ ! -d $MOD_SRC/$MODULE ]; then
+  echo $MOD_SRC/$MODULE ' not found.'
+  exit 1
+fi
+
+if [ "${MODULE: -1}" == "/" ]; then
+  echo "do not include the final / on the module name"
+  exit 1
+fi
+
+rsync -av $MOD_SRC/$MODULE /library/www/html/modules
