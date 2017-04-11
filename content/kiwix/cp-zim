@@ -1,0 +1,17 @@
+#!/bin/bash
+if [ $# -ne 1 ]; then
+	echo "usage: $0 <zim name (without _YYYY-MM and any extension)> (ZIM_SRC is in environment)"
+	exit 1
+fi
+
+if [ -z "$ZIM_SRC" ]; then
+  echo 'export ZIM_SRC=<directory containing zim/content to copy'
+  exit 1
+fi
+
+#SRC from environment
+SRC=$ZIM_SRC
+ZIM=$1
+
+rsync -av $ZIM_SRC/zims/content/$ZIM*.zim* /library/zims/content
+rsync -av $ZIM_SRC/zims/index/$ZIM*.zim.idx /library/zims/index
