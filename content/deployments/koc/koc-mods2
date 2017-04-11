@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if [ -z "$MOD_SRC" ]; then
+  echo 'export MOD_SRC=<full path to modules directory from which to copy'
+  exit 1
+fi
+
+CP_MOD=../../modules/cp-mod
+
+$CP_MOD es-GCF2015
+$CP_MOD es-guatemala
+$CP_MOD es-wikihow
