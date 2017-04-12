@@ -1,17 +1,103 @@
-#!/bin/bash
-if [ $# -ne 1 ]; then
-	echo "usage: $0 <zim name (without _YYYY-MM and any extension)> (ZIM_SRC is in environment)"
-	exit 1
-fi
+#!/usr/bin/python
 
-if [ -z "$ZIM_SRC" ]; then
-  echo 'export ZIM_SRC=<directory containing zim/content to copy'
-  exit 1
-fi
+import sys, yaml, os, stat, shutil, argparse
+dest_dir = "/library/zims/"
+move_dir = "/library/working/zims/"
 
-#SRC from environment
-SRC=$ZIM_SRC
-ZIM=$1
+parser = argparse.ArgumentParser(description="Copy zim files to library from source")
+parser.add_argument("zim_name", help="generic name of zim file (without _YYYY-MM and any extension)")
+parser.add_argument("--src", help="source directory like /media/usb0/library/ (can also place in environment as ZIM_SRC).")
+parser.add_argument("-f", "--force", help="copy even if target exists", action="store_true")
+parser.add_argument("-m", "--move", help="move old files from /library/zims to /library/working/zims", action="store_true")
+parser.add_argument("-d", "--delete", help="delete old files from /library/zims", action="store_true")
 
-rsync -av $ZIM_SRC/zims/content/$ZIM*.zim* /library/zims/content
-rsync -av $ZIM_SRC/zims/index/$ZIM*.zim.idx /library/zims/index
+args = parser.parse_args()
+
+zim_name = args.zim_name
+
+if args.src:
+    src_dir = args.src
+else:
+    try:
+       os.environ["ZIM_SRC"]
+    except KeyError:
+       print "Please supply a source directory."
+       print "export ZIM_SRC=<directory containing zim/content to copy or pass as argument"
+       sys.exit(1)
+
+    src_dir = os.environ["ZIM_SRC"]
+
+if args.delete and args.move:
+    print "Can not both --delete and --move."
+    sys.exit(1)
+
+# Find latest zim in source directory
+
+src_zims = os.listdir(src_dir + "/zims/content")
+latest_src = None
+
+for f in src_zims:
+    zimpos = f.find(".zim")
+    if zimpos != -1:
+        ulpos = f.rfind("_")
+        if f[:ulpos] == zim_name:
+            z = f.split('.')[0]
+            if z > latest_src:
+                latest_src = z
+if latest_src == None:
+    print "Source not found for '" + zim_name + "'."
+    print "Please check for typos."
+    sys.exit(1)
+
+# Check for same or later zim in destination directory; move duplicates
+
+dest_zims = os.listdir(dest_dir + "content")
+dest_zim_list = []
+
+for f in dest_zims:
+    zimpos = f.find(".zim")
+    if zimpos != -1:
+        ulpos = f.rfind("_")
+        if f[:ulpos] == zim_name:
+            z = f.split('.')[0]
+            if z not in dest_zim_list:
+                dest_zim_list.append(z)
+
+# Move old zims out of dest or delete
+dest_zim_list.sort()
+for zim in dest_zim_list:
+    if zim < latest_src:
+        for f in dest_zims:
+            if zim in f:
+                src = dest_dir + "content/" + f
+                dst = move_dir +f
+                try:
+                    if args.move:
+                        print "moving " + src, dst
+                        os.rename(src, dst)
+                    if args.delete:
+                        print "deleting " + src
+                        os.remove(src)
+                except:
+                    pass
+        src = dest_dir + "index/" + zim + ".zim.idx"
+        dst = move_dir + zim + ".zim.idx"
+        try:
+            if args.move:
+                print "moving " + src, dst
+                os.rename(src, dst)
+            if args.delete:
+                print "deleting " + src
+                os.shutil.rmtree(src)
+        except:
+            pass
+
+# now copy the new one if not already there or force is true
+
+if latest_src not in dest_zim_list or args.force:
+    cmd = "rsync -av " + src_dir + "/zims/content/" + latest_src + ".zim* " + dest_dir + "content"
+    print cmd
+    os.system(cmd)
+    cmd = "rsync -av " + src_dir + "/zims/index/" + latest_src + ".zim.idx "  + dest_dir + "index"
+    print cmd
+    os.system(cmd)
