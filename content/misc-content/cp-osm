@@ -1,0 +1,39 @@
+#!/bin/bash
+
+if [ $# -ne 1 ]; then
+	echo "usage: $0 <number of levels to copy> (OSM_SRC is in environment)"
+	exit 1
+fi
+
+if [ "$1" -eq "$1" ] 2>/dev/null; then
+  echo number
+else
+  echo "number of levels must be a number"
+  exit 1
+fi
+
+if [ "$1" -lt 1 ] || [ "$1" -gt 15 ] ; then
+  echo "number of levels must be from 1 to 15"
+  exit 1
+fi
+
+if [ -z "$OSM_SRC" ]; then
+  echo 'export OSM_SRC=<full path to osm directory from which to copy'
+  exit 1
+fi
+
+
+mkdir -p  /library/knowledge/modules/openstreetmap/mod_tile64/default
+
+rsync -av $OSM_SRC/knowledge/modules/geonames_index  /library/knowledge/modules
+
+rsync -av  $OSM_SRC/knowledge/modules/openstreetmap/DIGEST /library/knowledge/modules/openstreetmap
+rsync -av $OSM_SRC/knowledge/modules/openstreetmap/INFO.json /library/knowledge/modules/openstreetmap
+rsync -av $OSM_SRC/knowledge/modules/openstreetmap/MANIFEST /library/knowledge/modules/openstreetmap
+
+for (( c=0; c<=$1; c++ ))
+do
+  rsync -av $OSM_SRC/knowledge/modules/openstreetmap/mod_tile64/default/$c /library/knowledge/modules/openstreetmap/mod_tile64/default
+done
+
+chown -R root:root /library/knowledge
