@@ -6,6 +6,7 @@ do
   ZIM_SRC=$d
   MOD_SRC=$d/www/html/modules
   KA_SRC=$d/ka-lite/content
+  OSM_SRC=$d
   #echo $ZIM_SRC
   #echo $MOD_SRC
   #echo $KA_SRC
@@ -21,3 +22,4 @@ fi
 export ZIM_SRC=$ZIM_SRC
 export MOD_SRC=$MOD_SRC
 export KA_SRC=$KA_SRC
+export OSM_SRC=$OSM_SRC
