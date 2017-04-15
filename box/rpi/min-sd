@@ -57,6 +57,8 @@ HASH=`git log --pretty=format:'g%h' -n 1`
 YMD=$(date +%y%m%d)
 FILENAME=$(printf "%s-%s-%s-%s-%s.img" $PRODUCT $VERSION $YMD $1 $HASH)
 echo $FILENAME > /mnt/sdcard/.xsce-image
+echo $FILENAME > ../../last-filename
+echo $HASH > ../../last-hash
 popd
 
 umount /mnt/sdcard
