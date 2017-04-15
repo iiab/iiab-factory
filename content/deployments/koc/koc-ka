@@ -16,3 +16,7 @@ $CP_KA -l es -c $KA_SRC khan/math/trigonometry/
 $CP_KA -l es -c $KA_SRC khan/science/
 $CP_KA -l es -c $KA_SRC khan/economics-finance-domain/
 $CP_KA -l es -c $KA_SRC khan/computing/
+
+# automate directory scan
+export KALITE_HOME=/library/ka-lite
+kalite manage videoscan --language=es
