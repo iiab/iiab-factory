@@ -22,6 +22,14 @@ fi
 if [ "$OS" = "Fedora" ]; then
   rm -rf /etc/NetworkManager/system-connections/*
 fi
+
+# record the git hash so clonezilla can pick it up -- cz does not have git
+pushd /opt/schoolserver/xsce
+HASH=`git log --pretty=format:'g%h' -n 1`
+YMD=$(date +%y%m%d)
+echo $HASH > /etc/xsce/image-hash
+echo $YMD > /etc/xsce/image-date
+popd
 rm -f /etc/ssh/ssh_host_rsa_key{,.pub}
 rm -f /etc/sysconfig/network
 rm -rf /home/.devkey.html
