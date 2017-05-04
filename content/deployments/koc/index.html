@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script>
+			// Put the list of menu items here
+			var menuItems = [
+      "es-wikipedia_es_all_mx",
+      "es-wiktionary_es_all",
+      "es-wikibooks_es_all",
+      "es-wikisource_es_all",
+      "es-wikiversity_es_all",
+      "es-wikivoyage_es_all",
+      "es-kalite",
+      "en-wikipedia_en_for_schools",
+      "en-osm",
+      "es-local_content",
+      "es-ap_didact",
+      "es-bibliofilo",
+      "es-biblioteca",
+      "es-ebooks",
+      "es-educalab",
+      // "es-GCF2015",
+      // "es-guatemala",
+      "es-hesperian_health",
+      "es-medline_plus",
+      "es-soluciones",
+      "es-blockly_games",
+      "es-vedoque",
+      // "es-wikihow",
+      "en-phet_html"
+			];
+var debug = true;
+
+		</script>
+		<title>Internet in a Box - HOME</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" href="/common/css/bootstrap.min.css"/>
+		<link rel="stylesheet" href="/common/css/font-awesome.min.css">
+		<link rel="stylesheet" href="/common/css/star-rating.min.css" media="all" type="text/css"/>
+		<link rel="stylesheet" type="text/css" href="/common/css/xo-common.css">
+		<link rel="stylesheet" type="text/css" href="/iiab-menu/menu-files/css/iiab-menu.css">
+
+		<script src="/common/js/jquery.min.js"></script>
+		<script src="/common/js/bootstrap.min.js"></script>
+		<script src="/common/js/star-rating.min.js" type="text/javascript"></script>
+
+	</head>
+
+	<body>
+		<div id="header">
+			<div style="padding-left: 80%; padding-top: 30px;">
+				<img id="btn-feedback" src="/iiab-menu/menu-files/images/button_feedback.png">
+			</div>
+		</div>
+
+		<div class="haut cf">
+			<ul>
+				<li>Inserte une memoria USB o disco duro con el contenido en la carpeta llamada 'usb' para compartir<a href="http://box.lan/usb">Contenido En Vivo</a></li>
+<!--				<li><a href="http://box.lan">Internet in a Box School Server</a></li>
+				<li><a href="/iiab-menu/menu-files/html/credits.html">Credits</a></li>-->
+			</ul>
+		</div>
+
+		<div id="content"></div>
+
+		<div class="haut cf" style="margin-bottom: 80px;">
+			<ul>
+				<li><a href="/iiab-menu/menu-files/html/credits.html">Credits</a></li>
+			</ul>
+			<div id="footer_right">Internet in a Box</div>
+		</div>
+
+		<!-- Feedback Dialog Modal -->
+		<div class="modal fade" id="feedbackModal" tabindex="-1" role="dialog" aria-labelledby="feedbackModalLabel">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h2 class="modal-title" style="text-align: center;" id="feedbackModalLabel">We Welcome Your Feedback!</h2>
+					</div>
+					<div class="modal-body">
+						<form id="feedbackForm">
+
+							<div class="form-group">
+								<label for="feedback-name" class="control-label">Your Name:</label>
+								<input name="name" type="text" class="form-control" id="feedback-name">
+							</div>
+
+							<div class="form-group">
+								<label for="feedback-email" class="control-label">Your Email Address:</label>
+								<input name="name" type="text" class="form-control" id="feedback-email">
+							</div>
+
+							<div class="form-group">
+								<label for="about_you-text" class="control-label">A little bit about You:</label>
+								<textarea name="about_you" class="form-control" id="about_you-text"></textarea>
+							</div>
+
+							<div class="form-group">
+								<label for="feedback-rating" class="control-label">Please Rate this App:</label>
+								<input name="rating" id="feedback-rating" value="0" type="number" class="rating form-control" min=0 max=5 step=0.5 data-size="xs" >
+							</div>
+
+							<div class="form-group">
+								<label for="comments-text" class="control-label">Your Comments:</label>
+								<textarea name="comments" class="form-control" id="comments-text" rows="8" placeholder="How did this benefit you or your community?  What can we improve?"></textarea>
+							</div>
+
+						</form>
+
+						<h2 class="modal-title" style="text-align: center;" id="feedbackMessageModal"></h2>
+
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+						<button id="btn-submitFeedback" type="button" class="btn btn-primary">Share your Feedback</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div> <!-- End Feedback Dialog Modal -->
+	<div id="feedbackThanksModal" class="modal fade">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<!-- <div id="feedbackThanksMessageModal" class="modal-body"></div> -->
+			</div>
+		</div>
+	</div>
+	<script src="/iiab-menu/menu-files/js/iiab-menu.js"></script>
+
+</body>
+</html>
