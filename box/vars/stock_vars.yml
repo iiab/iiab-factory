@@ -40,3 +40,15 @@ monit_install: True
 xovis_install: False
 teamviewer_install: False
 activity_server_enabled: True
+
+# auto enable
+kalite_enabled: True
+kalite_cron_enabled: True
+vnstat_enabled: True
+iiab_enabled: True
+awstats_enabled: True
+kiwix_serve_enabled: True
+moodle_enabled: True
+munin_enabled: True
+owncloud_enabled: True
+sugarizer_enabled: True
