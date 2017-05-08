@@ -1,6 +1,7 @@
 #!/bin/bash -x
 # most of this should find its way into ansible
 # you must run ansible before running this
+# and reboot so hostname take effect
 # assumes osm, kiwix, kalite are installed and iiab-menus have been cloned
 
 # patch osm
@@ -14,11 +15,13 @@ xsce-cmdsrv-ctl GET-KIWIX-CAT
 # rebuild local library.xml
 /usr/bin/xsce-make-kiwix-lib
 
+export KALITE_HOME=/library/ka-lite
+
 # register with kalite - not sure if necessary or what user/passwd to supply
-# kalite manage register
+# kalite manage register - nope
+kalite manage generate_zone
 
 # get kalite English language pack - takes awhile and seems to re-download if run again
-export KALITE_HOME=/library/ka-lite
 kalite manage retrievecontentpack download en
 
 # copy the menu files into doc root-- if they are not already there
