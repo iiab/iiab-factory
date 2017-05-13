@@ -33,9 +33,13 @@ popd
 
 # add in aliases for xs-remote-{on/off}
 grep xs-remote-on /root/.bashrc
-if { $? -ne 0 };then
-   echo "alias xs-remote-on='systemctl enable openvpn@xscenet; systemctl start openvpn@xscenet'” >> /root/.bashrc
-   echo "alias xs-remote-off='systemctl disable openvpn@xscenet; systemctl stop openvpn@xscenet'” >> /root/.bashrc
+if [ $? -ne 0 ];then
+   cat << EOF >> /root/.bashrc
+
+# add aliases to control openvpn from command line
+alias xs-remote-on='systemctl enable openvpn@xscenet; systemctl start openvpn@xscenet'
+alias xs-remote-off='systemctl disable openvpn@xscenet; systemctl stop openvpn@xscenet'
+EOF
 fi  
 
 echo 'cd /opt/schoolserver/xsce/'
