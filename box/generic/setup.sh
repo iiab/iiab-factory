@@ -31,5 +31,12 @@ popd
 # install local_vars.yml - this should be OS dependent at some point
 ./merge_local_vars.sh ../vars/stock_vars.yml
 
+# add in aliases for xs-remote-{on/off}
+grep xs-remote-on /root/.bashrc
+if { $? -ne 0 };then
+   echo "alias xs-remote-on='systemctl enable openvpn@xscenet; systemctl start openvpn@xscenet'” >> /root/.bashrc
+   echo "alias xs-remote-off='systemctl disable openvpn@xscenet; systemctl stop openvpn@xscenet'” >> /root/.bashrc
+fi  
+
 echo 'cd /opt/schoolserver/xsce/'
 echo './runansible'
