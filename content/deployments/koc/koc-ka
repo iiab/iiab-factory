@@ -4,6 +4,10 @@ source ../find-source
 
 CP_KA=../../khan/ka-vids
 
+# automate download of content pack
+export KALITE_HOME=/library/ka-lite
+kalite manage retrievecontentpack download es
+
 $CP_KA -l es -c $KA_SRC khan/math/early-math/
 $CP_KA -l es -c $KA_SRC khan/math/arithmetic/
 $CP_KA -l es -c $KA_SRC khan/math/pre-algebra/
