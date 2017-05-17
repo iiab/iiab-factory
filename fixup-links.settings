@@ -1,0 +1,7 @@
+#!/bin/bash
+# define operational variables for making external links into local links
+
+PREFIX=/library/www/html/modules
+SRC-LINKS-DIR=$PREFIX/en-wikem3/wiki
+TARGET-DATA-DIR=$PREFIX/en-wikem-george
+OUTPUT-DIR=$TARGET-DATA-DIR/output
