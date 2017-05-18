@@ -1,45 +1,61 @@
-#!/bin/bash -x
-# read a file containing a list
+#!/bin/bash  
+# first modify the links in SRC_LINKS_DIR, then cp the httrack files into docs,images,videos 
 
 # bring in the settings
 source ../../fixup-links.settings
 
-mkdir -p $OUTPUT-DATA-Dir/docs
-mkdir -p $OUTPUT-DATA-Dir/html
-mkdir -p $OUTPUT-DATA-Dir/images
-mkdir -p $OUTPUT-DATA-Dir/duplicates
+# make all the output directories
+mkdir -p ${OUTPUT_DIR}/docs
+mkdir -p ${OUTPUT_DIR}/images
+mkdir -p ${OUTPUT_DIR}/videos
+mkdir -p ${OUTPUT_DIR}/duplicates
+mkdir -p ${OUTPUT_DIR}/other
+mkdir -p ${OUTPUT_DIR}/wiki
 
-for d in `ls $TARGET-DATA-DIR/wiki`; do
-   for f in `find $d`; do
+# change the link in the source directory
+for f in `ls $SRC_LINKS_DIR`; do
+   # reqular expressions have an extension which permits chopping off http.../.../ repeatedly 
+   sed -E  's|https*://([- ._a-z0-9A-Z]*/)*|xsce/|g' ${SRC_LINKS_DIR}/$f > ${OUTPUT_DIR}/wiki/$f
+   # but extended regular expressions do not remember match for output -- do in 2 stages
+   sync
+   sed -i  's|xsce/\([-._a-z0-9A-Z]*.png\)|../images/\1|g 
+            s|xsce/\([-._a-z0-9A-Z]*.jpg\)|../images/\1|g
+            s|xsce/\([-._a-z0-9A-Z]*.pdg\)|../images/\1|g
+            s|xsce/\([-._a-z0-9A-Z]*.pdf\)|../docs/\1|g
+            s|xsce/\([-._a-z0-9A-Z]*.mp4\)|../videos/\1|g' ${OUTPUT_DIR}/wiki/$f
+done
+   
+for d in `ls $TARGET_DATA_DIR/wiki`; do
+   for f in `find $TARGET_DATA_DIR/wiki/$d`; do
       if [ ! -f $f ];then
         continue
       fi
       fname=`basename $f`
       suffix=${fname: -4}
       case $suffix in
-      "html")
-         if [ -f $OUTPUT-DATA-Dir/html/$fname ]; then
-            cp $f $OUTPUT-DATA-Dir/duplicates
-         else
-            cp $f $OUTPUT-DATA-Dir/html
-         fi
-         ;;
       ".pdf")
-         if [ -f $OUTPUT-DATA-Dir/docs/$fname ]; then
-            cp $f $OUTPUT-DATA-Dir/duplicates
+         if [ -f $OUTPUT_DIR/docs/$fname ]; then
+            rsync $f $OUTPUT_DIR/duplicates
          else
-            cp $f $OUTPUT-DATA-Dir/html
+            rsync $f $OUTPUT_DIR/docs
          fi
          ;;
-      ".png"|"jpeg"|".jpg")
-         if [ -f $OUTPUT-DATA-Dir/images/$fname ]; then
-            cp $f $OUTPUT-DATA-Dir/duplicates
+      ".mp4")
+         if [ -f $OUTPUT_DIR/videos/$fname ]; then
+            rsync $f $OUTPUT_DIR/duplicates
          else
-            cp $f $OUTPUT-DATA-Dir/images
+            rsync $f $OUTPUT_DIR/videos
          fi
-         cp $f $OUTPUT-DATA-Dir/images
+         ;;
+      ".png"|"jpeg"|".jpg"|".pdg")
+         if [ -f $OUTPUT_DIR/images/$fname ]; then
+            rsync $f $OUTPUT_DIR/duplicates
+         else
+            rsync $f $OUTPUT_DIR/images
+         fi
          ;;
       "*")
+            rsync $f $OUTPUT_DIR/other
          ;;
       esac         
    done
