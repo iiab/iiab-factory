@@ -18,22 +18,39 @@ mkdir -p ${OUTPUT_DIR}/w
 
 # change the link in the source directory
 pushd ${SRC_LINKS_DIR}/
+# first make all the references at the first level in wiki `to http://wikem/w relative
+for f in `ls wiki/`; do
+  if [ -f wiki/$f ]; then
+      sed  -e  's%https*://wikem.org/w%../w%g' wiki/$f > ${OUTPUT_DIR}/wiki/$f
+  fi
+done
+
 for f in `find  ./wiki -type f`; do
       base=`basename $f`
       dirname=`dirname $f`
       mkdir -p $OUTPUT_DIR/$dirname
-
-      # reqular expressions have extension (-E) which permits chopping off http.../.../ repeatedly 
-      sed -E  's|https*://([- ._a-z0-9A-Z]*/)*|xsce/|g' $f > ${OUTPUT_DIR}/$f
-
-      # but extended regular expressions do not remember match for output -- do in 2 stages
-      sync
-      sed -i  's|xsce/\([-._a-z0-9A-Z]*.png\)|../images/\1|g 
-               s|xsce/\([-._a-z0-9A-Z]*.jpg\)|../images/\1|g
-               s|xsce/\([-._a-z0-9A-Z]*.pdg\)|../images/\1|g
-               s|xsce/\([-._a-z0-9A-Z]*.pdf\)|../docs/\1|g
-               s|xsce/\([-._a-z0-9A-Z]*.mp4\)|../videos/\1|g' ${OUTPUT_DIR}/$f
+   if [ "$dirname" = "./wiki" ]; then
+      sed -i -E  's%https*://([-._/a-z0-9A-Z]*/)*([-_/a-z0-9A-Z]*\.(png|jpg|jpeg)+)+%../images/\2%g
+                  s%https*://([-._/a-z0-9A-Z]*/)*([-_/a-z0-9A-Z]*\.(pdf))+%../docss/\2%g
+                  s%https*://([-._/a-z0-9A-Z]*/)*([-_/a-z0-9A-Z]*\.(mp4))+%../videos/\2%g' $f
+   else
+      sed  -E  's%https*://([-._/a-z0-9A-Z]*/)*([-_/a-z0-9A-Z]*\.(png|jpg|jpeg)+)+%../images/\2%g
+                  s%https*://([-._/a-z0-9A-Z]*/)*([-_/a-z0-9A-Z]*\.(pdf))+%../docss/\2%g
+                  s%https*://([-._/a-z0-9A-Z]*/)*([-_/a-z0-9A-Z]*\.(mp4))+%../videos/\2%g' $f > ${OUTPUT_DIR}/$f
+   fi
 done
+
+for f in `find  ./w -type f`; do
+      base=`basename $f`
+      dirname=`dirname $f`
+      mkdir -p $OUTPUT_DIR/$dirname
+
+      sed  -E  's%https*://([-._/a-z0-9A-Z]*/)*([-_/a-z0-9A-Z]*.(png|jpg|jpeg))+%../images/\2%g
+                s%https*://([-._/a-z0-9A-Z]*/)*([-_/a-z0-9A-Z]*.pdf)+%../docs/\2%g
+                s%https*://([-._/a-z0-9A-Z]*/)*([-_/a-z0-9A-Z]*.mp4)+%../videos/\2%g' $f > ${OUTPUT_DIR}/$f
+
+done
+
 popd
    
 # read through the downloaded external resources and collapse into docs,vides,images
@@ -78,6 +95,7 @@ pushd ${SRC_LINKS_DIR}
 for f in `find  ./w/ -type f`; do
    dirname=`dirname $f`
    mkdir -p $dirname
-   sed -e 's|https*://wikem.org/w/|./|' $f > $OUTPUT_DIR/$f
+   sed  -E  's%https*://([-._/a-z0-9A-Z]*/)*([-_/a-z0-9A-Z]*.(png|jpg|jpeg))+%../images/\2%g
+             s|https*://wikem.org/w/|./|g' $f > $OUTPUT_DIR/$f
 done
 popd
