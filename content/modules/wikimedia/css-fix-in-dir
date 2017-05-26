@@ -1,0 +1,7 @@
+#!/bin/bash -x
+for f in `ls `; do
+  if [ -f $f ]; then
+   sed  -i -E  's%<link rel="stylesheet" href="\.\./w/load.*/>%<link rel="stylesheet" href="../w/wikem.css" />%g'  $f 
+  fi
+done
+
