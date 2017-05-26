@@ -25,6 +25,12 @@ for f in `ls wiki/`; do
   fi
 done
 
+for f in `ls wiki/`; do
+  if [ -f wiki/$f ]; then
+   sed  -i -E  's%<link rel="stylesheet" href="\.\./w/load.*/>%<link rel="stylesheet" href="../w/wikem.css" />%g'  wiki/$f 
+  fi
+done
+
 for f in `find  ./wiki -type f`; do
       base=`basename $f`
       dirname=`dirname $f`
