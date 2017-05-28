@@ -1,0 +1,32 @@
+#!/bin/bash
+# mk-other-kalite
+#
+# create a parallel install of kalite for a specific language
+# directory should be /library/ka-lite-xx where xx is language code
+# port is expected to be 8007 for ES and 8006 for FR
+
+if [ "$#" -ne 2 ]; then
+    echo "usage: $0 <lang code, e.g. es> <new kalite port, e.g. 8007>"
+    exit 1
+fi
+
+KALITE_HOME=/library/ka-lite-$1
+mkdir -p $KALITE_HOME
+export KALITE_HOME=$KALITE_HOME
+kalite manage setup --username=Admin --password=changeme --noinput
+
+# register
+kalite manage generate_zone
+
+# get kalite English language pack - takes awhile and seems to re-download if run again
+kalite manage retrievecontentpack download en
+
+# get new lang pack
+kalite manage retrievecontentpack download $1
+
+# try to hack up a service file
+cd /etc/systemd/system
+cp kalite-serve.service kalite-$1-serve.service
+
+sed  -i -e  "s%KALITE_HOME=/library/ka-lite%KALITE_HOME=$KALITE_HOME%g" kalite-$1-serve.service
+sed  -i -e  "s%--port=8008%--port=$2%g" kalite-$1-serve.service
