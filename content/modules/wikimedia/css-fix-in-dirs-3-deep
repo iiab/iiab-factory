@@ -1,0 +1,5 @@
+
+find . -mindepth 1 -maxdepth 1 -name "*.html" -exec sed -i -E 's%<link rel="stylesheet" .*/>%<link rel="stylesheet" href="../w/wikem.css" />%g' {} \;
+find . -mindepth 2 -maxdepth 2 -name "*.html" -exec sed -i -E 's%<link rel="stylesheet" .*/>%<link rel="stylesheet" href="../../w/wikem.css" />%g' {} \;
+find . -mindepth 3 -maxdepth 3 -name "*.html" -exec sed -i -E 's%<link rel="stylesheet" .*/>%<link rel="stylesheet" href="../../../w/wikem.css" />%g' {} \; 
+
