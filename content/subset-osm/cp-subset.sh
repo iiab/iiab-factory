@@ -32,7 +32,7 @@ space=`du -sh /library/$subset/output`
 echo "du -sh reports: $space"
 
 # put the ini file where the script will find it after pushd
-cp $subset.ini /library/$subset/
+cp $1 /library/$subset/
 
 # now create a zip file which includes this subset
 pushd /library/$subset/output
@@ -52,7 +52,7 @@ EOF
 echo -e "\n\n#The following values were used to define the bounding box for this subset\n" >> $subset.info
 while read  line;do 
     echo "#$line" >> $subset.info
-done < ../$subset.ini
+done < ../$1
 echo -e "\n\n#Details of the subset generation process:.\n" >> $subset.info
 while read  line;do 
     echo "#$line" >> $subset.info
