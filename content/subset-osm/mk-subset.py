@@ -28,6 +28,7 @@ zoom_stop = c.getint("DEFAULT",'zoom_stop')
 subset_name = c.get("DEFAULT",'subset_name')
 
 def deg2num(lat_deg, lon_deg, zoom):
+  # source http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Python
   lat_rad = math.radians(lat_deg)
   n = 2.0 ** zoom
   xtile = int((lon_deg + 180.0) / 360.0 * n)
