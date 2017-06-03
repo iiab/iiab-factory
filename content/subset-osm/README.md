@@ -3,9 +3,9 @@
 1. Drag the handles at the corners of the bounding box to contain the area where increased detail is desired.
 1. Record the North, South, East, and West boundaries of the box.
 1. Copy central-america.ini to a filename that describes your subset. It is convenient to do this in the same directory which contains the scripts you will use:
-     1. mk-subset.py
-     1. cp-subset.sh
-     1. iiab-unzip
+     1. mk-subset.py -- takes ini as input, writes tile filenames to /library/<subset_name>/<subset_name>.list.
+     1. cp-subset.sh -- takes ini as input, reads filename list, copies to /library/<subset_name>/output/.
+     1. iiab-unzip -- takes zipfile as parameter, extracts script to /tmp, which in turn unzips to hard coded location.
 1. The config file needs changes to the right of the "=" to specify name, bounding box. (lngw is longitude West, latn is latitde North, etc.)
 ~~~
 ;; Configuration file for subset-iiab
@@ -33,5 +33,8 @@ zoom_stop = 15
 There is a shell script embedded in the zip file, which designates the target directory, so the the "iiab-unzip" program can put it into the proper place -- regardless of where the iiab-unzip script, or the <subset_name>.zip files are located.
 10. Install OSM up to 8 zoom levels (only requires 200MB) so that general coverage of the world is available. See http://download.iiab.io/content/world8.zip.
 ~~~
+wget http://download.iiab.io/content/iiab-unzip
 ./iiab-unzip world8.zip
+wget http://download.iiab.io/content/<subset_name>.zip
+./iiab-unzip <subset_name>.zip
 ~~~
