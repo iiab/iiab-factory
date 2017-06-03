@@ -15,7 +15,7 @@ if [ $? -ne 0 ];then
    echo "Not a zip file, or missing the autounzip.sh file"
    exit 1
 fi
-unzip $1 -d /tmp autounzip.sh
+unzip $1 -o -d /tmp autounzip.sh
 
 if [ ! -x /tmp/autounzip.sh ];then
    echo "Autounzip.sh missing from $1, or not executable"

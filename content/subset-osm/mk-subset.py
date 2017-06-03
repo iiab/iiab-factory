@@ -1,13 +1,17 @@
 #!/usr/bin/python
+
 import os
 import iiab
 import sys
 from sys import argv
 from iiab import map_views
-from iiab import render_cities
 from iiab import osmtile
 from iiab import config
 import math
+
+# source tree from which the higher resolution tiles are copied
+source_path = '/library/knowledge/modules/openstreetmap/mod_tile64'
+prefix = '/library'
 
 if len(argv) == 1:
     print("Please specify the name of the <spec>.ini file")
@@ -48,11 +52,10 @@ def human_readible(num):
             return "%.0f%s"%(num,units[i])
         num /= 1000.0
 
-path = '/library/knowledge/modules/openstreetmap/mod_tile64'
-tileset = osmtile.TileSet(path, 'default', METATILE=64, flatter=True)
+tileset = osmtile.TileSet(source_path, 'default', METATILE=64, flatter=True)
 
-outpath=os.path.join('/library',subset_name,'output')
-workdir=os.path.join('/library',subset_name)
+outpath=os.path.join(prefix,'working','osm',subset_name,'output')
+workdir=os.path.join(prefix,'working','osm',subset_name)
 if not os.path.exists(outpath):
     os.makedirs(outpath)
 
