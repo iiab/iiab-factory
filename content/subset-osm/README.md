@@ -54,5 +54,5 @@ unzip newfilename.zip -d /<path to the common ancestor selected in #1>
 ~~~
 4. Add this autounzip.sh file to the newfilename.zip with the -g option to grow the zip collection.
 ~~~
-zip netfilename.zip -g autounzip.sh
+zip newfilename.zip -g autounzip.sh
 ~~~
