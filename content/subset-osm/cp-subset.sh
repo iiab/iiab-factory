@@ -71,5 +71,6 @@ cp $subset.info autounzip.sh
 chmod 755 autounzip.sh
 zip -g $subset.zip autounzip.sh
 rm autounzip.sh
+md5sum $subset.zip > $subset.zip/md5.txt
 
 popd
