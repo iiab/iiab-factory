@@ -63,3 +63,6 @@ cd /opt/schoolserver/iiab
 
 cd /opt/iiab-admin
 ./install
+
+#cd /opt/iiab-menu
+#./cp-menus
