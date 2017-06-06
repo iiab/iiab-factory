@@ -26,7 +26,7 @@ zoom_stop = 15
 ~~~
 7. Copy the files thus selected into /library/working/osm/<subset_name/output using the command:
 ~~~
-./cp-subset.sh <subset_name>
+./cp-subset.sh <subset_name>.ini
 ~~~
 8. A zip file containing the zoom levels that lie within the bounday box specified in the ini file will be found at /library/working/osm/<subset_name>/output/<subset_name>.zip
 9. Copy the zip file and the iiab-unzip helper program to the target machine, into any convenient directory. Be sure that there is enough disk space for the zip file and it's expanded form (This is the sum of the unzipped size as indicated in the first few lines of <subset_name>.info, and the size of the <subset_name>.zip file itself).
