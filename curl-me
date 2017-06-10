@@ -22,26 +22,27 @@ else
   echo "$LINUX_DIST not supported at this time."
 fi
 
+mkdir -p /opt/iiab
+
 # Get the extras
-cd /opt
+cd /opt/iiab
 git clone https://github.com/iiab/iiab-factory --depth 1
 
 # Get the current install options (we'll do more with these later like manage releases)
 source /opt/iiab-factory/factory-settings
 
-git clone https://github.com/iiab/iiab-admin --depth 1
-#git clone https://github.com/iiab/iiab-menu --depth 1
+git clone https://github.com/iiab/iiab-admin-console --depth 1
+git clone https://github.com/iiab/iiab-menu --depth 1
 
-mkdir -p /opt/schoolserver
-cd /opt/schoolserver
+# Get iiab
 git clone https://github.com/iiab/iiab --depth 1
 
-cd /opt/schoolserver/iiab
+cd /opt/iiab/iiab
 
 ./scripts/ansible
 # Installs the correct version of Ansible
 
-cd /opt/schoolserver/iiab/vars
+cd /opt/iiab/iiab/vars
 
 if [ $LINUX_DIST == "Raspbian" ]; then
   wget http://download.iiab.io/6.3/rpi/local_vars.yml
@@ -61,8 +62,8 @@ cd /opt/schoolserver/iiab
 ./runansible
 # Try to rerun the above line if it fails?
 
-cd /opt/iiab-admin
+cd /opt/iiab/iiab-admin-console
 ./install
 
-#cd /opt/iiab-menu
-#./cp-menus
+cd /opt/iiab/iiab-menu
+./cp-menus
