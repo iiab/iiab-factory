@@ -4,11 +4,6 @@
 # and reboot so hostname take effect
 # assumes osm, kiwix, kalite are installed and iiab-menus have been cloned
 
-# patch osm
-pushd ../../content/osm-fixes
-bash  ./fix-osm
-popd
-
 # refresh kiwix catalog
 xsce-cmdsrv-ctl GET-KIWIX-CAT
 
