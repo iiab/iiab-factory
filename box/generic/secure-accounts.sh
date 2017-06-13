@@ -1,18 +1,18 @@
 #!/bin/bash -x
 # lock down root and pi (where appropriate) accounts
-# put keys in xsce-admin for support
+# put keys in iiab-admin for support
 set -e
 
 # Try to determin if this is raspbian
 PLATFORM=`cat /etc/*release|grep ^ID=|cut -f2 -d=`
 
-ADMIN_SSH=/home/xsce-admin/.ssh
+ADMIN_SSH=/home/iiab-admin/.ssh
 
 mkdir -p $ADMIN_SSH
 cp ../keys/developers_authorized_keys $ADMIN_SSH/authorized_keys
 chmod 700 $ADMIN_SSH
 chmod 600 $ADMIN_SSH/authorized_keys
-chown -R xsce-admin:xsce-admin $ADMIN_SSH
+chown -R iiab-admin:iiab-admin $ADMIN_SSH
 
 # change the default user for raspbian pixel from pi to xsce-admin
 if [ -f /etc/lightdm/lightdm.conf ]; then
