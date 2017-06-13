@@ -5,15 +5,16 @@
 # assumes osm, kiwix, kalite are installed and iiab-menus have been cloned
 
 # patch osm
-pushd ../../content/osm-fixes
-bash  ./fix-osm
-popd
+# this has been moved into iiab
+#pushd ../../content/osm-fixes
+#bash  ./fix-osm
+#popd
 
 # refresh kiwix catalog
-xsce-cmdsrv-ctl GET-KIWIX-CAT
+iiab-cmdsrv-ctl GET-KIWIX-CAT
 
 # rebuild local library.xml
-/usr/bin/xsce-make-kiwix-lib
+/usr/bin/iiab-make-kiwix-lib
 
 export KALITE_HOME=/library/ka-lite
 
@@ -25,7 +26,7 @@ kalite manage generate_zone
 kalite manage retrievecontentpack download en
 
 # copy the menu files into doc root-- if they are not already there
-  pushd /opt/iiab-menu
+  pushd /opt/iiab/iiab-menu
   git pull
   ./cp-menus
   popd
