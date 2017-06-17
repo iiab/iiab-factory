@@ -58,6 +58,10 @@ for f in dest_zims:
     zimpos = f.find(".zim")
     if zimpos != -1:
         ulpos = f.rfind("_")
+        # handle gutenberg name pattern
+        if "gutenberg_" in f:
+            ulpos = f[:ulpos].rfind("_")
+
         if f[:ulpos] == zim_name:
             z = f.split('.')[0]
             if z not in dest_zim_list:
