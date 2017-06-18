@@ -11,7 +11,11 @@ if [ "$LSB_RELEASEx" != "x" ]; then
 else
   if [ -f /etc/debian_version ]; then
     # assume Raspbian has lsb_release
-    LINUX_DIST == "Debian"
+    LINUX_DIST = "Debian"
+  elif [ -f /etc/centos_version ]; then
+    LINUX_DIST = "Centos"
+  else
+    LINUX_DIST = "Unknown"
   fi
 fi
 
@@ -29,6 +33,7 @@ elif [ $LINUX_DIST == "Ubuntu" ] || [ $LINUX_DIST == "Debian" ] || [ $LINUX_DIST
   apt-get install -y git
 else
   echo "$LINUX_DIST not supported at this time."
+  exit 1
 fi
 
 mkdir -p /opt/iiab
