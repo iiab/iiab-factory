@@ -4,7 +4,20 @@
 set -e
 # "set -e" to exit on error (avoids snowballing)
 
-LINUX_DIST=`lsb_release -is`
+LSB_RELEASE=`which lsb_release`
+
+if [ "$LSB_RELEASEx" != "x" ]; then
+  LINUX_DIST=`lsb_release -is`
+else
+  if [ -f /etc/debian_version ]; then
+    # assume Raspbian has lsb_release
+    LINUX_DIST = "Debian"
+  elif [ -f /etc/centos_version ]; then
+    LINUX_DIST = "Centos"
+  else
+    LINUX_DIST = "Unknown"
+  fi
+fi
 
 if [ $LINUX_DIST == "Centos" ]; then
   yum update
@@ -20,6 +33,7 @@ elif [ $LINUX_DIST == "Ubuntu" ] || [ $LINUX_DIST == "Debian" ] || [ $LINUX_DIST
   apt-get install -y git
 else
   echo "$LINUX_DIST not supported at this time."
+  exit 1
 fi
 
 mkdir -p /opt/iiab
@@ -29,7 +43,7 @@ cd /opt/iiab
 git clone https://github.com/iiab/iiab-factory --depth 1
 
 # Get the current install options (we'll do more with these later like manage releases)
-source /opt/iiab-factory/factory-settings
+source /opt/iiab/iiab-factory/factory-settings
 
 git clone https://github.com/iiab/iiab-admin-console --depth 1
 git clone https://github.com/iiab/iiab-menu --depth 1
@@ -56,9 +70,9 @@ fi
 # NOTE: you can change many/most settings after install too, using the
 # Admin Console (http://box/admin) as documented at: http://FAQ.IIAB.IO
 
-read -p "Press enter to Install or ctl-c to STOP"
+read -p "Press enter to Install or ctl-c to STOP and edit local vars"
 
-cd /opt/schoolserver/iiab
+cd /opt/iiab/iiab
 ./runansible
 # Try to rerun the above line if it fails?
 

@@ -1,7 +1,7 @@
 #!/bin/bash -x
 
 # assumes git installed and following done
-# cd /opt
+# cd /opt/iiab
 # git clone https://github.com/iiab/iiab-factory --depth 1
 # cd iiab-factory/box/generic
 # ./setup.sh (this script)
@@ -9,21 +9,17 @@
 if [[ -f ../../factory-settings ]]; then
   source ../../factory-settings
 else
-  echo 'cd /opt/iiab-factory/box/generic before running this.'
+  echo 'cd /opt/iiab/iiab-factory/box/generic before running this.'
   exit 1
 fi
 
-pushd /opt
-git clone https://github.com/tim-moody/iiab-menu --depth 1
-
-mkdir -p schoolserver
-
-cd schoolserver
+pushd /opt/iiab
+git clone https://github.com/iiab/iiab-menu --depth 1
 
 # should be softcoded in factory-settings
-git clone https://github.com/XSCE/xsce --depth 1 -b release-6.2
+git clone https://github.com/iiab/iiab --depth 1
 
-cd  xsce/scripts
+cd  iiab/scripts
 ./ansible
 
 popd
@@ -49,5 +45,5 @@ systemctl stop openvpn@xscenet
 EOF
 chmod 755 /usr/local/sbin/xs-remote-off
 
-echo 'cd /opt/schoolserver/xsce/'
+echo 'cd /opt/iiab/iiab/'
 echo './runansible'
