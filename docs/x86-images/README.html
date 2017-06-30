@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>x86 Images ReadMe</title>
+</head>
+
+<body>
+<h1>Instructions to install the Clonezilla IIAB/XSCE 6.2 images</h1>
+
+<p>For information on the overall Internet-in-a-Box installation process please see <a href="https://github.com/xsce/xsce/wiki/IIAB-Installation">IIAB Installation</a>.</p>
+<p>If you prefer to do everything yourself, please read the far longer instructions to install <a href="https://github.com/xsce/xsce/wiki/IIAB-Installation#do-everything-from-scratch">from Scratch</a>, using debian-load.txt (or possibly centos-load.txt, etc) instead of an install image.</p>
+
+<p><strong>Note:</strong> The clonezilla install proccess is experimental, and relatively untested by users. Please refer to <a href="http://clonezilla.org/clonezilla-live-doc.php">Clonezilla Documentation</a> for additional info.</p>
+
+<ol>
+  <li>Download the clonezilla image that is appropriate for your hardware. Recent hardware (those that can run Windows 7+) will be able to boot UEFI, which is preferred. Older hardware may require a MBR (master boot record) image.</li>
+  <li>Copy the selected image to a blank 8GB USB stick using &quot;dd if=&lt;downloaded img&gt; of=/dev/&lt;sdxx&gt; bs=4m&quot; (determine the sdxx using the linux command lsblk).</li>
+  <li>Put the USB stick in a machine with a single hard disk (all data on the disk will be destroyed). Configure the BIOS to use the UEFI or &quot;legacy - mbr&quot; boot method.</li>
+  <li>When Clonezilla menu appears, use up arrow twice to select the item &quot;WARNING this will destroy all data on /dev/sda&quot;</li>
+  <li>Clonezilla will proceed to operate, checking the image for integrity, and will ask one final time, if you want to destroy the contents of the hard disk, and install the new OS.</li>
+  <li>After it completes, remove the USB stick, and reboot.</li>
+  <li>Log on to user: xsce-admin with the password: g0adm1n</li>
+  <li>You can become root, with the &quot;sudo su&quot; command.</li>
+  <li>Change the xsce-admin password by runing: passwd</li>
+</ol>
+<h2>To do a Headless install, without keyboard or monitor:</h2>
+<p>After 30 seconds, the booted clonezilla application will start up a ssh server, and wait for connections over the network.</p>
+<p>It might be a little tricky obtaining the IP address of the headless device. Some strategies:</p>
+<ul>
+  <li>Install a monitor, and use the interactive menu item, go to a terminal screen, and use &quot;ip addr&quot; to list the IP address. Then IP address will be the same.</li>
+  <li>Start at 1, and ping each IP address in the local network until you get an answer (there are 255 to try).</li>
+  <li>Use nmap to search for an active IP address on your subnetwork. For example, run: "nmap -sn 192.168.1.0/24, sn= disable port scan"</li>
+  <li>Often your head end router will give you a list of IP addresses that it has assigned.</li>
+</ul>
+<ol>
+  <li>To log on to the ssh server, use the username: user, and the password: live.</li>
+  <li>To install to the hard disk via ssh, you must become root. &quot;sudo su -&quot; will do it.</li>
+  <li>The clonezilla application can be started from the remote terminal via the command: clonezilla</li>
+  <li>You want to install from an image to a local hard disk.</li>
+  <li>The source information is located on /dev/sdb2 -- which you can select during the interactive dialog.</li>
+  <li>The name of the saved image that you want to install is called &quot;bundle.img&quot;.</li>
+</ol>
+<h2>Comments about the clonezilla install process</h2>
+<ol>
+  <li>Clonezilla treats each partition separately, compressing only the used part of the disk, and not the free space.</li>
+  <li>It remembers the size of each partition, and wants to recreate the same partition structure, before the data is copied in.</li>
+  <li>This attempt to recreate exactly the same partition structure fails if the new disk is smaller than the original source; even it the data portion will fit on the destination disk.</li>
+  <li>To get around this difficulty, the source disk is shrunk to a minimun before the image is created.  For release 6.2, the destination hard disk must be at least 60GB.</li>
+  <li>Then once the smaller image is in place and running on the new machine, the last partition is automatically expanded to use all available space.</li>
+</ol>
+</body>
+</html>
