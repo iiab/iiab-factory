@@ -52,7 +52,7 @@ mount $PARTITION /mnt/sdcard
 touch /mnt/sdcard/.resize-rootfs
 
 # create id for image
-pushd /mnt/sdcard/opt/schoolserver/xsce
+pushd /mnt/sdcard/opt/iiab/iiab
 HASH=`git log --pretty=format:'g%h' -n 1`
 YMD=$(date +%y%m%d)
 FILENAME=$(printf "%s-%s-%s-%s-%s.img" $PRODUCT $VERSION $YMD $1 $HASH)
