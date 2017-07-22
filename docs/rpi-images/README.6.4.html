@@ -1,0 +1,105 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Raspberry Pi Images ReadMe</title>
+</head>
+
+<body style="width: 960px;margin-left: auto;margin-right: auto;font-family: 'Lucida Console'">
+  <h1>Raspberry Pi Images ReadMe</h1>
+  <p>For information on the installation process please see <a href="https://github.com/iiab/iiab/wiki/IIAB-Installation">IIAB Installation</a>.</p>
+
+  <h2>Target Platforms</h2>
+  <p>The images provided will work for Raspberry Pi 2, 3, zero, and zero_W.</p>
+
+  <h2>Downloads</h2>
+  <p>Download an image, unzip it, and write it to an sdcard with a minimum of 8G capacity.</p>
+  <p>(actual size varies, so it may not fit on all 8G cards and you will want a larger card if you plan to add content.)</p>
+  <p>In general choose the latest date for any given type of image.</p>
+  <p><b>WARNING: Be very careful writing an image to an sd card that you USE THE CORRECT DEVICE.</b></p>
+  <p>You could overwrite your hard disk.</p>
+  <p>To write to an sd card in Linux or MacOS issue the command (you may need to do sudo):
+   <ul><li>dd bs=4M if=&lt;path and name to image&gt;.img of=/dev/&lt;device card is on&gt;</li></ul>
+  </p>
+  <p>To write to an sd card in Windows use the Win32 Disk Imager application to write to the Drive Letter of your device.</p>
+  <p>Use the following tools:</P>
+  <ul>
+    <li><p>Linux or MacOS - dd, unzip, xz</p></li>
+  </ul>
+    <p>Windows - download</p>
+    <ul>
+      <li>Win32 Disk Imager from <a href="https://sourceforge.net/projects/win32diskimager/">https://sourceforge.net/projects/win32diskimager/</a>
+      </li>
+      <li>7Zip from <a href="http://www.7-zip.org/">http://www.7-zip.org/</a>
+      </li>
+    </ul>
+
+  <h2>Resizing the Image</h2>
+  <P>The first time you boot the image it should automatically resize the root file system to the capacity of the sd card.</P>
+  <P>You can cause this to run again by issuing the command touch /.resize-rootfs</P>
+  <P>If this does not work for some reason you can ssh into the RPi and use the raspi-config utility.</P>
+
+  <h2>Updates</h2>
+  <p>Keep in mind that an image is a snapshot at some point in time. You should probably do the following:</p>
+  <ul>
+  	<li>apt update</li>
+  	<li>apt upgrade</li>
+  	<li>cd /opt/iiab/iiab</li>
+  	<li>git pull</li>
+  	<li>if git does not report your repo as up to date, ./runansible</li>
+  </ul>
+
+  <h2>Passwords</h2>
+  <p>You should also change the root and pi password.</p>
+  <p><b>Please note</b> that on some of the images this has already been done.</p>
+  <p>Also, <b>please note</b> that after running runansible, you will not be able to ssh in as root anymore. You will have to login as iiab-admin with default password g0adm1n.</p>
+  <p>iiab-admin is a sudoer, so you will still have root privileges.</p>
+  <p><b>N.B:</b> Some images may have authorized public keys for people who can offer support. Please remove them from root's .ssh directory if you do not want to permit this access. (Use "rm -f /home/root/.ssh/authorized_keys").</p>
+
+  <h2>Real Time Clock</h2>
+  <p>If your RPi will operate with no internet connection it needs a RTC.</p>
+  <p>These images are preconfigured for the DS3231 found on Amazon and other places.</p>
+  <p>If you have no RTC or another incompatible one, please edit /opt/iiab/iiab/vars/local_vars.yml and change rtc_id to your model or 'none'.</p>
+  <p>You may also need to install additional drivers or otherwise change the 1-prep/tasks/raspberry_pi_2.yml playbook.</p>
+
+  <h2>Types of Images</h2>
+  <ul>
+  <li>Based on Raspian-Lite --These images are meant for 'headless' servers and have no graphical shell. Access is via ssh or the Admin Console.</li>
+
+  <li>Based on Raspian-Pixel
+  --These images have graphical shell and may serve as a desktop as well as a server.</li>
+</ul>
+  <h2>Pixel Lite Image Details</h2>
+  <h3>iiab-6.4-170721-lite-min-g4da87a9.img.zip based upon 7/5/2017 <a href="https://www.raspberrypi.org/downloads/raspbian/">pixel lite</a>.</h3>
+  <p>The steps up to and including ./runansible have already been performed in this image.</p>
+  <p>An initial configuration was performed following <a href="https://github.com/iiab/iiab/wiki/IIAB-Installation#configure-the-server"> Configuration</a>.</p>
+
+  <p>Networking was set up as follows:</p>
+  <ul>
+  	<li>Builtin Wifi adapter configured as an internal hotspot <BR>with the SSID <b>Internet in a Box</b> (no wifi on zero).</li>
+  	<li>Network Mode is Gateway (Yes the zero has no ethernet port. This image was build on a Pi3 - but should have minimal function on Pi zero)</li>
+  	<li>Gateway Passthrough is turned off in local_vars.yml</li>
+  	<li>Access to services from WAN is turned on in local_vars.yml</li>
+  	<li>Squid Cache is turned off in Admin Console</li>
+  	<li>OpenVPN Access is turned off in Admin Console</li>
+  </ul>
+  <p>The Admin Console at http://box.lan/admin was accessed in a browser and login with iiab-admin/g0adm1n was performed.</p>
+  <p>The following services were selected, saved, and Install Configured Options clicked.</p>
+  <ul>
+  	<li>Kiwix</li>
+  	<li>Kalite</li>
+  </ul>
+  <p>You are now ready for <a href="https://github.com/iiab/iiab/wiki/IIAB-Installation#add-content">Adding Content</a>.</p>
+  <p>You can also access the Admin Console to select additional features for your server.</p>
+
+  <h3> Update your Image</h3>
+  <p> As with any downloaded image, it's always best to get any recent fixes.</p>
+   <pre>
+       #> cd /opt/schoolserver/xsce
+       #> git pull
+       #> ./runansible
+   </pre>
+
+</body>
+</html>
