@@ -28,14 +28,14 @@ fi
 # create a standard filename <product>-<version>-yymmdd-$1-<git hash>.img
 # fetch the git hash
 mount $PARTITION /mnt
-pushd /mnt/opt/schoolserver/xsce
+pushd /mnt/opt/iiab/iiab
 HASH=`git log --pretty=format:'g%h' -n 1`
 YMD=$(date +%y%m%d)
 popd
 umount $PARTITION
- 
+
 FILENAME=$(printf "%s-%s-%s-%s-%s.img" $PRODUCT $VERSION $YMD $1 $HASH)
- 
+
 if [ ! -b $PARTITION ];then
    echo "Device $PARTITION not found".
    exit 1
@@ -62,10 +62,10 @@ e2fsck -fy $PARTITION
 # recalc last sector and read that many sectors from card
 last_sector=`parted -s $DEVICE unit s print |tail -2 |head -1| awk '{print $3}'`
 last=${last_sector:0:-1}
-last=$(( last / 8  )) # integer division 
+last=$(( last / 8  )) # integer division
 last=$(( last + 1  )) # round up
 echo "last sector: $last"
-dd if=$DEVICE of=$FILENAME bs=4K count=$last 
+dd if=$DEVICE of=$FILENAME bs=4K count=$last
 echo "last sector: $last"
 
 zip $FILENAME.zip $FILENAME
