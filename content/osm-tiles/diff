@@ -1,0 +1,36 @@
+18c18
+<     def __init__(self, tile_path, xmlname, METATILE=8, flatter=False):
+---
+>     def __init__(self, tile_path, xmlname, METATILE=8, flatter=False, style="iiab"):
+23a24,29
+>         self.style = style
+> 
+>     def xyz_to_meta_osm(self, x, y, z):
+>         """ OSM standard layout is 2 level per zoom level"""
+>         meta = "%s/%s/%d/%u/%u.jpg" % (self.tile_path, self.xmlname, z, x, y)
+>         return meta
+59a66,67
+>         if self.style == "osm":
+>             return self.xyz_to_meta_osm(x, y, z)
+214a223,224
+>     sizes = []
+>     offsets = []
+215a226,230
+>     if tileset.style == "osm":
+>         size = os.path.getsize(meta_path)
+>         offsets.append(0)
+>         sizes.append(size)
+>         return (f, offsets, sizes)
+223,224d237
+<     offsets = []
+<     sizes = []
+244a258,261
+>             else:
+>                 if tileset.style == "osm":
+>                     tile = f.read()
+>                     tiles.append((x + xx, y + yy, tile))
+281c298,299
+<                     except TileNotFoundException:
+---
+>                     except TileNotFoundException as e:
+>                         #print "ERROR Tile not found: "+ e.message 

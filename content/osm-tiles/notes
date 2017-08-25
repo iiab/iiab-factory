@@ -1,0 +1,5 @@
+Introduced a new style, which is the standard osm numbering scheme (top left to lower right in each zoom level -- 2 ** zoom level divisions).
+
+import.py calls the modified osmtile.py, with the new style specified.
+
+diff file shows changes old to new.
