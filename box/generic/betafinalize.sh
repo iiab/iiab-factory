@@ -5,11 +5,11 @@
 PLATFORM=`cat /etc/*release|grep ^ID=|cut -f2 -d=`
 
 # use environmnt variables discovered by XSCE
-source /etc/xsce/xsce.env
+source /etc/iiab/iiab.env
 
 # openvpn needs unique identities
-rm -f /etc/xsce/uuid
-echo "Default handle" > /etc/xsce/handle
+rm -f /etc/iiab/uuid
+echo "Default handle" > /etc/iiab/handle
 
 if [ "PLATFORM" = "OLPC" ]; then
   rm -f /.olpc-configured
@@ -24,11 +24,11 @@ if [ "$OS" = "Fedora" ]; then
 fi
 
 # record the git hash so clonezilla can pick it up -- cz does not have git
-pushd /opt/schoolserver/xsce
+pushd /opt/iiab/iiab
 HASH=`git log --pretty=format:'g%h' -n 1`
 YMD=$(date +%y%m%d)
-echo $HASH > /etc/xsce/image-hash
-echo $YMD > /etc/xsce/image-date
+echo $HASH > /etc/iiab/image-hash
+echo $YMD > /etc/iiab/image-date
 popd
 rm -f /etc/ssh/ssh_host_rsa_key{,.pub}
 rm -f /etc/sysconfig/network
