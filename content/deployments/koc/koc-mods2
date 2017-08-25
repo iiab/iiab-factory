@@ -1,9 +1,0 @@
-#!/bin/bash
-
-source ../find-source
-
-CP_MOD=../../modules/cp-mod
-
-$CP_MOD es-GCF2015
-$CP_MOD es-guatemala
-$CP_MOD es-wikihow
