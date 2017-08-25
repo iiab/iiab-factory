@@ -1,0 +1,17 @@
+#!/bin/bash
+
+source ../find-source
+
+CP_MOD=../../content/modules/cp-mod
+
+$CP_MOD es-ap_didact
+$CP_MOD es-bibliofilo
+$CP_MOD es-biblioteca
+$CP_MOD es-ebooks
+$CP_MOD es-educalab
+$CP_MOD es-hesperian_health
+$CP_MOD es-medline_plus
+$CP_MOD es-soluciones
+$CP_MOD es-blockly_games
+$CP_MOD es-vedoque
+$CP_MOD phet-html

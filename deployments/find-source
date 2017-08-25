@@ -1,0 +1,25 @@
+#!/bin/bash
+SRC_COUNT=0
+for d in  $(find /media  -maxdepth 2 -name library)
+do
+  echo "Found " $d
+  ZIM_SRC=$d
+  MOD_SRC=$d/www/html/modules
+  KA_SRC=$d/ka-lite/content
+  OSM_SRC=$d
+  #echo $ZIM_SRC
+  #echo $MOD_SRC
+  #echo $KA_SRC
+  (( SRC_COUNT++ ))
+done
+
+if [ $SRC_COUNT -gt 1 ]; then
+  echo $SRC_COUNT " drives found. Please disconnect all but one source drive."
+  echo "Stopping."
+  exit 1
+fi
+
+export ZIM_SRC=$ZIM_SRC
+export MOD_SRC=$MOD_SRC
+export KA_SRC=$KA_SRC
+export OSM_SRC=$OSM_SRC

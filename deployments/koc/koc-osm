@@ -1,0 +1,5 @@
+#!/bin/bash
+
+source ../find-source
+
+../../content/misc-content/cp-osm 12
