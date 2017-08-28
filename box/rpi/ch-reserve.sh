@@ -7,4 +7,4 @@ else
    RES_PERCENT=$1
 fi
 
-"tune2fs -m $RES_PERCENT /dev/mmcblk02
+tune2fs -m $RES_PERCENT /dev/mmcblk0p2
