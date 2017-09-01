@@ -1,8 +1,11 @@
 #!/bin/bash -x
-# most of this should find its way into ansible
+
 # you must run ansible before running this
 # and reboot so hostname take effect
-# assumes osm, kiwix, kalite are installed and iiab-menus have been cloned
+# assumes kiwix, kalite are installed
+# 1. Gets the latest version of the Kiwix Catalog and rebuilds the local catalog
+# 2. Registers the Kalite install to avoid doing it manually
+# 3. Gets the Kalite English Language Pack required even for other languages
 
 # refresh kiwix catalog
 iiab-cmdsrv-ctl GET-KIWIX-CAT
@@ -18,14 +21,3 @@ kalite manage generate_zone
 
 # get kalite English language pack - takes awhile and seems to re-download if run again
 kalite manage retrievecontentpack download en
-
-# copy the menu files into doc root-- if they are not already there
-  pushd /opt/iiab/iiab-menu
-  git pull
-  ./cp-menus
-  popd
-
-# fetch the online documents into image for offline use
-pushd /opt/schoolserver/xsce/scripts
-./refresh-wiki-docs.sh
-popd
