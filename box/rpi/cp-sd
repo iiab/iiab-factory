@@ -3,7 +3,7 @@
 # assume /dev/sdg2 is partition to be shrunk
 # parameter 1 - output file name
 # parameter 2 - optional root device partition otherwise /dev/sdg2
-# parameter 3 - optional image directory otherwise /curation/images
+# parameter 3 - optional image directory otherwise CWD
 # Automatically determine a size for the output disk image
 # (including root, swap, and boot partitions).
 #
@@ -12,12 +12,12 @@
 # Assumes root is last partition
 
 if [ $# -eq 0 ]; then
-   echo "Usage: $0 filename (no .img), optional rootfs device (like /dev/sdg), optional image directory (like /curation/images)"
+   echo "Usage: $0 filename (no .img), optional rootfs device (like /dev/sdg), optional image directory (like /curation/images), otherwise CWD"
    exit 1
 fi
 
 # get the current settings
-source ../../factory-settings
+source factory-settings
 
 if [ -z $2 ]; then
    PARTITION=/dev/sdg2
@@ -27,8 +27,13 @@ fi
 
 # create a standard filename <product>-<version>-yymmdd-$1-<git hash>.img
 # fetch the git hash
-mount $PARTITION /mnt
-pushd /mnt/opt/iiab/iiab
+mount $PARTITION /mnt/sdcard
+if [ ! -d /mnt/sdcard/opt/iiab/iiab ]; then
+  echo "Device is not IIAB root partition. Exiting."
+  exit 1
+fi
+
+pushd /mnt/sdcard/opt/iiab/iiab
 HASH=`git log --pretty=format:'g%h' -n 1`
 YMD=$(date +%y%m%d)
 popd
@@ -42,7 +47,7 @@ if [ ! -b $PARTITION ];then
 fi
 
 if [ -z $3 ]; then
-   IMAGE_DIR=/curation/images
+   IMAGE_DIR=$PWD
 else
    IMAGE_DIR=$3
 fi

@@ -1,0 +1,9 @@
+ia-upl-sample is a sample script to upload an image to archive.org
+To use it you need :
+  * an Internet Archive account
+  * (optional) login and go to https://archive.org/account/s3.php to see your keys
+  * pip install internetarchive to get the cli (use virtualenv if you like)
+  * ia configure (puts your keys in /home/<your user>/.config/ia.ini
+
+Copy the sample file into a script for a particular image and edit the metadata
+Run the script to upload the image and apply the metadata

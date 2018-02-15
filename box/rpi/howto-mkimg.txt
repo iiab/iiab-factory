@@ -1,0 +1,8 @@
+1) Start by copying the contents of this directory to your image creation working directory
+2) Edit factory-setting to the release you are working on
+   (you may make a subdirectory for different releases with a copy of factory-settings in each)
+3) Look at the parameters for ./min-sd and ./cp-sd (they are the same)
+4) Run ./min-sd being careful not to overwrite a device you like
+5) Run ./cp-sd with the same parameters (up arrow is a nice way to do this)
+
+I have run this on Ubuntu 16.04
