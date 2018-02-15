@@ -1,0 +1,38 @@
+#!/bin/bash
+# copy image to SD card
+# assume /dev/sdc is card
+# parameter 1 - image file name
+# parameter 2 - optional root device partition otherwise /dev/sdc
+
+if [ $# -eq 0 ]; then
+   echo "Usage: $0 filename (with .img), optional output device (like /dev/sdc)"
+   exit 1
+fi
+
+IMG=$1
+
+if [ ! -f $1 ]; then
+  echo "Image $1 not found."
+  exit 1
+fi
+
+if [ -z $2 ]; then
+   SDCARD=/dev/sdc
+else
+   SDCARD=$2
+fi
+
+df
+umount /media/usb*
+echo "WARNING writing to $SDCARD"
+echo "Are you sure? "
+read -p "Press y to continue or any other key to stop. " -n 1 -r
+echo    # (optional) move to a new line
+
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+    echo "writing to $SDCARD"
+    dd if=$IMG of=$SDCARD bs=4M status=progress
+    umount /media/usb*
+    df
+fi
