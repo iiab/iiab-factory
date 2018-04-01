@@ -64,7 +64,7 @@ YMD=$(date +%y%m%d)
 FILENAME=$(printf "%s-%s-%s-%s-%s.img" $PRODUCT $VERSION $YMD $1 $HASH)
 echo $FILENAME > /mnt/sdcard/.iiab-image
 git branch >> /mnt/sdcard/.iiab-image
-git log >> /mnt/sdcard/.iiab-image
+git log -n 5 >> /mnt/sdcard/.iiab-image
 cat /mnt/sdcard/etc/rpi-issue >> /mnt/sdcard/.iiab-image
 
 echo $FILENAME > ../../last-filename
