@@ -63,6 +63,10 @@ HASH=`git log --pretty=format:'g%h' -n 1`
 YMD=$(date +%y%m%d)
 FILENAME=$(printf "%s-%s-%s-%s-%s.img" $PRODUCT $VERSION $YMD $1 $HASH)
 echo $FILENAME > /mnt/sdcard/.iiab-image
+git branch >> /mnt/sdcard/.iiab-image
+git log >> /mnt/sdcard/.iiab-image
+cat /mnt/sdcard/etc/rpi-issue >> /mnt/sdcard/.iiab-image
+
 echo $FILENAME > ../../last-filename
 echo $HASH > ../../last-hash
 popd
@@ -105,10 +109,15 @@ parted -s $DEVICE rm $PART_DIGIT
 parted -s $DEVICE unit s mkpart primary ext4 $root_start $root_end
 
 umount $PARTITION
-e2fsck -fy $PARTITION
+
 # set the percentage reserved by OS to 1 percent
 tune2fs -m 1 $PARTITION
 
+# try to repair any errors
+e2fsck -fy $PARTITION
+
+# set the percentage reserved by OS to 1 percent was previously here
+#tune2fs -m 1 $PARTITION
 
 # recalc last sector and read that many sectors from card
 last_sector=`parted -s $DEVICE unit s print |tail -2 |head -1| awk '{print $3}'`
