@@ -1,5 +1,6 @@
 #!/bin/bash -x
 # fetch updated copies of resources needed for vector OSM
+# script runs to completion in 26 minutes on hadron
 
 # may need some tools from iiab-factory
 scriptdir=`dirname "$(readlink -f "$0")"`
