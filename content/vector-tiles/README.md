@@ -19,3 +19,5 @@
  * Associate with the wifi signal transmitted by your RPI (the SSID is "Internet in a Box").
  * Browse to http://box.lan/modules/osm-min
  * Zoom into the region of interest to test your high definition region.
+ #### Technical Design Decisions
+ * See https://github.com/georgejhunt/iiab-factory/blob/vector-maps/content/vector-tiles/Design-Decisions.md
