@@ -10,8 +10,8 @@
 1. Download the http://download.iiab.io/content/OSM/vector-tiles/osm-min.zip file.
 1. Move it to /library/www/html/modules directory
 1. Unzip osm-min.zip. (After unziping, a new "osm-min" folder will be created. Once that is done the zip file can be deleted).
-1. Download the mbtiles of interest (For example, the Central-America.mbtiles takes up about 1.9GB)
-1. Put the downloaded high resolution tiles into /library/www/html/modules/osm-min/.
+1. Download the mbtiles of interest from https://openmaptiles.com/downloads/planet/. (For example, the Central-America.mbtiles takes up about 1.9GB)
+1. Put the downloaded high resolution tiles (<region>.mbtiles) into /library/www/html/modules/osm-min/.
 1. Create a symbolic link which will replace the link "details.mbtiles =>2017-07-03_california_san-francisco-bay.mbtiles" using the following command line:
 ```
  ln -sf ./<full name of the downloaded region> details.mbtiles
