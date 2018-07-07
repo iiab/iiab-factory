@@ -1,0 +1,100 @@
+#!/bin/bash -x
+# fetch updated copies of resources needed for vector OSM
+# script runs to completion in 26 minutes on hadron
+
+# may need some tools from iiab-factory
+scriptdir=`dirname "$(readlink -f "$0")"`
+
+#prefix=./
+prefix=/library/www/html/modules/fromscratch
+
+# this OSM package includes a small detailed region of the planet that
+#   can be modified via the following
+detail_mbtiles=2017-07-03_california_san-francisco-bay.mbtiles
+base_mbtiles=2017-07-03_osm_z0-10_planet.mbtiles
+# the above available at http://download.iiab.io/packages/OSM/
+
+# create a place to put accumulations of resources
+mkdir -p $prefix/assets/fonts
+mkdir -p $prefix/build
+cd $prefix/build
+
+if [ ! -d maps ]; then
+git clone https://github.com/georgejhunt/maps
+fi
+cp -rp maps/* ..
+if [ ! -d "www.openmaptiles.org" ]; then
+git clone https://github.com/openmaptiles/www.openmaptiles.org
+fi
+if [ ! -d "openlayers" ]; then
+git clone https://github.com/openlayers/openlayers
+fi
+if [ ! -d "jquery" ]; then
+git clone git://github.com/jquery/jquery.git
+fi
+if [ ! -d "bootstrap" ]; then
+git clone git://github.com/twitter/bootstrap.git
+fi
+if [ ! -d "bootstrap-ajax-typeahead" ]; then
+git clone git://github.com/biggora/bootstrap-ajax-typeahead.git
+fi
+if [ ! -d "osm-bright-gl-style" ]; then
+git clone git://github.com/openmaptiles/osm-bright-gl-style --branch gh-pages
+fi
+
+cp $prefix/build/www.openmaptiles.org/maps/olms.js $prefix/assets
+wget -P $prefix/assets https://cdnjs.cloudflare.com/ajax/libs/openlayers/4.6.5/ol.js
+
+wget -P $prefix/assets https://cdnjs.cloudflare.com/ajax/libs/openlayers/4.6.5/ol.css
+ 
+pushd jquery
+if [ ! -f dist/jquery.min.js ]; then
+npm run build
+fi
+cp $prefix/build/jquery/dist/jquery.min.js $prefix/assets
+popd
+
+cp $prefix/build/bootstrap/dist/js/bootstrap.min.js $prefix/assets
+cp $prefix/build/bootstrap/dist/css/bootstrap.min.css $prefix/assets
+ 
+cp $prefix/build/bootstrap-ajax-typeahead/js/bootstrap-typeahead.min.js $prefix/assets/
+
+
+# generate the fonts for offline use
+if [ ! -d fonts ];then
+git clone https://github.com/openmaptiles/fonts
+cd fonts
+
+npm install
+node ./generate.js
+fi
+cp -r $prefix/build/fonts/_output/* $prefix/assets/fonts
+
+# get the cities sqlite database
+cd $prefix/build
+if [ ! -f cities1000.zip ]; then
+wget  http://download.geonames.org/export/dump/cities1000.zip
+unzip cities1000.zip
+fi
+rm -f cities1000.sqlite
+cp $scriptdir/mkfeatures.sql .
+cp $scriptdir/geodb.pl .
+sqlite3 cities1000.sqlite < mkfeatures.sql
+$prefix/build/geodb.pl
+cp cities1000.sqlite ..
+
+cd $prefix
+if [ ! -f $detail_mbtiles ]; then
+wget  http://download.iiab.io/packages/OSM/$detail_mbtiles
+fi
+if [ ! -f $base_mbtiles ]; then
+wget  http://download.iiab.io/packages/OSM/$base_mbtiles
+fi
+if [ ! -f ocean.mbtiles ]; then
+wget  http://download.iiab.io/packages/OSM/ocean.mbtiles
+fi
+
+ln -sf ./$detail_mbtiles detail.mbtiles
+ln -sf ./$base_mbtiles base.mbtiles
+
+cp $prefix/build/osm-bright-gl-style/sprite* $prefix/assets
