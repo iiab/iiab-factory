@@ -11,7 +11,7 @@ import sys, yaml, os.path, argparse
 local_vars = {}
 merged_vars = {}
 
-var_path = '/opt/iiab/iiab/vars/'
+var_path = '/etc/iiab'
 
 parser = argparse.ArgumentParser(description="Merge a file with local_vars")
 parser.add_argument("file_path", help="the full path to the file you want to merge")
