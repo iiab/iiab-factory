@@ -40,6 +40,7 @@ if [ -f /etc/iiab/local_vars.yml ]; then
     echo -e "\n\n  EXISTING /etc/iiab/local_vars.yml will be used to install Internet-in-a-Box\n"
     echo -e "   🚂 🚃 🚄 🚅 🚆 🚇 🚈 🚉 🚊 🚋 🚌 🚍 🚎 🚏 🚐 🚑 🚒 🚚 🚛 🚜 🚞 🚟 🚠 🚡 🚲\n"
     echo -e "             See http://wiki.iiab.io/local_vars.yml to learn more!\n"
+    REINSTALL="--reinstall"
 else
     echo -e "\nInstalling Internet-in-a-Box requires /etc/iiab/local_vars.yml"
     echo -e "PLEASE SEE http://wiki.iiab.io/local_vars.yml TO LEARN MORE!\n"
@@ -56,17 +57,6 @@ else
     read local_vars_size < /dev/tty
     echo
 
-    case $local_vars_size in
-        1)
-	    wget -O local_vars.yml https://github.com/iiab/iiab/raw/master/vars/local_vars_min.yml
-	    ;;
-	3)
-	    wget -O local_vars.yml https://github.com/iiab/iiab/raw/master/vars/local_vars_big.yml
-	    ;;
-	*)
-	    wget -O local_vars.yml https://github.com/iiab/iiab/raw/master/vars/local_vars_medium.yml
-	    ;;
-    esac
 fi
 
 if grep -qi raspbian /etc/*release; then tune2fs -m 1 /dev/mmcblk0p2; fi
@@ -77,29 +67,33 @@ apt -y install git
 
 mkdir -p /opt/iiab
 cd /opt/iiab/
-if [ -d iiab ]; then
-    echo -e '\nREPO EXISTS? Consider "cd /opt/iiab/iiab; git pull"'
-    echo -e 'auto update'
-    git pull origin $RELEASE
-else
-    git clone https://github.com/iiab/iiab --branch $RELEASE --depth 1
-fi
-if [ -d iiab-admin-console ]; then
-    echo -e '\nREPO EXISTS? Consider "cd /opt/iiab/iiab-admin-console; git pull"'
-    echo -e 'auto update'
-    git pull origin $RELEASE
-else
-    git clone https://github.com/iiab/iiab-admin-console --branch $RELEASE --depth 1
-fi
-if [ -d iiab-menu ]; then
-    echo -e '\nREPO EXISTS? Consider "cd /opt/iiab/iiab-menu; git pull"'
-else
-    git clone https://github.com/iiab/iiab-menu --depth 1
-fi
+
+# Move parts of this script into factory and call then from there in the future
 if [ -d iiab-factory ]; then
     echo -e '\nREPO EXISTS? Consider "cd /opt/iiab/iiab-factory; git pull"'
 else
     git clone https://github.com/iiab/iiab-factory --depth 1
+fi
+
+if [ -d iiab ]; then
+    echo -e '\nREPO EXISTS? Consider "cd /opt/iiab/iiab; git pull"'
+    echo -e 'auto update'
+    cd /opt/iiab/iiab
+    git pull origin $IIAB_RELEASE
+else
+    git clone https://github.com/iiab/iiab --branch $IIAB_RELEASE --depth 1
+    cd /opt/iiab/iiab
+    case $local_vars_size in
+        1)
+	    cp vars/local_vars_min.yml /etc/iiab/local_vars.yml
+	    ;;
+	3)
+	    cp vars/local_vars_big.yml /etc/iiab/local_vars.yml
+	    ;;
+	2)
+	    cp vars/local_vars_medium.yml /etc/iiab/local_vars.yml
+	    ;;
+    esac
 fi
 
 cd /opt/iiab/iiab/scripts/
@@ -109,13 +103,27 @@ cd /opt/iiab/iiab/scripts/
 cd /opt/iiab/iiab/
 ./iiab-install $REINSTALL
 # TRY TO RERUN THE ABOVE LINE IF IT FAILS (if networking glitches etc?)
-
-cd /opt/iiab/iiab-admin-console/
-./install
 # Installs Admin Console; runs iiab-get-kiwix-cat to d/l Kiwix catalog
+if [ -d iiab-admin-console ]; then
+    echo -e '\nREPO EXISTS? Consider "cd /opt/iiab/iiab-admin-console; git pull"'
+    echo -e 'auto update'
+    cd /opt/iiab/iiab-admin-console/
+    git pull origin $ADMIN_RELEASE
+    ./install
+else
+    git clone https://github.com/iiab/iiab-admin-console --branch $ADMIN_RELEASE --depth 1
+    cd /opt/iiab/iiab-admin-console/
+    ./install
+fi
 
-cd /opt/iiab/iiab-menu/
-./cp-menus
+if [ -d iiab-menu ]; then
+    echo -e '\nREPO EXISTS? Consider "cd /opt/iiab/iiab-menu; git pull; ./cp-menus"'
+else
+    git clone https://github.com/iiab/iiab-menu --depth 1
+    cd /opt/iiab/iiab-menu/
+    ./cp-menus
+fi
+
 # Installs Dynamic Menuing for /library/www/html/home/index.html
 
 iiab-make-kiwix-lib
