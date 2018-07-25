@@ -14,14 +14,27 @@
 #    which sets the hostname, improves RTC settings + memory mgmt
 
 # This script was obtained from: http://download.iiab.io/6.6/install.txt
-
+#IIAB_RELEASE="6.6-release"
+IIAB_RELEASE="master"
+ADMIN_RELEASE="master"
+REINSTALL=""
 set -e                                   # Exit on error (avoids snowballing)
 export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
+echo -e "\n   █████████████████████████████████████████████████████████████████████████"
+echo -e "   ██ TRY TO RERUN THIS ENTIRE SCRIPT IF IT FAILS DUE TO CONNECTIVITY ETC ██"
+echo -e "   █████████████████████████████████████████████████████████████████████████\n\n"
 
 mkdir -p /etc/iiab
 cd /etc/iiab/
-if [ -f local_vars.yml ]; then
 
+if [ -f /opt/iiab/iiab/vars/local_vars.yml ]; then
+    # FUTURE: Test if their local_vars.yml is sufficiently version-compatible !
+    echo -e "\n\n  EXISTING /opt/iiab/iiab/vars/local_vars.yml will be used to reinstall Internet-in-a-Box\n"
+    cp /opt/iiab/iiab/vars/local_vars.yml /etc/iiab/local_vars.yml
+    REINSTALL="--reinstall"
+fi
+
+if [ -f /etc/iiab/local_vars.yml ]; then
     # FUTURE: Test if their local_vars.yml is sufficiently version-compatible !
 
     echo -e "\n\n  EXISTING /etc/iiab/local_vars.yml will be used to install Internet-in-a-Box\n"
@@ -56,10 +69,6 @@ else
     esac
 fi
 
-echo -e "\n   █████████████████████████████████████████████████████████████████████████"
-echo -e "   ██ TRY TO RERUN THIS ENTIRE SCRIPT IF IT FAILS DUE TO CONNECTIVITY ETC ██"
-echo -e "   █████████████████████████████████████████████████████████████████████████\n\n"
-
 if grep -qi raspbian /etc/*release; then tune2fs -m 1 /dev/mmcblk0p2; fi
 # If OS is Raspbian, lowers reserve disk space from ~5% to 1%
 
@@ -70,13 +79,17 @@ mkdir -p /opt/iiab
 cd /opt/iiab/
 if [ -d iiab ]; then
     echo -e '\nREPO EXISTS? Consider "cd /opt/iiab/iiab; git pull"'
+    echo -e 'auto update'
+    git pull origin $RELEASE
 else
-    git clone https://github.com/iiab/iiab --depth 1
+    git clone https://github.com/iiab/iiab --branch $RELEASE --depth 1
 fi
 if [ -d iiab-admin-console ]; then
     echo -e '\nREPO EXISTS? Consider "cd /opt/iiab/iiab-admin-console; git pull"'
+    echo -e 'auto update'
+    git pull origin $RELEASE
 else
-    git clone https://github.com/iiab/iiab-admin-console --depth 1
+    git clone https://github.com/iiab/iiab-admin-console --branch $RELEASE --depth 1
 fi
 if [ -d iiab-menu ]; then
     echo -e '\nREPO EXISTS? Consider "cd /opt/iiab/iiab-menu; git pull"'
@@ -94,7 +107,7 @@ cd /opt/iiab/iiab/scripts/
 # Installs latest Ansible from PPA.  Also consider: ./ansible-2.6.x
 
 cd /opt/iiab/iiab/
-./iiab-install
+./iiab-install $REINSTALL
 # TRY TO RERUN THE ABOVE LINE IF IT FAILS (if networking glitches etc?)
 
 cd /opt/iiab/iiab-admin-console/
