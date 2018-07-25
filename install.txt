@@ -25,22 +25,16 @@ echo -e "   ██ TRY TO RERUN THIS ENTIRE SCRIPT IF IT FAILS DUE TO CONNECTIVI
 echo -e "   █████████████████████████████████████████████████████████████████████████\n\n"
 
 mkdir -p /etc/iiab
-cd /etc/iiab/
-
 if [ -f /opt/iiab/iiab/vars/local_vars.yml ]; then
     # FUTURE: Test if their local_vars.yml is sufficiently version-compatible !
-    echo -e "\n\n  EXISTING /opt/iiab/iiab/vars/local_vars.yml will be used to reinstall Internet-in-a-Box\n"
-    cp /opt/iiab/iiab/vars/local_vars.yml /etc/iiab/local_vars.yml
+    echo -e "\n\n  EXISTING /opt/iiab/iiab/vars/local_vars.yml will be moved to reinstall Internet-in-a-Box\n"
+    mv /opt/iiab/iiab/vars/local_vars.yml /etc/iiab/local_vars.yml
     REINSTALL="--reinstall"
-fi
-
-if [ -f /etc/iiab/local_vars.yml ]; then
+elif [ -f /etc/iiab/local_vars.yml ]; then
     # FUTURE: Test if their local_vars.yml is sufficiently version-compatible !
-
     echo -e "\n\n  EXISTING /etc/iiab/local_vars.yml will be used to install Internet-in-a-Box\n"
     echo -e "   🚂 🚃 🚄 🚅 🚆 🚇 🚈 🚉 🚊 🚋 🚌 🚍 🚎 🚏 🚐 🚑 🚒 🚚 🚛 🚜 🚞 🚟 🚠 🚡 🚲\n"
     echo -e "             See http://wiki.iiab.io/local_vars.yml to learn more!\n"
-    REINSTALL="--reinstall"
 else
     echo -e "\nInstalling Internet-in-a-Box requires /etc/iiab/local_vars.yml"
     echo -e "PLEASE SEE http://wiki.iiab.io/local_vars.yml TO LEARN MORE!\n"
@@ -56,7 +50,6 @@ else
     echo -n "Please type 1, 2 or 3 then press [ENTER]: "
     read local_vars_size < /dev/tty
     echo
-
 fi
 
 if grep -qi raspbian /etc/*release; then tune2fs -m 1 /dev/mmcblk0p2; fi
@@ -99,10 +92,9 @@ fi
 cd /opt/iiab/iiab/scripts/
 ./ansible
 # Installs latest Ansible from PPA.  Also consider: ./ansible-2.6.x
-
 cd /opt/iiab/iiab/
 ./iiab-install $REINSTALL
-# TRY TO RERUN THE ABOVE LINE IF IT FAILS (if networking glitches etc?)
+
 # Installs Admin Console; runs iiab-get-kiwix-cat to d/l Kiwix catalog
 if [ -d iiab-admin-console ]; then
     echo -e '\nREPO EXISTS? Consider "cd /opt/iiab/iiab-admin-console; git pull"'
@@ -116,6 +108,7 @@ else
     ./install
 fi
 
+# Installs Dynamic Menuing for /library/www/html/home/index.html
 if [ -d iiab-menu ]; then
     echo -e '\nREPO EXISTS? Consider "cd /opt/iiab/iiab-menu; git pull; ./cp-menus"'
 else
@@ -124,32 +117,8 @@ else
     ./cp-menus
 fi
 
-# Installs Dynamic Menuing for /library/www/html/home/index.html
-
-iiab-make-kiwix-lib
-# Rebuilds local library.xml in case ZIM files added to /library/zims/content
-
-# /usr/bin/kalite venv wrapper does this: export KALITE_HOME=/library/ka-lite
-kalite manage generate_zone || true    # Overrides "set -e" allowing repeat run
-# Register with KA Lite - just the anonymous registration
-
-cd /tmp/    # Or /opt/iiab/downloads or /library/downloads if you prefer
-if [ -f en.zip ]; then
-    if [ $(wc -c < en.zip) -ne 929916955 ]; then
-        echo -e "\nERROR: /tmp/en.zip must be 929,916,955 bytes to proceed.\n" >&2
-        exit 1
-    else
-	echo -e "\nUsing existing /tmp/en.zip whose 929,916,955 byte size is correct!\n"
-    fi
-else
-    wget http://pantry.learningequality.org/downloads/ka-lite/0.17/content/contentpacks/en.zip
-fi
-kalite manage retrievecontentpack local en en.zip
-# WARNING: /tmp/en.zip (and all stuff in /tmp) is auto-deleted during reboots
-# NEW WAY ABOVE - since 2018-07-03 - installs KA Lite's mandatory English Pack
-
-# kalite manage retrievecontentpack download en
-# OLD WAY ABOVE - fails w/ sev ISPs per https://github.com/iiab/iiab/issues/871
+cd /opt/iiab/iiab-factory
+./post-install
 
 echo -e "\n\nINTERNET-IN-A-BOX (IIAB) SOFTWARE INSTALL COMPLETE...now rebooting.\n"
 echo -e "A couple minutes after reboot, try connecting to your IIAB with various"
