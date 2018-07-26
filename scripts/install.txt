@@ -61,15 +61,19 @@ apt -y install git
 mkdir -p /opt/iiab
 cd /opt/iiab/
 
-# Move parts of this script into factory and call then from there in the future
+# Installs latest Ansible-2.6.x from PPA.
 if [ -d iiab-factory ]; then
-    echo -e '\nREPO EXISTS? Consider "cd /opt/iiab/iiab-factory; git pull"'
+    echo -e 'auto update'
+    git pull origin master
+    cd /opt/iiab/iiab-factory/scripts
+    ./ansible-2.6.x
 else
     git clone https://github.com/iiab/iiab-factory --depth 1
+    cd /opt/iiab/iiab-factory/scripts
+    ./ansible-2.6.x
 fi
 
 if [ -d iiab ]; then
-    echo -e '\nREPO EXISTS? Consider "cd /opt/iiab/iiab; git pull"'
     echo -e 'auto update'
     cd /opt/iiab/iiab
     git pull origin $IIAB_RELEASE
@@ -89,15 +93,11 @@ else
     esac
 fi
 
-cd /opt/iiab/iiab/scripts/
-./ansible
-# Installs latest Ansible from PPA.  Also consider: ./ansible-2.6.x
 cd /opt/iiab/iiab/
 ./iiab-install $REINSTALL
 
 # Installs Admin Console; runs iiab-get-kiwix-cat to d/l Kiwix catalog
 if [ -d iiab-admin-console ]; then
-    echo -e '\nREPO EXISTS? Consider "cd /opt/iiab/iiab-admin-console; git pull"'
     echo -e 'auto update'
     cd /opt/iiab/iiab-admin-console/
     git pull origin $ADMIN_RELEASE
@@ -117,7 +117,7 @@ else
     ./cp-menus
 fi
 
-cd /opt/iiab/iiab-factory
+cd /opt/iiab/iiab-factory/scripts
 ./post-install
 
 echo -e "\n\nINTERNET-IN-A-BOX (IIAB) SOFTWARE INSTALL COMPLETE...now rebooting.\n"
