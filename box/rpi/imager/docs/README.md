@@ -1,4 +1,4 @@
-### IMAGER -- Duplicate and Resize SD cards
+### IMAGER -- Duplicate and Resize SD Cards
 * Completely menu-driven
 * Boots on older Windows machines (MBR boot) as well as newer UEFI bios loaders.
 * Uses Windows (XP, Windows 7, 8, 10) hard disk partitions for storage.
