@@ -1,4 +1,4 @@
-#!/usr/local/bin/bash 
+#!/usr/local/bin/bash -x
 # fast copy (using dd) IIAB to an disk image, or a  second SD card; optionally minify image
 
 # Author: george hunt <georgejhunt.gmail.com> https://github.com/georgejhunt/iiab-factory
@@ -139,6 +139,7 @@ initialize(){
    export TERM=xterm
    mkdir -p /tmp/imager
    mkdir -p /opt/imager
+   mkdir -p "$ROOTFS_MOUNT"
 }
 
 checkSudo() {
@@ -362,7 +363,9 @@ selectRepo(){
    selectPartition $DEST_DEVICE 
    if test $? -ne 0 ; then return 99; fi
    DEST_PARTITION_MOUNT=/mnt/${PARTITION:5}
+
    # PREFERRED_MOUNT is remembered for resize, delete, and copy image commands
+
    PREFERRED_MOUNT=$DEST_PARTITION_MOUNT
    persist_variable "PREFERRED_MOUNT" $DEST_PARTITION_MOUNT
    mkdir -p $DEST_PARTITION_MOUNT/iiab
@@ -635,6 +638,9 @@ EOF
 selectFile(){
    # called by hdisk2SD
    DEVICE_MNT=$(get_persisted_variable PREFERRED_MOUNT)
+   if [ -z "$DEVICE_MNT" ]; then
+      selectRepo
+   fi
    local device=$(get_persisted_variable PREFERRED_DEVICE)
 
    local sf_tmp=/tmp/imager/selectfile
