@@ -894,7 +894,7 @@ mainMenu(){
    choice5=$(gettext "Help")
    choice6=$(gettext "Exit to command line terminal")
    title=$(gettext "MAIN MENU")
-   msg=$(gettext "\n\nPlease choose from the following options:")
+   msg=$(gettext "\nIMAGER = Disk Image Copier\n\nPlease choose from the following options:")
    ACTION=$(dialog --title "$title"  --ok-button Select --cancel-button quit --menu "$msg" 17 80 7   \
    "copy2sd" "$choice1" \
    "copy2disk" "$choice1x" \
