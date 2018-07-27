@@ -363,13 +363,10 @@ selectRepo(){
    selectPartition $DEST_DEVICE 
    if test $? -ne 0 ; then return 99; fi
    DEST_PARTITION_MOUNT=/mnt/${PARTITION:5}
-
    # PREFERRED_MOUNT is remembered for resize, delete, and copy image commands
-
    PREFERRED_MOUNT=$DEST_PARTITION_MOUNT
    persist_variable "PREFERRED_MOUNT" $DEST_PARTITION_MOUNT
    mkdir -p $DEST_PARTITION_MOUNT/iiab
-
 
    local sr_tmp=/tmp/imager/repo
    local title
