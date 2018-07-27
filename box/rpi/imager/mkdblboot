@@ -8,7 +8,7 @@
 PERSIST=/opt/cache/tce
 ARCH=x86
 CORE_VERSION=9.x
-URL=http://10.10.123.13/modules
+URL=http://unleashkids.org:/var/www/imager/
 mkdir -p $PERSIST
 if [ $(id -u) = "0" ]; then
    echo This script should be run as user tc
