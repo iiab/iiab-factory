@@ -555,7 +555,7 @@ done< <( dd if=$SRC_DEVICE of=$write_to bs=4096 count=$WRITE_COUNT \
           pid=$!
           sleep 1
           while kill -USR1 $pid 2>/dev/null;do
-               sleep 10
+               sleep 5
           done )
   set -x
   sync
@@ -793,7 +793,7 @@ It's new size will be $human. Do you want to proceed?")
    dialog --title "$TITLE" --defaultno --yesno "$MSG" 9 80
    if test $? -ne 0; then return 99; fi
 
-   ERROR=$(size_image $image_path)
+   size_image $image_path
    if test $? -ne 0; then return 99; fi
    return 0 
 }
