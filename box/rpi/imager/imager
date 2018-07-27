@@ -1,0 +1,972 @@
+#!/usr/local/bin/bash 
+# fast copy (using dd) IIAB to an disk image, or a  second SD card; optionally minify image
+
+# Author: george hunt <georgejhunt.gmail.com> https://github.com/georgejhunt/iiab-factory
+copyright 2018 by George Hunt
+License: GPL Version 2
+# Ideas and structure attribution:   jules randolph <jules.sam.randolph@gmail.com> https://github.com/jsamr/bootiso
+
+# Conventions -- evolving as targets, but not yet followed consistently - 7/10/18
+# functions in this file are camel case
+# functions in the tools file have underscores
+# global variables are upper case
+# input output variables (strings cannot be positional parameters)
+#     are prefixed with first letter, and camel characters
+
+# Bring in useful functions
+source /opt/iiab/iiab-factory/box/rpi/imager/tools.sh
+
+#############   Set up variables ############
+#  All size variables kept in bytes
+export TEXTDOMAIN=piconf
+declare SRC_DEVICE=/dev/mmcblk0
+declare SRC_DEVICE_HOLDS
+declare SRC_PARTITION=/dev/mmcblk0p2
+declare SRC_PARTITIONED_SIZE       # total bytes specified in partition table
+declare SRC_FILE_SIZE
+declare SRC_INSTALL_DATE
+declare SRC_RUNTIME_DATE
+
+declare DEST_DEVICE=/dev/sda
+declare DEST_DEVICE_SIZE
+declare DEST_PARTITION=/dev/sda1
+declare DEST_PARTITION_SIZE
+declare DEST_INSTALL_DATE
+declare DEST_RUNTIME_DATE
+declare LAPTOP_DEVICE=sda
+declare LAPTOP_MOUNT=/mnt/sda1
+declare LAPTOP_DIR=/mnt/sda1/iiab
+declare TINY_CORE_NIBBLE=sdb       # the Tiny Core Linux boot device
+declare BOOT_DEVICE=/dev/sdb       # the Tiny Core Linux boot device
+##############   Inputs to shared functions  ##########
+declare WILLITFIT_SRC_SIZE
+declare WILLITFIT_SRC_SPEC
+declare WILLITFIT_DEST_SIZE
+declare WILLITFIT_DEST_SPEC
+declare PERSIST_STATE_FILE=/opt/imager/state
+declare DEST_IS_FILE
+# variables for opening a partition in an image file (see imageOpen)
+declare RAWDEVICE=$(losetup -f) #allocate a global device
+declare ROOTFS_MOUNT=/tmp/imager/rootfs
+declare ERROR=   #a general error reporting string implies return 99 -- pop up
+
+# Persistence will be maintained for
+# User name, label, Laptop partition used by imager for bulk storage
+
+# i18n stuff
+if test "$USE_NLS" = "yes" && type -p gettext > /dev/null; then
+  xecho() {
+    gettext -s "$*"
+  }
+else
+  xecho() {
+    echo "$*"
+  }
+  gettext() {
+     echo -n "$*"
+  }
+fi
+xmsg() {
+  msg=$(gettext "$1")
+  shift
+  printf "$msg" $*
+}
+
+#########   User interface command line stuff #########
+usage() {
+    xecho "IIAB SD Card Duplicator"
+    echo "  version $version"
+    xecho "usage: $0 [options]
+  -d|--dest      Destination USB stick
+  -h|--help      what you're reading"
+}
+
+while (( $# )) ; do
+    case "$1" in
+    -h|--help)
+         usage; exit 0 ;;
+    -d|--dest)
+         PARTITION="$2"; shift 2;;
+    *) usage ; exit 1 ;;
+    esac
+done
+
+getDevicesList() {
+   declare -a devices 
+   declare -g TINY_CORE_NIBBLE
+   # pass the array by reference
+   local -n devicesList=$1
+   mapfile -t devices < <(lsblk -o NAME,TYPE | grep  disk | awk '{print $1}')
+   echo ${devices[@]}
+   for device in "${devices[@]}" ; do
+      if [ "$device" = "sdb" ]; then continue; fi
+      if [ "$device" = "zram0" ]; then continue; fi
+      if [ "$device" = "$TINY_CORE_NIBBLE" ]; then continue; fi
+      devicesList+=("$device")
+   done
+}
+
+remountAll(){
+   list=$(cat /etc/fstab | grep /mnt | cut -d" " -f1)
+   for dev in $list; do
+      echo $dev | grep sr0 > /dev/null; if test $? -eq 0; then continue; fi
+      echo $dev | grep $TINY_CORE_NIBBLE > /dev/null; if test $? -eq 0; then continue; fi
+      mnt=$(cat /etc/fstab | grep $dev | awk '{print $2}')
+      umount $mnt
+      type=
+      grep $dev /etc/fstab | grep -e ntfs-3g -e fuseblk -e ntfs > /dev/null; 
+      if test $? -eq 0; then
+         type="-t ntfs-3g"
+      fi
+      mount $type $dev $mnt
+   done
+}
+umountAll(){
+   list=$(cat /etc/fstab | grep /mnt | cut -d" " -f1)
+   for dev in $list; do
+      echo $dev | grep sr0 > /dev/null; if test $? -eq 0; then continue; fi
+      echo $dev | grep $TINY_CORE_NIBBLE > /dev/null; if test $? -eq 0; then continue; fi
+      mnt=$(cat /etc/fstab | grep $dev | awk '{print $2}')
+      umount $mnt > /dev/null
+   done
+}
+
+initialize(){
+   IMAGERVERSION=0.1
+   USE_NLS=no
+   BOOT_DEVICE=$(blkid --label tcore)
+   declare -g TINY_CORE_NIBBLE=${BOOT_DEVICE:5:3}
+   export TERM=xterm
+   mkdir -p /tmp/imager
+   mkdir -p /opt/imager
+}
+
+checkSudo() {
+  if ((EUID != 0)); then
+    echo "Granting root privileges for $scriptName."
+    if [[ -t 1 ]]; then
+      sudo "$0" "$@"
+    else
+      exec 1>output_file
+      gksu "$0" "$@"
+    fi
+    exit
+  fi
+}
+
+isUSB() {
+  udevadm info --query=symlink --name="$1" | grep usb
+}
+
+device2device(){
+# verify that there are two viable choices
+   declare -a deviceList
+   declare -a see
+   count=0
+   devices=$(getDevicesList $deviceList)
+   for d in $devices; do
+      if [ "$d" = "$LAPTOP_DEVICE" ]; then continue; fi
+      if [ "$d" = "$TINY_CORE_NIBBLE" ]; then continue; fi
+      if [ "$d" = "zram0" ]; then continue; fi
+      count=$(( count + 1 ))
+      see+=($d)
+   done
+   if [ $count -lt 2 ]; then
+      MSG=$(gettext "Disk to Disk copy requires 2 devices. Only see $count -- $see \
+      \n\nNote the name of current device -- to correctly identify the devices \
+      \nand copy in a direction which does not DESTROY your SOURCE")
+      TITLE=$(gettext "ERROR")
+      dialog --title "$TITLE" --msgbox "$MSG" 9 80
+      return 99
+   fi
+   return 0
+}
+
+notIiab(){
+   MSG=$(gettext "The device chosen does not appear to contain an IIAB image, or a readable ini File")
+   dialog --title "WARNING -- $OBJECTIVE" --msgbox "$MSG" 6 80 
+}
+
+showIni(){
+   local device=$1
+   part=
+   echo $device | grep iiab
+   if [ $? -eq 0 ] || [ ${device:0:4} = "mmcb" ]; then part=p; fi
+   
+   # Is parameter a file? Create a loop device to expose contents
+   echo $device | grep iiab
+   if [ $? -eq 0 ]; then  
+      losetup -P $RAWDEVICE $device
+      local devicepart=${RAWDEVICE}${part}2
+      mkdir -p /tmp/imager/${devicepart:5}
+      local devicemnt=/tmp/imager/${devicepart:5}
+   else
+      devicepart="/dev/${device}${part}2"
+      devicemnt="/mnt/${device}${part}2"
+   fi
+
+   mount $devicepart $ROOTFS_MOUNT
+   local si_title=$(gettext "IIAB Information File -- $OBJECTIVE")
+   si_msg=$(gettext "\nThis file is updated when the IIAB Admin Console is used \
+                \nto modify the conriguration of Internet In A Box")
+   if [ -r "$ROOTFS_MOUNT/etc/iiab/iiab.ini" ]; then
+      dialog --title "$si_title" --textbox  "$ROOTFS_MOUNT/etc/iiab/iiab.ini" 30 80
+   else
+      notIiab
+   fi
+   umount $ROOTFS_MOUNT > /dev/null
+}
+
+################  Choose Source  ###################
+selectSource(){
+   declare -a deviceList
+   local rtn
+   while true; do
+      echo > /tmp/imager/src
+      cat << EOF > /tmp/imager/src
+      TITLE=$(gettext "\"CHOOSE SOURCE SD CARD -- $OBJECTIVE\"")
+      MSG=$(gettext "\"\n\nChoose Source -- Probably a mmcblk device \\
+      \n\n\nSuggestion: If you are uncertain about the names of the devices; \\
+      \nRemove the device that you want to use as destination, and repeat \\
+      \nthis menu item.\n \\
+      \nOr highlight a device, and tab to the < info > button \n\n \\
+          device    size   vendor               model   \\
+      \n=========================================================================\"")
+      SRC=\$(dialog --title "\$TITLE" --ok-label "Select" --default-item mmcblk0 \\
+       --extra-button --extra-label "info" --menu "\$MSG" 24 90 6    \\
+EOF
+      devices=$(getDevicesList $deviceList)
+      (for d in $devices; do
+         if [ "$d" = "$LAPTOP_DEVICE" ]; then continue; fi
+         if [ "$d" = "$TINY_CORE_NIBBLE" ]; then continue; fi
+         if [ "$d" = "zram0" ]; then continue; fi
+
+         lsblk -o KNAME,SIZE,VENDOR,TYPE,MODEL | \
+         grep disk | grep "$d" | \
+         awk '{printf("\"%-6s\" \"%-8s %-20s %-20s\" \\\n",$1,$2,$3,$5);}' 
+
+      done ) >> /tmp/imager/src
+      echo  3\>\&1 1\>\&2 2\>\&3\) >> /tmp/imager/src
+      source /tmp/imager/src
+      rtn=$?
+      case $rtn in
+         3) 
+            showIni $SRC
+            continue
+            ;;
+         1) return 99
+      #      break
+            ;;
+      esac
+      if [ $rtn -eq 99 ];then return 99;fi
+      SRC_NIBBLE=$(echo "$SRC" | awk '{print $1}')
+      SRC_DEVICE=/dev/$SRC_NIBBLE
+      SRC_DEVICE_HOLDS=$(fdisk -l "$SRC_DEVICE" | grep Disk | awk '{print $5;}')
+      echo $SRC
+      SRC_SIZE=$(fdisk -l "$SRC_DEVICE" | grep Linux | awk '{print $3;}')
+      SRC_SIZE=$(expr $SRC_SIZE \* 512)
+      CHOSEN_SIZE=$SRC_SIZE
+      WILLITFIT_SRC_SIZE=$SRC_SIZE
+      rtn=0
+      break
+   done
+   return 0
+}
+
+################  Choose Destination  ###################
+selectSDDestination(){
+   echo > /tmp/imager/sddevice
+   while true; do
+      cat << EOF > /tmp/imager/sddevice
+      TITLE=\$(gettext "\"Choose SD card as Destination\"")
+      MSG=\$(gettext "\"If you have not removed the source SD card, and replaced it with a blank SD, \ndo not select mmcblk0.. \n\n\n \\
+      device    size        type \\
+      \n========================================================================")
+      DEST=\$(dialog --title "\$TITLE" --clear --ok-label "Select"  \\
+       --extra-button --extra-label "info"     \\
+       --menu "\$MSG" 20 90 25    \\
+EOF
+      devices=$(getDevicesList $deviceList)
+      (for d in $devices; do
+         if [ "$d" = "$LAPTOP_DEVICE" ]; then continue; fi
+         if [ "$d" = "$TINY_CORE_NIBBLE" ]; then continue; fi
+         if [ "$d" = "zram0" ]; then continue; fi
+
+         lsblk -o KNAME,SIZE,VENDOR,TYPE,MODEL | \
+         grep disk | grep "$d" | \
+         awk '{printf("\"%-6s\" \"%-8s %-20s %-20s\" \\\n",$1,$2,$3,$5);}' 
+
+      done ) >> /tmp/imager/sddevice
+      echo  '3>&1 1>&2 2>&3)' >> /tmp/imager/sddevice
+      source /tmp/imager/sddevice
+      rtn=$?
+      case $rtn in
+         3) 
+            showIni $DEST
+            continue
+            ;;
+         1) return 99
+#            break
+            ;;
+      esac
+      if [ $rtn -eq 99 ];then return 99;fi
+      DEST=$(echo "$DEST" | awk '{print $1;}')    # trim trailing spaces
+      DEST_DEVICE=/dev/$DEST
+      DEST_SIZE=$(fdisk -l $DEST_DEVICE | grep Disk | cut -d" " -f 5)
+      WILLITFIT_DEST_SIZE=$DEST_SIZE
+      DEST_IS_FILE=false
+      break
+   done
+   return 0
+}
+
+selectDevice(){
+   declare -a deviceList
+   local tmpf=/tmp/imager/selectdevice
+   # the source should not be listed as a potential destination
+   echo > $gmpf
+   cat << EOF > $tmpf
+      TITLE=$(gettext "\"CHOSE DEVICE -- $OBJECTIVE\"")
+      MSG=$(gettext "\"Choose Destination -- Either hard disk partition of type ntfs, or fuseblock. \n \\
+      \$MIN_SIZE_TEXT  \n\n\n \\
+                               device      size   \n \\
+   =================================================================================\"")
+      DEST=\$(dialog --title "\$TITLE" --clear --ok-label "Select"  \\
+         --menu "\$MSG" 20 90 25    \\
+EOF
+
+   devices=$(getDevicesList $deviceList)
+   (for d in $devices; do
+      if [ "$d" = "$SRC_DEVICE" ]; then continue; fi
+      if [ "$d" = "$TINY_CORE_NIBBLE" ]; then continue; fi
+      if [ "$d" = "zram0" ]; then continue; fi
+      if [ "$d" = "$SRC_NIBBLE" ]; then continue; fi
+      lsblk -o KNAME,SIZE,VENDOR,TYPE,MODEL | \
+      grep disk | grep "$d" | awk '{printf("\"%-6s\" \"%-8s %-20s %-20s\" \\\n",$1,$2,$3,$5);}' 
+   done ) >> $tmpf
+   echo  '3>&1 1>&2 2>&3)' >> $tmpf
+   source $tmpf
+   if test $? -ne 0 ; then return 99; fi
+   sd_device=$(echo "$DEST" | awk '{print $1;}')    # trim trailing spaces
+}
+
+selectRepo(){
+   # Repo is hard disk destination
+   selectDevice
+   if test $? -eq 99 ; then return 99; fi
+   DEST_DEVICE=/dev/$sd_device
+   DEST_SIZE=$(fdisk -l $DEST_DEVICE | grep Disk | cut -d" " -f 5)
+   DEST_IS_FILE=true
+
+   # pick the partition
+   selectPartition $DEST_DEVICE 
+   if test $? -ne 0 ; then return 99; fi
+   DEST_PARTITION_MOUNT=/mnt/${PARTITION:5}
+   # PREFERRED_MOUNT is remembered for resize, delete, and copy image commands
+   PREFERRED_MOUNT=$DEST_PARTITION_MOUNT
+   persist_variable "PREFERRED_MOUNT" $DEST_PARTITION_MOUNT
+   mkdir -p $DEST_PARTITION_MOUNT/iiab
+
+
+   local sr_tmp=/tmp/imager/repo
+   local title
+   local msg
+   cat << EOF > "$sr_tmp"
+   title=$(gettext "\"VERIFY TARGET -- $OBJECTIVE\"")
+   msg=$(gettext "\"\nThe new Image will be placed in this directory along with these files\"")
+   CHOICE_NUM=\$(dialog --title "\$title" --clear --ok-label "Select"  \\
+    --menu "\$msg" 20 90 25    \\
+EOF
+   list=$(ls -l $DEST_PARTITION_MOUNT/iiab | awk '{print $9}')
+   index=1
+   for f in $list;do
+     size=$( ls -lh $DEST_PARTITION_MOUNT/iiab/$f | awk '{print $5}') 
+     (printf '\"%-2s\"  \"%-9s %-20s\" \\\n' $index $size $f) >> $sr_tmp 
+     lookup[$index]=$f
+     index=$(( $index + 1 ))
+   done
+   image_list=${lookup[@]}
+   echo  '3>&1 1>&2 2>&3)' >> $sr_tmp
+
+   source $sr_tmp
+   if test $? -eq 1; then return 99; fi
+   image_path=$1/$(get_nth $CHOICE_NUM $image_list )
+   DEST_PARTITION=$PARTITION
+   DEST_FREE=$(/usr/local/bin/df -l | grep $DEST_PARTITION | awk '{print $4}')
+   DEST_FREE=$(expr "$DEST_FREE" \* 1024)
+   WILLITFIT_DEST_SIZE=$DEST_FREE
+}
+
+################### Identify the copy  #####################
+
+# Fetch username and appropriate label
+createFilename(){
+   # generate mount specifiers
+   SRC_PARTITION_NIBBLE=${SRC_PARTITION:5}
+   SRC_MNT=/mnt/$SRC_PARTITION_NIBBLE
+   DEST_MNT=$(get_persisted_variable PREFERRED_MOUNT)
+   name=$(get_persisted_variable NAME)
+   label=$(get_persisted_variable LABEL)
+   TITLE=$(gettext "Please identify this copy -- $OBJECTIVE")
+   MSG=$(gettext "Requires your name and short identifying label")
+   exec 3>&1
+   DATA=$(dialog --output-separator ":" --title "$TITLE" --form "$MSG" 10 80 3 \
+         "Name:" 1 1 "$name" 1 7 15 0 \
+         "Label:" 2  1 "$label" 2 7 16 0 \
+         2>&1 1>&3)
+   if test $? -ne 0 ; then return 99; fi
+   NAME=$(echo $DATA | awk -F: '{print $1;}')
+   LABEL=$(echo $DATA | awk -F: '{print $2;}')
+   # replace spaces with underscores
+   NAME=$(echo $NAME | sed 's/ /_/g')
+   LABEL=$(echo $LABEL | sed 's/ /_/g')
+   # replace slashes with underscores
+   NAME=$(echo $NAME | sed 's|/|_|g')
+   LABEL=$(echo $LABEL | sed 's|/|_|g')
+   persist_variable NAME $NAME
+   persist_variable LABEL $LABEL
+   local target=$(iiab_label $SRC_MNT $NAME $LABEL)
+   if test $? -ne 0; then return 99; fi
+   echo $target > /usr/local/etc/handle
+   TARGET=$DEST_MNT/iiab/$target
+   return 0
+}
+
+# verify that the copy of source will fit on destination
+willItFit(){
+   if [ $(expr "$WILLITFIT_SRC_SIZE" \> "$WILLITFIT_DEST_SIZE") -eq 1 ] ; then
+     MSG=$(gettext "The source $WILLITFIT_SRC_SPEC $(bytes_to_human $WILLITFIT_SRC_SIZE) \
+  will not fit on the destination $WILLITFIT_DEST_SPEC $(bytes_to_human $WILLITFIT_DEST_SIZE)")
+     TITLE=$(gettext "Fatal ERROR . . . Quitting")
+     dialog --title "$TITLE"  --msgbox "$MSG" 10 70 
+     return 99 
+   fi
+   return 0
+}
+
+getInstallDate(){
+   local device=$1
+   local part=
+   if [ ${device:5:4} = "mmcb" ] || [ ${device:5:4} = "loop" ]; then part=p; fi
+   local devicepart="/dev${device:4}${part}2"
+   local devicemnt="/mnt${device:4}${part}2"
+   if [ -r "$devicemnt/etc/iiab/iiab.ini" ]; then
+      install=$(grep install_date "$devicemnt/etc/iiab/iiab.ini" | cut -d= -f2 | cut -dT -f1)
+   else
+      install="not available"
+   fi
+   echo $install
+}
+getModifiedDate(){
+   local device=$1
+   local part=
+   if [ ${device:5:4} = "mmcb" ] || [ ${device:4:8} = "loop" ]; then part=p; fi
+   local devicepart="/dev${device:4}${part}2"
+   local devicemnt="/mnt${device:4}${part}2"
+   if [ -r "$devicemnt/etc/iiab/iiab.ini" ]; then
+      install=$(grep runtime_date "$devicemnt/etc/iiab/iiab.ini" | cut -d= -f2 | cut -dT -f1)
+   else
+      install="not available"
+   fi
+   echo $install
+}
+#####################  Final Sanity Check  ###########################
+finalVerification(){
+   if [ "$DEST_IS_FILE" != "true" ]; then
+      write_to="$DEST_DEVICE"
+      output_size="$DEST_SIZE"
+      local src_device=$RAWDEVICE
+   else
+      write_to="$TARGET"
+      output_size="$DEST_FREE"
+      local src_device=$SRC_DEVICE
+   fi
+   # check if src is a file
+   echo $SRC_DEVICE | grep iiab
+   if [ $? -eq 0 ]; then
+      imageOpen $SRC_DEVICE
+      local src_install_date=$(grep install_date "$ROOTFS_MOUNT/etc/iiab/iiab.ini" | cut -d= -f2 | cut -dT -f1)
+      local src_modified_date=$(grep runtime_date "$ROOTFS_MOUNT/etc/iiab/iiab.ini" | cut -d= -f2 | cut -dT -f1)
+      imageClose
+   else
+      local src_install_date=$(getInstallDate $src_device)
+      local src_modified_date=$(getModifiedDate $src_device)
+   fi
+
+   output_size=$(bytes_to_human $output_size)
+   title=$(gettext "Final Verification")
+   msg=$(gettext "\n\nSource: $SRC_DEVICE  \nBytes to copy: $(bytes_to_human $CHOSEN_SIZE) \
+  \nSource device capacity: $(bytes_to_human $SRC_DEVICE_HOLDS)
+  \nSource install date: $src_install_date
+  \nLast modified: $src_modified_date
+  \n\nDestination: $write_to   \nSpace on Destination: $output_size
+  \nDestination install date: $(getInstallDate $write_to)
+  \nLast modified: $(getModifiedDate $write_to)")
+  dialog --title "$title" --defaultno --yesno "$msg" 20 80
+  if test $? -ne 0 ; then return 99; fi
+}
+
+rootfsCheck(){
+   rc_title=$(gettext "Checking file system that was just copied")
+   rc_msg=$(gettext "An error at this point might indicate a bad SD card")
+   dialog --title "$rc_title" --infobox "$rc_msg" 10 80
+   partprobe ${DEST_DEVICE}
+   umount ${DEST_DEVICE}2
+   e2fsck -fy ${DEST_DEVICE}2
+   if [ $? -ne 0 ]; then 
+      ERROR="File System Failure"
+      return 99
+   fi   # pop up
+   return 0
+}
+
+####################### copy the data #################################
+ddCopy(){
+   if [ "$DEST_IS_FILE" != "true" ]; then
+      write_to="$DEST_DEVICE"
+   else
+      # writing to our hard disk
+      write_to="$TARGET"
+      imageClose
+      # losetup may override another mount
+      if [ ! -w "/mnt/${DEST_PARTITION:5}/iiab" ];then
+         umount $DEST_PARTITION
+         mount -t ntfs-3g $DEST_PARTITION /mnt/${DEST_PARTITION:5}
+      fi
+   fi
+   # figure out how many 4K blocks to write
+   WRITE_COUNT=$( echo "( $CHOSEN_SIZE / 4096 ) + 1" | bc )
+
+   set +x
+   copied="0"
+while IFS= read line > /dev/null;do
+     echo $line | grep copied 
+     if [ $? -ne 0 ]; then continue;fi
+     (  copied=$(echo $line | awk '{print $1}'); 
+       percent=$(expr $copied \* 100 / $CHOSEN_SIZE) &> /dev/null; 
+      echo XXX; 
+      echo $percent; 
+      echo $line; 
+      echo XXX; ) \
+      | dialog --title "Image copying progress. . ." --gauge "dd progress..." 8 80 
+#done< <( dd if=$SRC_DEVICE of=$write_to bs=4096 count=$WRITE_COUNT oflag=direct,sync \
+done< <( dd if=$SRC_DEVICE of=$write_to bs=4096 count=$WRITE_COUNT \
+         iflag=fullblock,nocache 2>&1 & 
+          pid=$!
+          sleep 1
+          while kill -USR1 $pid 2>/dev/null;do
+               sleep 10
+          done )
+  set -x
+  sync
+}
+
+imageOpen(){
+   declare -g RAWDEVICE
+   declare -g ROOTFS_MOUNT
+   infile=$1 
+   # need to open the root partition
+   losetup -P $RAWDEVICE $infile
+   mkdir -p $ROOTFS_MOUNT
+   mount ${RAWDEVICE}p2 $ROOTFS_MOUNT
+}
+
+imageClose(){
+   declare -g RAWDEVICE
+   declare -g ROOTFS_MOUNT
+   umount $ROOTFS_MOUNT
+   losetup -d $RAWDEVICE
+}
+
+destPrep(){
+   rtn=
+   if [ "$dest_is_file" = "true" ]; then
+      imageOpen $TARGET
+      ERROR=$(modify_dest $ROOTFS_MOUNT)
+      rtn=$?
+      imageClose
+   else
+      part=
+      if [ ${DEST_DEVICE:5:4} = "mmcb" ]; then part=p; fi
+      mount $DEST_DEVICE${part}2 /mnt/${DEST_DEVICE:5}${part}2
+      ERROR=$(modify_dest /mnt/${DEST_DEVICE:5}${part}2)
+      rtn=$?
+      umount $ROOTFS_MOUNT
+   fi      
+   if [ $rtn -ne 0 ];then return $rtn; fi
+}
+get_nth(){
+   index=1
+   nth=$1
+   shift
+   choice_list=$@
+   for ch in $choice_list; do
+      if [ "$index" = "$nth" ]; then break; fi 
+      index=$(( index + 1 ))
+   done
+   echo $ch
+}
+
+selectPartition(){
+   local device=$1
+   local default=$(persist_variable PREFERRED_DEVICE $device)
+   if [ ! -z "$default" ]; then
+      DEFAULT="--default-item $default"
+   else
+      DEFAULT=
+   fi
+   cat << EOF > /tmp/imager/partition
+   TITLE=$(gettext "\"Select Partition -- $OBJECTIVE\"")
+   MSG=$(gettext "\"Probably should pick the ntfs or fuseblk partition with the most free space \\
+      \n\n   device    type           size       used      free    %    mounted at   \\
+      \n=========================================================================\"")
+   PARTITION=\$(dialog --title "\$TITLE" --clear --ok-label "Select"  $DEFAULT \\
+       --menu "\$MSG" 20 90 25    \\
+EOF
+   (df -hT | grep $device | \
+      awk ' { printf("\"%-10s\"  \"%-5s %10s %10s %10s %6s    %-15s\"  \\\n",$1,$2,$3,$4,$5,$6,$7);}' ) \
+      >> /tmp/imager/partition
+   echo  "3>&1 1>&2 2>&3)" >> /tmp/imager/partition
+   source /tmp/imager/partition
+   if test $? -ne 0 ; then return 99; fi
+   PARTITION=$(echo $PARTITION | awk '{print $1}')
+}
+
+selectFile(){
+   # called by hdisk2SD
+   DEVICE_MNT=$(get_persisted_variable PREFERRED_MOUNT)
+   local device=$(get_persisted_variable PREFERRED_DEVICE)
+
+   local sf_tmp=/tmp/imager/selectfile
+   declare -a lookup
+   mkdir -p $(dirname $si_tmp)
+   while true; do
+      cat << EOF > "$sf_tmp"
+      sf_title=$(gettext "\"SELECT FILE -- $OBJECTIVE\"")
+      sf_msg=$(gettext "\"Choose hard disk image to Copy to SD card\"")
+      CHOICE_NUM=\$(dialog --title "\$sf_title" --extra-button --extra-label "info" \\
+                  --ok-label "Select" --menu "\$sf_msg" 20 90 25    \\
+EOF
+      list=$(ls -l $DEVICE_MNT/iiab | awk '{print $9}')
+      index=1
+      for f in $list;do
+        size=$( ls -lh $DEVICE_MNT/iiab/$f | awk '{print $5}') 
+        (printf '\"%-2s\"  \"%-9s %-20s\" \\\n' $index $size $f) >> $sf_tmp 
+        lookup[$index]=$f
+        index=$(( $index + 1 ))
+      done
+      image_list=${lookup[@]}
+      echo  '3>&1 1>&2 2>&3)' >> $sf_tmp
+
+      source "$sf_tmp"
+      rtn=$?
+      local filename=$(get_nth $CHOICE_NUM $image_list )
+      image_path=$DEVICE_MNT/iiab/$filename
+      case $rtn in
+         3) 
+            showIni $image_path
+            continue
+            ;;
+         1) rtn=99
+            break
+            ;;
+         0) break
+            ;;
+      esac
+   done
+   if [ $rtn -eq 99 ];then return 99;fi
+   SRC_DEVICE=$image_path
+   imageOpen $image_path
+   losetup -P $RAWDEVICE $image_path
+   mkdir -p /tmp/imager/rootfs
+   mount ${RAWDEVICE}p2 /tmp/imager/rootfs
+   
+   SRC_FILE_SIZE=$(ls -l $image_path | awk '{print $5}')
+   WILLITFIT_SRC_SIZE=$SRC_FILE_SIZE
+   CHOSEN_SIZE=$SRC_FILE_SIZE
+   return 0
+}
+
+################   Top Level Action Routines   ####################
+copy2SD(){
+   device2device
+   if test $? -ne 0; then return 99; fi
+   selectSource
+   if test $? -ne 0; then return 99; fi
+   selectSDDestination
+   if test $? -ne 0; then return 99; fi
+   willItFit
+   if test $? -ne 0; then return 99; fi
+   finalVerification
+   if test $? -ne 0; then return 99; fi
+   ddCopy
+   if test $? -ne 0; then return 99; fi
+   rootfsCheck
+   if test $? -ne 0; then return 99; fi
+   destPrep
+}
+
+copy2Disk(){
+   selectSource
+   if test $? -ne 0; then return 99; fi
+   createFilename
+   if test $? -ne 0; then return 99; fi
+   selectRepo
+   if test $? -ne 0; then return 99; fi
+   willItFit
+   if test $? -ne 0; then return 99; fi
+   finalVerification
+   if test $? -ne 0; then return 99; fi
+   ddCopy
+   if test $? -ne 0; then return 99; fi
+   destPrep
+}
+
+makeSmaller(){
+   DEST_MNT=$(get_persisted_variable PREFERRED_MOUNT)
+   PART=/dev/${DEST_MNT:5}
+
+   # adapt to changing targets
+   if [ ! -d $DEST_MNT/iiab ]; then
+      selectRepo
+      DEST_MNT=$(get_persisted_variable PREFERRED_MOUNT)
+      PART=/dev/${DEST_MNT:5}
+   fi
+   local ms_tmp=/tmp/imager/smaller
+   declare -a lookup
+   mkdir -p $(dirname $ms_tmp)
+   partinfo=$(/usr/local/bin/df -hT $DEST_MNT/iiab | tail -n1)
+   while true; do
+      cat << EOF > "$ms_tmp"
+      title=$(gettext "\"Choose Image to make Smaller -- $OBJECTIVE\"")
+      msg=$(gettext "\"  \\
+      \nDirectory: $DEST_MNT/iiab
+      \n\nFile System    Type      Size  Used  Avail % Mounted on\n$partinfo\n\n
+      \nUse the \"info\" button for information on what is installed..\"")
+      CHOICE_NUM=\$(dialog --title "\$title" --clear --ok-label "Select"  \\
+           --extra-button --extra-label "info" --menu "\$msg" 30 90 25    \\
+EOF
+      list=$(ls -l $DEST_MNT/iiab | awk '{print $9}')
+      index=1
+      for f in $list;do
+        size=$( ls -lh $DEST_MNT/iiab/$f | awk '{print $5}') 
+        (printf '\"%-2s\"  \"%-9s %-20s\" \\\n' $index $size $f) >> $ms_tmp 
+        lookup[$index]=$f
+        index=$(( $index + 1 ))
+      done
+      image_list=${lookup[@]}
+      echo  '3>&1 1>&2 2>&3)' >> $ms_tmp
+
+      source "$ms_tmp"
+      rtn=$?
+      local filename=$(get_nth $CHOICE_NUM $image_list )
+      image_path=$DEST_MNT/iiab/$filename
+      case $rtn in
+         3) 
+            showIni $image_path
+            continue
+            ;;
+         1) rtn=99
+            break
+            ;;
+         *) break
+            ;;
+      esac
+   done
+   if [ $rtn -eq 99 ];then return 99;fi
+
+   local filename=$(get_nth $CHOICE_NUM $image_list )
+   image_path=$DEST_MNT/iiab/$filename
+
+   # get the proposed new size
+   new_size=$(min_device_size $image_path)
+   human=$(bytes_to_human $new_size)
+   current_size=$(ls -lh $image_path | awk '{print $5}')
+   
+   TITLE=$(gettext "OK to proceed? -- $OBJECTIVE")
+   MSG=$(gettext "The image file $image_path is currently $current_size. \n
+It's new size will be $human. Do you want to proceed?")
+   
+   dialog --title "$TITLE" --defaultno --yesno "$MSG" 9 80
+   if test $? -ne 0; then return 99; fi
+
+   ERROR=$(size_image $image_path)
+   if test $? -ne 0; then return 99; fi
+   return 0 
+}
+
+hdisk2SD(){
+   selectFile 
+   if test $? -ne 0; then return 99; fi
+   selectSDDestination
+   if test $? -ne 0; then return 99; fi
+   willItFit
+   if test $? -ne 0; then return 99; fi
+   finalVerification
+   if test $? -ne 0; then return 99; fi
+   ddCopy
+   if test $? -ne 0; then return 99; fi
+   destPrep
+}
+
+deleteImage(){
+   DEST_MNT=$(get_persisted_variable PREFERRED_MOUNT)
+   PART=/dev/${DEST_MNT:5}
+   
+   # adapt to changing targets
+   if [ ! -d $DEST_MNT/iiab ]; then
+      selectRepo
+   fi
+   local di_tmp=/tmp/imager/delete
+   local title
+   local msg
+   partinfo=$(/usr/local/bin/df -hT $DEST_MNT/iiab | tail -n1)
+   while true; do
+      cat << EOF > "$di_tmp"
+      title=$(gettext "\"Choose a File to Delete -- $OBJECTIVE\"")
+      msg=$(gettext "\"Highlight the file you wish to delete \\
+      \n\nDirectory: $DEST_MNT/iiab
+      \n\nFile System    Type      Size  Used  Available Mounted on\n$partinfo\n\n\"")
+      CHOICE_NUM=\$(dialog --title "\$title" --clear --ok-label "Select"  \\
+       --extra-button --extra-label "info" --menu "\$msg" 40 90 35    \\
+EOF
+      list=$(ls -l $DEST_MNT/iiab | awk '{print $9}')
+      index=1
+      for f in $list;do
+        size=$( ls -lh $DEST_MNT/iiab/$f | awk '{print $5}') 
+        (printf '\"%-2s\"  \"%-9s %-20s\" \\\n' $index $size $f) >> $di_tmp 
+        lookup[$index]=$f
+        index=$(( $index + 1 ))
+      done
+      image_list=${lookup[@]}
+      if [ ${#lookup[@]} = "0" ]; then
+         msg=$(gettext "There are no images to delete")
+         dialog --title "$title" --msgbox "$msg" 6 80
+         rtn=99
+         break
+      fi
+      echo  '3>&1 1>&2 2>&3)' >> $di_tmp
+
+      source $di_tmp
+      rtn=$?
+      local filename=$(get_nth $CHOICE_NUM $image_list )
+      image_path=$DEST_MNT/iiab/$filename
+      case $rtn in
+         3) 
+            showIni $image_path
+            ;;
+         1) rtn=99
+            break
+            ;;
+         0) 
+            break
+            ;;
+      esac
+   done
+   if [ $rtn -eq 99 ];then return 99;fi
+
+   TITLE=$(gettext "OK to proceed? -- $OBJECTIVE")
+   MSG=$(gettext "The image file $image_path is about to be deleted. \
+Do you want to proceed?")
+   dialog --title "$TITLE" --defaultno --yesno "$MSG" 10 80
+   if test $? -ne 0; then return 99; fi
+
+   echo $image_path | grep iiab  # protection for total hard disk wipeout
+   if [ $? -eq 0 ]; then
+      rm -f $image_path
+   else
+      echo "iiab not in full path of delete -- aborting"
+      exit 1
+   fi
+   return 0 
+}
+
+#######################   Main Menu   ###############################
+mainMenu(){
+   choice1=$(gettext "Copy to SD Card (DESTROYS ALL DATA ON TARGET)")
+   choice1x=$(gettext "Copy to hard disk")
+   choice2=$(gettext "Reduce the size of hard disk image")
+   choice3=$(gettext "Copy from hard disk image to SD card")
+   choice4=$(gettext "Delete hard disk image")
+   choice5=$(gettext "Help")
+   choice6=$(gettext "Exit to command line terminal")
+   title=$(gettext "MAIN MENU")
+   msg=$(gettext "\n\nPlease choose from the following options:")
+   ACTION=$(dialog --title "$title"  --ok-button Select --cancel-button quit --menu "$msg" 17 80 7   \
+   "copy2sd" "$choice1" \
+   "copy2disk" "$choice1x" \
+   "smaller" "$choice2" \
+   "hdisk2sd" "$choice3" \
+   "delete" "$choice4" \
+   "help" "$choice5" \
+   "terminal" "$choice6" \
+   3>&1 1>&2 2>&3)
+   if test $? -ne 0 ; then exit 1 ; fi
+   case "$ACTION" in
+      copy2sd) 
+         OBJECTIVE=$choice1
+         copy2SD
+         ;;
+      copy2disk) 
+         OBJECTIVE=$choice1x
+         copy2Disk
+         ;;
+      smaller) 
+         OBJECTIVE=$choice2
+         makeSmaller
+         ;;
+      hdisk2sd)
+         OBJECTIVE=$choice3 
+         hdisk2SD
+         ;;
+      delete)
+         OBJECTIVE=$choice4
+         deleteImage
+         ;;
+      help)
+         OBJECTIVE=$choice5
+         dillo file:///opt/iiab/iiab-factory/box/rpi/imager/docs/README.html
+         ;;
+      terminal)
+         dialog --title "Exit to terminal" --msgbox "Thank you for using IMAGER\n\nIf you wish to return to the IMAGER application. . .\nOpen a terminal, and type \"imager\"." 10 80
+         exit 1
+         ;;
+      help|*)
+         usage
+         ;;
+   esac
+   displayError
+}
+
+displayError(){
+      if [ ! -z "$ERROR" ]; then
+         dialog --title "ERROR" --msgbox "$ERROR" 10 80
+         ERROR=
+      fi
+}
+
+cleanup(){
+   if [ $? -eq 99 ]; then
+      if [ ! -z "$ERROR" ]; then
+         dialog --title "ERROR" --msgbox $ERROR
+         ERROR=
+      fi
+      trap cleanup EXIT INT TERM
+      main
+   fi
+   umountAll
+}
+
+main(){
+   while true; do
+      remountAll
+      mainMenu
+   done
+}
+
+trap cleanup EXIT INT TERM
+
+initialize "$@"
+checkSudo "$@"
+
+main "$@"

@@ -1,0 +1,6 @@
+#!/bin/bash -x
+set -e
+SOURCE=/opt/iiab/iiab-factory/box/rpi/imager/docs/README.md
+DESTPATH=/opt/iiab/iiab-factory/box/rpi/imager/docs/README.html
+
+pandoc -s $SOURCE -o $DESTPATH

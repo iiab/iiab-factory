@@ -1,0 +1,10 @@
+https://www.tenforums.com/tutorials/2859-enable-disable-hibernate-windows-10-a.html
+Need to turn off the hibernate function of windows 10, so that ntfs-3g driver can read and write. Otherwise the partition is marked cloaked, and now writeable.
+
+$ sudo mount /media/windows
+Windows is hibernated, refused to mount.
+Failed to mount '/dev/sda2': Operação não permitida
+The NTFS partition is in an unsafe state. Please resume and shutdown
+Windows fully (no hibernation or fast restarting), or mount the volume
+read-only with the 'ro' mount option.
+
