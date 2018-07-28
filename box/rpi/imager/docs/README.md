@@ -7,10 +7,10 @@
 
 ### Objective driven -- and takes care of the details
 * Notes on menu navigation
-  * Up, down arrows change the selection
-  * Left, right  arrows (and tab), change the action choices at the bottom
-  * Enter acts on the currently displayed selection with the displayed action
-  * Backspace erases on the fill-in-the-blank screen. (tab cycles between fields, and actions at bottom.
+    * Up, down arrows change the selection
+    * Left, right  arrows (and tab), change the action choices at the bottom
+    * Enter acts on the currently displayed selection with the displayed action
+    * Backspace erases on the fill-in-the-blank screen. (tab cycles between fields, and actions at bottom.
 
 ![Main Menu Options](menu.png)
 * Use great care to keep track of which SD card is which. Whenever I remove a micro SD from a rpi, it place it in a standard size carrier, and put a label on the contact side.
