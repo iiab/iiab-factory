@@ -1,4 +1,4 @@
-#!/usr/local/bin/bash 
+#!/usr/local/bin/bash -x
 # fast copy (using dd) IIAB to an disk image, or a  second SD card; optionally minify image
 
 # Author: george hunt <georgejhunt.gmail.com> https://github.com/georgejhunt/iiab-factory
@@ -139,6 +139,7 @@ initialize(){
    export TERM=xterm
    mkdir -p /tmp/imager
    mkdir -p /opt/imager
+   mkdir -p "$ROOTFS_MOUNT"
 }
 
 checkSudo() {
@@ -367,7 +368,6 @@ selectRepo(){
    persist_variable "PREFERRED_MOUNT" $DEST_PARTITION_MOUNT
    mkdir -p $DEST_PARTITION_MOUNT/iiab
 
-
    local sr_tmp=/tmp/imager/repo
    local title
    local msg
@@ -555,7 +555,7 @@ done< <( dd if=$SRC_DEVICE of=$write_to bs=4096 count=$WRITE_COUNT \
           pid=$!
           sleep 1
           while kill -USR1 $pid 2>/dev/null;do
-               sleep 10
+               sleep 5
           done )
   set -x
   sync
@@ -635,6 +635,9 @@ EOF
 selectFile(){
    # called by hdisk2SD
    DEVICE_MNT=$(get_persisted_variable PREFERRED_MOUNT)
+   if [ -z "$DEVICE_MNT" ]; then
+      selectRepo
+   fi
    local device=$(get_persisted_variable PREFERRED_DEVICE)
 
    local sf_tmp=/tmp/imager/selectfile
@@ -790,7 +793,7 @@ It's new size will be $human. Do you want to proceed?")
    dialog --title "$TITLE" --defaultno --yesno "$MSG" 9 80
    if test $? -ne 0; then return 99; fi
 
-   ERROR=$(size_image $image_path)
+   size_image $image_path
    if test $? -ne 0; then return 99; fi
    return 0 
 }
@@ -891,7 +894,7 @@ mainMenu(){
    choice5=$(gettext "Help")
    choice6=$(gettext "Exit to command line terminal")
    title=$(gettext "MAIN MENU")
-   msg=$(gettext "\n\nPlease choose from the following options:")
+   msg=$(gettext "\nIMAGER = Disk Image Copier\n\nPlease choose from the following options:")
    ACTION=$(dialog --title "$title"  --ok-button Select --cancel-button quit --menu "$msg" 17 80 7   \
    "copy2sd" "$choice1" \
    "copy2disk" "$choice1x" \

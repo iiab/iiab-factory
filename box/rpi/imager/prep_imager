@@ -1,4 +1,4 @@
-#!/usr/local/bin/bash -x
+#!/bin/bash -x
 # prepare to duplicate Imager
 
 rm -f /usr/local/etc/iiab/handle
@@ -7,5 +7,3 @@ rm -rf /root/tools
 rm -rf /root/.ssh/*
 rm -f /root/.netrc
 
-# create a new mydata.tgz
-filetool.sh -b

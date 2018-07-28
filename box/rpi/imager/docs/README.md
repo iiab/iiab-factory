@@ -7,10 +7,10 @@
 
 ### Objective Driven -- Takes Care of Details
 * Notes on menu navigation
-  * Up, down arrows change the selection
-  * Left, right arrows (and Tab), change the action choices at the bottom
-  * Enter acts on the currently displayed selection with the displayed action
-  * Backspace erases on the fill-in-the-blank screen (Tab cycles between fields, and actions at bottom)
+    * Up, down arrows change the selection
+    * Left, right  arrows (and tab), change the action choices at the bottom
+    * Enter acts on the currently displayed selection with the displayed action
+    * Backspace erases on the fill-in-the-blank screen. (tab cycles between fields, and actions at bottom.
 
 ![Main Menu Options](menu.png)
 
@@ -60,7 +60,7 @@
 
 #### VPN Can Help Fix Bugs in Imager
 * Debugging Imager, in all the different Windows machines that might be encountered, is a difficult task.
-* VPN (virtual private networks) can be enabled so that the developer can diagnose problems encountered by early adopters.
+* VPN (virtual private networks) can be enabled (default=off) so that the developer can diagnose problems encountered by early adopters.
 * The terminal command "sudo vpn-on" will enable Imager for developer access (this access should survive reboots).
 * Make your VPN access discoverable (among other VPN clients) by entering name, and label, with the "copy2disk" menu choice (but cancel out before actually performing the copy).
 * Disable ongoing VPN access to Imager with the command "sudo vpn-off".
