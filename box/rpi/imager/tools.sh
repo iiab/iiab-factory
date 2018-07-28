@@ -162,9 +162,16 @@ iiab_label(){
       HASH=`git log --pretty=format:'g%h' -n 1`
       popd > /dev/null
    else
-      HASH="$$"
+      local tc_partition=${PARTITION:0:-1}3
+      if [ -d $tc_partition/opt/iiab/iiab-factory ]; then
+         pushd /$tc_partition/opt/iiab/iiab-factory > /dev/null
+         HASH=`git log --pretty=format:'g%h' -n 1`
+         popd > /dev/null
+      else
+         HASH="$$"
+      fi
       PRODUCT=LOCAL
-      VERSION="0.1"
+      VERSION="$IMAGERVERSION"
    fi
    YMD=$(date "+%y%m%d-%H%M")
    FILENAME=$(printf "%s-%s-%s-%s-%s-%s.img" $PRODUCT $VERSION $USER $LABEL $YMD $HASH)

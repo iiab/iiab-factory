@@ -402,8 +402,11 @@ EOF
 # Fetch username and appropriate label
 createFilename(){
    # generate mount specifiers
-   SRC_PARTITION_NIBBLE=${SRC_PARTITION:5}
-   SRC_MNT=/mnt/$SRC_PARTITION_NIBBLE
+   local device=$SRC_DEVICE
+   local part=
+   if [ ${device:5:4} = "mmcb" ] || [ ${device:5:4} = "loop" ]; then part=p; fi
+   SRC_PARTITION="/dev${device:4}${part}2"
+   SRC_MNT="/mnt${device:4}${part}2"
    DEST_MNT=$(get_persisted_variable PREFERRED_MOUNT)
    name=$(get_persisted_variable NAME)
    label=$(get_persisted_variable LABEL)
@@ -722,7 +725,7 @@ copy2Disk(){
    if test $? -ne 0; then return 99; fi
    ddCopy
    if test $? -ne 0; then return 99; fi
-   destPrep
+   # do not change the hd image -- just copies destPrep
 }
 
 makeSmaller(){
