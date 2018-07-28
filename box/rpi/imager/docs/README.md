@@ -7,10 +7,10 @@
 
 ### Objective Driven -- Takes Care of Details
 * Notes on menu navigation
-  * Up, down arrows change the selection
-  * Left, right arrows (and Tab), change the action choices at the bottom
-  * Enter acts on the currently displayed selection with the displayed action
-  * Backspace erases on the fill-in-the-blank screen (Tab cycles between fields, and actions at bottom)
+    * Up, down arrows change the selection
+    * Left, right  arrows (and tab), change the action choices at the bottom
+    * Enter acts on the currently displayed selection with the displayed action
+    * Backspace erases on the fill-in-the-blank screen. (tab cycles between fields, and actions at bottom.
 
 ![Main Menu Options](menu.png)
 

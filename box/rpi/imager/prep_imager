@@ -7,5 +7,3 @@ rm -rf /root/tools
 rm -rf /root/.ssh/*
 rm -f /root/.netrc
 
-# create a new mydata.tgz
-filetool.sh -b
