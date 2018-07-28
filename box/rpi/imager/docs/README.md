@@ -60,7 +60,7 @@
 
 #### VPN Can Help Fix Bugs in Imager
 * Debugging Imager, in all the different Windows machines that might be encountered, is a difficult task.
-* VPN (virtual private networks) can be enabled so that the developer can diagnose problems encountered by early adopters.
+* VPN (virtual private networks) can be enabled (default=off) so that the developer can diagnose problems encountered by early adopters.
 * The terminal command "sudo vpn-on" will enable Imager for developer access (this access should survive reboots).
 * Make your VPN access discoverable (among other VPN clients) by entering name, and label, with the "copy2disk" menu choice (but cancel out before actually performing the copy).
 * Disable ongoing VPN access to Imager with the command "sudo vpn-off".
