@@ -18,19 +18,17 @@
 </ul>
 <h3 id="objective-driven----and-takes-care-of-the-details">Objective driven -- and takes care of the details</h3>
 <ul>
-<li>Notes on menu navigation ** Up, down arrows change the selection ** Left, right arrows (and tab), change the action choices at the bottom ** Enter acts on the currently displayed selection with the displayed action ** Backspace erases on the fill-in-the-blank screen. (tab cycles between fields, and actions at bottom. <img src="menu.png" alt="Main Menu Options" /></li>
-<li>Use great care to keep track of which SD card is which. Whenever I remove a micro SD from a rpi, it place it in a standard size carrier, and put a label on the contact side.</li>
-<li>You do not want to accidently copy the contents of an older SD card onto the one which has the most recent updates.</li>
-<li>There is a file inside of each IIAB image which has much information. Use the &quot;&lt; info &gt;&quot; tab (middle bottom) if ever you are unsure about the identity of a SD card.</li>
-</ul>
-<h4 id="copy2sd----copy-to-sd-card-destroys-al-data-on-target-choose-source">Copy2SD -- Copy to SD card (DESTROYS AL DATA ON TARGET) <img src="selectSource.png" alt="Choose Source" /></h4>
+<li>Notes on menu navigation
 <ul>
-<li>The runtime-date and the install-date values may help sort out any confusion. <img src="ini.png" alt="Image Information" /></li>
-<li>On a windows laptop with an internal SD slot, the SD device will probably start with mmcblk0.</li>
-<li>SD card adapters will have sdc, sdd, sde names. <img src="nofit.png" alt="Does it Fit?" /></li>
-<li>The internal hard disk on a Windows laptop will probably start with &quot;sda&quot;.</li>
-<li>Copying from mmcblk0 to sdc is the shortest path, and quickest way to obtain a copy. <img src="choose_device.png" alt="Choose SD card as Destination" /></li>
+<li>Up, down arrows change the selection</li>
+<li>Left, right arrows (and tab), change the action choices at the bottom</li>
+<li>Enter acts on the currently displayed selection with the displayed action</li>
+<li>Backspace erases on the fill-in-the-blank screen. (tab cycles between fields, and actions at bottom.</li>
+</ul></li>
 </ul>
+<p><img src="menu.png" alt="Main Menu Options" /> * Use great care to keep track of which SD card is which. Whenever I remove a micro SD from a rpi, it place it in a standard size carrier, and put a label on the contact side. * You do not want to accidently copy the contents of an older SD card onto the one which has the most recent updates. * There is a file inside of each IIAB image which has much information. Use the &quot;&lt; info &gt;&quot; tab (middle bottom) if ever you are unsure about the identity of a SD card.</p>
+<h4 id="copy2sd----copy-to-sd-card-destroys-al-data-on-target-i">Copy2SD -- Copy to SD card (DESTROYS AL DATA ON TARGET) i</h4>
+<p><img src="selectSource.png" alt="Choose Source" /> * The runtime-date and the install-date values may help sort out any confusiona . <img src="ini.png" alt="Image Information" /> * On a windows laptop with an internal SD slot, the SD device will probably start with mmcblk0. * SD card adapters will have sdc, sdd, sde names. <img src="nofit.png" alt="Does it Fit?" /> * The internal hard disk on a Windows laptop will probably start with &quot;sda&quot;. * Copying from mmcblk0 to sdc is the shortest path, and quickest way to obtain a copy. <img src="choose_device.png" alt="Choose SD card as Destination" /></p>
 <h4 id="copy2disk----copy-to-hard-disk">Copy2disk -- Copy to hard disk</h4>
 <ul>
 <li>Sometimes the destination SD card is slightly smaller than the source, and the only way to make a successul copy is to first make a copy onto the hard disk, make that image smaller, and then copy the smaller version onto the new SD. (this is less error prone, if you use a SD USB adapter -- Though if you are careful, you can remove the source, and copy from the hard disk image, to the mmcblk slot which you earlier used as the source)</li>
