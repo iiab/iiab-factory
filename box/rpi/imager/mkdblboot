@@ -134,7 +134,7 @@ if [ ! -d /mnt/$ext/opt/iiab/iiab-factory ]; then
       cd ./iiab-factory
       sudo git remote add ghunt https://github.com/georgejhunt/iiab-factory
       sudo git fetch --all
-      sudo git checkout -b fixes ghunt/slim
+      sudo git checkout -b fixes ghunt/fixes
    popd
 fi
 
