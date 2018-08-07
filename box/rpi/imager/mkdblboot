@@ -153,9 +153,7 @@ wbar.tcz
 dillo.tcz
 fltk-1.3.tcz
 flwm_topside.tcz
-wifi.tcz
 wl-modules-4.14.10-tinycore.tcz
-iw.tcz
 pci-utils.tcz
 git.tcz
 tree.tcz
@@ -183,10 +181,9 @@ openssh.tcz
 parted.tcz
 rsync.tcz
 sed.tcz
-syslinux.tcz
 tar.tcz
 wget.tcz
-xz.tcz
+gzip.tcz
 e2fsprogs.tcz
 ntfsprogs.tcz
 usbutils.tcz
