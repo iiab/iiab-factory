@@ -186,6 +186,7 @@ wget.tcz
 gzip.tcz
 e2fsprogs.tcz
 ntfsprogs.tcz
+hfsprogs.tcz
 usbutils.tcz
 rsync.tcz
 grep.tcz
