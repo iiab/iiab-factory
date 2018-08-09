@@ -64,7 +64,7 @@ n
 p
 3
 
-+100M
++70M
 t
 1
 4
@@ -148,44 +148,35 @@ sudo cat << EOF |sudo tee $PERSIST/onboot.lst
 pci-utils.tcz
 git.tcz
 tree.tcz
-vim.tcz
 bash.tcz
 slocate.tcz
 grub2-multi.tcz
 dialog.tcz
 dosfstools.tcz
 util-linux.tcz
-openvpn.tcz
-gdisk.tcz
 zip-unzip.tcz
-man.tcz
-nmap.tcz
 ntfs-3g.tcz
 coreutils.tcz
 bc.tcz
 flex.tcz
-nano.tcz
 ncurses.tcz
 ncurses-utils.tcz
 nss-mdns.tcz
 openssh.tcz
-parted.tcz
 rsync.tcz
 sed.tcz
 tar.tcz
 wget.tcz
-gzip.tcz
 e2fsprogs.tcz
 ntfsprogs.tcz
 hfsprogs.tcz
 usbutils.tcz
-rsync.tcz
 grep.tcz
-appbrowser-cli.tcz
 getlocale.tcz
 setfont.tcz
+mylocale.tcz
 EOF
-
+# note:  mylocale.tcz needs to be generated on TCL and copied to $PERSIST
 # wait for the new file to be available
 sudo sync
 get_tce_file(){
