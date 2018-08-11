@@ -855,17 +855,17 @@ EOF
 
       source $di_tmp
       rtn=$?
-      local filename=$(get_nth $CHOICE_NUM $image_list )
-      image_path=$DEST_MNT/iiab/$filename
       case $rtn in
          3) 
             showIni $image_path
             ;;
-         1) rtn=99
+         0) 
+            local filename=$(get_nth $CHOICE_NUM $image_list )
+            image_path=$DEST_MNT/iiab/$filename
             break
             ;;
-         0) 
-            break
+         *) 
+            return 99
             ;;
       esac
    done
