@@ -18,6 +18,7 @@
 IIAB_RELEASE="master"
 ADMIN_RELEASE="master"
 REINSTALL=""
+SUPPORT=""
 set -e                                   # Exit on error (avoids snowballing)
 export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
 echo -e "\n   █████████████████████████████████████████████████████████████████████████"
@@ -50,6 +51,14 @@ else
     echo -n "Please type 1, 2 or 3 then press [ENTER]: "
     read local_vars_size < /dev/tty
     echo
+
+    echo -e "Do you want to enable vpn support?"
+    echo -n "Please type y/n then press [ENTER]: "
+    read vpn < /dev/tty
+
+    if [ $vpn = 'y' ]; then
+        SUPPORT="_vpn"
+    fi
 fi
 
 if grep -qi raspbian /etc/*release; then tune2fs -m 1 /dev/mmcblk0p2; fi
@@ -82,18 +91,21 @@ else
     cd /opt/iiab/iiab
     case $local_vars_size in
         1)
-	    cp vars/local_vars_min.yml /etc/iiab/local_vars.yml
+	    cp vars/local_vars_min$SUPPORT.yml /etc/iiab/local_vars.yml
 	    ;;
 	3)
-	    cp vars/local_vars_big.yml /etc/iiab/local_vars.yml
+	    cp vars/local_vars_big$SUPPORT.yml /etc/iiab/local_vars.yml
 	    ;;
 	2)
-	    cp vars/local_vars_medium.yml /etc/iiab/local_vars.yml
+	    cp vars/local_vars_medium$SUPPORT.yml /etc/iiab/local_vars.yml
 	    ;;
     esac
 fi
 
-cd /opt/iiab/iiab/
+if [ x$SUPPORT = "x_vpn" ]; then
+    ./install-support
+fi
+
 ./iiab-install $REINSTALL
 
 # Installs Admin Console; runs iiab-get-kiwix-cat to d/l Kiwix catalog
