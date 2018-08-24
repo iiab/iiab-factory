@@ -19,11 +19,10 @@ tce-load -wi dosfstools e2fsprogs
 dev=sdb
 efi=${dev}2
 ext=${dev}3
-work=${dev}4
 sudo umount /mnt/$efi
 sudo umount /mnt/$ext
-sudo umount /mnt/$work
-sudo umount /dev/${dev}*
+sudo umount /dev/$efi
+sudo umount /dev/$ext
 
 function p_begin {
     if [ "$COLOUR" = "yes" ]; then
@@ -60,17 +59,12 @@ n
 p
 2
 
-+20M
++10M
 n
 p
 3
 
-+500M
-n
-p
-4
-
-+50M
++70M
 t
 1
 4
@@ -79,7 +73,7 @@ t
 1
 t
 3
-20
+83
 w
 EOF
 
@@ -88,7 +82,7 @@ sudo partprobe /dev/${dev}
 
 sudo mkfs.vfat /dev/$efi
 sudo mke2fs -t ext2 -L tcore  -F /dev/$ext
-sudo mke2fs -t ext2 -L data  -F /dev/$work
+#sudo mke2fs -t ext2 -L data  -F /dev/$work
 
 is_tcl=$(cat /proc/cmdline | grep tce=)
 if [ $? -eq 0 ]; then
@@ -151,78 +145,38 @@ CORE_VERSION=9.x
 sudo chmod 775 -R $PERSIST
     # download tiny core extension
 sudo cat << EOF |sudo tee $PERSIST/onboot.lst
-Xvesa.tcz
-Xprogs.tcz
-aterm.tcz
-wbar.tcz
-dillo.tcz
-fltk-1.3.tcz
-flwm_topside.tcz
-wifi.tcz
-wl-modules-4.14.10-tinycore.tcz
-iw.tcz
 pci-utils.tcz
-firmware-atheros.tcz
-firmware-broadcom_bcm43xx.tcz
-firmware-broadcom_bnx2.tcz
-firmware-broadcom_bnx2x.tcz
-firmware-getB43.tcz
-firmware-ipw2100.tcz
-firmware-ipw2200.tcz
-firmware-iwimax.tcz
-firmware-iwl8000.tcz
-firmware-iwl9000.tcz
-firmware-iwlwifi.tcz
-firmware-marvel.tcz
-firmware-myri10ge.tcz
-firmware-netxen.tcz
-firmware-openfwwf.tcz
-firmware-ralinkwifi.tcz
-firmware-rtl8192ce_se_de.tcz
-firmware-rtlwifi.tcz
-firmware-ti-connectivity.tcz
-firmware-ueagle-atm.tcz
-firmware-vxge.tcz
-firmware-zd1211.tcz
-firmware.tcz
 git.tcz
 tree.tcz
-vim.tcz
 bash.tcz
 slocate.tcz
 grub2-multi.tcz
 dialog.tcz
 dosfstools.tcz
 util-linux.tcz
-openvpn.tcz
-gdisk.tcz
-gzip.tcz
-man.tcz
-nmap.tcz
+zip-unzip.tcz
 ntfs-3g.tcz
 coreutils.tcz
 bc.tcz
 flex.tcz
-nano.tcz
 ncurses.tcz
 ncurses-utils.tcz
 nss-mdns.tcz
 openssh.tcz
-parted.tcz
 rsync.tcz
 sed.tcz
-syslinux.tcz
 tar.tcz
 wget.tcz
-xz.tcz
 e2fsprogs.tcz
 ntfsprogs.tcz
+hfsprogs.tcz
 usbutils.tcz
-rsync.tcz
 grep.tcz
-appbrowser-cli.tcz
+getlocale.tcz
+setfont.tcz
+mylocale.tcz
 EOF
-
+# note:  mylocale.tcz needs to be generated on TCL and copied to $PERSIST
 # wait for the new file to be available
 sudo sync
 get_tce_file(){
@@ -268,8 +222,18 @@ sleep 3
 uuid=$(lsblk -o LABEL,UUID | grep tcore | awk '{print $2}')
 echo $uuid
 cat grub.cfg | sed -e "s/IIAB_TOKEN/$uuid/g" | sudo tee /mnt/$efi/EFI/BOOT/grub/grub.cfg
-
-sudo rsync -a $PERSIST/ /mnt/$ext/tce/
+copy_package(){
+   sudo rsync -a $PERSIST/optional/$1 /mnt/$ext/tce/optional/
+   sudo rsync -a $PERSIST/optional/$1.dep /mnt/$ext/tce/optional/
+   for dep in `cat $PERSIST/optional/$1.dep`; do
+      copy_package $dep
+   done
+}
+sudo mkdir -p /mnt/$ext/tce/optional
+for file in $(<${PERSIST}/onboot.lst); do
+   copy_package $file
+done
+sudo rsync $PERSIST/onboot.lst /mnt/$ext/tce/
 sudo wget -P /mnt/$ext/tce/ $URL/mydata.tgz
 
 sync

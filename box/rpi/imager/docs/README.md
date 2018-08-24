@@ -3,15 +3,21 @@
 * Boots on older Windows machines (MBR boot) as well as newer UEFI bios loaders.
 * Uses Windows (XP, Windows 7, 8, 10) hard disk partitions for storage.
 * Uses SD card reader on laptop, if present.
+* Objective Driven -- Takes Care of Details
 * Menu navigation is non-destructive, until you confirm an action, and change the default.
 
-### Objective Driven -- Takes Care of Details
-* Notes on menu navigation
-    * Up, down arrows change the selection
-    * Left, right  arrows (and tab), change the action choices at the bottom
-    * Enter acts on the currently displayed selection with the displayed action
-    * Backspace erases on the fill-in-the-blank screen. (tab cycles between fields, and actions at bottom.
+#### How to Get Started
+* Ensure that the Bios on laptop is set to boot from USB first, if the USB is present. (Often the f2, f10, f12, or del keys, when pressed early in the boot process, will bring up the Bios settings screen).
+* Download IMAGER from http://download.iiab.io/packages/imager (the most recent <filename>.img file).
+* Use the linux dd, etcher, or win32diskimager to copy this image file to a USB stick (the same process you use to copy rpi images to a SD card).
+* Insert the USB stick into a Windows laptop, and turn on the power.
 
+#### Notes on menu navigation
+* Up, down arrows change the selection
+* Left, right  arrows (and tab), change the action choices at the bottom
+* Enter acts on the currently displayed selection with the displayed action
+* Backspace erases on the fill-in-the-blank screen. (tab cycles between fields, and actions at bottom.
+    
 ![Main Menu Options](menu.png)
 
 * Use great care to keep track of which SD card is which.  Whenever I remove a microSD from a Raspberry Pi, I place it in a standard-size carrier, and put a label on the contact side.
