@@ -1,7 +1,7 @@
 ## An Offline Version of OpenStreetMap Using Vector Tiles
 #### Background
 1. OpenStreetMap (OSM) data has been organized into <a href=https://www.mapbox.com/vector-tiles/specification/>MVT (map vector tile) format</a>.  (This is a standard open format developed by Mapbox, which puts all of the tiles into a single SQLite database file.)
-1. This OSM application tries to provide Raspberry Pi (RPi) computers with some higher resolution (higher zoom levels) data, while using the minimum footprint on RPi's Internet-in-a-Box SD card.
+1. This OSM application tries to provide Raspberry Pi (RPi) computers with some higher resolution (higher zoom levels) data, while using the minimum footprint on your RPi Internet-in-a-Box SD card.
 1. There is a basic tile set of mbtiles (Mapbox tiles) for the whole world at zoom levels 0-10 (about 1.4 GB).
 1. And there is also another `details.mbtiles` file which provides zoom level 11-14 for a selected part of the world.
 1. The http://download.iiab.io/content/OSM/vector-tiles/osm-min.zip file includes a small `details.mbtiles` file which takes up only 109 MB, and provides detailed geographic info for the Bay Area in California.
