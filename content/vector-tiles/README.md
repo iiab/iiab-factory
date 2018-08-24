@@ -18,7 +18,7 @@
   ln -sf ./<full name of the downloaded region> details.mbtiles
 ```
  * Connect another device to your RPi's Wi-Fi (SSID is typically "Internet in a Box").
- * Browse to http://box.lan/modules/osm-min
+ * Browse to http://box/modules/osm-min (occasionally "box" needs to be replaced by "box.lan" or "172.18.96.1")
  * Zoom into the region of interest to test your high definition region.
  #### Technical Design Decisions
  * See https://github.com/iiab/iiab-factory/blob/master/content/vector-tiles/Design-Decisions.md which is sometimes out-of-date, so also check: https://github.com/georgejhunt/iiab-factory/blob/vector-maps/content/vector-tiles/Design-Decisions.md
