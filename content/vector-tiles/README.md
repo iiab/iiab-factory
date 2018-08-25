@@ -3,16 +3,16 @@
 ### Summary Architecture
 
 1. OpenStreetMap (OSM) data has been organized into <a href=https://www.mapbox.com/vector-tiles/specification/>MVT (map vector tile) format</a>.  (This is a standard open format developed by Mapbox, which puts all of a region's tiles into a single SQLite database file.)
-1. This OSM application works with higher resolution (highly zoomable) regional datasets AKA map packs, using a very minimal footprint, since Internet-in-a-Box (IIAB) is typically running on a space-constrained microSD card in a Raspberry Pi.  The key pieces are cities1000.sqlite (25 MB) and 3 critical .mbtiles files:
-   1. The world's landmasses are covered by `base.mbtiles -> osm_z0-10_planet.mbtiles` (1.4 GB) which is a base set of mbtiles (Mapbox tiles) at zoom levels 0-10.
+1. This OSM application works with higher resolution (highly zoomable) regional datasets AKA map packs, using a very minimal footprint, since Internet-in-a-Box (IIAB) is typically running on a space-constrained microSD card in a Raspberry Pi.  The key pieces are cities1000.sqlite (25 MB) and 3 critical .mbtiles files: ([MBTiles](https://github.com/mapbox/mbtiles-spec) is a file format for storing raster/bitmap or vector tilesets)
+   1. The world's landmasses are covered by `base.mbtiles -> osm_z0-10_planet.mbtiles` (1.4 GB) at zoom levels 0-10.
    1. The world's oceans are covered by `ocean.mbtiles -> mymap.mbtiles` (87 MB).
    1. Finally the 3rd one is `details.mbtiles` which provides zoom levels 11-14 for any selected part of the world.
-1. An example that includes all 1+3 data files is http://download.iiab.io/content/OSM/vector-tiles/en-osm-omt-min.zip (1.5 GB, browsable at http://medbox.iiab.me/modules/en-osm-omt-min/).  Specifically: in addition to 1000 cities (searchable by their names) and base maps for the world's landmasses and oceans, it includes 109 MB file `detail.mbtiles -> 2017-07-03_california_san-francisco-bay.mbtiles` which provides geographic detail for the [San Francisco Bay Area](https://openmaptiles.com/downloads/north-america/us/california/san-francisco-bay/) in California.
-1. Your Goal Below: replace this small 109 MB file with a local region of interest to your own community.  These regional dataset plug-in files (AKA map packs) can be downloaded from https://openmaptiles.com/downloads/planet/ &mdash; <i>on the right column of this page, choose a region!</i>
+1. An example that includes all 1+3 data files is http://download.iiab.io/content/OSM/vector-tiles/en-osm-omt-min.zip (1.5 GB, browsable at http://medbox.iiab.me/modules/en-osm-omt-min/).  Specifically: in addition to 1000 cities (searchable by their names) and base maps for the world's landmasses and oceans, it also includes 109 MB file `detail.mbtiles -> 2017-07-03_california_san-francisco-bay.mbtiles` which provides geographic detail for the [San Francisco Bay Area](https://openmaptiles.com/downloads/north-america/us/california/san-francisco-bay/) in California.
+1. Your Goal Below: replace this small 109 MB file, with a different/local region, of interest to your own community.  These regional dataset plug-in files (AKA map packs) can be downloaded from https://openmaptiles.com/downloads/planet/ &mdash; <i>on the right column of this page, choose a region!</i>
 
 ### How To Include Zoomable Map Detail For Your Region
 
-1. An alternate example http://download.iiab.io/content/OSM/vector-tiles/en-osm-omt-central-am.zip (2.8 GB, browsable at http://medbox.iiab.me/modules/en-osm-omt-central-am/) incorporates zoomable detail for [Central America and the Caribbean](https://openmaptiles.com/downloads/central-america/).  But the goal here is to pull together your own!  So...
+1. Another example http://download.iiab.io/content/OSM/vector-tiles/en-osm-omt-central-am.zip (2.8 GB, browsable at http://medbox.iiab.me/modules/en-osm-omt-central-am/) again includes base geodata for the world's landmasses and oceans, but in this case also includes zoomable detail for [Central America and the Caribbean](https://openmaptiles.com/downloads/central-america/).  But the goal here is to pull together your own!  So...
 1. Start by installing the original 1.5 GB file mentioned as the top of this page, including worldwide base maps:
    1. Log in to your IIAB then change to root by running: `sudo su -`
    1. Run: `cd /library/www/html/modules/`
