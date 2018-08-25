@@ -1,25 +1,29 @@
-## An Offline Version of OpenStreetMap Using Vector Tiles
+## Offline OpenStreetMap Using Regional Map Packs (Vector Tiles)
 
-### How It Works
-1. OpenStreetMap (OSM) data has been organized into <a href=https://www.mapbox.com/vector-tiles/specification/>MVT (map vector tile) format</a>.  (This is a standard open format developed by Mapbox, which puts all of the tiles into a single SQLite database file.)
-1. This OSM application tries to provide Raspberry Pi (RPi) computers with some higher resolution (higher zoom levels) data, while using the minimum footprint on your RPi Internet-in-a-Box SD card.
-1. There is a basic tile set of mbtiles (Mapbox tiles) for the whole world at zoom levels 0-10 (about 1.4 GB).
-1. And there is also another `details.mbtiles` file which provides zoom level 11-14 for a selected part of the world.
-1. 1.5 GB http://download.iiab.io/content/OSM/vector-tiles/en-osm-omt-min.zip (browsable at http://medbox.iiab.me/modules/en-osm-omt-min/) includes a small `details.mbtiles` file which takes up only 109 MB, which provides geographic detail for the Bay Area in California.
-1. The intention is that the small Bay Area file will be replaced by a region of local/special interest to the community.  These regional plug-in files can be downloaded from https://openmaptiles.com/downloads/planet/ (use right column of this page to select region).
+### Summary
+
+1. OpenStreetMap (OSM) data has been organized into <a href=https://www.mapbox.com/vector-tiles/specification/>MVT (map vector tile) format</a>.  (This is a standard open format developed by Mapbox, which puts all of that region's tiles into a single SQLite database file.)
+1. This OSM application tries to provide Raspberry Pi (RPi) computers with some higher resolution (higher zoom levels) data, while using the minimum footprint on your RPi Internet-in-a-Box SD card.  It includes 3 critical .mbtiles files:
+   1. The world's landmasses are covered by base.mbtiles -> osm_z0-10_planet.mbtiles (1.4 GB) which is a base set of mbtiles (Mapbox tiles) at zoom levels 0-10.
+   1. The world's oceans are covered by ocean.mbtiles -> mymap.mbtiles (87 MB).
+   1. Finally the 3rd one is `details.mbtiles` which provides zoom level 11-14 for a selected part of the world.
+1. An example that includes all three files is http://download.iiab.io/content/OSM/vector-tiles/en-osm-omt-min.zip (1.5 GB, browsable at http://medbox.iiab.me/modules/en-osm-omt-min/).  In addition to the world's landmasses and oceans, it includes 109 MB file `detail.mbtiles -> 2017-07-03_california_san-francisco-bay.mbtiles` which provides geographic detail for the Bay Area in California.
+1. Your Goal Below: replace this small Bay Area file will a local region of interest to your community.  These regional dataset plug-in files (AKA map packs) can be downloaded from https://openmaptiles.com/downloads/planet/ &mdash; <i>on the right column of this page, choose a region!</i>
 
 ### How To Include Zoomable Map Detail For Your Region
+
 1. An alternate example is the 2.8 GB http://download.iiab.io/content/OSM/vector-tiles/en-osm-omt-central-am.zip (browsable at http://medbox.iiab.me/modules/en-osm-omt-central-am/) showing much of Central America and the Caribbean.
-1. To create your own, login to your Internet-in-a-Box (IIAB) then change to root by running: `sudo su -`
+1. But the goal here is to create your own, so login to your Internet-in-a-Box (IIAB) then change to root by running: `sudo su -`
 1. Run: `cd /library/www/html/modules`
-1. Download 1.5 GB osm-min.zip by running: `wget http://download.iiab.io/content/OSM/vector-tiles/en-osm-omt-min.zip`
+1. Download the original 1.5 GB file mentioned as the top of this page, by running: `wget http://download.iiab.io/content/OSM/vector-tiles/en-osm-omt-min.zip`
 1. Run: `unzip en-osm-omt-min.zip` (after unzipping, folder `en-osm-omt-min` will be created; once that's done the .zip file can be deleted)
 1. Run: `cd /library/www/html/modules/en-osm-omt-min/`
-1. Download (into the above folder) your mbtiles of interest from https://openmaptiles.com/downloads/planet/ (for example, Central-America.mbtiles takes up about 1.9 GB)
-1. <b>Create a symbolic link to replace link "details.mbtiles -> 2017-07-03_california_san-francisco-bay.mbtiles" by running: `ln -sf ./<full name of the downloaded region> details.mbtiles`</b>
+1. Download (into folder `en-osm-omt-min`) your mbtiles of interest from https://openmaptiles.com/downloads/planet/ (for example, Central-America.mbtiles takes up about 1.9 GB)
+1. <b>Create a symbolic link to replace "details.mbtiles -> 2017-07-03_california_san-francisco-bay.mbtiles" by running: `ln -sf ./<full name of the downloaded region> details.mbtiles`</b>
 1. Test it by connecting another device to your RPi's Wi-Fi (SSID is typically "Internet in a Box")
 1. Browse to http://box/modules/osm-min (occasionally "box" needs to be replaced by "box.lan" or "172.18.96.1")
-1. <i>Zoom into your region of interest to confirm local details appear!</i>
+1. Zoom into your region of interest to confirm local details appear!
 
 ### Design Decisions (Technical Background)
+
 * See https://github.com/iiab/iiab-factory/blob/master/content/vector-tiles/Design-Decisions.md which is sometimes out-of-date, so also check: https://github.com/georgejhunt/iiab-factory/blob/vector-maps/content/vector-tiles/Design-Decisions.md
