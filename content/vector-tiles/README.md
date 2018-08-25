@@ -1,4 +1,4 @@
-## Offline OpenStreetMap Using Regional Map Packs (Vector Tiles)
+## Offline OpenStreetMap + Vector Tile Regional Map Packs
 
 ### Summary Architecture
 
