@@ -12,7 +12,7 @@
 
 ### How To Include Zoomable Map Detail For Your Region
 
-1. An alternate example http://download.iiab.io/content/OSM/vector-tiles/en-osm-omt-central-am.zip (2.8 GB, browsable at http://medbox.iiab.me/modules/en-osm-omt-central-am/) incorporates zoomable detail for Central America and the Caribbean.  But the goal here is to pull together your own!  So...
+1. An alternate example http://download.iiab.io/content/OSM/vector-tiles/en-osm-omt-central-am.zip (2.8 GB, browsable at http://medbox.iiab.me/modules/en-osm-omt-central-am/) incorporates zoomable detail for [Central America and the Caribbean](https://openmaptiles.com/downloads/central-america/).  But the goal here is to pull together your own!  So...
 1. Start by installing the original 1.5 GB file mentioned as the top of this page, including worldwide base maps:
    1. Log in to your IIAB then change to root by running: `sudo su -`
    1. Run: `cd /library/www/html/modules/`
@@ -30,8 +30,8 @@
 ### Design -> Product
 
 - Design Decisions:
-  - https://github.com/iiab/iiab-factory/blob/master/content/vector-tiles/Design-Decisions.md is sometimes out-of-date?
-  - https://github.com/georgejhunt/iiab-factory/blob/vector-maps/content/vector-tiles/Design-Decisions.md just in case!
+  - [github.com/iiab/iiab-factory/blob/master/content/vector-tiles/Design-Decisions.md](https://github.com/iiab/iiab-factory/blob/master/content/vector-tiles/Design-Decisions.md) is sometimes out-of-date?
+  - [github.com/georgejhunt/iiab-factory/blob/vector-maps/content/vector-tiles/Design-Decisions.md](https://github.com/georgejhunt/iiab-factory/blob/vector-maps/content/vector-tiles/Design-Decisions.md) just in case!
 - How do we evolve this into a continuously more friendly product?  Usability Engineering begins here &mdash; thanks all who can assist!
   - Package up vector-based OSM maps: [#877](https://github.com/iiab/iiab/issues/877)
   - Can OSM Vector Maps fill the entire screen? [#1035](https://github.com/iiab/iiab/issues/1035)
