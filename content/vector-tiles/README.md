@@ -2,7 +2,7 @@
 
 ### Summary Architecture
 
-1. OpenMapTiles.com regularly publishes OpenStreetMap (OSM) data into [MVT](https://www.mapbox.com/vector-tiles/) Mapbox Vector Tile format, for dozens of regions around the world.  (This is an [open standard](https://www.mapbox.com/vector-tiles/specification/) which puts all of a region's vector tiles into a single SQLite database, in this case serialized as [PBF](https://wiki.openstreetmap.org/wiki/PBF_Format) and then delivered in a single .mbtiles file.)
+1. OpenMapTiles.com somewhat regularly publishes OpenStreetMap (OSM) data into [MVT](https://www.mapbox.com/vector-tiles/) Mapbox Vector Tile format, for many dozens of regions around the world.  (This is an [open standard](https://www.mapbox.com/vector-tiles/specification/) which puts all of a region's vector tiles into a single SQLite database, in this case serialized as [PBF](https://wiki.openstreetmap.org/wiki/PBF_Format) and then delivered in a single .mbtiles file.)
 1. Internet-in-a-Box (IIAB) works with these highly zoomable regional vector map datasets &mdash; each such .mbtiles file has a very minimal footprint &mdash; yet displays exceptional geographic detail.  IIAB's space-constrained microSD cards (typically running in a Raspberry Pi) greatly benefit!
 1. Thankfully the [MBTiles](https://github.com/mapbox/mbtiles-spec) file format can be used to store either raster/bitmap tilesets or vector tilesets.  So 4 essential data files are needed = 1 city search database + 3 .mbtiles files:
    1. cities1000.sqlite (25 MB, to search for all cities worldwide whose populations are larger than 1000)
@@ -42,5 +42,4 @@
 - How do we evolve this into a continuously more friendly product?  Usability Engineering begins here &mdash; thanks all who can assist &mdash; improving this for schools worldwide!
   - Package up vector-based OSM maps: [#877](https://github.com/iiab/iiab/issues/877)
   - Can OSM Vector Maps fill the entire screen? [#1035](https://github.com/iiab/iiab/issues/1035)
-  - Can Vector OSM search more than 1000 cities? [#1034](https://github.com/iiab/iiab/issues/1034)
   - Teachers want Accents to work when searching for cities in OpenStreetMap [#662](https://github.com/iiab/iiab/issues/662)
