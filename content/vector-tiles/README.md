@@ -18,10 +18,11 @@
    1. Log in to your IIAB then change to root by running: `sudo su -`
    1. Run: `cd /library/www/html/modules/`
    1. Download it by running:<br>`wget http://download.iiab.io/content/OSM/vector-tiles/en-osm-omt-min.zip`
-   1. Run: `unzip en-osm-omt-min.zip` (after unzipping, folder `en-osm-omt-min` will be created; once that's done the .zip file can be deleted)
+   1. Run: `unzip en-osm-omt-min.zip` (creates 1.8 GB folder `en-osm-omt-min`)
+   1. If you're <i>sure</i> you don't need it, run: `rm en-osm-omt-min.zip` (recovers 1.5 GB)
 1. Add your favorite regional vector map dataset:
    1. Run: `cd /library/www/html/modules/en-osm-omt-min/`
-   1. Download (into folder `en-osm-omt-min`) your chosen region's vector map dataset from https://openmaptiles.com/downloads/planet/ (for example, central-america_z10-14.mbtiles takes up about 1.8 GB)
+   1. Download (into folder `en-osm-omt-min`) your chosen region's vector map dataset from https://openmaptiles.com/downloads/planet/ <i>(for example, if you download the 1.14-1.33 GB vector tiles for Central America & Caribbean, you get a region that is 5000KM wide including parts of South and North America, covering 20 independent countries and porions of 10 other countries)</i>
    1. <b>Create a symbolic link to replace "details.mbtiles -> 2017-07-03_california_san-francisco-bay.mbtiles" by running: `ln -sf ./<full filename of the downloaded region> details.mbtiles`</b>
 1. Test it:
    1. Connect another device to your IIAB's Wi-Fi (SSID is typically "Internet in a Box")
@@ -34,7 +35,7 @@
 - Design Decisions:
   - [github.com/iiab/iiab-factory/blob/master/content/vector-tiles/Design-Decisions.md](https://github.com/iiab/iiab-factory/blob/master/content/vector-tiles/Design-Decisions.md) is sometimes out-of-date?
   - [github.com/georgejhunt/iiab-factory/blob/vector-maps/content/vector-tiles/Design-Decisions.md](https://github.com/georgejhunt/iiab-factory/blob/vector-maps/content/vector-tiles/Design-Decisions.md) just in case!
-- How do we evolve this into a continuously more friendly product?  Usability Engineering begins here &mdash; thanks all who can assist!
+- How do we evolve this into a continuously more friendly product?  Usability Engineering begins here &mdash; thanks all who can assist &mdash; improving this for schools worldwide!
   - Package up vector-based OSM maps: [#877](https://github.com/iiab/iiab/issues/877)
   - Can OSM Vector Maps fill the entire screen? [#1035](https://github.com/iiab/iiab/issues/1035)
   - Can Vector OSM search more than 1000 cities? [#1034](https://github.com/iiab/iiab/issues/1034)
