@@ -13,16 +13,19 @@
 ### How To Include Zoomable Map Detail For Your Region
 
 1. An alternate example http://download.iiab.io/content/OSM/vector-tiles/en-osm-omt-central-am.zip (2.8 GB, browsable at http://medbox.iiab.me/modules/en-osm-omt-central-am/) incorporates zoomable detail for Central America and the Caribbean.  But the goal here is to pull together your own!  So...
-1. Log in to your IIAB then change to root by running: `sudo su -`
-1. Run: `cd /library/www/html/modules/`
-1. Download the original 1.5 GB file mentioned as the top of this page (including worldwide base maps) by running:<br>`wget http://download.iiab.io/content/OSM/vector-tiles/en-osm-omt-min.zip`
-1. Run: `unzip en-osm-omt-min.zip` (after unzipping, folder `en-osm-omt-min` will be created; once that's done the .zip file can be deleted)
-1. Run: `cd /library/www/html/modules/en-osm-omt-min/`
-1. Download (into folder `en-osm-omt-min`) your .mbtiles regional dataset AKA map pack of interest from https://openmaptiles.com/downloads/planet/ (for example, Central-America.mbtiles takes up about 1.9 GB)
-1. <b>Create a symbolic link to replace "details.mbtiles -> 2017-07-03_california_san-francisco-bay.mbtiles" by running: `ln -sf ./<full name of the downloaded region> details.mbtiles`</b>
-1. Test it by connecting another device to your IIAB's Wi-Fi (SSID is typically "Internet in a Box")
-1. Browse to http://box/modules/osm-min (occasionally "box" needs to be replaced by "box.lan" or "172.18.96.1")
-1. <i>Zoom into your region of interest to confirm local details appear!</i>
+1. Start by installing the original 1.5 GB file mentioned as the top of this page, including worldwide base maps:
+   1. Log in to your IIAB then change to root by running: `sudo su -`
+   1. Run: `cd /library/www/html/modules/`
+   1. Download it by running:<br>`wget http://download.iiab.io/content/OSM/vector-tiles/en-osm-omt-min.zip`
+   1. Run: `unzip en-osm-omt-min.zip` (after unzipping, folder `en-osm-omt-min` will be created; once that's done the .zip file can be deleted)
+1. Add your favorite regional map pack:
+   1. Run: `cd /library/www/html/modules/en-osm-omt-min/`
+   1. Download (into folder `en-osm-omt-min`) your .mbtiles map pack of interest AKA regional dataset from https://openmaptiles.com/downloads/planet/ (for example, Central-America.mbtiles takes up about 1.9 GB)
+   1. <b>Create a symbolic link to replace "details.mbtiles -> 2017-07-03_california_san-francisco-bay.mbtiles" by running: `ln -sf ./<full name of the downloaded region> details.mbtiles`</b>
+1. Test it:
+   1. Connect another device to your IIAB's Wi-Fi (SSID is typically "Internet in a Box")
+   1. Browse to http://box/modules/osm-min (occasionally "box" needs to be replaced by "box.lan" or "172.18.96.1")
+   1. <i>Zoom into your region of interest to confirm local details appear!</i>
 
 ### Design Decisions (Technical Background)
 
