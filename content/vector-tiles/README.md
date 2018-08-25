@@ -7,7 +7,7 @@
    1. The world's landmasses are covered by `base.mbtiles -> osm_z0-10_planet.mbtiles` (1.4 GB) which is a base set of mbtiles (Mapbox tiles) at zoom levels 0-10.
    1. The world's oceans are covered by `ocean.mbtiles -> mymap.mbtiles` (87 MB).
    1. Finally the 3rd one is `details.mbtiles` which provides zoom levels 11-14 for any selected part of the world.
-1. An example that includes all 1+3 data files is http://download.iiab.io/content/OSM/vector-tiles/en-osm-omt-min.zip (1.5 GB, browsable at http://medbox.iiab.me/modules/en-osm-omt-min/).  Specifically: in addition to 1000 cities (searchable by their names) and base maps for the world's landmasses and oceans, it includes 109 MB file `detail.mbtiles -> 2017-07-03_california_san-francisco-bay.mbtiles` which provides geographic detail for the <a href=https://openmaptiles.com/downloads/north-america/us/california/san-francisco-bay/>San Francisco Bay Area</a> in California.
+1. An example that includes all 1+3 data files is http://download.iiab.io/content/OSM/vector-tiles/en-osm-omt-min.zip (1.5 GB, browsable at http://medbox.iiab.me/modules/en-osm-omt-min/).  Specifically: in addition to 1000 cities (searchable by their names) and base maps for the world's landmasses and oceans, it includes 109 MB file `detail.mbtiles -> 2017-07-03_california_san-francisco-bay.mbtiles` which provides geographic detail for the [San Francisco Bay Area](https://openmaptiles.com/downloads/north-america/us/california/san-francisco-bay/) in California.
 1. Your Goal Below: replace this small 109 MB file with a local region of interest to your own community.  These regional dataset plug-in files (AKA map packs) can be downloaded from https://openmaptiles.com/downloads/planet/ &mdash; <i>on the right column of this page, choose a region!</i>
 
 ### How To Include Zoomable Map Detail For Your Region
@@ -27,6 +27,10 @@
    1. Browse to http://box/modules/osm-min (occasionally "box" needs to be replaced by "box.lan" or "172.18.96.1")
    1. <i>Zoom into your region of interest to confirm local details appear!</i>
 
-### Design Decisions (Technical Background)
+### Design -> Product
 
-See https://github.com/iiab/iiab-factory/blob/master/content/vector-tiles/Design-Decisions.md which is sometimes out-of-date, so also check: https://github.com/georgejhunt/iiab-factory/blob/vector-maps/content/vector-tiles/Design-Decisions.md
+- Design Decisions: https://github.com/iiab/iiab-factory/blob/master/content/vector-tiles/Design-Decisions.md is sometimes out-of-date, so also check https://github.com/georgejhunt/iiab-factory/blob/vector-maps/content/vector-tiles/Design-Decisions.md
+- How do we continue to make this into a friendly product?  Usability Engineering begins here &mdash; thanks all who can assist!
+  - Package up vector-based OSM maps: [#877](https://github.com/iiab/iiab/issues/877)
+  - Can Vector OSM search more than 1000 cities? [#1034](https://github.com/iiab/iiab/issues/1034)
+  - Can OSM Vector Maps fill the entire screen? [#1035](https://github.com/iiab/iiab/issues/1035)
