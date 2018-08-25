@@ -1,23 +1,46 @@
-## An Offline Version of Openstreetmaps Using Vector Tiles
-#### Background
-1. Openstreetmap data has been organized into MVT (map vector tile) format. (This is a standard open format developed by Mapbox, which puts all of the tiles into a single sqlite database file).
-1. This OSM application tries to provide raspberry pi computers with some higher resolution (higher zoom levels) data, but using up the minimum footprint on the SD card.
-1. There is a basic tile set of mbtiles (mapbox tiles) for the whole world at zoom levels 0-10 (this occupies about 1.4GB).
-1. And there is also another details.mbtiles file which provides zoom level 11-14 for a selected part of the world.
-1. The http://download.iiab.io/content/OSM/vector-tiles/osm-min.zip file includes a small details.mbtiles file which takes up only 100MB, and provides detailed geographic information about the Bay area in California.
-1. The intention is that the small Bay Area file will be replaced by a region of special interest to the user. These regional plug in files can be downloaded from https://openmaptiles.com/downloads/planet/ (use right column of this page to select region).
-#### How To Include High Definition Details about your Region
-1. Download the http://download.iiab.io/content/OSM/vector-tiles/osm-min.zip file.
-1. Move it to /library/www/html/modules directory
-1. Unzip osm-min.zip. (After unziping, a new "osm-min" folder will be created. Once that is done the zip file can be deleted).
-1. Download the mbtiles of interest from https://openmaptiles.com/downloads/planet/. (For example, the Central-America.mbtiles takes up about 1.9GB)
-1. Put the downloaded high resolution tiles (<region>.mbtiles) into /library/www/html/modules/osm-min/.
-1. Create a symbolic link which will replace the link "details.mbtiles =>2017-07-03_california_san-francisco-bay.mbtiles" using the following command line:
-```
- ln -sf ./<full name of the downloaded region> details.mbtiles
- ```
- * Associate with the wifi signal transmitted by your RPI (the SSID is "Internet in a Box").
- * Browse to http://box.lan/modules/osm-min
- * Zoom into the region of interest to test your high definition region.
- #### Technical Design Decisions
- * See https://github.com/georgejhunt/iiab-factory/blob/vector-maps/content/vector-tiles/Design-Decisions.md
+## Offline OpenStreetMap + Regional Vector Map Datasets
+
+### Summary Architecture
+
+1. OpenMapTiles.com somewhat regularly publishes OpenStreetMap (OSM) data into [MVT](https://www.mapbox.com/vector-tiles/) Mapbox Vector Tile format, for many dozens of regions around the world.  (This is an [open standard](https://www.mapbox.com/vector-tiles/specification/) which puts all of a region's vector tiles into a single SQLite database, in this case serialized as [PBF](https://wiki.openstreetmap.org/wiki/PBF_Format) and then delivered in a single .mbtiles file.)
+1. Internet-in-a-Box (IIAB) works with these highly zoomable regional vector map datasets &mdash; each such .mbtiles file has a very minimal footprint &mdash; yet displays exceptional geographic detail.  IIAB's space-constrained microSD cards (typically running in a Raspberry Pi) greatly benefit!
+1. Thankfully the [MBTiles](https://github.com/mapbox/mbtiles-spec) file format can be used to store either raster/bitmap tilesets or vector tilesets.  So 4 essential data files are needed = 1 city search database + 3 .mbtiles files:
+   1. cities1000.sqlite (25 MB, to search for all cities worldwide whose populations are larger than 1000)
+   1. The world's landmasses are covered by `base.mbtiles -> osm_z0-10_planet.mbtiles` (1.4 GB) at zoom levels 0-10, encoded as MVT/PBF vector maps.
+   1. The world's oceans are covered by `ocean.mbtiles -> mymap.mbtiles` (87 MB) at zoom levels 0-10, encoded as PNG raster/bitmap imagery.
+   1. <b>Finally the clincher, that you can customize: `details.mbtiles` adds in zoom levels 1-14 (for one single/chosen region, encoded as MVT/PBF vector maps, which can be overzoomed to level 18+).</b>
+1. An example that includes all 4 = 1 + 3 data files is http://download.iiab.io/content/OSM/vector-tiles/en-osm-omt-min.zip (1.5 GB unzips to 1.8 GB, browsable at http://medbox.iiab.me/modules/en-osm-omt-min/).  Specifically: in addition to the above city search and base maps for the world's landmasses and oceans, it also includes 109 MB file `detail.mbtiles -> 2017-07-03_california_san-francisco-bay.mbtiles`.  While this regional vector map dataset is just a small sample (many countries require more than 109 MB) it illustrates the incredible geographic detail of this vector approach, in this case including most building outlines across California's [San Francisco Bay Area](https://openmaptiles.com/downloads/north-america/us/california/san-francisco-bay/).
+1. Your Goal Below: replace this small 109 MB sample .mbtiles file, with a different local-or-larger region, for your own regional community.  These regional vector map datasets (plug-in files) can be downloaded from https://openmaptiles.com/downloads/planet/ &mdash; <i>on the right column of this page, choose a region!</i>
+
+### How To Include Zoomable Map Detail For Your Region
+
+1. Another prefab example is http://download.iiab.io/content/OSM/vector-tiles/en-osm-omt-central-am.zip (2.8 GB unzips to 3.5 GB, browsable at http://medbox.iiab.me/modules/en-osm-omt-central-am/) which again includes city search and base geodata for the world's landmasses and oceans, but in this case also includes 1.8 GB of zoomable vector map detail for [Central America and the Caribbean](https://openmaptiles.com/downloads/central-america/).  But the goal here is to pull together your own!  So...
+1. Start by installing the original 1.5 GB file mentioned as the top of this page, including worldwide base maps etc:
+   1. Log in to your IIAB then change to root by running: `sudo su -`
+   1. Run: `cd /library/www/html/modules/`
+   1. Download it by running:<br>`wget http://download.iiab.io/content/OSM/vector-tiles/en-osm-omt-min.zip`
+   1. Run: `unzip en-osm-omt-min.zip` (creates 1.8 GB folder `en-osm-omt-min`)
+   1. If you're <i>sure</i> you don't need it, run: `rm en-osm-omt-min.zip` (recovers 1.5 GB)
+1. Add your favorite regional vector map dataset:
+   1. Run: `cd /library/www/html/modules/en-osm-omt-min/`
+   1. Download (into folder `en-osm-omt-min`) your chosen region's vector map dataset from https://openmaptiles.com/downloads/planet/ &mdash; some examples:
+      1. 1.14-1.33 GB covers [Central America & the Caribbean](https://openmaptiles.com/downloads/central-america/), a region 5000 km wide including parts of South and North America, with 20 complete countries and portions of 10 other/larger countries
+      1. 6.21-6.84 GB covers [South and Central America](https://openmaptiles.com/downloads/dataset/osm/south-america/) including 95% of Mexico
+      1. 51.01-57.32 GB covers the [Entire Planet](https://openmaptiles.com/downloads/dataset/osm/)
+   1. <b>Create a symbolic link to replace "details.mbtiles -> 2017-07-03_california_san-francisco-bay.mbtiles" by running: `ln -sf ./<full filename of the downloaded region> details.mbtiles`</b>
+1. Test it:
+   1. Connect another device to your IIAB's Wi-Fi (SSID is typically "Internet in a Box")
+   1. Browse to http://box/modules/osm-min (occasionally "box" needs to be replaced by "box.lan" or "172.18.96.1")
+   1. Zoom into your region of interest to confirm local details appear!
+   1. If so, recover 109 MB by running: `rm 2017-07-03_california_san-francisco-bay.mbtiles`
+
+### Design -> Product
+
+- Design Decisions:
+  - [github.com/iiab/iiab-factory/blob/master/content/vector-tiles/Design-Decisions.md](https://github.com/iiab/iiab-factory/blob/master/content/vector-tiles/Design-Decisions.md) is sometimes out-of-date?
+  - [github.com/georgejhunt/iiab-factory/blob/vector-maps/content/vector-tiles/Design-Decisions.md](https://github.com/georgejhunt/iiab-factory/blob/vector-maps/content/vector-tiles/Design-Decisions.md) just in case!
+- How do we evolve this into a continuously more friendly product?  Usability Engineering begins here &mdash; thanks all who can assist &mdash; improving this for schools worldwide!
+  - Package up vector-based OSM maps: [#877](https://github.com/iiab/iiab/issues/877)
+  - Can OSM Vector Maps fill the entire screen? [#1035](https://github.com/iiab/iiab/issues/1035)
+  - How many cities are searchable by new Vector-based OSM? [#1034](https://github.com/iiab/iiab/issues/1034)
+  - Teachers want Accents to work when searching for cities in OpenStreetMap [#662](https://github.com/iiab/iiab/issues/662)
