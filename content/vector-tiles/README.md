@@ -29,8 +29,11 @@
 
 ### Design -> Product
 
-- Design Decisions: https://github.com/iiab/iiab-factory/blob/master/content/vector-tiles/Design-Decisions.md is sometimes out-of-date, so also check https://github.com/georgejhunt/iiab-factory/blob/vector-maps/content/vector-tiles/Design-Decisions.md
-- How do we continue to make this into a friendly product?  Usability Engineering begins here &mdash; thanks all who can assist!
+- Design Decisions:
+  - https://github.com/iiab/iiab-factory/blob/master/content/vector-tiles/Design-Decisions.md is sometimes out-of-date?
+  - https://github.com/georgejhunt/iiab-factory/blob/vector-maps/content/vector-tiles/Design-Decisions.md just in case!
+- How do we evolve this into a continuously more friendly product?  Usability Engineering begins here &mdash; thanks all who can assist!
   - Package up vector-based OSM maps: [#877](https://github.com/iiab/iiab/issues/877)
-  - Can Vector OSM search more than 1000 cities? [#1034](https://github.com/iiab/iiab/issues/1034)
   - Can OSM Vector Maps fill the entire screen? [#1035](https://github.com/iiab/iiab/issues/1035)
+  - Can Vector OSM search more than 1000 cities? [#1034](https://github.com/iiab/iiab/issues/1034)
+  - Teachers want Accents to work when searching for cities in OpenStreetMap [#662](https://github.com/iiab/iiab/issues/662)
