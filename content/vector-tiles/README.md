@@ -1,5 +1,9 @@
 ## Offline OpenStreetMap + Regional Vector Map Datasets
 
+### Motivation
+
+Please read ["How do I add zoomable maps for my region? "](http://FAQ.IIAB.IO#How_do_I_add_zoomable_maps_for_my_region.3F) in http://FAQ.IIAB.IO
+
 ### Summary Architecture
 
 1. OpenMapTiles.com somewhat regularly publishes OpenStreetMap (OSM) data into [MVT](https://www.mapbox.com/vector-tiles/) Mapbox Vector Tile format, for many dozens of regions around the world.  (This is an [open standard](https://www.mapbox.com/vector-tiles/specification/) which puts all of a region's vector tiles into a single SQLite database, in this case serialized as [PBF](https://wiki.openstreetmap.org/wiki/PBF_Format) and then delivered in a single .mbtiles file.)
@@ -34,7 +38,7 @@
    1. Zoom into your region of interest to confirm local details appear!
    1. If so, recover 109 MB by running: `rm 2017-07-03_california_san-francisco-bay.mbtiles`
 
-### Design -> Product
+### Community Design -> Killer Product
 
 - Design Decisions:
   - [github.com/iiab/iiab-factory/blob/master/content/vector-tiles/Design-Decisions.md](https://github.com/iiab/iiab-factory/blob/master/content/vector-tiles/Design-Decisions.md) is sometimes out-of-date?
@@ -44,4 +48,4 @@
   - Can OSM Vector Maps fill the entire screen? [#1035](https://github.com/iiab/iiab/issues/1035)
   - How many cities are searchable by new Vector-based OSM? [#1034](https://github.com/iiab/iiab/issues/1034)
   - Teachers want Accents to work when searching for cities in OpenStreetMap [#662](https://github.com/iiab/iiab/issues/662)
-  - Keep OSM from zooming past Level 10, where there's no data? #1036
+  - Keep OSM from zooming past Level 10, where there's no data? [#1036](https://github.com/iiab/iiab/issues/1036)
