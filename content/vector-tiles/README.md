@@ -2,7 +2,7 @@
 
 ### Motivation
 
-See ["How do I add zoomable maps for my region?"](http://FAQ.IIAB.IO#How_do_I_add_zoomable_maps_for_my_region.3F) in http://FAQ.IIAB.IO
+See ["How do I add zoomable maps for my region?"](http://FAQ.IIAB.IO#How_do_I_add_zoomable_maps_for_my_region.3F) in [FAQ.IIAB.IO](http://FAQ.IIAB.IO)
 
 ### Summary Architecture
 
@@ -45,7 +45,7 @@ See ["How do I add zoomable maps for my region?"](http://FAQ.IIAB.IO#How_do_I_ad
 1. Run: `apt install zip` (necessary on Raspbian Lite)
 1. Run: `zip -r en-osm-omt-atlantis.zip en-osm-omt-atlantis` (e.g. to create `en-osm-omt-atlantis.zip`)
 1. Publish it for all, e.g. using https://archive.org/create.php or https://commons.wikimedia.org/wiki/Special:UploadWizard for smaller files.
-1. _[Contact us](http://wiki.laptop.org/go/IIAB/FAQ#What_are_the_best_places_for_community_support.3F) so we can broadly promote your work, in places like http://download.iiab.io/content/OSM/vector-tiles/ !_
+1. _[Contact us](http://FAQ.IIAB.IO#What_are_the_best_places_for_community_support.3F) so we can broadly promote your work, in places like [download.iiab.io/content/OSM/vector-tiles/](http://download.iiab.io/content/OSM/vector-tiles/) !_
 
 ### Community Design -> Killer Product
 
