@@ -22,7 +22,7 @@ ext=${dev}3
 sudo umount /mnt/$efi
 sudo umount /mnt/$ext
 sudo umount /dev/$efi
-sudo umount /dev/$ext
+sudo umount /dev/${dev}*
 
 function p_begin {
     if [ "$COLOUR" = "yes" ]; then
@@ -64,7 +64,7 @@ n
 p
 3
 
-+70M
++120M
 t
 1
 4
@@ -145,9 +145,17 @@ CORE_VERSION=9.x
 sudo chmod 775 -R $PERSIST
     # download tiny core extension
 sudo cat << EOF |sudo tee $PERSIST/onboot.lst
+Xvesa.tcz
+Xprogs.tcz
+aterm.tcz
+wbar.tcz
+dillo.tcz
+fltk-1.3.tcz
+flwm_topside.tcz
 pci-utils.tcz
 git.tcz
 tree.tcz
+vim.tcz
 bash.tcz
 slocate.tcz
 grub2-multi.tcz
@@ -155,6 +163,10 @@ dialog.tcz
 dosfstools.tcz
 util-linux.tcz
 zip-unzip.tcz
+openvpn.tcz
+gdisk.tcz
+man.tcz
+nmap.tcz
 ntfs-3g.tcz
 coreutils.tcz
 bc.tcz
