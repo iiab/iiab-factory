@@ -12,9 +12,9 @@ See ["How do I add zoomable maps for my region?"](http://FAQ.IIAB.IO#How_do_I_ad
    1. cities1000.sqlite (25 MB, to search for all cities worldwide whose populations are larger than 1000)
    1. The world's landmasses are covered by `base.mbtiles -> osm_z0-10_planet.mbtiles` (1.4 GB) at zoom levels 0-10, encoded as MVT/PBF vector maps.
    1. The world's oceans are covered by `ocean.mbtiles -> mymap.mbtiles` (87 MB) at zoom levels 0-10, encoded as PNG raster/bitmap imagery.
-   1. <b>Finally the clincher, that you can customize: `details.mbtiles` adds in zoom levels 1-14 (for one single/chosen region, encoded as MVT/PBF vector maps, which can be overzoomed to level 18+).</b>
+   1. **Finally the clincher, that you can customize: `details.mbtiles` adds in zoom levels 1-14 (for one single/chosen region, encoded as MVT/PBF vector maps, which can be overzoomed to level 18+).**
 1. An example that includes all 4 = 1 + 3 data files is http://download.iiab.io/content/OSM/vector-tiles/en-osm-omt-min.zip (1.5 GB unzips to 1.8 GB, browsable at http://medbox.iiab.me/modules/en-osm-omt-min/).  Specifically: in addition to the above city search and base maps for the world's landmasses and oceans, it also includes 109 MB file `detail.mbtiles -> 2017-07-03_california_san-francisco-bay.mbtiles`.  While this regional vector map dataset is just a small sample (many countries require more than 109 MB) it illustrates the incredible geographic detail of this vector approach, in this case including most building outlines across California's [San Francisco Bay Area](https://openmaptiles.com/downloads/north-america/us/california/san-francisco-bay/).
-1. Your Goal Below: replace this small 109 MB sample .mbtiles file, with a different local-or-larger region, for your own regional community.  These regional vector map datasets (plug-in files) can be downloaded from https://openmaptiles.com/downloads/planet/ &mdash; <i>on the right column of this page, choose a region!</i>
+1. Your Goal Below: replace this small 109 MB sample .mbtiles file, with a different local-or-larger region, for your own regional community.  These regional vector map datasets (plug-in files) can be downloaded from https://openmaptiles.com/downloads/planet/ &mdash; _on the right column of this page, choose a region!_
 
 ### How do I add detailed Zoomable Maps for my region?
 
@@ -31,7 +31,7 @@ See ["How do I add zoomable maps for my region?"](http://FAQ.IIAB.IO#How_do_I_ad
       1. 1.14-1.33 GB covers [Central America & the Caribbean](https://openmaptiles.com/downloads/central-america/), a region 5000 km wide including parts of South and North America, with 20 complete countries and portions of 10 other/larger countries
       1. 6.21-6.84 GB covers [South and Central America](https://openmaptiles.com/downloads/dataset/osm/south-america/) including 95% of Mexico
       1. 51.01-57.32 GB covers the [Entire Planet](https://openmaptiles.com/downloads/dataset/osm/)
-   1. <b>Create a symbolic link to replace "details.mbtiles -> 2017-07-03_california_san-francisco-bay.mbtiles" by running: `ln -sf ./<full filename of the downloaded region> details.mbtiles`</b>
+   1. **Create a symbolic link to replace "details.mbtiles -> 2017-07-03_california_san-francisco-bay.mbtiles" by running: `ln -sf ./<full filename of the downloaded region> details.mbtiles`**
 1. Test it:
    1. Connect another device to your IIAB's Wi-Fi (SSID is typically "Internet in a Box")
    1. Browse to http://box/modules/osm-min (occasionally "box" needs to be replaced by "box.lan" or "172.18.96.1")
@@ -60,4 +60,4 @@ Usability Engineering begins here &mdash; thanks all who can assist &mdash; impr
   - Teachers want Accents to work when searching for cities in OpenStreetMap [#662](https://github.com/iiab/iiab/issues/662)
   - Keep OSM from zooming past Level 10, where there's no data? [#1036](https://github.com/iiab/iiab/issues/1036)
 
-How do we evolve this into a continuously more friendly product?
+_How do we evolve this into a continuously more friendly product?_
