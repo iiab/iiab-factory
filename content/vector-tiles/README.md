@@ -2,7 +2,7 @@
 
 ### Motivation
 
-Please read ["How do I add zoomable maps for my region? "](http://FAQ.IIAB.IO#How_do_I_add_zoomable_maps_for_my_region.3F) in http://FAQ.IIAB.IO
+See ["How do I add zoomable maps for my region?"](http://FAQ.IIAB.IO#How_do_I_add_zoomable_maps_for_my_region.3F) in http://FAQ.IIAB.IO
 
 ### Summary Architecture
 
@@ -37,15 +37,27 @@ Please read ["How do I add zoomable maps for my region? "](http://FAQ.IIAB.IO#Ho
    1. Browse to http://box/modules/osm-min (occasionally "box" needs to be replaced by "box.lan" or "172.18.96.1")
    1. Zoom into your region of interest to confirm local details appear!
    1. If so, recover 109 MB by running: `rm 2017-07-03_california_san-francisco-bay.mbtiles`
+   
+### Please redistribute your Fully-assembled Map Pack, to help other schools!
+
+1. Run: `cd /library/www/html/modules/`
+1. Rename it appropriately, for example: `mv en-osm-omt-min en-osm-omt-atlantis`
+1. Run: `apt install zip` (necessary on Raspbian Lite)
+1. Run: `zip -r en-osm-omt-atlantis.zip en-osm-omt-atlantis` (e.g. to create `en-osm-omt-atlantis.zip`)
+1. Publish it for all, e.g. using https://archive.org/create.php or https://commons.wikimedia.org/wiki/Special:UploadWizard for smaller files.
+1. _[Contact us](http://wiki.laptop.org/go/IIAB/FAQ#What_are_the_best_places_for_community_support.3F) so we can broadly promote your work, in places like http://download.iiab.io/content/OSM/vector-tiles/ !_
 
 ### Community Design -> Killer Product
 
-- Design Decisions:
+Design Decisions:
   - [github.com/iiab/iiab-factory/blob/master/content/vector-tiles/Design-Decisions.md](https://github.com/iiab/iiab-factory/blob/master/content/vector-tiles/Design-Decisions.md) is sometimes out-of-date?
   - [github.com/georgejhunt/iiab-factory/blob/vector-maps/content/vector-tiles/Design-Decisions.md](https://github.com/georgejhunt/iiab-factory/blob/vector-maps/content/vector-tiles/Design-Decisions.md) just in case!
-- How do we evolve this into a continuously more friendly product?  Usability Engineering begins here &mdash; thanks all who can assist &mdash; improving this for schools worldwide!
+
+Usability Engineering begins here &mdash; thanks all who can assist &mdash; improving this for schools worldwide!
   - Package up vector-based OSM maps: [#877](https://github.com/iiab/iiab/issues/877)
   - Can OSM Vector Maps fill the entire screen? [#1035](https://github.com/iiab/iiab/issues/1035)
   - How many cities are searchable by new Vector-based OSM? [#1034](https://github.com/iiab/iiab/issues/1034)
   - Teachers want Accents to work when searching for cities in OpenStreetMap [#662](https://github.com/iiab/iiab/issues/662)
   - Keep OSM from zooming past Level 10, where there's no data? [#1036](https://github.com/iiab/iiab/issues/1036)
+
+How do we evolve this into a continuously more friendly product?
