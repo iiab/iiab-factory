@@ -44,3 +44,4 @@
   - Can OSM Vector Maps fill the entire screen? [#1035](https://github.com/iiab/iiab/issues/1035)
   - How many cities are searchable by new Vector-based OSM? [#1034](https://github.com/iiab/iiab/issues/1034)
   - Teachers want Accents to work when searching for cities in OpenStreetMap [#662](https://github.com/iiab/iiab/issues/662)
+  - Keep OSM from zooming past Level 10, where there's no data? #1036
