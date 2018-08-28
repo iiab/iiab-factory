@@ -132,7 +132,7 @@ umountAll(){
 }
 
 initialize(){
-   IMAGERVERSION=0.1
+   IMAGERVERSION=0.2
    USE_NLS=no
    BOOT_DEVICE=$(blkid --label tcore)
    declare -g TINY_CORE_NIBBLE=${BOOT_DEVICE:5:3}
