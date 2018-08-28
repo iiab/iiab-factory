@@ -1,4 +1,4 @@
-#!/usr/local/bin/bash -x
+#!/usr/local/bin/bash 
 # fast copy (using dd) IIAB to an disk image, or a  second SD card; optionally minify image
 
 # Author: george hunt <georgejhunt.gmail.com> https://github.com/georgejhunt/iiab-factory
@@ -127,7 +127,7 @@ umountAll(){
       echo $dev | grep sr0 > /dev/null; if test $? -eq 0; then continue; fi
       echo $dev | grep $TINY_CORE_NIBBLE > /dev/null; if test $? -eq 0; then continue; fi
       mnt=$(cat /etc/fstab | grep $dev | awk '{print $2}')
-      umount $mnt > /dev/null
+      umount $mnt > /dev/null 2>@1
    done
 }
 
