@@ -127,7 +127,7 @@ umountAll(){
       echo $dev | grep sr0 > /dev/null; if test $? -eq 0; then continue; fi
       echo $dev | grep $TINY_CORE_NIBBLE > /dev/null; if test $? -eq 0; then continue; fi
       mnt=$(cat /etc/fstab | grep $dev | awk '{print $2}')
-      umount $mnt > /dev/null 2>@1
+      umount $mnt > /dev/null 2>&1
    done
 }
 
