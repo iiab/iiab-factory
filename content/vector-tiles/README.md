@@ -55,7 +55,8 @@ See ["How do I add zoomable maps for my region?"](http://FAQ.IIAB.IO#How_do_I_ad
 ### Community Design -> Killer Product
 
 Code:
-  - [github.com/iiab/maps](https://github.com/iiab/maps)
+  - [github.com/iiab/maps](https://github.com/iiab/maps) is sometimes a bit out-of-date
+  - [download.iiab.io/content/OSM/vector-tiles/en-osm-omt-min.zip](http://download.iiab.io/content/OSM/vector-tiles/en-osm-omt-min.zip) always contains the latest!
 
 Design Decisions:
   - [github.com/iiab/iiab-factory/blob/master/content/vector-tiles/Design-Decisions.md](https://github.com/iiab/iiab-factory/blob/master/content/vector-tiles/Design-Decisions.md) is sometimes out-of-date?
