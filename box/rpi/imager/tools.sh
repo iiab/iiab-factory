@@ -170,7 +170,7 @@ iiab_label(){
       else
          HASH="$$"
       fi
-      PRODUCT=LOCAL
+      PRODUCT=IMAGER
       VERSION="$IMAGERVERSION"
    fi
    YMD=$(date "+%y%m%d-%H%M")

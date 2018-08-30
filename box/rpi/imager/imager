@@ -127,12 +127,12 @@ umountAll(){
       echo $dev | grep sr0 > /dev/null; if test $? -eq 0; then continue; fi
       echo $dev | grep $TINY_CORE_NIBBLE > /dev/null; if test $? -eq 0; then continue; fi
       mnt=$(cat /etc/fstab | grep $dev | awk '{print $2}')
-      umount $mnt > /dev/null 2>@1
+      umount $mnt > /dev/null 2>&1
    done
 }
 
 initialize(){
-   IMAGERVERSION=0.1
+   IMAGERVERSION=0.2
    USE_NLS=no
    BOOT_DEVICE=$(blkid --label tcore)
    declare -g TINY_CORE_NIBBLE=${BOOT_DEVICE:5:3}
