@@ -13,7 +13,7 @@ See ["How do I add zoomable maps for my region?"](http://FAQ.IIAB.IO#How_do_I_ad
    1. The world's landmasses are covered by `base.mbtiles -> osm_z0-10_planet.mbtiles` (1.4 GB) at zoom levels 0-10, encoded as MVT/PBF vector maps.
    1. The world's oceans are covered by `ocean.mbtiles -> mymap.mbtiles` (87 MB) at zoom levels 0-10, encoded as PNG bitmap/raster imagery.
    1. **Finally the clincher, that you can customize: `details.mbtiles` adds in zoom levels 1-14 (for one single/chosen region, encoded as MVT/PBF vector maps, which can be overzoomed to level 18+).**
-1. An example that includes all 4 = 1 + 3 data files is http://download.iiab.io/content/OSM/vector-tiles/en-osm-omt-min.zip (1.5 GB unzips to 1.8 GB, browsable at http://medbox.iiab.me/modules/en-osm-omt-min/).  Specifically: in addition to the above city search and base maps for the world's landmasses and oceans, it also includes 109 MB file `detail.mbtiles -> 2017-07-03_california_san-francisco-bay.mbtiles`.  While this regional vector map dataset is just a small sample (many countries require more than 109 MB) it illustrates the incredible geographic detail of this vector approach, in this case including most building outlines across California's [San Francisco Bay Area](https://openmaptiles.com/downloads/north-america/us/california/san-francisco-bay/).
+1. An example that includes all 4 = 1 + 3 data files is http://download.iiab.io/content/OSM/vector-tiles/en-osm-omt-min.zip (1.5 GB unzips to 1.8 GB, browsable at http://medbox.iiab.me/modules/en-osm-omt-min/).  [WITH APOLOGIES THAT DEMO SERVER MEDBOX.IIAB.ME IS SOMETIMES OUT OF DATE!]  Specifically: in addition to the above city search and base maps for the world's landmasses and oceans, it also includes 109 MB file `detail.mbtiles -> 2017-07-03_california_san-francisco-bay.mbtiles`.  While this regional vector map dataset is just a small sample (many countries require more than 109 MB) it illustrates the incredible geographic detail of this vector approach, in this case including most building outlines across California's [San Francisco Bay Area](https://openmaptiles.com/downloads/north-america/us/california/san-francisco-bay/).
 1. Your Goal Below: replace this small 109 MB sample .mbtiles file, with a different local-or-larger region, for your own regional community.  These regional vector map datasets (plug-in files) can be downloaded from https://openmaptiles.com/downloads/planet/ &mdash; _on the right column of this page, choose a region!_
 
 ### How do I add detailed Zoomable Maps for my region?
@@ -37,6 +37,11 @@ See ["How do I add zoomable maps for my region?"](http://FAQ.IIAB.IO#How_do_I_ad
    1. Browse to http://box/modules/osm-min (occasionally "box" needs to be replaced by "box.lan" or "172.18.96.1")
    1. Zoom into your region of interest to confirm local details appear!
    1. If so, recover 109 MB by running: `rm 2017-07-03_california_san-francisco-bay.mbtiles`
+1. Configure http://box/maps so teachers and students get to maps quickly:
+   1. Run `nano /etc/apache2/sites-available/osm.conf` to set the appropriate path, modifying this line as required:<br>
+   ``Alias /maps /library/www/html/modules/en-osm-omt-min/``
+   1. Run: `systemctl restart apache2`
+   1. Visit http://box/maps (force a Hard Reload in your browser to get the latest!)
    
 ### Please redistribute your Fully-assembled Map Pack, to help other schools!
 
@@ -50,7 +55,7 @@ See ["How do I add zoomable maps for my region?"](http://FAQ.IIAB.IO#How_do_I_ad
 ### Community Design -> Killer Product
 
 Code:
-  - https://github.com/iiab/maps
+  - [github.com/iiab/maps](https://github.com/iiab/maps)
 
 Design Decisions:
   - [github.com/iiab/iiab-factory/blob/master/content/vector-tiles/Design-Decisions.md](https://github.com/iiab/iiab-factory/blob/master/content/vector-tiles/Design-Decisions.md) is sometimes out-of-date?
