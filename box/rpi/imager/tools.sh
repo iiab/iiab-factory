@@ -48,7 +48,7 @@ size_image(){
 
    # get the next loop device
    DEVICEREF=$(losetup -f)
-   $(losetup -P $DEVICEREF $1)
+   losetup -P $DEVICEREF $1
    if [ $? -ne 0 ];then
       echo failed to create RAWDEVICE reference for $1
       losetup -d $DEVICEREF

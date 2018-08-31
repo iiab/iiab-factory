@@ -1,4 +1,4 @@
-#!/usr/local/bin/bash 
+#!/usr/local/bin/bash
 # fast copy (using dd) IIAB to an disk image, or a  second SD card; optionally minify image
 
 # Author: george hunt <georgejhunt.gmail.com> https://github.com/georgejhunt/iiab-factory
@@ -77,7 +77,7 @@ usage() {
     xecho "IIAB SD Card Duplicator"
     echo "  version $version"
     xecho "usage: $0 [options]
-  -d|--dest      Destination USB stick
+  -d|--debug     Turn on bash debugging
   -h|--help      what you're reading"
 }
 
@@ -85,8 +85,10 @@ while (( $# )) ; do
     case "$1" in
     -h|--help)
          usage; exit 0 ;;
-    -d|--dest)
-         PARTITION="$2"; shift 2;;
+    -d|--debug)
+	 DEBUG=True
+         set -x
+	 shift 1;;
     *) usage ; exit 1 ;;
     esac
 done
@@ -560,7 +562,9 @@ done< <( dd if=$SRC_DEVICE of=$write_to bs=4096 count=$WRITE_COUNT \
           while kill -USR1 $pid 2>/dev/null;do
                sleep 5
           done )
-  set -x
+   if [ "$DEBUG" == 'True' ]; then
+     set -x
+   fi
   sync
 }
 
@@ -898,7 +902,7 @@ mainMenu(){
    choice6=$(gettext "Exit to command line terminal")
    title=$(gettext "MAIN MENU")
    msg=$(gettext "\nIMAGER = Disk Image Copier\n\nPlease choose from the following options:")
-   ACTION=$(dialog --title "$title"  --ok-button Select --cancel-button quit --menu "$msg" 17 80 7   \
+   ACTION=$(dialog --title "$title"  --ok-button Select --nocancel --menu "$msg" 17 80 7   \
    "copy2sd" "$choice1" \
    "copy2disk" "$choice1x" \
    "smaller" "$choice2" \
