@@ -88,7 +88,9 @@ while (( $# )) ; do
     -d|--debug)
 	 DEBUG=True
          set -x
-	 shift 1;;
+         /usr/local/bin/vpn-on
+	      shift 1
+         ;;
     *) usage ; exit 1 ;;
     esac
 done
@@ -902,6 +904,7 @@ mainMenu(){
    choice6=$(gettext "Exit to command line terminal")
    title=$(gettext "MAIN MENU")
    msg=$(gettext "\nIMAGER = Disk Image Copier\n\nPlease choose from the following options:")
+   EXIT_TEXT=$(gettext "Thank you for using IMAGER\n\nIf you wish to return to the IMAGER application. . .\nOpen a terminal, and type \"imager\".\n\nNOTE: This will turn on dubugging output, and enable REMOTE debugging by a developer.\n\nTo restore SECURITY: type \"sudo reboot\".")
    ACTION=$(dialog --title "$title"  --ok-button Select --nocancel --menu "$msg" 17 80 7   \
    "copy2sd" "$choice1" \
    "copy2disk" "$choice1x" \
@@ -938,7 +941,7 @@ mainMenu(){
          dillo file:///opt/iiab/iiab-factory/box/rpi/imager/docs/README.html
          ;;
       terminal)
-         dialog --title "Exit to terminal" --msgbox "Thank you for using IMAGER\n\nIf you wish to return to the IMAGER application. . .\nOpen a terminal, and type \"imager\"." 10 80
+         dialog --title "Exit to terminal" --msgbox "$EXIT_TEXT" 14 80
          exit 1
          ;;
       help|*)
