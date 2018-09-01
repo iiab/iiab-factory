@@ -895,7 +895,7 @@ Do you want to proceed?")
 
 #######################   Main Menu   ###############################
 mainMenu(){
-   choice1=$(gettext "Copy to SD Card (DESTROYS ALL DATA ON TARGET)")
+   choice1=$(gettext "SD Device to SD Device (DESTROYS ALL DATA ON TARGET)")
    choice1x=$(gettext "Copy to hard disk")
    choice2=$(gettext "Reduce the size of hard disk image")
    choice3=$(gettext "Copy from hard disk image to SD card")
