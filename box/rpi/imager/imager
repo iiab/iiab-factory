@@ -203,13 +203,11 @@ showIni(){
    if [ $? -eq 0 ]; then  
       losetup -P $RAWDEVICE $device
       local devicepart=${RAWDEVICE}${part}2
-      mkdir -p /tmp/imager/${devicepart:5}
-      local devicemnt=/tmp/imager/${devicepart:5}
    else
       devicepart="/dev/${device}${part}2"
-      devicemnt="/mnt/${device}${part}2"
    fi
 
+   umount $ROOTFS_MOUNT > /dev/null
    mount $devicepart $ROOTFS_MOUNT
    local si_title=$(gettext "IIAB Information File -- $OBJECTIVE")
    si_msg=$(gettext "\nThis file is updated when the IIAB Admin Console is used \
@@ -394,7 +392,8 @@ EOF
 
    source $sr_tmp
    if test $? -eq 1; then return 99; fi
-   image_path=$1/$(get_nth $CHOICE_NUM $image_list )
+   CHOICE_NUM=${CHOICE_NUM%% }
+   image_path=$1/${lookup[$CHOICE_NUM]}
    DEST_PARTITION=$PARTITION
    DEST_FREE=$(/usr/local/bin/df -l | grep $DEST_PARTITION | awk '{print $4}')
    DEST_FREE=$(expr "$DEST_FREE" \* 1024)
@@ -604,17 +603,6 @@ destPrep(){
    fi      
    if [ $rtn -ne 0 ];then return $rtn; fi
 }
-get_nth(){
-   index=1
-   nth=$1
-   shift
-   choice_list=$@
-   for ch in $choice_list; do
-      if [ "$index" = "$nth" ]; then break; fi 
-      index=$(( index + 1 ))
-   done
-   echo $ch
-}
 
 selectPartition(){
    local device=$1
@@ -672,7 +660,9 @@ EOF
 
       source "$sf_tmp"
       rtn=$?
-      local filename=$(get_nth $CHOICE_NUM $image_list )
+      # delete trailing blanks
+      CHOICE_NUM=${CHOICE_NUM%% }
+      local filename=${lookup[$CHOICE_NUM]}
       image_path=$DEVICE_MNT/iiab/$filename
       case $rtn in
          3) 
@@ -771,7 +761,9 @@ EOF
 
       source "$ms_tmp"
       rtn=$?
-      local filename=$(get_nth $CHOICE_NUM $image_list )
+      # delete trailing blanks
+      CHOICE_NUM=${CHOICE_NUM%% }
+      local filename=${lookup[$CHOICE_NUM]}
       image_path=$DEST_MNT/iiab/$filename
       case $rtn in
          3) 
@@ -786,9 +778,6 @@ EOF
       esac
    done
    if [ $rtn -eq 99 ];then return 99;fi
-
-   local filename=$(get_nth $CHOICE_NUM $image_list )
-   image_path=$DEST_MNT/iiab/$filename
 
    # get the proposed new size
    new_size=$(min_device_size $image_path)
@@ -861,13 +850,15 @@ EOF
 
       source $di_tmp
       rtn=$?
+      # delete trailing blanks
+      CHOICE_NUM=${CHOICE_NUM%% }
+      filename=${lookup[$CHOICE_NUM]}
+      image_path=$DEST_MNT/iiab/$filename
       case $rtn in
          3) 
             showIni $image_path
             ;;
          0) 
-            local filename=$(get_nth $CHOICE_NUM $image_list )
-            image_path=$DEST_MNT/iiab/$filename
             break
             ;;
          *) 
