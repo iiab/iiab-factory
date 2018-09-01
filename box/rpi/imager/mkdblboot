@@ -165,6 +165,7 @@ util-linux.tcz
 zip-unzip.tcz
 openvpn.tcz
 gdisk.tcz
+parted.tcz
 man.tcz
 nmap.tcz
 ntfs-3g.tcz
