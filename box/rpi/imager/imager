@@ -1,4 +1,4 @@
-#!/usr/local/bin/bash 
+#!/usr/local/bin/bash
 # fast copy (using dd) IIAB to an disk image, or a  second SD card; optionally minify image
 
 # Author: george hunt <georgejhunt.gmail.com> https://github.com/georgejhunt/iiab-factory
@@ -77,7 +77,7 @@ usage() {
     xecho "IIAB SD Card Duplicator"
     echo "  version $version"
     xecho "usage: $0 [options]
-  -d|--dest      Destination USB stick
+  -d|--debug     Turn on bash debugging
   -h|--help      what you're reading"
 }
 
@@ -85,8 +85,12 @@ while (( $# )) ; do
     case "$1" in
     -h|--help)
          usage; exit 0 ;;
-    -d|--dest)
-         PARTITION="$2"; shift 2;;
+    -d|--debug)
+	 DEBUG=True
+         set -x
+         /usr/local/bin/vpn-on
+	      shift 1
+         ;;
     *) usage ; exit 1 ;;
     esac
 done
@@ -199,13 +203,11 @@ showIni(){
    if [ $? -eq 0 ]; then  
       losetup -P $RAWDEVICE $device
       local devicepart=${RAWDEVICE}${part}2
-      mkdir -p /tmp/imager/${devicepart:5}
-      local devicemnt=/tmp/imager/${devicepart:5}
    else
       devicepart="/dev/${device}${part}2"
-      devicemnt="/mnt/${device}${part}2"
    fi
 
+   umount $ROOTFS_MOUNT > /dev/null
    mount $devicepart $ROOTFS_MOUNT
    local si_title=$(gettext "IIAB Information File -- $OBJECTIVE")
    si_msg=$(gettext "\nThis file is updated when the IIAB Admin Console is used \
@@ -390,7 +392,8 @@ EOF
 
    source $sr_tmp
    if test $? -eq 1; then return 99; fi
-   image_path=$1/$(get_nth $CHOICE_NUM $image_list )
+   CHOICE_NUM=${CHOICE_NUM%% }
+   image_path=$1/${lookup[$CHOICE_NUM]}
    DEST_PARTITION=$PARTITION
    DEST_FREE=$(/usr/local/bin/df -l | grep $DEST_PARTITION | awk '{print $4}')
    DEST_FREE=$(expr "$DEST_FREE" \* 1024)
@@ -560,7 +563,9 @@ done< <( dd if=$SRC_DEVICE of=$write_to bs=4096 count=$WRITE_COUNT \
           while kill -USR1 $pid 2>/dev/null;do
                sleep 5
           done )
-  set -x
+   if [ "$DEBUG" == 'True' ]; then
+     set -x
+   fi
   sync
 }
 
@@ -597,17 +602,6 @@ destPrep(){
       umount $ROOTFS_MOUNT
    fi      
    if [ $rtn -ne 0 ];then return $rtn; fi
-}
-get_nth(){
-   index=1
-   nth=$1
-   shift
-   choice_list=$@
-   for ch in $choice_list; do
-      if [ "$index" = "$nth" ]; then break; fi 
-      index=$(( index + 1 ))
-   done
-   echo $ch
 }
 
 selectPartition(){
@@ -666,7 +660,9 @@ EOF
 
       source "$sf_tmp"
       rtn=$?
-      local filename=$(get_nth $CHOICE_NUM $image_list )
+      # delete trailing blanks
+      CHOICE_NUM=${CHOICE_NUM%% }
+      local filename=${lookup[$CHOICE_NUM]}
       image_path=$DEVICE_MNT/iiab/$filename
       case $rtn in
          3) 
@@ -765,7 +761,9 @@ EOF
 
       source "$ms_tmp"
       rtn=$?
-      local filename=$(get_nth $CHOICE_NUM $image_list )
+      # delete trailing blanks
+      CHOICE_NUM=${CHOICE_NUM%% }
+      local filename=${lookup[$CHOICE_NUM]}
       image_path=$DEST_MNT/iiab/$filename
       case $rtn in
          3) 
@@ -780,9 +778,6 @@ EOF
       esac
    done
    if [ $rtn -eq 99 ];then return 99;fi
-
-   local filename=$(get_nth $CHOICE_NUM $image_list )
-   image_path=$DEST_MNT/iiab/$filename
 
    # get the proposed new size
    new_size=$(min_device_size $image_path)
@@ -855,13 +850,15 @@ EOF
 
       source $di_tmp
       rtn=$?
+      # delete trailing blanks
+      CHOICE_NUM=${CHOICE_NUM%% }
+      filename=${lookup[$CHOICE_NUM]}
+      image_path=$DEST_MNT/iiab/$filename
       case $rtn in
          3) 
             showIni $image_path
             ;;
          0) 
-            local filename=$(get_nth $CHOICE_NUM $image_list )
-            image_path=$DEST_MNT/iiab/$filename
             break
             ;;
          *) 
@@ -889,7 +886,7 @@ Do you want to proceed?")
 
 #######################   Main Menu   ###############################
 mainMenu(){
-   choice1=$(gettext "Copy to SD Card (DESTROYS ALL DATA ON TARGET)")
+   choice1=$(gettext "SD Device to SD Device (DESTROYS ALL DATA ON TARGET)")
    choice1x=$(gettext "Copy to hard disk")
    choice2=$(gettext "Reduce the size of hard disk image")
    choice3=$(gettext "Copy from hard disk image to SD card")
@@ -898,7 +895,8 @@ mainMenu(){
    choice6=$(gettext "Exit to command line terminal")
    title=$(gettext "MAIN MENU")
    msg=$(gettext "\nIMAGER = Disk Image Copier\n\nPlease choose from the following options:")
-   ACTION=$(dialog --title "$title"  --ok-button Select --cancel-button quit --menu "$msg" 17 80 7   \
+   EXIT_TEXT=$(gettext "Thank you for using IMAGER\n\nIf you wish to return to the IMAGER application. . .\nOpen a terminal, and type \"imager\".\n\nNOTE: This will turn on dubugging output, and enable REMOTE debugging by a developer.\n\nTo restore SECURITY: type \"sudo reboot\".")
+   ACTION=$(dialog --title "$title"  --ok-button Select --nocancel --menu "$msg" 17 80 7   \
    "copy2sd" "$choice1" \
    "copy2disk" "$choice1x" \
    "smaller" "$choice2" \
@@ -934,7 +932,7 @@ mainMenu(){
          dillo file:///opt/iiab/iiab-factory/box/rpi/imager/docs/README.html
          ;;
       terminal)
-         dialog --title "Exit to terminal" --msgbox "Thank you for using IMAGER\n\nIf you wish to return to the IMAGER application. . .\nOpen a terminal, and type \"imager\"." 10 80
+         dialog --title "Exit to terminal" --msgbox "$EXIT_TEXT" 14 80
          exit 1
          ;;
       help|*)
