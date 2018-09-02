@@ -3,11 +3,11 @@
 * Boots on older Windows machines (MBR boot) as well as newer UEFI bios loaders.
 * Uses Windows (XP, Windows 7, 8, 10) hard disk partitions for storage.
 * Uses SD card reader on laptop, if present.
-* Objective Driven -- Takes Care of Details
 * Menu navigation is non-destructive, until you confirm an action, and change the default.
 
 #### How to Get Started
 * Ensure that the Bios on laptop is set to boot from USB first, if the USB is present. (Often the f2, f10, f12, or del keys, when pressed early in the boot process, will bring up the Bios settings screen).
+* Depending on differences between Bios versions, it may be necessary to remove your source, or destination, SD cards during the early boot time.
 * Download IMAGER from http://download.iiab.io/packages/imager (the most recent <filename>.img file).
 * Use the linux dd, etcher, or win32diskimager to copy this image file to a USB stick (the same process you use to copy rpi images to a SD card).
 * Insert the USB stick into a Windows laptop, and turn on the power.
@@ -64,10 +64,11 @@
 
 ![USB SD card Adapters](adapter_choice.jpg)
 
-#### VPN Can Help Fix Bugs in Imager
+#### Exit to Command Line Terminal
+* This option brings up a informational screen which explains how to enable debugging and remote developer access.
+![Terminal and debugging information](terminal.png)
 * Debugging Imager, in all the different Windows machines that might be encountered, is a difficult task.
-* VPN (virtual private networks) can be enabled (default=off) so that the developer can diagnose problems encountered by early adopters.
-* The terminal command "sudo vpn-on" will enable Imager for developer access (this access should survive reboots).
-* Make your VPN access discoverable (among other VPN clients) by entering name, and label, with the "copy2disk" menu choice (but cancel out before actually performing the copy).
-* Disable ongoing VPN access to Imager with the command "sudo vpn-off".
+* VPN (virtual private networks) can be enabled (default=off) so that the developer can diagnose problems encountered by early adopters. This is achieved by exiting from the default (at boot time) Menu, and then typing "imager" at the terminal command line (to display a terminal, click on the icon of a terminal at bottom right of the screen).
+* VPN access to Imager normally only lasts until the next reboot.
+* VPN access can be made to survive reboots by typing "sudo filetool.sh -b", after starting IMAGER from the command line.
 * Verify that the VPN is actually working by looking for the "tun0" response to "sudo ip a" terminal command.
