@@ -177,7 +177,6 @@ ncurses-utils.tcz
 nss-mdns.tcz
 openssh.tcz
 rsync.tcz
-parted.tcz
 sed.tcz
 tar.tcz
 wget.tcz
