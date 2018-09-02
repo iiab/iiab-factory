@@ -161,6 +161,7 @@ iiab_label(){
       pushd /$PARTITION/opt/iiab/iiab > /dev/null
       HASH=`git log --pretty=format:'g%h' -n 1`
       popd > /dev/null
+      VERSION=$(grep IIAB_RELEASE /$PARTITION/etc/iiab/iiab.env | cut -d'=' -f2)
    else
       local tc_partition=${PARTITION:0:-1}3
       if [ -d $tc_partition/opt/iiab/iiab-factory ]; then
