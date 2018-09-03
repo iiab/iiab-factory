@@ -14,8 +14,8 @@
 #    which sets the hostname, improves RTC settings + memory mgmt
 
 # This script was obtained from: http://download.iiab.io/6.6/install.txt
-IIAB_RELEASE="6.6-release"
-ADMIN_RELEASE="6.6-release"
+IIAB_RELEASE="master"
+ADMIN_RELEASE="master"
 CONF_FILE=/etc/iiab/local_vars.yml
 BASE=/opt/iiab
 REINSTALL=""
