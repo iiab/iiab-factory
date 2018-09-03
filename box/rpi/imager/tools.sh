@@ -223,6 +223,8 @@ modify_dest(){
    rm -f $root_path/root/.netrc
    rm -rf $root_path/root/tools
 
+   # save the UUID for ancestry investigations
+   UUID=$(cat $root_path/etc/iiab/uuid)
    # remove UUID -- regenerated on first run of IIAB
    rm -f $root_path/etc/iiab/uuid
    #echo $(uuidgen) > $root_path/etc/iiab/uuid
@@ -248,6 +250,7 @@ modify_dest(){
    echo "handle: $handle" > $root_path/etc/iiab/imager.$YMD
    echo "last filename: $lastfilename" >> $root_path/etc/iiab/imager.$YMD
    echo "last operation: $OBJECTIVE" >> $root_path/etc/iiab/imager.$YMD
+   echo "parent UUID: $UUID" >> $root_path/etc/iiab/imager.$YMD
 
    # set the copied image to expand 
    touch $root_path/.resize-rootfs

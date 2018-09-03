@@ -582,6 +582,7 @@ imageOpen(){
 imageClose(){
    declare -g RAWDEVICE
    declare -g ROOTFS_MOUNT
+   sync
    umount $ROOTFS_MOUNT
    losetup -d $RAWDEVICE
 }
