@@ -14,9 +14,10 @@
 #    which sets the hostname, improves RTC settings + memory mgmt
 
 # This script was obtained from: http://download.iiab.io/6.6/install.txt
-#IIAB_RELEASE="6.6-release"
-IIAB_RELEASE="master"
-ADMIN_RELEASE="master"
+IIAB_RELEASE="6.6-release"
+ADMIN_RELEASE="6.6-release"
+CONF_FILE=/etc/iiab/local_vars.yml
+BASE=/opt/iiab
 REINSTALL=""
 SUPPORT=""
 set -e                                   # Exit on error (avoids snowballing)
@@ -26,10 +27,10 @@ echo -e "   ██ TRY TO RERUN THIS ENTIRE SCRIPT IF IT FAILS DUE TO CONNECTIVI
 echo -e "   █████████████████████████████████████████████████████████████████████████\n\n"
 
 mkdir -p /etc/iiab
-if [ -f /opt/iiab/iiab/vars/local_vars.yml ]; then
+if [ -f $BASE/iiab/vars/local_vars.yml ]; then
     # FUTURE: Test if their local_vars.yml is sufficiently version-compatible !
-    echo -e "\n\n  EXISTING /opt/iiab/iiab/vars/local_vars.yml will be moved to reinstall Internet-in-a-Box\n"
-    mv /opt/iiab/iiab/vars/local_vars.yml /etc/iiab/local_vars.yml
+    echo -e "\n\n  EXISTING $BASE/iiab/vars/local_vars.yml will be moved to reinstall Internet-in-a-Box\n"
+    mv $BASE/iiab/vars/local_vars.yml /etc/iiab/local_vars.yml
     REINSTALL="--reinstall"
 elif [ -f /etc/iiab/local_vars.yml ]; then
     # FUTURE: Test if their local_vars.yml is sufficiently version-compatible !
@@ -67,70 +68,68 @@ if grep -qi raspbian /etc/*release; then tune2fs -m 1 /dev/mmcblk0p2; fi
 apt update
 apt -y install git
 
-mkdir -p /opt/iiab
-cd /opt/iiab/
+mkdir -p $BASE
+cd $BASE/
 
 # Installs latest Ansible-2.6.x from PPA.
 if [ -d iiab-factory ]; then
     echo -e 'auto update'
     git pull origin master
-    cd /opt/iiab/iiab-factory/scripts
+    cd $BASE/iiab-factory/scripts
     ./ansible-2.6.x
 else
     git clone https://github.com/iiab/iiab-factory --depth 1
-    cd /opt/iiab/iiab-factory/scripts
+    cd $BASE/iiab-factory/scripts
     ./ansible-2.6.x
 fi
 
 if [ -d iiab ]; then
     echo -e 'auto update'
-    cd /opt/iiab/iiab
+    cd $BASE/iiab
     git pull origin $IIAB_RELEASE
 else
     git clone https://github.com/iiab/iiab --branch $IIAB_RELEASE --depth 1
-    cd /opt/iiab/iiab
-    case $local_vars_size in
-        1)
-	    cp vars/local_vars_min$SUPPORT.yml /etc/iiab/local_vars.yml
-	    ;;
-	3)
+    if [ ! -f /etc/iiab/local_vars.yml ]; then
+        cd $BASE/iiab
+        case $local_vars_size in
+            1)
+            cp vars/local_vars_min$SUPPORT.yml /etc/iiab/local_vars.yml
+               ;;
+            3)
 	    cp vars/local_vars_big$SUPPORT.yml /etc/iiab/local_vars.yml
-	    ;;
-	2)
-	    cp vars/local_vars_medium$SUPPORT.yml /etc/iiab/local_vars.yml
-	    ;;
-    esac
+               ;;
+            2)
+            cp vars/local_vars_medium$SUPPORT.yml /etc/iiab/local_vars.yml
+               ;;
+        esac
+    fi
 fi
-
-if [ x$SUPPORT = "x_vpn" ]; then
-    ./install-support
-fi
-
-./iiab-install $REINSTALL
 
 # Installs Admin Console; runs iiab-get-kiwix-cat to d/l Kiwix catalog
+cd $BASE
 if [ -d iiab-admin-console ]; then
     echo -e 'auto update'
-    cd /opt/iiab/iiab-admin-console/
+    cd $BASE/iiab-admin-console/
     git pull origin $ADMIN_RELEASE
-    ./install
 else
     git clone https://github.com/iiab/iiab-admin-console --branch $ADMIN_RELEASE --depth 1
-    cd /opt/iiab/iiab-admin-console/
-    ./install
 fi
 
 # Installs Dynamic Menuing for /library/www/html/home/index.html
 if [ -d iiab-menu ]; then
-    echo -e '\nREPO EXISTS? Consider "cd /opt/iiab/iiab-menu; git pull; ./cp-menus"'
+    echo -e '\nREPO EXISTS? Consider "cd $BASE/iiab-menu; git pull; ./cp-menus"'
 else
     git clone https://github.com/iiab/iiab-menu --depth 1
-    cd /opt/iiab/iiab-menu/
-    ./cp-menus
 fi
 
-cd /opt/iiab/iiab-factory/scripts
-./post-install
+if [ x$SUPPORT = "x_vpn" ]; then
+    $BASE/iiab/install-support
+fi
+
+$BASE/iiab/iiab-install $REINSTALL
+$BASE/iiab-admin/install
+$BASE/iiab/iiab-menu/cp-menus
+$BASE/iiab-factory/scripts/post-install
 
 echo -e "\n\nINTERNET-IN-A-BOX (IIAB) SOFTWARE INSTALL COMPLETE...now rebooting.\n"
 echo -e "A couple minutes after reboot, try connecting to your IIAB with various"
