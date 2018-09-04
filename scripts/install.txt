@@ -130,7 +130,7 @@ cd $BASE/iiab
 ./iiab-install $REINSTALL
 cd $BASE/iiab-admin-console
 ./install
-cd $BASE/iiab/iiab-menu
+cd $BASE/iiab-menu
 ./cp-menus
 $BASE/iiab-factory/scripts/post-install
 

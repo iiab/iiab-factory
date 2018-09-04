@@ -10,7 +10,7 @@ cd $BASE/iiab
 ./iiab-install
 cd $BASE/iiab-admin-console
 ./install
-cd $BASE/iiab/iiab-menu
+cd $BASE/iiab-menu
 ./cp-menus
 $BASE/iiab-factory/scripts/post-install
 touch /etc/iiab/iiab-complete
