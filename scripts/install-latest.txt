@@ -60,7 +60,7 @@ cd $BASE/
 
 # Installs latest Ansible-2.6.x from PPA.
 if [ -d iiab-factory ]; then
-    echo -e 'auto update'
+    echo -e 'iiab-factory auto update'
     cd $BASE/iiab-factory/
     git pull origin master
     $BASE/iiab-factory/scripts/ansible-2.6.x
@@ -71,7 +71,7 @@ else
 fi
 cd $BASE/
 if [ -d iiab ]; then
-    echo -e 'auto update'
+    echo -e 'iiab auto update'
     cd $BASE/iiab
     git pull origin $IIAB_RELEASE
 else
@@ -95,7 +95,7 @@ fi
 # Installs Admin Console
 cd $BASE
 if [ -d iiab-admin-console ]; then
-    echo -e 'auto update'
+    echo -e 'iiab-admin-console auto update'
     cd $BASE/iiab-admin-console/
     git pull origin $ADMIN_RELEASE
 else
