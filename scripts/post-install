@@ -2,11 +2,12 @@
 
 # Rebuilds local library.xml in case ZIM files added to /library/zims/content
 iiab-make-kiwix-lib
-echo -e 'now running kalite zone'
+echo -e 'Now running kalite zone'
 # /usr/bin/kalite venv wrapper does this: export KALITE_HOME=/library/ka-lite
 kalite manage generate_zone || true    # Overrides "set -e" allowing repeat run
 # Register with KA Lite - just the anonymous registration
 
+echo -e 'Now retreiving kalite en.zip'
 # WARNING: /tmp/en.zip (and all stuff in /tmp) is auto-deleted during reboots
 cd /tmp/    # Or /opt/iiab/downloads or /library/downloads if you prefer
 if [ -f en.zip ]; then
@@ -19,7 +20,7 @@ if [ -f en.zip ]; then
 else
     wget http://pantry.learningequality.org/downloads/ka-lite/0.17/content/contentpacks/en.zip
 fi
-echo -e 'now running kalite en.zip'
+echo -e 'Now installing kalite en.zip'
 kalite manage retrievecontentpack local en en.zip
 # NEW WAY ABOVE - since 2018-07-03 - installs KA Lite's mandatory English Pack
 # kalite manage retrievecontentpack download en
