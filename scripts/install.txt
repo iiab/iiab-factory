@@ -74,15 +74,15 @@ cd $BASE/
 # Installs latest Ansible-2.6.x from PPA.
 if [ -d iiab-factory ]; then
     echo -e 'auto update'
+    cd $BASE/iiab-factory/
     git pull origin master
-    cd $BASE/iiab-factory/scripts
-    ./ansible-2.6.x
+    $BASE/iiab-factory/scripts/ansible-2.6.x
 else
-    git clone https://github.com/iiab/iiab-factory --depth 1
-    cd $BASE/iiab-factory/scripts
-    ./ansible-2.6.x
+#    git clone https://github.com/iiab/iiab-factory --depth 1
+    git clone https://github.com/jvonau/iiab-factory --depth 1
+    $BASE/iiab-factory/scripts/ansible-2.6.x
 fi
-
+cd $BASE/
 if [ -d iiab ]; then
     echo -e 'auto update'
     cd $BASE/iiab
@@ -105,7 +105,7 @@ else
     fi
 fi
 
-# Installs Admin Console; runs iiab-get-kiwix-cat to d/l Kiwix catalog
+# Installs Admin Console
 cd $BASE
 if [ -d iiab-admin-console ]; then
     echo -e 'auto update'
@@ -126,9 +126,12 @@ if [ x$SUPPORT = "x_vpn" ]; then
     $BASE/iiab/install-support
 fi
 
-$BASE/iiab/iiab-install $REINSTALL
-$BASE/iiab-admin/install
-$BASE/iiab/iiab-menu/cp-menus
+cd $BASE/iiab
+./iiab-install $REINSTALL
+cd $BASE/iiab-admin-console
+./install
+cd $BASE/iiab/iiab-menu
+./cp-menus
 $BASE/iiab-factory/scripts/post-install
 
 echo -e "\n\nINTERNET-IN-A-BOX (IIAB) SOFTWARE INSTALL COMPLETE...now rebooting.\n"
