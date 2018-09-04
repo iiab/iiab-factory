@@ -1,0 +1,10 @@
+[Unit]
+Description=IIAB installer  
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/iiab/iiab-factory/scripts/continue.sh
+
+[Install]
+WantedBy=multi-user.target

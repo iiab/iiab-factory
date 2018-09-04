@@ -1,19 +1,6 @@
 #!/bin/bash -x
+# This script was obtained from: http://github.com/jvonau/iiab-factory/install-latest.txt
 
-# Installs IIAB - if Ubuntu or Debian, run "sudo su -" then SKIP TO STEP 4
-
-# 1. RUN "sudo su -" then "passwd pi" to SECURE published password
-# 2. RUN "raspi-config" to set LOCALISATION OPTIONS
-# 3. RUN "touch /boot/ssh" to enable incoming SSH after next reboot
-# 4. RUN "apt update; apt -y dist-upgrade; reboot" for OS SECURITY/UPDATES
-# 5. OPTIONAL: if you have slow/pricey Internet, pre-position KA Lite's
-#    mandatory 0.9 GB English Pack (en.zip) within /tmp -- if nec grab a copy
-#    from http://pantry.learningequality.org/downloads/ka-lite/0.17/content/contentpacks/en.zip
-# 6. RUN THIS SCRIPT: curl download.iiab.io/6.6/install.txt | sudo bash
-# 7. REBOOTS AUTOMATICALLY WHEN DONE (typically 1-to-3 hours later)
-#    which sets the hostname, improves RTC settings + memory mgmt
-
-# This script was obtained from: http://download.iiab.io/6.6/install.txt
 IIAB_RELEASE="master"
 ADMIN_RELEASE="master"
 CONF_FILE=/etc/iiab/local_vars.yml
@@ -105,7 +92,7 @@ else
     fi
 fi
 
-# Installs Admin Console; runs iiab-get-kiwix-cat to d/l Kiwix catalog
+# Installs Admin Console
 cd $BASE
 if [ -d iiab-admin-console ]; then
     echo -e 'auto update'
@@ -126,17 +113,10 @@ if [ x$SUPPORT = "x_vpn" ]; then
     $BASE/iiab/install-support
 fi
 
+cp $BASE/iiab-factory/roles/iiab-installer/files/iiab-installer.service /etc/systemd/system/
+systemctl enable iiab-installer
+
 $BASE/iiab/iiab-install $REINSTALL
-$BASE/iiab-admin/install
-$BASE/iiab/iiab-menu/cp-menus
-$BASE/iiab-factory/scripts/post-install
-
-echo -e "\n\nINTERNET-IN-A-BOX (IIAB) SOFTWARE INSTALL COMPLETE...now rebooting.\n"
-echo -e "A couple minutes after reboot, try connecting to your IIAB with various"
-echo -e "devices, and then browse to IIAB's Admin Console to install content:\n"
-echo -e "   http://box/admin"
-echo -e "   http://box.lan/admin"
-echo -e "   http://172.18.96.1/admin\n"
-echo -e "Please read http://FAQ.IIAB.IO for default passwords and more!\n"
-
+apt update
+apt -y dist-upgrade
 reboot

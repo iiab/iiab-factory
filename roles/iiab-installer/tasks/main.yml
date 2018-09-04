@@ -1,0 +1,11 @@
+- name: Copy iiab-installer.service
+  file:
+    src: iiab-installer.service
+    dest: /etc/systemd/system/
+    mode: 0666
+
+- name: Enable for after reboot but do not start the installer service 
+  systemd:
+    name: iiab-installer
+    enabled: yes
+    state: stopped
