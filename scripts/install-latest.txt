@@ -69,7 +69,7 @@ else
     cd $BASE/iiab-factory/scripts
     ./ansible-2.6.x
 fi
-
+cd $BASE
 if [ -d iiab ]; then
     echo -e 'auto update'
     cd $BASE/iiab
