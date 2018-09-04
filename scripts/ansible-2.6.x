@@ -7,12 +7,9 @@ echo -e 'WARNING: repeatedly re-run "apt-key adv --keyserver keyserver.ubuntu.co
 echo -e 'COMPLETE INSTALL INSTRUCTIONS:\nhttps://github.com/iiab/iiab/wiki/IIAB-Installation#do-everything-from-scratch\n'
 
 echo -e 'NOW ATTEMPTING TO INSTALL THE LATEST ANSIBLE 2.6.x:'
-echo -e 'Ensure you'"'"'re online before running this (/opt/iiab/iiab/scripts/ansible-2.6.x)\n'
+echo -e 'Ensure you'"'"'re online before running this (/opt/iiab/iiab-factory/scripts/ansible-2.6.x)\n'
 
-echo -e 'ALTERNATIVES: Run scripts/ansible-2.5.x-deprecated "slow food", or scripts/ansible for the latest.\n\n'
-
-
-GOOD_VER="2.6.1"      # Ansible version for OLPC XO laptops (pip install).
+GOOD_VER="2.6.3"      # Ansible version for OLPC XO laptops (pip install).
                       # On other OS's we attempt to install/upgrade/pin to the latest Ansible 2.6.x
 CURR_VER="undefined"
 # below are unused for future use

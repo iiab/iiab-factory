@@ -6,9 +6,12 @@ if [ -f /etc/iiab/iiab-complete ]; then
     exit 0
 fi
 
-$BASE/iiab/iiab-install
-$BASE/iiab-admin/install
-$BASE/iiab/iiab-menu/cp-menus
+cd $BASE/iiab
+./iiab-install
+cd $BASE/iiab-admin
+./install
+cd $BASE/iiab/iiab-menu
+./cp-menus
 $BASE/iiab-factory/scripts/post-install
 touch /etc/iiab/iiab-complete
 reboot
