@@ -8,7 +8,7 @@ fi
 
 cd $BASE/iiab
 ./iiab-install
-cd $BASE/iiab-admin
+cd $BASE/iiab-admin-console
 ./install
 cd $BASE/iiab/iiab-menu
 ./cp-menus
