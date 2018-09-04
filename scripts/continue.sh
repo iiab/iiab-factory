@@ -26,4 +26,3 @@ if [ ! -f $BASE/iiab-menu/complete ]; then
 fi
 $BASE/iiab-factory/scripts/post-install
 touch /etc/iiab/iiab-complete
-reboot
