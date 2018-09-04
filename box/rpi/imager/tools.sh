@@ -122,9 +122,12 @@ done< <( dd if=$1 of=$1.$$ bs=4096 count=$copy4k  \
           while kill -USR1 $pid 2>/dev/null;do
                sleep 10
           done )
-   set -x
+   if [ "$DEBUG" == 'True' ]; then
+     set -x
+   fi
    if test $? -ne 0; then exit 1; fi
    rm $1
+   sync
    mv $1.$$ $1
    return 0
 }
@@ -254,6 +257,6 @@ modify_dest(){
 
    # set the copied image to expand 
    touch $root_path/.resize-rootfs
-
+   sync
 }
 

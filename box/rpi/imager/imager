@@ -595,6 +595,7 @@ destPrep(){
       rtn=$?
       imageClose
    else
+      partprobe ${DEST_DEVICE:0:8}
       part=
       if [ ${DEST_DEVICE:5:4} = "mmcb" ]; then part=p; fi
       mount $DEST_DEVICE${part}2 /mnt/${DEST_DEVICE:5}${part}2
