@@ -65,7 +65,8 @@ if [ -d iiab-factory ]; then
     git pull origin master
     $BASE/iiab-factory/scripts/ansible-2.6.x
 else
-    git clone https://github.com/iiab/iiab-factory --depth 1
+#    git clone https://github.com/iiab/iiab-factory --depth 1
+    git clone https://github.com/jvonau/iiab-factory --depth 1
     $BASE/iiab-factory/scripts/ansible-2.6.x
 fi
 cd $BASE/
@@ -109,13 +110,16 @@ else
 fi
 
 if [ x$SUPPORT = "x_vpn" ]; then
-    $BASE/iiab/install-support
+    cd $BASE/iiab/
+    ./install-support
 fi
 
+# replace with ansible role WIP
 cp $BASE/iiab-factory/roles/iiab-installer/files/iiab-installer.service /etc/systemd/system/
 systemctl enable iiab-installer
 
-$BASE/iiab/iiab-install $REINSTALL
+cd $BASE/iiab/
+./iiab-install $REINSTALL
 apt update
 apt -y dist-upgrade
 reboot
