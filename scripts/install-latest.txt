@@ -63,11 +63,10 @@ if [ -d iiab-factory ]; then
     echo -e 'auto update'
     cd $BASE/iiab-factory/
     git pull origin master
-    $BASE/iiab-factory/ansible-2.6.x
+    $BASE/iiab-factory/scripts/ansible-2.6.x
 else
     git clone https://github.com/iiab/iiab-factory --depth 1
-    cd $BASE/iiab-factory/scripts
-    ./ansible-2.6.x
+    $BASE/iiab-factory/scripts/ansible-2.6.x
 fi
 cd $BASE/
 if [ -d iiab ]; then
