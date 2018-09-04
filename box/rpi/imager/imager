@@ -601,7 +601,7 @@ destPrep(){
       mount $DEST_DEVICE${part}2 /mnt/${DEST_DEVICE:5}${part}2
       ERROR=$(modify_dest /mnt/${DEST_DEVICE:5}${part}2)
       rtn=$?
-      umount $ROOTFS_MOUNT
+      umount /mnt/${DEST_DEVICE:5}${part}2
    fi      
    if [ $rtn -ne 0 ];then return $rtn; fi
 }

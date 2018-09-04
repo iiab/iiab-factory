@@ -241,7 +241,7 @@ modify_dest(){
    lastfilename=$(get_persisted_variable "LAST_FILENAME")
 
    # only modify handle the first time
-   if [[ ! "$handle" =~ ".*\.cpy$" ]]; then
+   if [[ ! "$handle" =~ ".cpy$" ]]; then
       handle="${handle}${user}${label}.cpy"
    else
       handle="$lastfilename"
