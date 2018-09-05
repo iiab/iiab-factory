@@ -6,5 +6,6 @@ rm -f /usr/local/etc/iiab/uuid
 rm -rf /root/tools
 rm -rf /root/.ssh/*
 rm -f /root/.netrc
-#rm -f /home/tc/enable-vpn
+rm -f /home/tc/enable-vpn
+filetool.sh -b
 
