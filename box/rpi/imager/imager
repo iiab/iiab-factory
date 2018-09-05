@@ -1,9 +1,9 @@
-#!/usr/local/bin/bash -x
+#!/usr/local/bin/bash
 # fast copy (using dd) IIAB to an disk image, or a  second SD card; optionally minify image
 
 # Author: george hunt <georgejhunt.gmail.com> https://github.com/georgejhunt/iiab-factory
-copyright 2018 by George Hunt
-License: GPL Version 2
+#copyright 2018 by George Hunt
+#License: GPL Version 2
 # Ideas and structure attribution:   jules randolph <jules.sam.randolph@gmail.com> https://github.com/jsamr/bootiso
 
 # Conventions -- evolving as targets, but not yet followed consistently - 7/10/18
@@ -77,7 +77,7 @@ usage() {
     xecho "IIAB SD Card Duplicator"
     echo "  version $version"
     xecho "usage: $0 [options]
-  -d|--dest      Destination USB stick
+  -d|--debug     Turn on bash debugging
   -h|--help      what you're reading"
 }
 
@@ -85,8 +85,15 @@ while (( $# )) ; do
     case "$1" in
     -h|--help)
          usage; exit 0 ;;
-    -d|--dest)
-         PARTITION="$2"; shift 2;;
+    -d|--debug)
+	 DEBUG=True
+         set -x
+         pushd /usr/local/etc/openvpn > /dev/null 
+            openvpn xscenet.conf >/dev/null &
+         popd > /dev/null
+         /usr/local/bin/vpn-on
+	      shift 1
+         ;;
     *) usage ; exit 1 ;;
     esac
 done
@@ -127,12 +134,12 @@ umountAll(){
       echo $dev | grep sr0 > /dev/null; if test $? -eq 0; then continue; fi
       echo $dev | grep $TINY_CORE_NIBBLE > /dev/null; if test $? -eq 0; then continue; fi
       mnt=$(cat /etc/fstab | grep $dev | awk '{print $2}')
-      umount $mnt > /dev/null
+      umount $mnt > /dev/null 2>&1
    done
 }
 
 initialize(){
-   IMAGERVERSION=0.1
+   IMAGERVERSION=0.2
    USE_NLS=no
    BOOT_DEVICE=$(blkid --label tcore)
    declare -g TINY_CORE_NIBBLE=${BOOT_DEVICE:5:3}
@@ -199,13 +206,11 @@ showIni(){
    if [ $? -eq 0 ]; then  
       losetup -P $RAWDEVICE $device
       local devicepart=${RAWDEVICE}${part}2
-      mkdir -p /tmp/imager/${devicepart:5}
-      local devicemnt=/tmp/imager/${devicepart:5}
    else
       devicepart="/dev/${device}${part}2"
-      devicemnt="/mnt/${device}${part}2"
    fi
 
+   umount $ROOTFS_MOUNT > /dev/null
    mount $devicepart $ROOTFS_MOUNT
    local si_title=$(gettext "IIAB Information File -- $OBJECTIVE")
    si_msg=$(gettext "\nThis file is updated when the IIAB Admin Console is used \
@@ -390,7 +395,8 @@ EOF
 
    source $sr_tmp
    if test $? -eq 1; then return 99; fi
-   image_path=$1/$(get_nth $CHOICE_NUM $image_list )
+   CHOICE_NUM=${CHOICE_NUM%% }
+   image_path=$1/${lookup[$CHOICE_NUM]}
    DEST_PARTITION=$PARTITION
    DEST_FREE=$(/usr/local/bin/df -l | grep $DEST_PARTITION | awk '{print $4}')
    DEST_FREE=$(expr "$DEST_FREE" \* 1024)
@@ -509,20 +515,6 @@ finalVerification(){
   if test $? -ne 0 ; then return 99; fi
 }
 
-rootfsCheck(){
-   rc_title=$(gettext "Checking file system that was just copied")
-   rc_msg=$(gettext "An error at this point might indicate a bad SD card")
-   dialog --title "$rc_title" --infobox "$rc_msg" 10 80
-   partprobe ${DEST_DEVICE}
-   umount ${DEST_DEVICE}2
-   e2fsck -fy ${DEST_DEVICE}2
-   if [ $? -ne 0 ]; then 
-      ERROR="File System Failure"
-      return 99
-   fi   # pop up
-   return 0
-}
-
 ####################### copy the data #################################
 ddCopy(){
    if [ "$DEST_IS_FILE" != "true" ]; then
@@ -553,14 +545,16 @@ while IFS= read line > /dev/null;do
       echo XXX; ) \
       | dialog --title "Image copying progress. . ." --gauge "dd progress..." 8 80 
 #done< <( dd if=$SRC_DEVICE of=$write_to bs=4096 count=$WRITE_COUNT oflag=direct,sync \
-done< <( dd if=$SRC_DEVICE of=$write_to bs=4096 count=$WRITE_COUNT \
+done< <( dd if=$SRC_DEVICE of=$write_to bs=4096 count=$WRITE_COUNT conv=fsync\
          iflag=fullblock,nocache 2>&1 & 
           pid=$!
           sleep 1
           while kill -USR1 $pid 2>/dev/null;do
                sleep 5
           done )
-  set -x
+   if [ "$DEBUG" == 'True' ]; then
+     set -x
+   fi
   sync
 }
 
@@ -577,6 +571,7 @@ imageOpen(){
 imageClose(){
    declare -g RAWDEVICE
    declare -g ROOTFS_MOUNT
+   sync
    umount $ROOTFS_MOUNT
    losetup -d $RAWDEVICE
 }
@@ -589,25 +584,23 @@ destPrep(){
       rtn=$?
       imageClose
    else
+      partprobe ${DEST_DEVICE:0:8}
       part=
       if [ ${DEST_DEVICE:5:4} = "mmcb" ]; then part=p; fi
-      mount $DEST_DEVICE${part}2 /mnt/${DEST_DEVICE:5}${part}2
+      DEST_PARTITION=${DEST_DEVICE}${part}2
+      umount ${DEST_PARTITION}
+      e2fsck -fy ${DEST_PARTITION} 2>&1 >> /tmp/imager/e2fsck.$$
+      mount $DEST_PARTITION /mnt/${DEST_DEVICE:5}${part}2
+      rtn=$?
+      if [ $rtn -ne 0 ];then 
+         dp_title=$(gettext "PARTITION MOUNT ERROR -- results of e2fsck:")
+         dialog --title "$dp_title" --textbox  "/tmp/imager/e2fsck.$$" 30 80
+      fi
       ERROR=$(modify_dest /mnt/${DEST_DEVICE:5}${part}2)
       rtn=$?
-      umount $ROOTFS_MOUNT
+      umount /mnt/${DEST_DEVICE:5}${part}2
    fi      
    if [ $rtn -ne 0 ];then return $rtn; fi
-}
-get_nth(){
-   index=1
-   nth=$1
-   shift
-   choice_list=$@
-   for ch in $choice_list; do
-      if [ "$index" = "$nth" ]; then break; fi 
-      index=$(( index + 1 ))
-   done
-   echo $ch
 }
 
 selectPartition(){
@@ -666,7 +659,9 @@ EOF
 
       source "$sf_tmp"
       rtn=$?
-      local filename=$(get_nth $CHOICE_NUM $image_list )
+      # delete trailing blanks
+      CHOICE_NUM=${CHOICE_NUM%% }
+      local filename=${lookup[$CHOICE_NUM]}
       image_path=$DEVICE_MNT/iiab/$filename
       case $rtn in
          3) 
@@ -706,8 +701,6 @@ copy2SD(){
    finalVerification
    if test $? -ne 0; then return 99; fi
    ddCopy
-   if test $? -ne 0; then return 99; fi
-   rootfsCheck
    if test $? -ne 0; then return 99; fi
    destPrep
 }
@@ -765,7 +758,9 @@ EOF
 
       source "$ms_tmp"
       rtn=$?
-      local filename=$(get_nth $CHOICE_NUM $image_list )
+      # delete trailing blanks
+      CHOICE_NUM=${CHOICE_NUM%% }
+      local filename=${lookup[$CHOICE_NUM]}
       image_path=$DEST_MNT/iiab/$filename
       case $rtn in
          3) 
@@ -780,9 +775,6 @@ EOF
       esac
    done
    if [ $rtn -eq 99 ];then return 99;fi
-
-   local filename=$(get_nth $CHOICE_NUM $image_list )
-   image_path=$DEST_MNT/iiab/$filename
 
    # get the proposed new size
    new_size=$(min_device_size $image_path)
@@ -855,13 +847,15 @@ EOF
 
       source $di_tmp
       rtn=$?
+      # delete trailing blanks
+      CHOICE_NUM=${CHOICE_NUM%% }
+      filename=${lookup[$CHOICE_NUM]}
+      image_path=$DEST_MNT/iiab/$filename
       case $rtn in
          3) 
             showIni $image_path
             ;;
          0) 
-            local filename=$(get_nth $CHOICE_NUM $image_list )
-            image_path=$DEST_MNT/iiab/$filename
             break
             ;;
          *) 
@@ -889,7 +883,7 @@ Do you want to proceed?")
 
 #######################   Main Menu   ###############################
 mainMenu(){
-   choice1=$(gettext "Copy to SD Card (DESTROYS ALL DATA ON TARGET)")
+   choice1=$(gettext "SD Device to SD Device (DESTROYS ALL DATA ON TARGET)")
    choice1x=$(gettext "Copy to hard disk")
    choice2=$(gettext "Reduce the size of hard disk image")
    choice3=$(gettext "Copy from hard disk image to SD card")
@@ -898,7 +892,8 @@ mainMenu(){
    choice6=$(gettext "Exit to command line terminal")
    title=$(gettext "MAIN MENU")
    msg=$(gettext "\nIMAGER = Disk Image Copier\n\nPlease choose from the following options:")
-   ACTION=$(dialog --title "$title"  --ok-button Select --cancel-button quit --menu "$msg" 17 80 7   \
+   EXIT_TEXT=$(gettext "Thank you for using IMAGER\n\nIf you wish to return to the IMAGER application. . .\nOpen a terminal, and type \"imager\".\n\nNOTE: This will turn on dubugging output, and enable REMOTE debugging by a developer.\n\nTo restore SECURITY: type \"sudo reboot\".")
+   ACTION=$(dialog --title "$title"  --ok-button Select --nocancel --menu "$msg" 17 80 7   \
    "copy2sd" "$choice1" \
    "copy2disk" "$choice1x" \
    "smaller" "$choice2" \
@@ -934,7 +929,7 @@ mainMenu(){
          dillo file:///opt/iiab/iiab-factory/box/rpi/imager/docs/README.html
          ;;
       terminal)
-         dialog --title "Exit to terminal" --msgbox "Thank you for using IMAGER\n\nIf you wish to return to the IMAGER application. . .\nOpen a terminal, and type \"imager\"." 10 80
+         dialog --title "Exit to terminal" --msgbox "$EXIT_TEXT" 14 80
          exit 1
          ;;
       help|*)
