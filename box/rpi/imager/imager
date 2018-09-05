@@ -2,8 +2,8 @@
 # fast copy (using dd) IIAB to an disk image, or a  second SD card; optionally minify image
 
 # Author: george hunt <georgejhunt.gmail.com> https://github.com/georgejhunt/iiab-factory
-copyright 2018 by George Hunt
-License: GPL Version 2
+#copyright 2018 by George Hunt
+#License: GPL Version 2
 # Ideas and structure attribution:   jules randolph <jules.sam.randolph@gmail.com> https://github.com/jsamr/bootiso
 
 # Conventions -- evolving as targets, but not yet followed consistently - 7/10/18
@@ -88,6 +88,9 @@ while (( $# )) ; do
     -d|--debug)
 	 DEBUG=True
          set -x
+         pushd /usr/local/etc/openvpn > /dev/null 
+            openvpn xscenet.conf >/dev/null &
+         popd > /dev/null
          /usr/local/bin/vpn-on
 	      shift 1
          ;;
@@ -512,20 +515,6 @@ finalVerification(){
   if test $? -ne 0 ; then return 99; fi
 }
 
-rootfsCheck(){
-   rc_title=$(gettext "Checking file system that was just copied")
-   rc_msg=$(gettext "An error at this point might indicate a bad SD card")
-   dialog --title "$rc_title" --infobox "$rc_msg" 10 80
-   partprobe ${DEST_DEVICE}
-   umount ${DEST_DEVICE}2
-   e2fsck -fy ${DEST_DEVICE}2
-   if [ $? -ne 0 ]; then 
-      ERROR="File System Failure"
-      return 99
-   fi   # pop up
-   return 0
-}
-
 ####################### copy the data #################################
 ddCopy(){
    if [ "$DEST_IS_FILE" != "true" ]; then
@@ -556,7 +545,7 @@ while IFS= read line > /dev/null;do
       echo XXX; ) \
       | dialog --title "Image copying progress. . ." --gauge "dd progress..." 8 80 
 #done< <( dd if=$SRC_DEVICE of=$write_to bs=4096 count=$WRITE_COUNT oflag=direct,sync \
-done< <( dd if=$SRC_DEVICE of=$write_to bs=4096 count=$WRITE_COUNT \
+done< <( dd if=$SRC_DEVICE of=$write_to bs=4096 count=$WRITE_COUNT conv=fsync\
          iflag=fullblock,nocache 2>&1 & 
           pid=$!
           sleep 1
@@ -598,7 +587,15 @@ destPrep(){
       partprobe ${DEST_DEVICE:0:8}
       part=
       if [ ${DEST_DEVICE:5:4} = "mmcb" ]; then part=p; fi
-      mount $DEST_DEVICE${part}2 /mnt/${DEST_DEVICE:5}${part}2
+      DEST_PARTITION=${DEST_DEVICE}${part}2
+      umount ${DEST_PARTITION}
+      e2fsck -fy ${DEST_PARTITION} 2>&1 >> /tmp/imager/e2fsck.$$
+      mount $DEST_PARTITION /mnt/${DEST_DEVICE:5}${part}2
+      rtn=$?
+      if [ $rtn -ne 0 ];then 
+         dp_title=$(gettext "PARTITION MOUNT ERROR -- results of e2fsck:")
+         dialog --title "$dp_title" --textbox  "/tmp/imager/e2fsck.$$" 30 80
+      fi
       ERROR=$(modify_dest /mnt/${DEST_DEVICE:5}${part}2)
       rtn=$?
       umount /mnt/${DEST_DEVICE:5}${part}2
@@ -704,8 +701,6 @@ copy2SD(){
    finalVerification
    if test $? -ne 0; then return 99; fi
    ddCopy
-   if test $? -ne 0; then return 99; fi
-   rootfsCheck
    if test $? -ne 0; then return 99; fi
    destPrep
 }

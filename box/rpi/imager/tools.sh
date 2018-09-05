@@ -231,22 +231,22 @@ modify_dest(){
    # remove UUID -- regenerated on first run of IIAB
    rm -f $root_path/etc/iiab/uuid
    #echo $(uuidgen) > $root_path/etc/iiab/uuid
-   if [ -f "$root_path/etc/iiab/handle" ]; then
-      handle=$(cat "$root_path/etc/iiab/handle")
-   else
-      handle=
-   fi
+
    user=$(get_persisted_variable "NAME")
    label=$(get_persisted_variable "LABEL")
    lastfilename=$(get_persisted_variable "LAST_FILENAME")
 
-   # only modify handle the first time
-   if [[ ! "$handle" =~ ".cpy$" ]]; then
-      handle="${handle}${user}${label}.cpy"
+   # try to generate a reasonable handle
+   if [ -f "$root_path/etc/iiab/handle" ]; then
+      handle=$(cat "$root_path/etc/iiab/handle")
+      # only modify handle the first time
+      if [[ ! "$handle" =~ .cpy$ ]]; then
+         handle="${handle}.cpy"
+      fi
    else
-      handle="$lastfilename"
+      handle=${label}.cpy
    fi
-      echo $handle > $root_path/etc/iiab/handle
+   echo $handle > $root_path/etc/iiab/handle
 
    # record each imager operation in subsequent children
    YMD=$(date "+%y%m%d_%H.%M")
@@ -254,6 +254,10 @@ modify_dest(){
    echo "last filename: $lastfilename" >> $root_path/etc/iiab/imager.$YMD
    echo "last operation: $OBJECTIVE" >> $root_path/etc/iiab/imager.$YMD
    echo "parent UUID: $UUID" >> $root_path/etc/iiab/imager.$YMD
+   if [ -f /tmp/imager/e2fsck.$$ ];then
+      echo "e2fsck on rootfs:" >> $root_path/etc/iiab/imager.$YMD
+      cat /tmp/imager/e2fsck.$$ >> $root_path/etc/iiab/imager.$YMD
+   fi
 
    # set the copied image to expand 
    touch $root_path/.resize-rootfs
