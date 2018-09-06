@@ -1,5 +1,5 @@
 #!/bin/bash -e
-FLAGS=$BASE/iiab-factory/flags
+FLAGS=/opt/iiab/iiab-factory/flags
 # Rebuilds local library.xml in case ZIM files added to /library/zims/content
 if [ ! -f $FLAGS/kiwix-lib-complete ]; then
     echo -e 'Now running iiab-make-kiwix-lib'
