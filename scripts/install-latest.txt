@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash -x -e
 # This script was obtained from: http://github.com/jvonau/iiab-factory/install-latest.txt
 
 IIAB_RELEASE="master"
@@ -120,6 +120,13 @@ systemctl enable iiab-installer
 
 cd $BASE/iiab/
 ./iiab-install $REINSTALL
-apt update
-apt -y dist-upgrade
-reboot
+
+echo -e '"apt update" is checking for updates...\n'
+apt -qq update > /tmp/apt.stdout
+if [ $(wc -c < /tmp/apt.stdout) -gt 29 ]; then
+    apt -y dist-upgrade
+    reboot
+fi
+
+# If we didn't reboot just continue with the rest of the install
+$BASE/iiab-factory/scripts/continue.sh
