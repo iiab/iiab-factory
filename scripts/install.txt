@@ -26,6 +26,23 @@ echo -e "\n   ██████████████████████
 echo -e "   ██ TRY TO RERUN THIS ENTIRE SCRIPT IF IT FAILS DUE TO CONNECTIVITY ETC ██"
 echo -e "   █████████████████████████████████████████████████████████████████████████\n\n"
 
+echo -e '"apt update" is checking for updates...\n'
+apt -qq update > /tmp/apt.stdout 2> /tmp/apt.stderr
+if [ $(wc -c < /tmp/apt.stderr) -gt 82 ]; then
+    echo -e '"apt update" FAILED. VERIFY YOU'"'"'RE ONLINE and resolve all errors below:\n'
+    cat /tmp/apt.stderr
+    exit 1
+elif [ $(wc -c < /tmp/apt.stdout) -gt 29 ]; then
+    cat /tmp/apt.stdout
+    echo -e '\nYour OS will now be upgraded...this takes time. THEN IT WILL AUTO-REBOOT.\n'
+    echo -n 'Hit [ENTER] to confirm you'"'"'ll re-run (what you just ran!) after it reboots: '
+    read ans < /dev/tty
+    echo
+    apt -y dist-upgrade
+    reboot
+fi
+cat /tmp/apt.stdout
+
 mkdir -p /etc/iiab
 if [ -f $BASE/iiab/vars/local_vars.yml ]; then
     # FUTURE: Test if their local_vars.yml is sufficiently version-compatible !
