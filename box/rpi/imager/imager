@@ -557,6 +557,7 @@ imageOpen(){
    declare -g RAWDEVICE
    declare -g ROOTFS_MOUNT
    infile=$1 
+   RAWDEVICE=$(losetup -f) #allocate a global device
    # need to open the root partition
    losetup -P $RAWDEVICE $infile
    mkdir -p $ROOTFS_MOUNT
@@ -757,7 +758,7 @@ EOF
       rtn=$?
       # delete trailing blanks
       CHOICE_NUM=${CHOICE_NUM%% }
-      local filename=${lookup[$CHOICE_NUM]}
+      filename=${lookup[$CHOICE_NUM]}
       image_path=$DEST_MNT/iiab/$filename
       case $rtn in
          3) 
@@ -904,6 +905,7 @@ mainMenu(){
    "terminal" "$choice6" \
    3>&1 1>&2 2>&3)
    if test $? -ne 0 ; then exit 1 ; fi
+   remountAll
    case "$ACTION" in
       copy2sd) 
          OBJECTIVE=$choice1
@@ -961,7 +963,6 @@ cleanup(){
 
 main(){
    while true; do
-      remountAll
       mainMenu
    done
 }
