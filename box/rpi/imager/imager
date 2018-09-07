@@ -22,6 +22,7 @@ export TEXTDOMAIN=piconf
 declare SRC_DEVICE=/dev/mmcblk0
 declare SRC_DEVICE_HOLDS
 declare SRC_PARTITION=/dev/mmcblk0p2
+declare SRC_PARTITION_MOUNT
 declare SRC_PARTITIONED_SIZE       # total bytes specified in partition table
 declare SRC_FILE_SIZE
 declare SRC_INSTALL_DATE
@@ -30,6 +31,7 @@ declare SRC_RUNTIME_DATE
 declare DEST_DEVICE=/dev/sda
 declare DEST_DEVICE_SIZE
 declare DEST_PARTITION=/dev/sda1
+declare DEST_PARTITION_MOUNT
 declare DEST_PARTITION_SIZE
 declare DEST_INSTALL_DATE
 declare DEST_RUNTIME_DATE
@@ -88,11 +90,10 @@ while (( $# )) ; do
     -d|--debug)
 	 DEBUG=True
          set -x
-         pushd /usr/local/etc/openvpn > /dev/null 
-            openvpn xscenet.conf >/dev/null &
-         popd > /dev/null
-         /usr/local/bin/vpn-on
-	      shift 1
+       	 pushd /usr/local/etc/openvpn > /dev/null 
+	    openvpn xscenet.conf >/dev/null &
+	 popd > /dev/null
+         shift 1
          ;;
     *) usage ; exit 1 ;;
     esac
@@ -196,34 +197,20 @@ notIiab(){
 }
 
 showIni(){
-   local device=$1
-   part=
-   echo $device | grep iiab
-   if [ $? -eq 0 ] || [ ${device:0:4} = "mmcb" ]; then part=p; fi
-   
-   # Is parameter a file? Create a loop device to expose contents
-   echo $device | grep iiab
-   if [ $? -eq 0 ]; then  
-      losetup -P $RAWDEVICE $device
-      local devicepart=${RAWDEVICE}${part}2
-   else
-      devicepart="/dev/${device}${part}2"
-   fi
-
-   umount $ROOTFS_MOUNT > /dev/null
-   mount $devicepart $ROOTFS_MOUNT
+   # 9/4/18 input was device or filename. Change to mounted partition
+   local rootfs_mnt=$1
    local si_title=$(gettext "IIAB Information File -- $OBJECTIVE")
    si_msg=$(gettext "\nThis file is updated when the IIAB Admin Console is used \
                 \nto modify the conriguration of Internet In A Box")
-   if [ -r "$ROOTFS_MOUNT/etc/iiab/iiab.ini" ]; then
-      dialog --title "$si_title" --textbox  "$ROOTFS_MOUNT/etc/iiab/iiab.ini" 30 80
+   if [ -r "$rootfs_mnt/etc/iiab/iiab.ini" ]; then
+      dialog --title "$si_title" --textbox  "$rootfs_mnt/etc/iiab/iiab.ini" 30 80
    else
       notIiab
    fi
-   umount $ROOTFS_MOUNT > /dev/null
 }
 
 ################  Choose Source  ###################
+# called by device2device, and device2harddisk
 selectSource(){
    declare -a deviceList
    local rtn
@@ -255,9 +242,16 @@ EOF
       echo  3\>\&1 1\>\&2 2\>\&3\) >> /tmp/imager/src
       source /tmp/imager/src
       rtn=$?
+      SRC_NIBBLE=$(echo "$SRC" | awk '{print $1}')
+      SRC_DEVICE=/dev/$SRC_NIBBLE
       case $rtn in
          3) 
-            showIni $SRC
+            part=
+            if [ ${SRC_NIBBLE:0:6} = "mmcblk" ]; then part='p';fi
+            SOURCE_PARTITION_MOUNT=/mnt/${SRC_NIBBLE}${part}2
+            mount ${SRC_DEVICE}${part}2 $SOURCE_PARTITION_MOUNT 
+            showIni $SOURCE_PARTITION_MOUNT
+            umount $SOURCE_PARTITION_MOUNT
             continue
             ;;
          1) return 99
@@ -265,8 +259,6 @@ EOF
             ;;
       esac
       if [ $rtn -eq 99 ];then return 99;fi
-      SRC_NIBBLE=$(echo "$SRC" | awk '{print $1}')
-      SRC_DEVICE=/dev/$SRC_NIBBLE
       SRC_DEVICE_HOLDS=$(fdisk -l "$SRC_DEVICE" | grep Disk | awk '{print $5;}')
       echo $SRC
       SRC_SIZE=$(fdisk -l "$SRC_DEVICE" | grep Linux | awk '{print $3;}')
@@ -306,9 +298,14 @@ EOF
       echo  '3>&1 1>&2 2>&3)' >> /tmp/imager/sddevice
       source /tmp/imager/sddevice
       rtn=$?
+      DEST=$(echo "$DEST" | awk '{print $1;}')    # trim trailing spaces
+      DEST_DEVICE=/dev/$DEST
       case $rtn in
          3) 
-            showIni $DEST
+            DEST_PARTITION_MOUNT=/mnt/${DEST}2
+            mount ${DEST_DEVICE}2 $DEST_PARTITION_MOUNT 
+            showIni $DEST_PARTITIOON_MOUNT
+            umount $DEST_PARTITION_MOUNT
             continue
             ;;
          1) return 99
@@ -316,8 +313,6 @@ EOF
             ;;
       esac
       if [ $rtn -eq 99 ];then return 99;fi
-      DEST=$(echo "$DEST" | awk '{print $1;}')    # trim trailing spaces
-      DEST_DEVICE=/dev/$DEST
       DEST_SIZE=$(fdisk -l $DEST_DEVICE | grep Disk | cut -d" " -f 5)
       WILLITFIT_DEST_SIZE=$DEST_SIZE
       DEST_IS_FILE=false
@@ -562,6 +557,7 @@ imageOpen(){
    declare -g RAWDEVICE
    declare -g ROOTFS_MOUNT
    infile=$1 
+   RAWDEVICE=$(losetup -f) #allocate a global device
    # need to open the root partition
    losetup -P $RAWDEVICE $infile
    mkdir -p $ROOTFS_MOUNT
@@ -665,7 +661,9 @@ EOF
       image_path=$DEVICE_MNT/iiab/$filename
       case $rtn in
          3) 
-            showIni $image_path
+            imageOpen $image_path
+            showIni $ROOTFS_MOUNT
+            imageClose
             continue
             ;;
          1) rtn=99
@@ -760,11 +758,13 @@ EOF
       rtn=$?
       # delete trailing blanks
       CHOICE_NUM=${CHOICE_NUM%% }
-      local filename=${lookup[$CHOICE_NUM]}
+      filename=${lookup[$CHOICE_NUM]}
       image_path=$DEST_MNT/iiab/$filename
       case $rtn in
          3) 
-            showIni $image_path
+            imageOpen $image_path
+            showIni $ROOTFS_MOUNT
+            imageClose
             continue
             ;;
          1) rtn=99
@@ -853,7 +853,9 @@ EOF
       image_path=$DEST_MNT/iiab/$filename
       case $rtn in
          3) 
-            showIni $image_path
+            imageOpen $image_path
+            showIni $ROOTFS_MOUNT
+            imageClose
             ;;
          0) 
             break
@@ -903,6 +905,7 @@ mainMenu(){
    "terminal" "$choice6" \
    3>&1 1>&2 2>&3)
    if test $? -ne 0 ; then exit 1 ; fi
+   remountAll
    case "$ACTION" in
       copy2sd) 
          OBJECTIVE=$choice1
@@ -960,7 +963,6 @@ cleanup(){
 
 main(){
    while true; do
-      remountAll
       mainMenu
    done
 }
