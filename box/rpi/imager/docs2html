@@ -1,6 +1,10 @@
 #!/bin/bash -x
 set -e
-SOURCE=/opt/iiab/iiab-factory/box/rpi/imager/docs/README.md
-DESTPATH=/opt/iiab/iiab-factory/box/rpi/imager/docs/README.html
-
+if [ $# -gt 0 ]; then
+   SOURCE=/opt/iiab/iiab-factory/box/rpi/imager/docs/$1.md
+   DESTPATH=/opt/iiab/iiab-factory/box/rpi/imager/docs/$1.html
+else
+   SOURCE=/opt/iiab/iiab-factory/box/rpi/imager/docs/README.md
+   DESTPATH=/opt/iiab/iiab-factory/box/rpi/imager/docs/README.html
+fi
 pandoc -s $SOURCE -o $DESTPATH
