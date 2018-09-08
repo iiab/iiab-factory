@@ -1,5 +1,5 @@
 ## How to Get Started -- Create IMAGER on a USB Stick
-* IMAGER makes it easy to backup, shrink (truncate) and copy Internet-in-a-Box microSD cards, on almost any Windows computer.
+* IMAGER makes it easy to back up, shrink (truncate) and copy Internet-in-a-Box microSD cards, on almost any Windows computer.
   * Amazingly, IMAGER even allows you to copy to microSD cards that are "just a bit too small" when extremely annoying size differences between manufacturers prevent other copying tools from working!
   * In future Mac computers may be supported as well.
   * On the Linux OS, please use the [dd](https://www.linuxnix.com/what-you-should-know-about-linux-dd-command/) and [min-sd and cp-sd](https://github.com/iiab/iiab-factory/blob/master/box/rpi/howto-mkimg.txt) commands (min-sd is the underlying magic that shrinks or truncates microSD cards, without any loss of data).
