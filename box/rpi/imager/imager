@@ -929,7 +929,7 @@ mainMenu(){
          ;;
       help)
          OBJECTIVE=$choice5
-         dillo file:///opt/iiab/iiab-factory/box/rpi/imager/docs/README.html
+         dillo file:///opt/iiab/iiab-factory/box/rpi/imager/docs/GET-STARTED-GUIDE.html
          ;;
       terminal)
          dialog --title "Exit to terminal" --msgbox "$EXIT_TEXT" 14 80
