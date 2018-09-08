@@ -10,12 +10,18 @@
 <body>
 <h2 id="how-to-get-started----create-imager-on-a-usb-stick">How to Get Started -- Create IMAGER on a USB Stick</h2>
 <ul>
-<li>Download the most recent IMAGER from http://download.iiab.io/packages/imager/. Depending on the speed of your internet, this could take a while (about 112MB).</li>
-<li>Use https://etcher.io or https://sourceforge.net/projects/win32diskimager/ to write the downloaded image file to a USB stick (all data will be lost)</li>
-<li>Make sure that your BIOS is set to boot first from USB -- setting the BIOS may require that you strike the F1, F2, F10, F12, or Delete key just after turning on the power.</li>
-<li>Look for a BIOS setting called &quot;boot options&quot; or &quot;boot order&quot;, and make sure that USB disk comes first.</li>
-<li>Put the USB stick into the machine, and turn on the power.</li>
-<li>After a short time you should see the colorful boot process of Tiny Core Linux, and eventually the IMAGER menu as shown at https://github.com/iiab/iiab-factory/blob/master/box/rpi/imager/docs/README.md</li>
+<li>IMAGER makes it easy to back up, shrink (truncate) and copy Internet-in-a-Box microSD cards, on almost any Windows computer.</li>
+<li>Amazingly, IMAGER even allows you to copy to microSD cards that are &quot;just a bit too small&quot; (when extremely annoying size differences between manufacturers prevent other copying tools from working!)</li>
+<li>In future Mac computers may be supported as well.</li>
+<li>On the Linux OS, please use the <a href="https://www.linuxnix.com/what-you-should-know-about-linux-dd-command/">dd</a> and <a href="https://github.com/iiab/iiab-factory/blob/master/box/rpi/howto-mkimg.txt">min-sd and cp-sd</a> commands (min-sd is the underlying magic that shrinks or truncates microSD cards, without any data loss).</li>
+<li>DOWNLOAD the most recent IMAGER from <a href="http://download.iiab.io/packages/imager/">download.iiab.io/packages/imager</a>. Depending on the speed of your Internet, this could take a while (IMAGER is about 112 MB).</li>
+<li>Use <a href="https://etcher.io">Etcher.io</a> or <a href="https://sourceforge.net/projects/win32diskimager/">sourceforge.net/projects/win32diskimager</a> to flash (burn) the downloaded .img file onto a USB stick — all USB stick data will be lost!</li>
+<li>Make sure that your Windows computer's BIOS is set to boot first from USB.</li>
+<li>Setting the BIOS may require that you strike the F1, F2, F10, F12, or Delete key just after turning on the power.</li>
+<li>Look for a BIOS setting called &quot;boot options&quot; or &quot;boot order&quot;, and make sure the USB drive (USB stick) comes first.</li>
+<li>Put the USB stick into your Windows computer, and turn on the power.</li>
+<li>After a short time you should see the colorful boot process of Tiny Core Linux, and eventually the IMAGER menu as shown in IMAGER's <a href="https://github.com/iiab/iiab-factory/blob/master/box/rpi/imager/docs/GET-STARTED-GUIDE.md">GET STARTED GUIDE</a>.</li>
+<li>Begin copying Internet-in-a-Box microSD cards!</li>
 </ul>
 </body>
 </html>
