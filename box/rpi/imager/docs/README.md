@@ -12,4 +12,4 @@
 * Put the USB stick into your Windows computer, then turn on the computer.
     * After a short time you should see the colorful boot process of Tiny Core Linux, and eventually the IMAGER menu as shown in IMAGER's [GET STARTED GUIDE](https://github.com/iiab/iiab-factory/blob/master/box/rpi/imager/docs/GET-STARTED-GUIDE.md).
     * Begin copying Internet-in-a-Box microSD cards :-)
-    * Please provide [feedback](http://FAQ.IIAB.IO#What_are_the_best_places_for_community_support.3F) to help schools, libaries & clinics around the world improve on this humanitarian work, _Thank You!_
+    * Kindly provide [feedback](http://FAQ.IIAB.IO#What_are_the_best_places_for_community_support.3F) to help schools, libaries & clinics around the world improve on this humanitarian work, _Thank You!_
