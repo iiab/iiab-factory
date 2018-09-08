@@ -48,7 +48,7 @@ size_image(){
 
    # get the next loop device
    DEVICEREF=$(losetup -f)
-   $(losetup -P $DEVICEREF $1)
+   losetup -P $DEVICEREF $1
    if [ $? -ne 0 ];then
       echo failed to create RAWDEVICE reference for $1
       losetup -d $DEVICEREF
@@ -122,9 +122,12 @@ done< <( dd if=$1 of=$1.$$ bs=4096 count=$copy4k  \
           while kill -USR1 $pid 2>/dev/null;do
                sleep 10
           done )
-   set -x
+   if [ "$DEBUG" == 'True' ]; then
+     set -x
+   fi
    if test $? -ne 0; then exit 1; fi
    rm $1
+   sync
    mv $1.$$ $1
    return 0
 }
@@ -161,6 +164,7 @@ iiab_label(){
       pushd /$PARTITION/opt/iiab/iiab > /dev/null
       HASH=`git log --pretty=format:'g%h' -n 1`
       popd > /dev/null
+      VERSION=$(grep IIAB_RELEASE /$PARTITION/etc/iiab/iiab.env | cut -d'=' -f2)
    else
       local tc_partition=${PARTITION:0:-1}3
       if [ -d $tc_partition/opt/iiab/iiab-factory ]; then
@@ -170,7 +174,7 @@ iiab_label(){
       else
          HASH="$$"
       fi
-      PRODUCT=LOCAL
+      PRODUCT=IMAGER
       VERSION="$IMAGERVERSION"
    fi
    YMD=$(date "+%y%m%d-%H%M")
@@ -222,34 +226,41 @@ modify_dest(){
    rm -f $root_path/root/.netrc
    rm -rf $root_path/root/tools
 
+   # save the UUID for ancestry investigations
+   UUID=$(cat $root_path/etc/iiab/uuid)
    # remove UUID -- regenerated on first run of IIAB
    rm -f $root_path/etc/iiab/uuid
    #echo $(uuidgen) > $root_path/etc/iiab/uuid
-   if [ -f "$root_path/etc/iiab/handle" ]; then
-      handle=$(cat "$root_path/etc/iiab/handle")
-   else
-      handle=
-   fi
+
    user=$(get_persisted_variable "NAME")
    label=$(get_persisted_variable "LABEL")
    lastfilename=$(get_persisted_variable "LAST_FILENAME")
 
-   # only modify handle the first time
-   if [[ ! "$handle" =~ ".*\.cpy$" ]]; then
-      handle="${handle}${user}${label}.cpy"
+   # try to generate a reasonable handle
+   if [ -f "$root_path/etc/iiab/handle" ]; then
+      handle=$(cat "$root_path/etc/iiab/handle")
+      # only modify handle the first time
+      if [[ ! "$handle" =~ .cpy$ ]]; then
+         handle="${handle}.cpy"
+      fi
    else
-      handle="$lastfilename"
+      handle=${label}.cpy
    fi
-      echo $handle > $root_path/etc/iiab/handle
+   echo $handle > $root_path/etc/iiab/handle
 
    # record each imager operation in subsequent children
    YMD=$(date "+%y%m%d_%H.%M")
    echo "handle: $handle" > $root_path/etc/iiab/imager.$YMD
    echo "last filename: $lastfilename" >> $root_path/etc/iiab/imager.$YMD
    echo "last operation: $OBJECTIVE" >> $root_path/etc/iiab/imager.$YMD
+   echo "parent UUID: $UUID" >> $root_path/etc/iiab/imager.$YMD
+   if [ -f /tmp/imager/e2fsck.$$ ];then
+      echo "e2fsck on rootfs:" >> $root_path/etc/iiab/imager.$YMD
+      cat /tmp/imager/e2fsck.$$ >> $root_path/etc/iiab/imager.$YMD
+   fi
 
    # set the copied image to expand 
    touch $root_path/.resize-rootfs
-
+   sync
 }
 
