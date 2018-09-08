@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<h3 id="imager----duplicate-and-resize-sd-cards">IMAGER -- Duplicate and Resize SD Cards</h3>
+<ul>
+<li>Completely menu-driven</li>
+<li>Boots on older Windows machines (MBR boot) as well as newer UEFI bios loaders.</li>
+<li>Uses Windows (XP, Windows 7, 8, 10) hard disk partitions for storage.</li>
+<li>Uses SD card reader on laptop, if present.</li>
+<li>Menu navigation is non-destructive, until you confirm an action, and change the default.</li>
+</ul>
+<h4 id="how-to-get-started">How to Get Started</h4>
+<ul>
+<li>Ensure that the Bios on laptop is set to boot from USB first, if the USB is present. (Often the f2, f10, f12, or del keys, when pressed early in the boot process, will bring up the Bios settings screen).</li>
+<li>Depending on differences between Bios versions, it may be necessary to remove your source, or destination, SD cards during the early boot time.</li>
+<li>Download IMAGER from http://download.iiab.io/packages/imager (the most recent <filename>.img file).</li>
+<li>Use the linux dd, etcher, or win32diskimager to copy this image file to a USB stick (the same process you use to copy rpi images to a SD card).</li>
+<li>Insert the USB stick into a Windows laptop, and turn on the power.</li>
+</ul>
+<h4 id="notes-on-menu-navigation">Notes on menu navigation</h4>
+<ul>
+<li>Up, down arrows change the selection</li>
+<li>Left, right arrows (and tab), change the action choices at the bottom</li>
+<li>Enter acts on the currently displayed selection with the displayed action</li>
+<li>Backspace erases on the fill-in-the-blank screen. (tab cycles between fields, and actions at bottom.</li>
+</ul>
+<div class="figure">
+<img src="menu.png" alt="Main Menu Options" />
+<p class="caption">Main Menu Options</p>
+</div>
+<ul>
+<li>Use great care to keep track of which SD card is which. Whenever I remove a microSD from a Raspberry Pi, I place it in a standard-size carrier, and put a label on the contact side.</li>
+<li>You do not want to accidentally copy the contents of an older SD card onto the one which has the most recent updates.</li>
+<li>There is a file inside of each IIAB image which has much information. Use the &quot;&lt; info &gt;&quot; tab (middle bottom) if ever you are unsure about the identity of an SD card.</li>
+</ul>
+<h4 id="copy2sd----copy-to-sd-card-destroys-all-data-on-target">Copy2SD -- Copy to SD Card (DESTROYS ALL DATA ON TARGET)</h4>
+<div class="figure">
+<img src="selectSource.png" alt="Choose Source" />
+<p class="caption">Choose Source</p>
+</div>
+<ul>
+<li>The runtime-date and the install-date values may help sort out any confusion.</li>
+</ul>
+<div class="figure">
+<img src="ini.png" alt="Image Information" />
+<p class="caption">Image Information</p>
+</div>
+<ul>
+<li>On a Windows laptop with an internal SD slot, the SD device will probably start with mmcblk0.</li>
+<li>SD card adapters will have sdc, sdd, sde names.</li>
+</ul>
+<div class="figure">
+<img src="nofit.png" alt="Does it Fit?" />
+<p class="caption">Does it Fit?</p>
+</div>
+<ul>
+<li>The internal hard disk on a Windows laptop will probably start with &quot;sda&quot;.</li>
+<li>Copying from mmcblk0 to sdc is the shortest path, and quickest way to obtain a copy.</li>
+</ul>
+<div class="figure">
+<img src="choose_device.png" alt="Choose SD card as Destination" />
+<p class="caption">Choose SD card as Destination</p>
+</div>
+<h4 id="copy2disk----copy-to-hard-disk">Copy2disk -- Copy to Hard Disk</h4>
+<ul>
+<li>Sometimes the destination SD card is slightly smaller than the source, and the only way to make a successul copy is to first make a copy onto the hard disk, make that image smaller, and then copy the smaller version onto the new SD. (This is less error-prone, if you use a SD USB adapter -- though if you are careful, you can remove the source, and copy from the hard disk image, to the mmcblk slot which you earlier used as the source.)</li>
+<li>The &quot;smaller&quot;, &quot;image2sd&quot;, and &quot;delete&quot; commands use as default the hard drive chosen by this command. So if you want to change the default, use this command, and cancel out after choosing the hard disk device.</li>
+</ul>
+<h4 id="smaller----reduce-the-size-of-the-hard-disk-image">Smaller -- Reduce the Size of the Hard Disk Image</h4>
+<div class="figure">
+<img src="minify.png" alt="Make Image Smaller" />
+<p class="caption">Make Image Smaller</p>
+</div>
+<ul>
+<li>Confirm that the reduced image size is the desired operation.</li>
+</ul>
+<div class="figure">
+<img src="min.png" alt="Confirm resize operation" />
+<p class="caption">Confirm resize operation</p>
+</div>
+<h4 id="hdisk2sd">hdisk2sd</h4>
+<ul>
+<li>After the image is written to the laptop hard disk, optionally reduced in size, it can be written to a destination SD card.</li>
+</ul>
+<div class="figure">
+<img src="img2sd.png" alt="Write image to SD" />
+<p class="caption">Write image to SD</p>
+</div>
+<ul>
+<li>Imager is written to enable the SD reader which is often available on laptops. MicroSD cards are usually purchased along with a standard sized SD carrier/adapter (on the left in the next image).</li>
+<li>I discovered that when I wrote to the SD card holder on my laptop using the carrier (identified as an mmcblk0 device) the speed was 2.7MB per second. Writing to the same card in a USB adapter (shown below -- the right two devices), the speed was 13.4MB/s. So there may be some motivation to use the USB adapters.</li>
+</ul>
+<div class="figure">
+<img src="adapter_choice.jpg" alt="USB SD card Adapters" />
+<p class="caption">USB SD card Adapters</p>
+</div>
+<h4 id="exit-to-command-line-terminal">Exit to Command Line Terminal</h4>
+<ul>
+<li>This option brings up a informational screen which explains how to enable debugging and remote developer access. <img src="terminal.png" alt="Terminal and debugging information" /></li>
+<li>Debugging Imager, in all the different Windows machines that might be encountered, is a difficult task.</li>
+<li>VPN (virtual private networks) can be enabled (default=off) so that the developer can diagnose problems encountered by early adopters. This is achieved by exiting from the default (at boot time) Menu, and then typing &quot;imager&quot; at the terminal command line (to display a terminal, click on the icon of a terminal at bottom right of the screen).</li>
+<li>VPN access to Imager normally only lasts until the next reboot.</li>
+<li>VPN access can be made to survive reboots by typing &quot;sudo filetool.sh -b&quot;, after starting IMAGER from the command line.</li>
+<li>Verify that the VPN is actually working by looking for the &quot;tun0&quot; response to &quot;sudo ip a&quot; terminal command.</li>
+</ul>
+</body>
+</html>
