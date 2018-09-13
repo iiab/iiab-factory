@@ -63,7 +63,7 @@ Design Decisions:
   - [github.com/georgejhunt/iiab-factory/blob/vector-maps/content/vector-tiles/Design-Decisions.md](https://github.com/georgejhunt/iiab-factory/blob/vector-maps/content/vector-tiles/Design-Decisions.md) just in case!
 
 Usability Engineering begins here &mdash; thanks all who can assist &mdash; improving this for schools worldwide!
-  - Package up vector-based OSM maps: [#877](https://github.com/iiab/iiab/issues/877)  
+  - Package up vector-based OSM maps: [#877](https://github.com/iiab/iiab/issues/877)
   - ~Can OSM Vector Maps fill the entire screen? [#1035](https://github.com/iiab/iiab/issues/1035)~
   - ~How many cities are searchable by new Vector-based OSM? [#1034](https://github.com/iiab/iiab/issues/1034)~
   - ~Teachers want Accents to work when searching for cities in OpenStreetMap [#662](https://github.com/iiab/iiab/issues/662)~ (Can multilingual folk confirm this is really/sufficiently fixed?)
