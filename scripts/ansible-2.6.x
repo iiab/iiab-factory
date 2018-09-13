@@ -10,8 +10,8 @@ echo -e '\n\nSTRONGLY RECOMMENDED PREREQUISITE: (1) remove all prior versions of
 
 echo -e 'COMPLETE INSTALL INSTRUCTIONS:\nhttps://github.com/iiab/iiab/wiki/IIAB-Installation#do-everything-from-scratch\n'
 
-echo -e 'VERIFY YOU'"'"'RE ONLINE BEFORE RUNNING THIS: /opt/iiab/iiab/scripts/ansible-2.6.x'
-echo -e 'Alternative: Run /opt/iiab/iiab/scripts/ansible for the very latest Ansible\n'
+echo -e 'VERIFY YOU'"'"'RE ONLINE BEFORE RUNNING THIS: /opt/iiab/iiab-factory/scripts/ansible-2.6.x'
+echo -e 'Alternative: Run /opt/iiab/iiab-factory/scripts/ansible for the very latest Ansible\n'
 
 if [ $(command -v ansible-playbook) ]; then    # "command -v" is POSIX compliant; also catches built-in commands like "cd"
     CURR_VER=`ansible --version | head -1 | awk '{print $2}'`    # To match iiab-install.  Was: CURR_VER=`ansible --version | head -n 1 | cut -f 2 -d " "`
@@ -39,25 +39,6 @@ if [ -f /etc/olpc-release ]; then
     pip install ansible==$GOOD_VER --disable-pip-version-check
 elif [ -f /etc/centos-release ]; then
     yum -y install ansible
-# 2018-09-07: the next 4 lines aren't needed according to https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#latest-release-via-dnf-or-yum
-#    yum -y install ca-certificates nss epel-release
-#    yum -y install git bzip2 file findutils gzip hg svn sudo tar which unzip xz zip libselinux-python
-#    yum -y install python-pip python-setuptools python-wheel patch
-#    yum -y install https://releases.ansible.com/ansible/rpm/release/epel-7-x86_64/ansible-$GOOD_VER-1.el7.ans.noarch.rpm
-#elif [ -f /etc/fedora-release ]; then
-#    CURR_VER=`grep VERSION_ID /etc/*elease | cut -d= -f2`
-#    URL=https://github.com/jvonau/iiab/blob/ansible/vars/fedora-$CURR_VER.yml
-#    dnf -y install ansible git bzip2 file findutils gzip hg svn sudo tar which unzip xz zip libselinux-python
-#    dnf -y install python-pip python-setuptools python-wheel patch
-## Parens are optional, but greatly clarify :)
-#elif (grep -qi ubuntu /etc/lsb-release 2> /dev/null) || (grep -qi ubuntu /etc/os-release); then
-#    apt update
-#    #apt -y install python-pip python-setuptools python-wheel patch    # 2018-09-05: fails on @kananigit's Ubuntu 18.04/Server.  Fix @ https://github.com/iiab/iiab/pull/1091
-#    apt -y install software-properties-common    # adds command "apt-add-repository"
-#    apt-add-repository -y ppa:ansible/ansible    # adds correct line to correct file e.g. adds line "deb http://ppa.launchpad.net/ansible/ansible/ubuntu bionic main" to /etc/apt/sources.list.d/ansible-ubuntu-ansible-bionic.list
-## elif UBUNTU MUST REMAIN ABOVE (as Ubuntu ALSO contains /etc/debian_version, which would trigger the line just below)
-#elif [ -f /etc/debian_version ] || (grep -qi raspbian /etc/*elease) ; then
-#elif [ ! -f /etc/centos-release ] && [ ! -f /etc/fedora-release ] && [ ! -f /etc/olpc-release ]; then
 elif [ -f /etc/debian_version ]; then    # Includes Debian, Ubuntu & Raspbian
 
     echo -e '\napt update; install dirmngr; PPA to /etc/apt/sources.list.d/iiab-ansible.list\n'
@@ -73,15 +54,6 @@ elif [ -f /etc/debian_version ]; then    # Includes Debian, Ubuntu & Raspbian
     apt update
     apt -y --allow-downgrades install ansible
     echo -e '\nPlease verify Ansible using "ansible --version" and/or "apt -a list ansible"'
-
-    # TEMPORARILY USE ANSIBLE 2.4.4 (REMOVE IT WITH "pip uninstall ansible")
-    #pip install ansible==2.4.4
-
-    # TEMPORARILY USE ANSIBLE 2.4.2 DUE TO 2.4.3 MEMORY BUG. DETAILS @ https://github.com/iiab/iiab/issues/669
-    #echo "Install http://download.iiab.io/packages/ansible_2.4.2.0-1ppa~xenial_all.deb"
-    #cd /tmp
-    #wget http://download.iiab.io/packages/ansible_2.4.2.0-1ppa~xenial_all.deb
-    #apt -y --allow-downgrades install ./ansible_2.4.2.0-1ppa~xenial_all.deb
 
     echo -e '\n\nPPA source "deb http://ppa.launchpad.net/ansible/ansible-2.6/ubuntu xenial main" successfully saved to /etc/apt/sources.list.d/iiab-ansible.list'
     echo -e '\nIF *OTHER* ANSIBLE SOURCES ARE ALSO IN THE LIST BELOW, PLEASE MANUALLY REMOVE THEM TO ENSURE ANSIBLE UPDATES CLEANLY: (then re-run this script to be sure!)\n'
