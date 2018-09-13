@@ -129,4 +129,4 @@ if [ $(wc -c < /tmp/apt.stdout) -gt 29 ]; then
 fi
 
 # If we didn't reboot just continue with the rest of the install
-$BASE/iiab-factory/scripts/continue.sh
+$BASE/iiab-factory/scripts/continue.sh $REINSTALL

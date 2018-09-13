@@ -1,6 +1,13 @@
 #!/bin/bash -e
 BASE=/opt/iiab
 FLAGS=$BASE/iiab-factory/flags
+REINSTALL=""
+
+if [ "$1" = "--reinstall" ]; then
+    rm $FLAGS/*
+    REINSTALL="--reinstall"
+fi
+
 if [ -f $FLAGS/iiab-complete ]; then
     echo -e 'iiab-complete'
     systemctl disable iiab-installer
@@ -8,7 +15,7 @@ if [ -f $FLAGS/iiab-complete ]; then
 fi
 
 cd $BASE/iiab
-./iiab-install
+./iiab-install $REINSTALL
 
 if [ ! -f $FLAGS/iiab-admin-console-complete ]; then
     cd $BASE/iiab-admin-console

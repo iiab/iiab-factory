@@ -1,27 +1,24 @@
 #!/bin/bash -e
 FLAGS=/opt/iiab/iiab-factory/flags
 
-if [ "$1" = "--reinstall" ]; then
-    rm $FLAGS/*
-fi
-
 # Rebuilds local library.xml in case ZIM files added to /library/zims/content
 if [ ! -f $FLAGS/kiwix-lib-complete ]; then
     echo -e 'Now running iiab-make-kiwix-lib'
     iiab-make-kiwix-lib
     touch $FLAGS/kiwix-lib-complete
 else
-    echo 'iiab-make-kiwix-lib already done'
+    echo 'iiab-make-kiwix-lib already done - re-running anyway'
+    iiab-make-kiwix-lib
 fi
 
 # /usr/bin/kalite venv wrapper does this: export KALITE_HOME=/library/ka-lite
 # Register with KA Lite - just the anonymous registration
 if [ ! -f $FLAGS/kalite-zone-complete ]; then
      echo -e 'Now running kalite zone'
-     kalite manage generate_zone
+     kalite manage generate_zone || true # spits error if already run once
      touch $FLAGS/kalite-zone-complete
 else
-     echo -e 'kalite zone done'
+     echo -e 'kalite zone already done'
 fi
 
 if [ ! -f $FLAGS/kalite-en.zip-complete ]; then

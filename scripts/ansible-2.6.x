@@ -3,7 +3,7 @@
 CURR_VER="undefined"    # Ansible version you currently have installed
 GOOD_VER="2.6.4"    # For XO laptops (pip install) & CentOS (yum install rpm)
 # On other OS's we attempt the latest from PPA, which might be more recent
-    
+
 export DEBIAN_FRONTEND=noninteractive
 
 echo -e '\n\nSTRONGLY RECOMMENDED PREREQUISITE: (1) remove all prior versions of Ansible using "apt purge ansible" and/or "pip uninstall ansible" and (2) clear out all lines containing ansible from /etc/apt/sources.list and /etc/apt/sources.list.d/*\n'
