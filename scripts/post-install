@@ -35,3 +35,8 @@ if [ ! -f $FLAGS/kalite-en.zip-complete ]; then
     # OLD WAY ABOVE - fails w/ sev ISPs per https://github.com/iiab/iiab/issues/871
     touch $FLAGS/kalite-en.zip-complete
 fi
+
+if (systemctl -q is-active transmission-daemon) then
+    echo -e "\n\nSTARTING BITTORRENT DOWNLOAD(S) for KA Lite...Please Monitor: http://box:9091\n"
+    transmission-remote -n Admin:changeme -t all --start
+fi
