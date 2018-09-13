@@ -1,10 +1,17 @@
 #!/bin/bash -e
 FLAGS=/opt/iiab/iiab-factory/flags
+
+if [ "$1" = "--reinstall" ]; then
+    rm $FLAGS/*
+fi
+
 # Rebuilds local library.xml in case ZIM files added to /library/zims/content
 if [ ! -f $FLAGS/kiwix-lib-complete ]; then
     echo -e 'Now running iiab-make-kiwix-lib'
     iiab-make-kiwix-lib
     touch $FLAGS/kiwix-lib-complete
+else
+    echo 'iiab-make-kiwix-lib already done'
 fi
 
 # /usr/bin/kalite venv wrapper does this: export KALITE_HOME=/library/ka-lite
@@ -13,6 +20,8 @@ if [ ! -f $FLAGS/kalite-zone-complete ]; then
      echo -e 'Now running kalite zone'
      kalite manage generate_zone
      touch $FLAGS/kalite-zone-complete
+else
+     echo -e 'kalite zone done'
 fi
 
 if [ ! -f $FLAGS/kalite-en.zip-complete ]; then
@@ -20,8 +29,9 @@ if [ ! -f $FLAGS/kalite-en.zip-complete ]; then
     cd /opt/iiab/downloads
     if [ -f en.zip ]; then
         if [ $(wc -c < en.zip) -ne 929916955 ]; then
-            echo -e "\nERROR: /opt/iiab/iiab/downloads/en.zip must be 929,916,955 bytes to proceed.\n" >&2
-            exit 1
+            echo -e "\nERROR: /opt/iiab/iiab/downloads/en.zip must be 929,916,955 bytes to proceed. Removing\n" >&2
+            rm en.zip
+            wget http://pantry.learningequality.org/downloads/ka-lite/0.17/content/contentpacks/en.zip
         else
             echo -e "\nUsing existing /opt/iiab/iiab/downloads/en.zip whose 929,916,955 byte size is correct!\n"
         fi
@@ -34,9 +44,13 @@ if [ ! -f $FLAGS/kalite-en.zip-complete ]; then
     # kalite manage retrievecontentpack download en
     # OLD WAY ABOVE - fails w/ sev ISPs per https://github.com/iiab/iiab/issues/871
     touch $FLAGS/kalite-en.zip-complete
+else
+    echo -e 'kalite en.zip already done'
 fi
 
 if (systemctl -q is-active transmission-daemon) then
     echo -e "\n\nSTARTING BITTORRENT DOWNLOAD(S) for KA Lite...Please Monitor: http://box:9091\n"
     transmission-remote -n Admin:changeme -t all --start
+else
+    echo -e 'transmission not active'
 fi
