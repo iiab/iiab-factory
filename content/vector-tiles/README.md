@@ -48,7 +48,7 @@ See ["How do I add zoomable maps for my region?"](http://FAQ.IIAB.IO#How_do_I_ad
 1. Run: `cd /library/www/html/modules/`
 1. Rename it appropriately, for example: `mv en-osm-omt-min en-osm-omt-atlantis`
 1. Run: `apt install zip` (necessary on Raspbian Lite)
-1. Run: `zip -r -y en-osm-omt-atlantis.zip en-osm-omt-atlantis` (e.g. to create `en-osm-omt-atlantis.zip`)
+1. Run: `zip -r -y en-osm-omt-atlantis.zip en-osm-omt-atlantis` (e.g. to create `en-osm-omt-atlantis.zip`, the `-y` flag is necessary to prevent traversal of symlinks, in order to avoid duplicate copies of each .mbtiles file)
 1. Publish it for all, e.g. using https://archive.org/create.php or https://commons.wikimedia.org/wiki/Special:UploadWizard for smaller files.
 1. _[Contact us](http://FAQ.IIAB.IO#What_are_the_best_places_for_community_support.3F) so we can broadly promote your work, in places like [download.iiab.io/content/OSM/vector-tiles/](http://download.iiab.io/content/OSM/vector-tiles/) !_
 
@@ -59,14 +59,14 @@ Code:
   - [download.iiab.io/content/OSM/vector-tiles/en-osm-omt-min.zip](http://download.iiab.io/content/OSM/vector-tiles/en-osm-omt-min.zip) always contains the latest!
 
 Design Decisions:
-  - [github.com/iiab/iiab-factory/blob/master/content/vector-tiles/Design-Decisions.md](https://github.com/iiab/iiab-factory/blob/master/content/vector-tiles/Design-Decisions.md) is sometimes out-of-date?
+  - [github.com/iiab/iiab-factory/blob/master/content/vector-tiles/Design-Decisions.md](https://github.com/iiab/iiab-factory/blob/master/content/vector-tiles/Design-Decisions.md)
   - [github.com/georgejhunt/iiab-factory/blob/vector-maps/content/vector-tiles/Design-Decisions.md](https://github.com/georgejhunt/iiab-factory/blob/vector-maps/content/vector-tiles/Design-Decisions.md) just in case!
 
 Usability Engineering begins here &mdash; thanks all who can assist &mdash; improving this for schools worldwide!
-  - Package up vector-based OSM maps: [#877](https://github.com/iiab/iiab/issues/877)
-  - Can OSM Vector Maps fill the entire screen? [#1035](https://github.com/iiab/iiab/issues/1035)
-  - How many cities are searchable by new Vector-based OSM? [#1034](https://github.com/iiab/iiab/issues/1034)
-  - Teachers want Accents to work when searching for cities in OpenStreetMap [#662](https://github.com/iiab/iiab/issues/662)
+  - Package up vector-based OSM maps: [#877](https://github.com/iiab/iiab/issues/877)  
+  - ~Can OSM Vector Maps fill the entire screen? [#1035](https://github.com/iiab/iiab/issues/1035)~
+  - ~How many cities are searchable by new Vector-based OSM? [#1034](https://github.com/iiab/iiab/issues/1034)~
+  - ~Teachers want Accents to work when searching for cities in OpenStreetMap [#662](https://github.com/iiab/iiab/issues/662)~ (Can someone confirm this is really/sufficiently fixed?)
   - Keep OSM from zooming past Level 10, where there's no data? [#1036](https://github.com/iiab/iiab/issues/1036)
 
 _How do we evolve this into a continuously more friendly product?_
