@@ -66,7 +66,7 @@ Usability Engineering begins here &mdash; thanks all who can assist &mdash; impr
   - Package up vector-based OSM maps: [#877](https://github.com/iiab/iiab/issues/877)  
   - ~Can OSM Vector Maps fill the entire screen? [#1035](https://github.com/iiab/iiab/issues/1035)~
   - ~How many cities are searchable by new Vector-based OSM? [#1034](https://github.com/iiab/iiab/issues/1034)~
-  - ~Teachers want Accents to work when searching for cities in OpenStreetMap [#662](https://github.com/iiab/iiab/issues/662)~ (Can someone confirm this is really/sufficiently fixed?)
+  - ~Teachers want Accents to work when searching for cities in OpenStreetMap [#662](https://github.com/iiab/iiab/issues/662)~ (Can multilingual folk confirm this is really/sufficiently fixed?)
   - Keep OSM from zooming past Level 10, where there's no data? [#1036](https://github.com/iiab/iiab/issues/1036)
 
 _How do we evolve this into a continuously more friendly product?_
