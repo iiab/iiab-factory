@@ -20,7 +20,7 @@ mkdir -p $prefix/build
 cd $prefix/build
 
 if [ ! -d maps ]; then
-git clone https://github.com/georgejhunt/maps
+git clone https://github.com/iiab/maps
 fi
 cp -rp maps/* ..
 if [ ! -d "www.openmaptiles.org" ]; then
