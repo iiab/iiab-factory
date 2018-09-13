@@ -48,7 +48,7 @@ See ["How do I add zoomable maps for my region?"](http://FAQ.IIAB.IO#How_do_I_ad
 1. Run: `cd /library/www/html/modules/`
 1. Rename it appropriately, for example: `mv en-osm-omt-min en-osm-omt-atlantis`
 1. Run: `apt install zip` (necessary on Raspbian Lite)
-1. Run: `zip -r en-osm-omt-atlantis.zip en-osm-omt-atlantis` (e.g. to create `en-osm-omt-atlantis.zip`)
+1. Run: `zip -r -y en-osm-omt-atlantis.zip en-osm-omt-atlantis` (e.g. to create `en-osm-omt-atlantis.zip`)
 1. Publish it for all, e.g. using https://archive.org/create.php or https://commons.wikimedia.org/wiki/Special:UploadWizard for smaller files.
 1. _[Contact us](http://FAQ.IIAB.IO#What_are_the_best_places_for_community_support.3F) so we can broadly promote your work, in places like [download.iiab.io/content/OSM/vector-tiles/](http://download.iiab.io/content/OSM/vector-tiles/) !_
 
