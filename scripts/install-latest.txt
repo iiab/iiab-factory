@@ -18,6 +18,11 @@ if [ "$(grep '^pi:' /etc/shadow | cut -d: -f2)" == '$6$D12eVhKX$00kKcOd8ExXk0Zru
     echo pi:"$pass" | chpasswd
 fi
 
+if [ "$1" = "--reinstall" ]; then
+    rm $FLAGS/*
+    REINSTALL="--reinstall"
+fi
+
 mkdir -p /etc/iiab
 if [ -f $BASE/iiab/vars/local_vars.yml ]; then
     # FUTURE: Test if their local_vars.yml is sufficiently version-compatible !
