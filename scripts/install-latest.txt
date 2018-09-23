@@ -58,7 +58,8 @@ read -t 5 nano < /dev/tty || true
 if grep -qi raspbian /etc/*release; then tune2fs -m 1 /dev/mmcblk0p2; fi
 # If OS is Raspbian, lowers reserve disk space from ~5% to 1%
 
-apt update
+echo -e '"apt update" is checking for updates...\n'
+apt -qq update > /tmp/apt.stdout
 apt -y install git nano
 
 mkdir -p $BASE
@@ -131,8 +132,6 @@ systemctl enable iiab-installer
 cd $BASE/iiab/
 ./iiab-install $REINSTALL
 
-echo -e '"apt update" is checking for updates...\n'
-apt -qq update > /tmp/apt.stdout
 if [ $(wc -c < /tmp/apt.stdout) -gt 29 ]; then
     apt -y dist-upgrade
     reboot
