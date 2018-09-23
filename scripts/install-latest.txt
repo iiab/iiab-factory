@@ -69,6 +69,7 @@ if [ -d iiab-factory ]; then
     echo -e 'iiab-factory auto update'
     cd $BASE/iiab-factory/
     git pull origin master
+    ln -fs $BASE/iiab-factory/scripts/install-latest.txt /usr/sbin/iiab
     $BASE/iiab-factory/scripts/ansible-2.6.x
 else
 #    git clone https://github.com/iiab/iiab-factory --depth 1
