@@ -7,11 +7,16 @@ CONF_FILE=/etc/iiab/local_vars.yml
 BASE=/opt/iiab
 REINSTALL=""
 SUPPORT=""
+FLAGS=$BASE/iiab-factory/flags
 set -e                                   # Exit on error (avoids snowballing)
 export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
-echo -e "\n   █████████████████████████████████████████████████████████████████████████"
-echo -e "   ██ TRY TO RERUN THIS ENTIRE SCRIPT IF IT FAILS DUE TO CONNECTIVITY ETC ██"
-echo -e "   █████████████████████████████████████████████████████████████████████████\n\n"
+
+if [ "$(grep '^pi:' /etc/shadow | cut -d: -f2)" == '$6$D12eVhKX$00kKcOd8ExXk0ZruVWRQnukJi4CEW7Jg7DAgf3E6umxe4PQn7ac4X4TobozWbBIthsUM26EA7ZY4Ypvv63H121' ]; then
+    echo -e "\n\nRaspberry Pi's are COMPROMISED often if the default password is not changed!\n"
+    echo -n "What password do you want for GNU/Linux user 'pi' ? "
+    read pass < /dev/tty
+    echo pi:"$pass" | chpasswd
+fi
 
 mkdir -p /etc/iiab
 if [ -f $BASE/iiab/vars/local_vars.yml ]; then
@@ -58,25 +63,38 @@ read -t 5 nano < /dev/tty || true
 if grep -qi raspbian /etc/*release; then tune2fs -m 1 /dev/mmcblk0p2; fi
 # If OS is Raspbian, lowers reserve disk space from ~5% to 1%
 
-echo -e '"apt update" is checking for updates...\n'
-apt -qq update > /tmp/apt.stdout
+echo -e "\n\n'apt update' is checking for OS updates...\n"
+apt -qq update > /tmp/apt.stdout 2> /tmp/apt.stderr || true    # Overrides 'set -e'
+if [ $(wc -c < /tmp/apt.stderr) -gt 82 ]; then    # apt.stderr typically contains exactly 82 characters when there are no errors, i.e. 3-line file "\nWARNING: apt does not have a stable CLI interface. Use with caution in scripts.\n\n" _OR_ in other cases more than 82, e.g. many lines of errors when apt is busy/locked/offline/etc
+    echo -e "'apt update' FAILED. VERIFY YOU'RE ONLINE and resolve all errors below:\n"
+    cat /tmp/apt.stderr
+    exit 1
+fi
+echo -e "Installing git & nano"
 apt -y install git nano
 
 mkdir -p $BASE
 cd $BASE/
 
-# Installs latest Ansible-2.6.x from PPA.
 if [ -d iiab-factory ]; then
     echo -e 'iiab-factory auto update'
     cd $BASE/iiab-factory/
     git pull origin master
-    ln -fs $BASE/iiab-factory/scripts/install-latest.txt /usr/sbin/iiab
-    $BASE/iiab-factory/scripts/ansible-2.6.x
 else
 #    git clone https://github.com/iiab/iiab-factory --depth 1
     git clone https://github.com/jvonau/iiab-factory --depth 1
-    $BASE/iiab-factory/scripts/ansible-2.6.x
+    ln -fs $BASE/iiab-factory/scripts/install-latest.txt /usr/bin/iiab
+    echo -e "\n\n ██████████████████████████████████████████████████████████████████████████████"
+    echo -e " ██                                                                          ██"
+    echo -e " ██  RUN 'sudo iiab' IF THIS INSTALL SCRIPT EVER FAILS, TO TRY TO CONTINUE!  ██"
+    echo -e " ██                                                                          ██"
+    echo -e " ██████████████████████████████████████████████████████████████████████████████"
 fi
+
+# replace with ansible role WIP
+cp -f $BASE/iiab-factory/roles/iiab-installer/files/iiab-installer.service /etc/systemd/system/
+#systemctl enable iiab-installer
+
 cd $BASE/
 if [ -d iiab ]; then
     echo -e 'iiab auto update'
@@ -125,14 +143,19 @@ if [ "$nano" == "y" ] || [ "$nano" == "Y" ]; then
     nano /etc/iiab/local_vars.yml
 fi
 
-# replace with ansible role WIP
-cp $BASE/iiab-factory/roles/iiab-installer/files/iiab-installer.service /etc/systemd/system/
-systemctl enable iiab-installer
+touch $FLAGS/clone-complete
 
-cd $BASE/iiab/
-./iiab-install $REINSTALL
+# Installs latest Ansible-2.6.x from PPA.
+$BASE/iiab-factory/scripts/ansible-2.6.x
 
-if [ $(wc -c < /tmp/apt.stdout) -gt 29 ]; then
+
+if [ $(wc -c < /tmp/apt.stdout) -gt 29 ]; then    # apt.stdout typically contains either 29 characters, i.e. 1-line file "All packages are up to date.\n" _OR_ in other cases more than 29, e.g. "5 packages can be upgraded. Run 'apt list --upgradable' to see them.\n"
+    cat /tmp/apt.stdout
+    echo -e "\nYour OS will now be upgraded...this takes time. THEN IT WILL AUTO-REBOOT.\n"
+
+    echo -n "Hit [ENTER] to confirm you'll RUN 'sudo iiab' AFTER IT REBOOTS: "
+    read ans < /dev/tty
+    echo
     apt -y dist-upgrade
     reboot
 fi
