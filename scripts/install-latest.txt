@@ -76,6 +76,10 @@ if [ -d iiab ]; then
     echo -e 'iiab auto update'
     cd $BASE/iiab
     git pull origin $IIAB_RELEASE
+    if [ "$SUPPORT"="_vpn" ]: then
+        sed -i -e "s/openvpn_install: False/openvpn_install: True/" /etc/iiab/local_vars.yml
+        sed -i -e "s/openvpn_enabled: False/openvpn_enabled: True/" /etc/iiab/local_vars.yml
+    fi
 else
     git clone https://github.com/iiab/iiab --branch $IIAB_RELEASE --depth 1
     if [ ! -f /etc/iiab/local_vars.yml ]; then
