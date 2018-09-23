@@ -39,14 +39,16 @@ else
     echo -n "Please type 1, 2 or 3 then press [ENTER]: "
     read local_vars_size < /dev/tty
     echo
+fi
 
-    echo -e "Do you want to enable vpn support?"
-    echo -n "Please type y/n then press [ENTER]: "
-    read vpn < /dev/tty
-
-    if [ $vpn = 'y' ]; then
-        SUPPORT="_vpn"
-    fi
+echo -e "Do you want to enable vpn support?"
+echo -n "Please type y/n then press [ENTER]: "
+read -t 5 vpn < /dev/tty || true
+if [ "$vpn" == "y" ]; then
+    SUPPORT="_vpn"
+    echo -e "vpn support selected"
+else
+    echo -e "vpn support NOT selected"
 fi
 
 if grep -qi raspbian /etc/*release; then tune2fs -m 1 /dev/mmcblk0p2; fi
@@ -107,11 +109,6 @@ if [ -d iiab-menu ]; then
     echo -e '\nREPO EXISTS? Consider "cd $BASE/iiab-menu; git pull; ./cp-menus"'
 else
     git clone https://github.com/iiab/iiab-menu --depth 1
-fi
-
-if [ x$SUPPORT = "x_vpn" ]; then
-    cd $BASE/iiab/
-    ./install-support
 fi
 
 # replace with ansible role WIP
