@@ -51,11 +51,15 @@ else
     echo -e "vpn support NOT selected"
 fi
 
+echo -en "\nEdit /etc/iiab/local_vars.yml later in the install to customize your Internet-in-a-Box? [Y/n] "
+read -t 5 nano < /dev/tty || true
+
+# this should be in iiab 1-prep somewhere
 if grep -qi raspbian /etc/*release; then tune2fs -m 1 /dev/mmcblk0p2; fi
 # If OS is Raspbian, lowers reserve disk space from ~5% to 1%
 
 apt update
-apt -y install git
+apt -y install git nano
 
 mkdir -p $BASE
 cd $BASE/
@@ -98,7 +102,7 @@ else
     fi
 fi
 
-# Installs Admin Console
+# Clones Admin Console
 cd $BASE
 if [ -d iiab-admin-console ]; then
     echo -e 'iiab-admin-console auto update'
@@ -108,11 +112,15 @@ else
     git clone https://github.com/iiab/iiab-admin-console --branch $ADMIN_RELEASE --depth 1
 fi
 
-# Installs Dynamic Menuing for /library/www/html/home/index.html
+# Clones Dynamic Menuing for /library/www/html/home/index.html
 if [ -d iiab-menu ]; then
     echo -e '\nREPO EXISTS? Consider "cd $BASE/iiab-menu; git pull; ./cp-menus"'
 else
     git clone https://github.com/iiab/iiab-menu --depth 1
+fi
+
+if [ "$nano" == "y" ] || [ "$nano" == "Y" ]; then
+    nano /etc/iiab/local_vars.yml
 fi
 
 # replace with ansible role WIP
