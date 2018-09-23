@@ -37,7 +37,7 @@ else
     echo -e "/etc/iiab/local_vars.yml prior to running this script.\n"
 
     echo -n "Please type 1, 2 or 3 then press [ENTER]: "
-    read local_vars_size < /dev/tty
+    read -t 5 local_vars_size < /dev/tty || true
     echo
 fi
 
@@ -91,7 +91,7 @@ else
             3)
             cp vars/local_vars_big$SUPPORT.yml /etc/iiab/local_vars.yml
                 ;;
-            2)
+            *)
             cp vars/local_vars_medium$SUPPORT.yml /etc/iiab/local_vars.yml
                 ;;
         esac
