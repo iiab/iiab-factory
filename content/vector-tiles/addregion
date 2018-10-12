@@ -1,0 +1,46 @@
+#!/bin/bash -x
+
+# Usage:
+#
+# $ listpatch [file containing source mbtiles] [dest]
+#
+# Inserts all tiles from [source] into [dest], replacing any old tiles
+# in [dest].
+
+SOURCE=$1
+DEST=$2
+mkdir -p output
+
+if [ -z "$SOURCE" ] || [ -z "$DEST" ]; then
+    echo "usage: listpatch [file containing source mbtiles] [dest]" 
+    exit 1
+fi
+
+if [ ! -f $SOURCE ]; then
+    echo "File '$SOURCE' does not exist."
+    exit 1
+fi
+
+if [ ! -f $DEST ]; then
+    echo "File '$DEST' does not exist."
+    exit 1
+fi
+
+# copy the DEST to the output folder
+cp $DEST ./output/$DEST
+for f in `ls *.mbtiles`;do
+   if [ "$f" == "$DEST" ];then
+	continue
+   fi
+
+   echo "Patch $f => $DEST ..."
+
+echo "
+PRAGMA journal_mode=PERSIST;
+PRAGMA page_size=80000;
+PRAGMA synchronous=OFF;
+ATTACH DATABASE '$f' AS source;
+REPLACE INTO map SELECT * FROM source.map;
+REPLACE INTO images SELECT * FROM source.images;"\
+| sqlite3 ./output/$2
+done
