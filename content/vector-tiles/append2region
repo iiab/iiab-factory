@@ -1,4 +1,5 @@
 #!/bin/bash -x
+# Combine vector data in mbtiles format
 
 # Usage:
 #
