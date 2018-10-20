@@ -1,34 +1,48 @@
 #!/bin/bash -x
 # Combine vector data in mbtiles format
 
-# Usage:
-#
-# $ listpatch [file containing source mbtiles] [dest]
-#
 # Inserts all tiles from [source] into [dest], replacing any old tiles
 # in [dest].
 
+CWD=$(pwd)
+case $1
+   "-d" | "--dir")
+      DESTDIR=$2
+      cd $DESTDIR
+      shift 2
+      ;;
+esac
 SOURCE=$1
 DEST=$2
-mkdir -p output
-
 if [ -z "$SOURCE" ] || [ -z "$DEST" ]; then
-    echo "usage: listpatch [file containing source mbtiles] [dest]" 
+    echo "usage: append2region [file containing source mbtiles] [dest]" 
     exit 1
 fi
 
-if [ ! -f $SOURCE ]; then
-    echo "File '$SOURCE' does not exist."
+if [ ! -f $SOURCE ] || [ ! -d $SOURCE ]; then
+    echo "File/directory '$SOURCE' does not exist."
     exit 1
 fi
 
+# is the output filename full path?
+LEADER=4{DEST:0:1}
+if [ "$LEADER" != "/" ];then
+   mkdir -p output
+   DEST=./output/$DEST
+fi
+   
+# does the target mbtile already exist?
 if [ ! -f $DEST ]; then
-    echo "File '$DEST' does not exist."
-    exit 1
+   # copy the SOURCE to the output folder
+   if [ -f $SOURCE ];then
+      cp $SOURCE ./output/$DEST
+   else
+      read -r mbtfile < $SOURCE
+      cp $mbtfile ./output/$DEST
+      APPENDTO=$mbtfile
+   fi   
 fi
 
-# copy the DEST to the output folder
-cp $DEST ./output/$DEST
 for f in `ls *.mbtiles`;do
    if [ "$f" == "$DEST" ];then
 	continue
@@ -45,3 +59,6 @@ REPLACE INTO map SELECT * FROM source.map;
 REPLACE INTO images SELECT * FROM source.images;"\
 | sqlite3 ./output/$2
 done
+
+# all done return to original directory
+cd $CWD
