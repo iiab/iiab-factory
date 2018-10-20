@@ -6,7 +6,7 @@
 
 CWD=$(pwd)
 SOURCEDIR=$CWD
-case $1
+case $1 in
    "-d" | "--dir")
       SOURCEDIR=$2
       cd $SOURCEDIR
@@ -38,8 +38,13 @@ if [ ! -f $DEST ]; then
    if [ -f $SOURCE ];then
       cp $SOURCE $DEST
    else
-      mbtfile=`ls *.mbtiles | head -n1`
+      mbtfile=`ls *.mbtiles 2>/dev/null | head -n1`
+      if [ -z "$mbtfile" ];then
+         echo "no mbtiles found"
+         exit 1
+      fi
       cp $mbtfile $DEST
+      DEST=$DEST/$mbtfile
    fi   
 fi
 
@@ -57,7 +62,7 @@ PRAGMA synchronous=OFF;
 ATTACH DATABASE '$f' AS source;
 REPLACE INTO map SELECT * FROM source.map;
 REPLACE INTO images SELECT * FROM source.images;"\
-| sqlite3 ./output/$2
+| sqlite3 $DEST
 done
 
 # all done return to original directory
