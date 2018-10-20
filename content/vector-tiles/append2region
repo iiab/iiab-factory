@@ -37,6 +37,7 @@ if [ ! -f $DEST ]; then
    # copy the SOURCE to the output folder
    if [ -f $SOURCE ];then
       cp $SOURCE $DEST
+      exit 0
    else
       mbtfile=`ls *.mbtiles 2>/dev/null | head -n1`
       if [ -z "$mbtfile" ];then
