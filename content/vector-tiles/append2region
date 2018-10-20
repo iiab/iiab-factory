@@ -5,50 +5,50 @@
 # in [dest].
 
 CWD=$(pwd)
+SOURCEDIR=$CWD
 case $1
    "-d" | "--dir")
-      DESTDIR=$2
-      cd $DESTDIR
+      SOURCEDIR=$2
+      cd $SOURCEDIR
       shift 2
       ;;
 esac
 SOURCE=$1
 DEST=$2
 if [ -z "$SOURCE" ] || [ -z "$DEST" ]; then
-    echo "usage: append2region [file containing source mbtiles] [dest]" 
+    echo "usage: append2region [directory containing source mbtiles] [dest]" 
     exit 1
 fi
 
-if [ ! -f $SOURCE ] || [ ! -d $SOURCE ]; then
+if [ ! -f $SOURCE ] && [ ! -d $SOURCE ]; then
     echo "File/directory '$SOURCE' does not exist."
     exit 1
 fi
 
 # is the output filename full path?
-LEADER=4{DEST:0:1}
+LEADER=${DEST:0:1}
 if [ "$LEADER" != "/" ];then
    mkdir -p output
-   DEST=./output/$DEST
+   DEST=$SOURCEDIR/output/$DEST
 fi
    
 # does the target mbtile already exist?
 if [ ! -f $DEST ]; then
    # copy the SOURCE to the output folder
    if [ -f $SOURCE ];then
-      cp $SOURCE ./output/$DEST
+      cp $SOURCE $DEST
    else
-      read -r mbtfile < $SOURCE
-      cp $mbtfile ./output/$DEST
-      APPENDTO=$mbtfile
+      mbtfile=`ls *.mbtiles | head -n1`
+      cp $mbtfile $DEST
    fi   
 fi
 
-for f in `ls *.mbtiles`;do
-   if [ "$f" == "$DEST" ];then
+for f in `ls $SOURCEDIR/*.mbtiles`;do
+   if [ "$(basename $f)" == "$(basename $DEST)" ];then
 	continue
    fi
 
-   echo "Patch $f => $DEST ..."
+   echo "append2region $f => $DEST ..."
 
 echo "
 PRAGMA journal_mode=PERSIST;
