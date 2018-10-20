@@ -10,10 +10,26 @@
 * parameter 2 -- required. Name of mbtile to which additional tile data should be appended. If parameter is full path, put output there. Otherwise put it into <default directory>/output/<parameter 2>
 
 ### Examples
+* Add a link which makes append2region executable everywhere in the file system:
+```
+# the following symbolic link is an optional convenience. Do it once
+ln -s /opt/iiab/iiab-factory/content/vector/tiles/append2region /usr/bin/
+```
+* The first execution of append2region copies the source, including all the metadata, to the destination. Subsequent use of the script does not copy the metadata, it just appends names and features to the target sqlite database. The following appends or copies a single mbtile from source to destination (used by the Admin console to accumulate additional regions):
+```
+append2region <source directory>/<filename> <destination path and filename>
+```
 * Add all the mbtiles in my download directory to a new test.mbtiles in the IIAB modules/en-osm-omt-min/ directory:
 ```
-# the following symbolic link will make the append2region executable from any directory. Do it once
-ln -s /opt/iiab/iiab-factory/content/vector/tiles/append2region /usr/bin/
 cd /home/ghunt/downloads
 append2region  . /library/www/html/modules/en-osm-omt-min/test.mbtiles
 ```
+* Process a source directory which includes a number of mbtile regions, and place the result in a new output directory which is directly under the source directory:
+```
+# go to the directory which contains the regions of interest
+cd /home/ghunt/regionX/
+append2region . .
+#(The "." is expanded to the current working directory. Additional testing will determine 
+#whether the correspondence between metadata and the region of major interest is an issue).
+```
+
