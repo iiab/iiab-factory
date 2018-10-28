@@ -4,6 +4,8 @@
 # Inserts all tiles from [source] into [dest], replacing any old tiles
 # in [dest].
 
+SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+
 CWD=$(pwd)
 SOURCEDIR=$CWD
 case $1 in
@@ -24,6 +26,7 @@ if [ ! -f $SOURCE ] && [ ! -d $SOURCE ]; then
     echo "File/directory '$SOURCE' does not exist."
     exit 1
 fi
+# The function of this script that actually does what's wanted
 append_data(){
    echo "
    PRAGMA journal_mode=PERSIST;
