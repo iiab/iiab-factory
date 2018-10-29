@@ -30,6 +30,7 @@ append2region  . /library/www/html/modules/en-osm-omt-min/test.mbtiles
 # go to the directory which contains the collected *.mbtiles regions of interest
 cd /home/ghunt/regions/
 append2region . .
-#(The "." is expanded to the current working directory. The output file will be found under the current directory in ./output/combined_regions.mbtiles.
+#(The "." is expanded to the current working directory. The output file will be found 
+#  under the current directory in ./output/combined_regions.mbtiles.
 ```
 
