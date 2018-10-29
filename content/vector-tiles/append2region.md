@@ -17,7 +17,8 @@ ln -s /opt/iiab/iiab-factory/content/vector/tiles/append2region /usr/bin/
 ```
 2.  The default mbtiles structure does not require that there be only one tile at the same world location, and zoom level. So it is necessary to create a new database with the required structure, and then copy in the data into that structure. The following will check  that the database file has the required structure (creating it if it does not exist):
 ```
-append2region <source directory with many mbtiles files> (or)<full path to a single filename> <full path and filename>
+append2region <source directory with many mbtiles files> (or)<full path to a single filename> \
+   <full path and filename> or <.> (which specifies current directory)
 ```
 3.  Add all the mbtiles in my download directory to a new test.mbtiles in the IIAB modules/en-osm-omt-min/ directory (requires #1 above):
 ```
