@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash 
 # Combine vector data in mbtiles format
 
 # Inserts all tiles from [source] into [dest], replacing any old tiles
@@ -26,6 +26,7 @@ if [ ! -f $SOURCE ] && [ ! -d $SOURCE ]; then
     echo "File/directory '$SOURCE' does not exist."
     exit 1
 fi
+
 # The function of this script that actually does what's wanted
 append_data(){
    echo "
@@ -43,11 +44,31 @@ if [ "$LEADER" != "/" ];then
    mkdir -p output
    DEST=$SOURCEDIR/output/$DEST
 fi
+
+# If the destination exists
+# test the output database. Does it have the required UNIQUE spec?
+if [ -f "$DEST" ];then
+   cat << EOF | sqlite3 combined_regions.sqlite | grep CREATE | grep UNIQUE
+   .schema
+   .q
+EOF
+   if [ $? -ne 0 ]; then
+      echo "this tool will not function properly appending to this database"
+      echo "without the required 'UNIQUE' property in the indexes"
+      echo 
+      echo "Please move the output database to the input folder, and try again"
+      exit 1
+   fi
+fi
+
+if [ "$DEST" == "$SOURCEDIR/output/." ]; then
+   DEST=$SOURCEDIR/output/combined_regions.sqlite
+fi
    
 # does the target mbtile already exist? Create if not
 if [ ! -f $DEST ]; then
 # create the empty database
-   sqlite3 $DEST
+   echo ".q" | sqlite3 $DEST
    # provide the structure
    echo "
    CREATE TABLE images (tile_id TEXT, tile_data BLOB);
