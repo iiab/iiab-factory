@@ -32,7 +32,6 @@ append_data(){
    PRAGMA journal_mode=PERSIST;
    PRAGMA page_size=80000;
    PRAGMA synchronous=OFF;
-   PRAGMA auto_vacuum=1;
    ATTACH DATABASE '$1' AS source;
    REPLACE INTO map SELECT * FROM source.map;
    REPLACE INTO images SELECT * FROM source.images;"\
@@ -121,6 +120,8 @@ else
       append_data $f
    done
 fi
+# the vacuum command will collapse out any garbage space
+sqlite3 $DEST "vacuum;"
 
 # all done return to original directory
 cd $CWD
