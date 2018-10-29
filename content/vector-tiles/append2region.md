@@ -15,9 +15,9 @@
 # the following symbolic link is an optional convenience. Do it once
 ln -s /opt/iiab/iiab-factory/content/vector/tiles/append2region /usr/bin/
 ```
-2.  The first execution of append2region copies the source, including all the metadata, to the destination. Subsequent use of the script does not copy the metadata, it just appends names and features to the target sqlite database. The following appends or copies a single mbtile from source to destination (used by the Admin console to accumulate additional regions):
+2.  The default mbtiles structure does not require that there be only one tile at the same world location, and zoom level. So it is necessary to create a new database with the required structure, and then copy in the data into that structure. The following will check  that the database file has the required structure (creating it if it does not exist):
 ```
-append2region <source directory>/<filename> <destination path and filename>
+append2region <source directory with many mbtiles files> (or)<full path to a single filename> <full path and filename>
 ```
 3.  Add all the mbtiles in my download directory to a new test.mbtiles in the IIAB modules/en-osm-omt-min/ directory (requires #1 above):
 ```
@@ -26,10 +26,9 @@ append2region  . /library/www/html/modules/en-osm-omt-min/test.mbtiles
 ```
 4. Process a source directory which includes a number of mbtile regions, and place the result in a new output directory which is directly under the source directory (assumes #1 above):
 ```
-# go to the directory which contains the regions of interest
-cd /home/ghunt/regionX/
+# go to the directory which contains the collected *.mbtiles regions of interest
+cd /home/ghunt/regions/
 append2region . .
-#(The "." is expanded to the current working directory. Additional testing will determine 
-#whether the correspondence between metadata and the region of major interest is an issue).
+#(The "." is expanded to the current working directory. The output file will be found under the current directory in ./output/combined_regions.mbtiles.
 ```
 
