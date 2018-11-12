@@ -1,0 +1,39 @@
+#!/bin/bash
+# expand rootfs on SD card
+# assume /dev/sdc is card
+# parameter 1 - optional root device partition otherwise /dev/sdc
+
+if [ -z $1 ]; then
+   SDCARD=/dev/sdc
+else
+   SDCARD=$1
+fi
+
+df
+echo "WARNING writing to $SDCARD"
+echo "Are you sure? "
+read -p "Press y to continue or any other key to stop. " -n 1 -r
+echo    # (optional) move to a new line
+
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+  echo "writing to $SDCARD"
+  SDCARD2=${SDCARD}2
+  echo $SDCARD2
+  umount $SDCARD2
+  mount $SDCARD2 /mnt/sdcard
+  if [ -f /mnt/sdcard/.resize-rootfs ];then\
+    rm /mnt/sdcard/.resize-rootfs
+    umount $SDCARD2
+    echo "Starting resizing"
+    parted -s $SDCARD resizepart 2 100%
+    umount $SDCARD2
+    echo "Starting e2fsck"
+    e2fsck -f $SDCARD2
+     echo "Starting resize2fs"
+    resize2fs $SDCARD2
+    df
+  fi
+fi
+umount ${SDCARD}1
+umount $SDCARD2
