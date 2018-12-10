@@ -1,0 +1,247 @@
+# To install Internet-in-a-Box (IIAB) 6.7 / pre-release onto Raspbian Stretch,
+# Ubuntu 18.04 or Debian 9, run this 1-line installer:
+#
+#                 curl d.iiab.io/install.txt | sudo bash
+
+# 1. WARNING: NOOBS IS *NOT* SUPPORTED, as its partitioning is very different.
+#    To attempt IIAB 6.7 on another Linux see the full/manual instructions:
+#    https://github.com/iiab/iiab/wiki/IIAB-Installation#do-everything-from-scratch
+
+# 2. An Ethernet cable is HIGHLY RECOMMENDED during installation, as this is
+#    more reliable than Wi-Fi (and faster!)  If however you must install over
+#    Wi-Fi, remember to run "iiab-hotspot-on" after IIAB installation, TO
+#    ACTIVATE YOUR RASPBERRY PI's INTERNAL WIFI HOTSPOT (and kill its Internet)
+
+# 3. Run 'sudo raspi-config' on RPi, to set LOCALISATION OPTIONS
+
+# 4. OPTIONAL: if you have slow/pricey Internet, pre-position KA Lite's
+#    mandatory 0.9 GB English Pack (en.zip) within /tmp -- if nec grab a copy
+#    from http://pantry.learningequality.org/downloads/ka-lite/0.17/content/contentpacks/en.zip
+
+# 5. WHEN YOU RUN 1-LINE INSTALLER ("curl d.iiab.io/install.txt | sudo bash")
+#    REMEMBER TO THEN TYPE YOUR PASSWORD IF ON UBUNTU/DEBIAN/ETC (for sudo)
+
+# 6. Follow on-screen instructions (TYPE "sudo iiab" TO RESUME IF EVER NEC!)
+
+# 7. IIAB AUTO-REBOOTS WHEN DONE (typically 1-to-3 hours later) which sets
+#    hostname, improves RTC + memory mgmt, and starts BitTorrents if nec
+
+# 8. EXPLORE IIAB: http://box or http://box.lan or http://172.18.96.1 THEN
+#    ADD CONTENT at http://box/admin (read http://FAQ.IIAB.IO for passwords!)
+
+# Thanks   For   Building   Your   Own   Library   To   Serve   One   &   All
+#
+# DRAFT IIAB 6.7 Release Notes:
+# https://github.com/iiab/iiab/wiki/IIAB-6.7-Release-Notes
+#
+# Write to bugs @ iiab.io if you find issues, Thank You!  Special Thanks to the
+# countries+communities+volunteers who worked non-stop to bring about IIAB 6.7!
+#
+# IIAB Development Team
+# http://FAQ.IIAB.IO
+
+set -e                                   # Exit on error (avoids snowballing)
+export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
+
+# A. Subroutine for B. and D.  Returns true (0) if username ($1) exists with password ($2)
+check_user_pwd() {
+    # $meth (hashing method) is typically '6' which implies 5000 rounds
+    # of SHA-512 per /etc/login.defs -> /etc/pam.d/common-password
+    meth=$(grep "^$1:" /etc/shadow | cut -d: -f2 | cut -d$ -f2)
+    salt=$(grep "^$1:" /etc/shadow | cut -d: -f2 | cut -d$ -f3)
+    hash=$(grep "^$1:" /etc/shadow | cut -d: -f2 | cut -d$ -f4)
+    [ $(python3 -c "import crypt; print(crypt.crypt('$2', '\$$meth\$$salt'))") == "\$$meth\$$salt\$$hash" ]
+}
+
+# B. Ask for password change if pi/raspberry default remains
+if check_user_pwd "pi" "raspberry"; then
+    echo -e "\n\nRaspberry Pi's are COMPROMISED often if the default password is not changed!\n"
+
+    echo -n "What password do you want for GNU/Linux user 'pi' ? "
+    read ans < /dev/tty    # Whines but doesn't change password if [Enter]
+    echo pi:"$ans" | chpasswd || true    # Overrides 'set -e'
+fi
+
+# C. Create user 'iiab-admin' as nec, with default password
+if ! id -u iiab-admin > /dev/null 2> /dev/null; then
+    useradd iiab-admin
+    echo iiab-admin:g0adm1n | chpasswd
+fi
+
+# D. Ask for password change if iiab-admin/g0adm1n default remains
+if check_user_pwd "iiab-admin" "g0adm1n"; then
+    echo -e "\n\nUser 'iiab-admin' retains default password 'g0adm1n' per http://FAQ.IIAB.IO\n"
+
+    echo -e "This is for login to Internet-in-a-Box's Admin Console (http://box/admin)\n"
+
+    echo -n "What password do you want for GNU/Linux user 'iiab-admin' ? "
+    read ans < /dev/tty    # Whines but doesn't change password if [Enter]
+    echo iiab-admin:"$ans" | chpasswd || true    # Overrides 'set -e'
+fi
+
+# E. Position & customize /etc/iiab/local_vars.yml
+mkdir -p /etc/iiab
+cd /etc/iiab/
+if [ -f local_vars.yml ]; then
+
+    # FUTURE: Test if their local_vars.yml is sufficiently version-compatible !
+
+    echo -e "\n\n  EXISTING /etc/iiab/local_vars.yml is being used to install Internet-in-a-Box\n"
+
+    echo -e "   🚂 🚃 🚄 🚅 🚆 🚇 🚈 🚉 🚊 🚋 🚌 🚍 🚎 🚏 🚐 🚑 🚒 🚚 🚛 🚜 🚞 🚟 🚠 🚡 🚲\n"
+
+    echo -e "                     Google 'local_vars.yml' to learn more!"
+else
+    echo -e "\n\nInstalling Internet-in-a-Box requires /etc/iiab/local_vars.yml"
+    echo -e "Do you want (1) 🚵 MIN-sized (2) 🚢🚣 MEDIUM-sized or (3) 🚂🚃🚃 BIG-sized?\n"
+
+    echo -e "These generally take about 1, 2 or 3 hours to complete -- depending"
+    echo -e "on Internet speed, CPU speed/temperature and microSD card/disk speed.\n"
+
+    echo -n "Please type 1, 2 or 3 then press [ENTER]: "
+    read local_vars_size < /dev/tty
+    echo
+
+    case $local_vars_size in
+        1)
+            wget -O local_vars.yml https://github.com/iiab/iiab/raw/master/vars/local_vars_min.yml
+            ;;
+        3)
+            wget -O local_vars.yml https://github.com/iiab/iiab/raw/master/vars/local_vars_big.yml
+            ;;
+        *)
+            wget -O local_vars.yml https://github.com/iiab/iiab/raw/master/vars/local_vars_medium.yml
+            ;;
+    esac
+
+    echo -en "\nEdit /etc/iiab/local_vars.yml to customize your Internet-in-a-Box? [Y/n] "
+    read ans < /dev/tty
+    if [ "$ans" != "n" ] && [ "$ans" != "N" ]; then
+        echo -e "\n1) PLEASE RUN: sudo nano /etc/iiab/local_vars.yml\n"
+
+        echo -e "2) After you're done editing, RUN 'sudo iiab' TO CONTINUE!\n"
+        exit 0
+    fi
+fi
+
+# F. Mandate OS SECURITY/UPDATES if 'apt update' has any (IF SO REBOOT)
+# Educate implementer while waiting for 'apt update'
+echo -e "\n\n ██████████████████████████████████████████████████████████████████████████████"
+echo -e " ██                                                                          ██"
+echo -e " ██  RUN 'sudo iiab' IF THIS INSTALL SCRIPT EVER FAILS, TO TRY TO CONTINUE!  ██"
+echo -e " ██                                                                          ██"
+echo -e " ██████████████████████████████████████████████████████████████████████████████"
+
+echo -e "\n\n'apt update' is checking for OS updates...\n"
+apt -qq update > /tmp/apt.stdout 2> /tmp/apt.stderr || true    # Overrides 'set -e'
+if [ $(wc -c < /tmp/apt.stderr) -gt 82 ]; then    # apt.stderr typically contains exactly 82 characters when there are no errors, i.e. 3-line file "\nWARNING: apt does not have a stable CLI interface. Use with caution in scripts.\n\n" _OR_ in other cases more than 82, e.g. many lines of errors when apt is busy/locked/offline/etc
+    echo -e "'apt update' FAILED. VERIFY YOU'RE ONLINE and resolve all errors below:\n"
+    cat /tmp/apt.stderr
+    exit 1
+elif [ $(wc -c < /tmp/apt.stdout) -gt 29 ]; then    # apt.stdout typically contains either 29 characters, i.e. 1-line file "All packages are up to date.\n" _OR_ in other cases more than 29, e.g. "5 packages can be upgraded. Run 'apt list --upgradable' to see them.\n"
+    cat /tmp/apt.stdout
+    echo -e "\nYour OS will now be upgraded...this takes time. THEN IT WILL AUTO-REBOOT.\n"
+
+    echo -n "Hit [ENTER] to confirm you'll RUN 'sudo iiab' AFTER IT REBOOTS: "
+    read ans < /dev/tty
+    echo
+    apt -y dist-upgrade
+    reboot
+fi
+cat /tmp/apt.stdout    # "All packages are up to date.\n"
+
+######################### INTERACTIVE STUFF IS ABOVE #########################
+####### ALL PROMPTS ARE BYPASSED IF YOUR SYSTEM IS CLEANLY PROVISIONED #######
+
+# G. If RPi, lower reserve disk space from ~5% to 1%
+if [ -f /proc/device-tree/model ] && grep -qi raspberry /proc/device-tree/model; then
+    echo -e "\n\nDetected RPi: Lower reserve disk (SD card) space from ~5% to 1%\n"
+    tune2fs -m 1 /dev/mmcblk0p2
+fi
+
+# H. Clone 3 IIAB repos
+echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO /opt/iiab ...\n"
+apt -y install git
+mkdir -p /opt/iiab
+cd /opt/iiab/
+if [ -d iiab ]; then
+    echo -e "\nREPO EXISTS? Consider 'cd /opt/iiab/iiab; git pull'"
+else
+    git clone https://github.com/iiab/iiab --depth 1
+fi
+if [ -d iiab-admin-console ]; then
+    echo -e "\nREPO EXISTS? Consider 'cd /opt/iiab/iiab-admin-console; git pull'"
+else
+    git clone https://github.com/iiab/iiab-admin-console --depth 1
+fi
+if [ -d iiab-factory ]; then
+    echo -e "\nREPO EXISTS? Consider 'cd /opt/iiab/iiab-factory; git pull'"
+else
+    git clone https://github.com/iiab/iiab-factory --depth 1
+fi
+
+# I. Install Ansible + 2 IIAB repos
+echo -e "\n\nINSTALL ANSIBLE + CORE IIAB SOFTWARE + ADMIN CONSOLE / CONTENT PACK MENUS...\n"
+
+echo -e "Install Ansible..."
+cd /opt/iiab/iiab/scripts/
+./ansible
+echo -e "\n┌──────────────────────────────────────────────────────────────────────────────┐"
+echo -e "│                                                                              │"
+echo -e "│   NOW INSTALL IIAB SOFTWARE! If glitches arise (connectivity or otherwise)   │"
+echo -e "│                                                                              │"
+echo -e "│   PLEASE TRY TO CONTINUE BY RE-RUNNING PARENT SCRIPT 'sudo iiab' -- or run   │"
+echo -e "│                                                                              │"
+echo -e "│   child script ./iiab-install -- both avoid repeating any of the 9 stages.   │"
+echo -e "│                                                                              │"
+echo -e "└──────────────────────────────────────────────────────────────────────────────┘"
+cd /opt/iiab/iiab/
+./iiab-install $@
+echo -e "Install Admin Console... (also runs iiab-get-kiwix-cat to d/l Kiwix catalog, and installs Dynamic Menuing for /library/www/html/home/index.html)\n"
+cd /opt/iiab/iiab-admin-console/
+./install
+
+# J. KA Lite prep
+echo -e "\n\nKA LITE REQUIRES 2 THINGS...\n"
+
+echo -e "Register with KA Lite - just the anonymous registration...\n"
+#: /usr/bin/kalite venv wrapper invokes 'export KALITE_HOME=/library/ka-lite'
+kalite manage generate_zone || true    # Overrides 'set -e' allowing repeat run
+echo -e "\nInstall KA Lite's mandatory 0.9 GB English Pack... (en.zip)\n"
+cd /tmp/    # Or /opt/iiab/downloads or /library/downloads if you prefer
+if [ -f en.zip ]; then
+    if [ $(wc -c < en.zip) -ne 929916955 ]; then
+        echo -e "\nERROR: /tmp/en.zip must be 929,916,955 bytes to proceed.\n" >&2
+        exit 1
+    else
+        echo -e "\nUsing existing /tmp/en.zip whose 929,916,955 byte size is correct!\n"
+    fi
+else
+    wget http://pantry.learningequality.org/downloads/ka-lite/0.17/content/contentpacks/en.zip
+fi
+kalite manage retrievecontentpack local en en.zip
+# WARNING: /tmp/en.zip (and all stuff in /tmp) is auto-deleted during reboots
+# NEW WAY ABOVE - since 2018-07-03 - installs KA Lite's mandatory English Pack
+#
+# kalite manage retrievecontentpack download en
+# OLD WAY ABOVE - fails w/ sev ISPs per https://github.com/iiab/iiab/issues/871
+
+# K. Start BitTorrent downloads, e.g. if /etc/iiab/local_vars.yml requested any
+if (systemctl -q is-active transmission-daemon) then
+    echo -e "\n\nSTARTING BITTORRENT DOWNLOAD(S) for KA Lite...Please Monitor: http://box:9091\n"
+    transmission-remote -n Admin:changeme -t all --start
+fi
+
+# L. Educate Implementers (if their ssh client retains screen output on reboot)
+echo -e "\n\nINTERNET-IN-A-BOX (IIAB) SOFTWARE INSTALL COMPLETE...now rebooting.\n"
+
+echo -e "A couple minutes after reboot, try connecting to your IIAB with various"
+echo -e "devices, then browse to IIAB's Admin Console to add content:\n"
+
+echo -e "   http://box/admin"
+echo -e "   http://box.lan/admin"
+echo -e "   http://172.18.96.1/admin\n"
+
+echo -e "Please read http://FAQ.IIAB.IO for default passwords and more!\n"
+
+reboot
