@@ -1,0 +1,54 @@
+#!/bin/bash
+
+# To install Internet-in-a-Box (IIAB) 6.7 / pre-release onto Raspbian Stretch,
+# Ubuntu 18.04 or Debian 9, run this 1-line installer:
+#
+#                 curl d.iiab.io/install.txt | sudo bash
+
+# 1. WARNING: NOOBS IS *NOT* SUPPORTED, as its partitioning is very different.
+#    To attempt IIAB 6.7 on another Linux see the full/manual instructions:
+#    https://github.com/iiab/iiab/wiki/IIAB-Installation#do-everything-from-scratch
+
+# 2. An Ethernet cable is HIGHLY RECOMMENDED during installation, as this is
+#    more reliable than Wi-Fi (and faster!)  If however you must install over
+#    Wi-Fi, remember to run "iiab-hotspot-on" after IIAB installation, TO
+#    ACTIVATE YOUR RASPBERRY PI's INTERNAL WIFI HOTSPOT (and kill its Internet)
+
+# 3. Run 'sudo raspi-config' on RPi, to set LOCALISATION OPTIONS
+
+# 4. OPTIONAL: if you have slow/pricey Internet, pre-position KA Lite's
+#    mandatory 0.9 GB English Pack (en.zip) within /tmp -- if nec grab a copy
+#    from http://pantry.learningequality.org/downloads/ka-lite/0.17/content/contentpacks/en.zip
+
+# 5. WHEN YOU RUN 1-LINE INSTALLER ("curl d.iiab.io/install.txt | sudo bash")
+#    REMEMBER TO THEN TYPE YOUR PASSWORD IF ON UBUNTU/DEBIAN/ETC (for sudo)
+
+# 6. Follow on-screen instructions (TYPE "sudo iiab" TO RESUME IF EVER NEC!)
+
+# 7. IIAB AUTO-REBOOTS WHEN DONE (typically 1-to-3 hours later) which sets
+#    hostname, improves RTC + memory mgmt, and starts BitTorrents if nec
+
+# 8. EXPLORE IIAB: http://box or http://box.lan or http://172.18.96.1 THEN
+#    ADD CONTENT at http://box/admin (read http://FAQ.IIAB.IO for passwords!)
+
+# Thanks   For   Building   Your   Own   Library   To   Serve   One   &   All
+#
+# DRAFT IIAB 6.7 Release Notes:
+# https://github.com/iiab/iiab/wiki/IIAB-6.7-Release-Notes
+#
+# Write to bugs @ iiab.io if you find issues, Thank You!  Special Thanks to the
+# countries+communities+volunteers who worked non-stop to bring about IIAB 6.7!
+#
+# IIAB Development Team
+# http://FAQ.IIAB.IO
+
+set -e                                   # Exit on error (avoids snowballing)
+export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
+
+# Save script to /usr/sbin/iiab (easy resume/continue mnemonic 'sudo iiab')
+mv /usr/sbin/iiab /usr/sbin/iiab.old || true    # Overrides 'set -e'
+curl https://raw.githubusercontent.com/iiab/iiab-factory/master/iiab > /usr/sbin/iiab
+chmod 0744 /usr/sbin/iiab
+
+# Run install script!
+/usr/sbin/iiab
