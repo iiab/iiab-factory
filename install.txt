@@ -1,0 +1,26 @@
+# OS/NETWORK REQUIREMENTS: http://download.iiab.io/6.7/README.html
+
+# Installs Internet-in-a-Box (IIAB) - if Ubuntu/Debian, SKIP TO STEP 2
+
+# 1. RECOMMENDED: run 'sudo raspi-config' to set LOCALISATION OPTIONS
+# 2. OPTIONAL: if you have slow/pricey Internet, pre-position KA Lite's
+#    mandatory 0.9 GB English Pack (en.zip) within /tmp -- if nec grab a copy
+#    from http://pantry.learningequality.org/downloads/ka-lite/0.17/content/contentpacks/en.zip
+# 3. RUN THIS SCRIPT:          curl d.iiab.io/install.txt | sudo bash
+#    TYPING YOUR PASSWORD IF NEC (e.g. on Ubuntu/Debian, for sudo)
+# 4. FOLLOW ON-SCREEN INSTRUCTIONS (TYPE "sudo iiab" TO RESUME IF EVER NEC!)
+# 5. IIAB AUTO-REBOOTS WHEN DONE (typically 1-to-3 hours later) which sets
+#    hostname, improves RTC + memory mgmt, and starts BitTorrents if nec
+# 6. EXPLORE IIAB: http://box or http://box.lan or http://172.18.96.1 THEN
+#    ADD CONTENT at http://box/admin (read http://FAQ.IIAB.IO for passwords!)
+
+set -e                                   # Exit on error (avoids snowballing)
+export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
+
+# Save install script to /usr/sbin/iiab (easy resume/continue mnemonic 'sudo iiab')
+mv /usr/sbin/iiab /usr/sbin/iiab.old || true    # Overrides 'set -e'
+curl https://raw.githubusercontent.com/iiab/iiab-factory/master/iiab > /usr/sbin/iiab
+chmod 0744 /usr/sbin/iiab
+
+# Run it!
+/usr/sbin/iiab
