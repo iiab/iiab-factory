@@ -205,24 +205,26 @@ cd /opt/iiab/iiab-admin-console/
 ./install
 
 # J. KA Lite prep
-echo -e "\n\nKA LITE REQUIRES 2 THINGS...\n"
+if [ -d /library/ka-lite ]; then
+    echo -e "\n\nKA LITE REQUIRES 2 THINGS...\n"
 
-echo -e "Register with KA Lite - just the anonymous registration...\n"
-#: /usr/bin/kalite venv wrapper invokes 'export KALITE_HOME=/library/ka-lite'
-kalite manage generate_zone || true    # Overrides 'set -e' allowing repeat run
-echo -e "\nInstall KA Lite's mandatory 0.9 GB English Pack... (en.zip)\n"
-cd /tmp/    # Or /opt/iiab/downloads or /library/downloads if you prefer
-if [ -f en.zip ]; then
-    if [ $(wc -c < en.zip) -ne 929916955 ]; then
-        echo -e "\nERROR: /tmp/en.zip must be 929,916,955 bytes to proceed.\n" >&2
-        exit 1
+    echo -e "Register with KA Lite - just the anonymous registration...\n"
+    # /usr/bin/kalite venv wrapper invokes 'export KALITE_HOME=/library/ka-lite'
+    kalite manage generate_zone || true    # Overrides 'set -e' allowing repeat run
+    echo -e "\nInstall KA Lite's mandatory 0.9 GB English Pack... (en.zip)\n"
+    cd /tmp/    # Or /opt/iiab/downloads or /library/downloads if you prefer
+    if [ -f en.zip ]; then
+        if [ $(wc -c < en.zip) -ne 929916955 ]; then
+            echo -e "\nERROR: /tmp/en.zip must be 929,916,955 bytes to proceed.\n" >&2
+            exit 1
+        else
+            echo -e "\nUsing existing /tmp/en.zip whose 929,916,955 byte size is correct!\n"
+        fi
     else
-        echo -e "\nUsing existing /tmp/en.zip whose 929,916,955 byte size is correct!\n"
+        wget http://pantry.learningequality.org/downloads/ka-lite/0.17/content/contentpacks/en.zip
     fi
-else
-    wget http://pantry.learningequality.org/downloads/ka-lite/0.17/content/contentpacks/en.zip
+    kalite manage retrievecontentpack local en en.zip
 fi
-kalite manage retrievecontentpack local en en.zip
 # WARNING: /tmp/en.zip (and all stuff in /tmp) is auto-deleted during reboots
 # NEW WAY ABOVE - since 2018-07-03 - installs KA Lite's mandatory English Pack
 #
