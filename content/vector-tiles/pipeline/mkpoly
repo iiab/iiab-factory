@@ -1,0 +1,16 @@
+#!/usr/bin/env python
+# translates geojson created by by http://boundingbox.klokantech.com/ into poly def for
+#  use by osmosis
+
+import json
+import sys,os
+
+central_america=[-99.8237843347,1.1619509497],[-118.9537281823,33.3622652637],[-84.7189564538,28.0515786731],[-83.6841816736,25.0204894651],[-62.3226399255,23.5811870317],[-67.6530690027,14.037561858],[-99.8237843347,1.1619509497]
+poly_spec = ['central_america',central_america]
+print poly_spec[0]
+print "  1"
+for point in poly_spec[1]:
+
+   print "   ", point[0], point[1]
+print "  END"
+print "END"
