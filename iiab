@@ -101,8 +101,8 @@ else
     echo -e "These take about 1, 2 or 3 hours to complete on Raspberry Pi -- depending"
     echo -e "on Internet speed, CPU speed/temperature and microSD card/disk speed.\n"
 
-    echo -e 'Want details?  See the summary table "What services (IIAB apps) are'
-    echo -e 'suggested during installation?" within http://FAQ.IIAB.IO\n'
+    echo -e 'See "What can I do with E-books and Internet-in-a-Box?" and "What services'
+    echo -e '(IIAB apps) are suggested during installation?" within http://FAQ.IIAB.IO\n'
 
     echo -n "Please type 1, 2 or 3 then press [ENTER]: "
     read local_vars_size < /dev/tty
