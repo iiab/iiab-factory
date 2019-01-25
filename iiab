@@ -98,8 +98,11 @@ else
     echo -e "\n\nInstalling Internet-in-a-Box requires /etc/iiab/local_vars.yml"
     echo -e "Do you want (1) 🚵 MIN-sized (2) 🚢🚣 MEDIUM-sized or (3) 🚂🚃🚃 BIG-sized?\n"
 
-    echo -e "These generally take about 1, 2 or 3 hours to complete -- depending"
+    echo -e "These take about 1, 2 or 3 hours to complete on Raspberry Pi -- depending"
     echo -e "on Internet speed, CPU speed/temperature and microSD card/disk speed.\n"
+
+    echo -e 'Want details?  See the summary table "What services (IIAB apps) are'
+    echo -e 'suggested during installation?" within http://FAQ.IIAB.IO\n'
 
     echo -n "Please type 1, 2 or 3 then press [ENTER]: "
     read local_vars_size < /dev/tty
