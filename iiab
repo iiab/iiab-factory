@@ -175,11 +175,13 @@ if [ -d iiab ]; then
 else
     git clone https://github.com/iiab/iiab --depth 1
 fi
+echo
 if [ -d iiab-admin-console ]; then
     echo -e "\nREPO EXISTS? Consider 'cd /opt/iiab/iiab-admin-console; git pull'"
 else
     git clone https://github.com/iiab/iiab-admin-console --depth 1
 fi
+echo
 if [ -d iiab-factory ]; then
     echo -e "\nREPO EXISTS? Consider 'cd /opt/iiab/iiab-factory; git pull'"
 else
