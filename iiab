@@ -170,20 +170,21 @@ echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO /opt/iiab ...\n"
 apt -y install git
 mkdir -p /opt/iiab
 cd /opt/iiab/
+echo
 if [ -d iiab ]; then
-    echo -e "\nREPO EXISTS? Consider 'cd /opt/iiab/iiab; git pull'"
+    echo -e "REPO EXISTS? Consider 'cd /opt/iiab/iiab; git pull'"
 else
     git clone https://github.com/iiab/iiab --depth 1
 fi
 echo
 if [ -d iiab-admin-console ]; then
-    echo -e "\nREPO EXISTS? Consider 'cd /opt/iiab/iiab-admin-console; git pull'"
+    echo -e "REPO EXISTS? Consider 'cd /opt/iiab/iiab-admin-console; git pull'"
 else
     git clone https://github.com/iiab/iiab-admin-console --depth 1
 fi
 echo
 if [ -d iiab-factory ]; then
-    echo -e "\nREPO EXISTS? Consider 'cd /opt/iiab/iiab-factory; git pull'"
+    echo -e "REPO EXISTS? Consider 'cd /opt/iiab/iiab-factory; git pull'"
 else
     git clone https://github.com/iiab/iiab-factory --depth 1
 fi
