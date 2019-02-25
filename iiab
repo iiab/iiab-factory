@@ -7,6 +7,8 @@
 #                 curl d.iiab.io/install.txt | sudo bash
 
 # 1. WARNING: NOOBS IS *NOT* SUPPORTED, as its partitioning is very different.
+#    On a Raspberry Pi, you need to INSTALL THE LATEST VERSION OF RASPBIAN:
+#    https://www.raspberrypi.org/documentation/installation/installing-images/README.md
 #    To attempt IIAB 6.7 on another Linux see the full/manual instructions:
 #    https://github.com/iiab/iiab/wiki/IIAB-Installation#do-everything-from-scratch
 
