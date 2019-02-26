@@ -29,7 +29,7 @@
 
 # 6. Follow on-screen instructions (TYPE 'sudo iiab' TO RESUME IF EVER NECESS!)
 
-# 7. IIAB AUTO-REBOOTS WHEN DONE (typically 1-to-3 hours later) which sets
+# 7. IIAB AUTO-REBOOTS WHEN DONE (typically 1-to-2 hours later) which sets
 #    hostname, improves RTC + memory mgmt, and starts BitTorrents if necessary
 
 # 8. EXPLORE IIAB: http://box or http://box.lan or http://172.18.96.1 THEN
