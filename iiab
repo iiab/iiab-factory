@@ -20,16 +20,17 @@
 # 3. Run 'sudo raspi-config' on RPi, to set LOCALISATION OPTIONS
 
 # 4. OPTIONAL: if you have slow/pricey Internet, pre-position KA Lite's
-#    mandatory 0.9 GB English Pack (en.zip) within /tmp -- if nec grab a copy
+#    mandatory 0.9 GB English Pack (en.zip) within /tmp -- you can grab a copy
 #    from http://pantry.learningequality.org/downloads/ka-lite/0.17/content/contentpacks/en.zip
 
 # 5. WHEN YOU RUN 1-LINE INSTALLER 'curl d.iiab.io/install.txt | sudo bash'
-#    REMEMBER TO THEN TYPE YOUR PASSWORD IF ON UBUNTU/DEBIAN/ETC (for sudo)
+#    YOU THEN NEED TO TYPE IN YOUR PASSWORD IF ON UBUNTU/DEBIAN/ETC (for sudo)
+#    ^^^ ^^^^ ^^^^ ^^ ^^^^ ^^ ^^^^ ^^^^^^^^
 
-# 6. Follow on-screen instructions (TYPE 'sudo iiab' TO RESUME IF EVER NEC!)
+# 6. Follow on-screen instructions (TYPE 'sudo iiab' TO RESUME IF EVER NECESS!)
 
 # 7. IIAB AUTO-REBOOTS WHEN DONE (typically 1-to-3 hours later) which sets
-#    hostname, improves RTC + memory mgmt, and starts BitTorrents if nec
+#    hostname, improves RTC + memory mgmt, and starts BitTorrents if necessary
 
 # 8. EXPLORE IIAB: http://box or http://box.lan or http://172.18.96.1 THEN
 #    ADD CONTENT at http://box/admin (read http://FAQ.IIAB.IO for passwords!)
