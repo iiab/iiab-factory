@@ -14,7 +14,7 @@
 
 # 2. An Ethernet cable is HIGHLY RECOMMENDED during installation, as this is
 #    more reliable than Wi-Fi (and faster!)  If however you must install over
-#    Wi-Fi, remember to run "iiab-hotspot-on" after IIAB installation, TO
+#    Wi-Fi, remember to run 'iiab-hotspot-on' after IIAB installation, TO
 #    ACTIVATE YOUR RASPBERRY PI's INTERNAL WIFI HOTSPOT (and kill its Internet)
 
 # 3. Run 'sudo raspi-config' on RPi, to set LOCALISATION OPTIONS
@@ -23,10 +23,10 @@
 #    mandatory 0.9 GB English Pack (en.zip) within /tmp -- if nec grab a copy
 #    from http://pantry.learningequality.org/downloads/ka-lite/0.17/content/contentpacks/en.zip
 
-# 5. WHEN YOU RUN 1-LINE INSTALLER ("curl d.iiab.io/install.txt | sudo bash")
+# 5. WHEN YOU RUN 1-LINE INSTALLER 'curl d.iiab.io/install.txt | sudo bash'
 #    REMEMBER TO THEN TYPE YOUR PASSWORD IF ON UBUNTU/DEBIAN/ETC (for sudo)
 
-# 6. Follow on-screen instructions (TYPE "sudo iiab" TO RESUME IF EVER NEC!)
+# 6. Follow on-screen instructions (TYPE 'sudo iiab' TO RESUME IF EVER NEC!)
 
 # 7. IIAB AUTO-REBOOTS WHEN DONE (typically 1-to-3 hours later) which sets
 #    hostname, improves RTC + memory mgmt, and starts BitTorrents if nec
@@ -157,6 +157,9 @@ elif [ $(wc -c < /tmp/apt.stdout) -gt 29 ]; then    # apt.stdout typically conta
     reboot
 fi
 cat /tmp/apt.stdout    # "All packages are up to date.\n"
+
+echo -ne "\nHit [ENTER] to confirm you'll (RE)RUN 'sudo iiab' IF EVER NECESSARY: "
+read ans < /dev/tty
 
 ######################### INTERACTIVE STUFF IS ABOVE #########################
 ####### ALL PROMPTS ARE BYPASSED IF YOUR SYSTEM IS CLEANLY PROVISIONED #######
