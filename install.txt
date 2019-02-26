@@ -1,7 +1,7 @@
 #!/bin/bash
 # Copied from: https://github.com/iiab/iiab-factory/blob/master/install.txt
 
-# To install Internet-in-a-Box (IIAB) 6.7 / pre-release onto Raspbian Stretch,
+# To install Internet-in-a-Box (IIAB) 7.0 / pre-release onto Raspbian Stretch,
 # Ubuntu 18.04 or Debian 9, run this 1-line installer:
 #
 #                 curl d.iiab.io/install.txt | sudo bash
@@ -9,7 +9,7 @@
 # 1. WARNING: NOOBS IS *NOT* SUPPORTED, as its partitioning is very different.
 #    On a Raspberry Pi, you need to INSTALL THE LATEST VERSION OF RASPBIAN:
 #    https://www.raspberrypi.org/documentation/installation/installing-images/README.md
-#    To attempt IIAB 6.7 on another Linux see the full/manual instructions:
+#    To attempt IIAB 7.0 on another Linux see the full/manual instructions:
 #    https://github.com/iiab/iiab/wiki/IIAB-Installation#do-everything-from-scratch
 
 # 2. An Ethernet cable is HIGHLY RECOMMENDED during installation, as this is
@@ -36,11 +36,11 @@
 
 # Thanks   For   Building   Your   Own   Library   To   Serve   One   &   All
 #
-# DRAFT IIAB 6.7 Release Notes:
-# https://github.com/iiab/iiab/wiki/IIAB-6.7-Release-Notes
+# DRAFT IIAB 7.0 Release Notes:
+# https://github.com/iiab/iiab/wiki/IIAB-7.0-Release-Notes
 #
 # Write to bugs @ iiab.io if you find issues, Thank You!  Special Thanks to the
-# countries+communities+volunteers who worked non-stop to bring about IIAB 6.7!
+# countries+communities+volunteers who worked non-stop to bring about IIAB 7.0!
 #
 # IIAB Development Team
 # http://FAQ.IIAB.IO
