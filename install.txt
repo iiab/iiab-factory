@@ -33,7 +33,7 @@
 #    hostname, improves RTC + memory mgmt, and starts BitTorrents if necessary
 
 # 8. EXPLORE IIAB: http://box or http://box.lan or http://172.18.96.1 THEN
-#    ADD CONTENT at http://box/admin (read http://FAQ.IIAB.IO for passwords!)
+#    ADD CONTENT at http://box.lan/admin -- passwords are at http://FAQ.IIAB.IO
 
 # Thanks   For   Building   Your   Own   Library   To   Serve   One   &   All
 #
