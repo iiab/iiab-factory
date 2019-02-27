@@ -159,7 +159,7 @@ elif [ $(wc -c < /tmp/apt.stdout) -gt 29 ]; then    # apt.stdout typically conta
 fi
 cat /tmp/apt.stdout    # "All packages are up to date.\n"
 
-echo -ne "\nHit [ENTER] to confirm you'll (RE)RUN 'sudo iiab' IF EVER NECESSARY: "
+echo -ne "\nHit [ENTER] to confirm you'll TRY TO RERUN 'sudo iiab' IF THERE IS A PROBLEM: "
 read ans < /dev/tty
 
 ######################### INTERACTIVE STUFF IS ABOVE #########################
