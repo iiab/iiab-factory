@@ -163,7 +163,6 @@ echo -ne "\nHit [ENTER] to confirm you'll TRY TO RERUN 'sudo iiab' IF THERE IS A
 read ans < /dev/tty
 
 ######################### INTERACTIVE STUFF IS ABOVE #########################
-####### ALL PROMPTS ARE BYPASSED IF YOUR SYSTEM IS CLEANLY PROVISIONED #######
 
 # G. If RPi, lower reserve disk space from ~5% to 1%
 if [ -f /proc/device-tree/model ] && grep -qi raspberry /proc/device-tree/model; then
