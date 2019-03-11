@@ -1,44 +1,47 @@
 #!/bin/bash
 # Copied from: https://github.com/iiab/iiab-factory/blob/master/install.txt
 
-# To install Internet-in-a-Box (IIAB) 6.7 / pre-release onto Raspbian Stretch,
+# To install Internet-in-a-Box (IIAB) 7.0 / pre-release onto Raspbian Stretch,
 # Ubuntu 18.04 or Debian 9, run this 1-line installer:
 #
 #                 curl d.iiab.io/install.txt | sudo bash
 
 # 1. WARNING: NOOBS IS *NOT* SUPPORTED, as its partitioning is very different.
-#    To attempt IIAB 6.7 on another Linux see the full/manual instructions:
+#    On a Raspberry Pi, you need to INSTALL THE LATEST VERSION OF RASPBIAN:
+#    https://www.raspberrypi.org/documentation/installation/installing-images/README.md
+#    To attempt IIAB 7.0 on another Linux see the full/manual instructions:
 #    https://github.com/iiab/iiab/wiki/IIAB-Installation#do-everything-from-scratch
 
 # 2. An Ethernet cable is HIGHLY RECOMMENDED during installation, as this is
 #    more reliable than Wi-Fi (and faster!)  If however you must install over
-#    Wi-Fi, remember to run "iiab-hotspot-on" after IIAB installation, TO
+#    Wi-Fi, remember to run 'iiab-hotspot-on' after IIAB installation, TO
 #    ACTIVATE YOUR RASPBERRY PI's INTERNAL WIFI HOTSPOT (and kill its Internet)
 
 # 3. Run 'sudo raspi-config' on RPi, to set LOCALISATION OPTIONS
 
 # 4. OPTIONAL: if you have slow/pricey Internet, pre-position KA Lite's
-#    mandatory 0.9 GB English Pack (en.zip) within /tmp -- if nec grab a copy
+#    mandatory 0.9 GB English Pack (en.zip) within /tmp -- you can grab a copy
 #    from http://pantry.learningequality.org/downloads/ka-lite/0.17/content/contentpacks/en.zip
 
-# 5. WHEN YOU RUN 1-LINE INSTALLER ("curl d.iiab.io/install.txt | sudo bash")
-#    REMEMBER TO THEN TYPE YOUR PASSWORD IF ON UBUNTU/DEBIAN/ETC (for sudo)
+# 5. WHEN YOU RUN 1-LINE INSTALLER 'curl d.iiab.io/install.txt | sudo bash'
+#    YOU THEN NEED TO TYPE IN YOUR PASSWORD IF ON UBUNTU/DEBIAN/ETC (for sudo)
+#    ^^^ ^^^^ ^^^^ ^^ ^^^^ ^^ ^^^^ ^^^^^^^^
 
-# 6. Follow on-screen instructions (TYPE "sudo iiab" TO RESUME IF EVER NEC!)
+# 6. Follow on-screen instructions (TYPE 'sudo iiab' TO RESUME IF EVER NECESS!)
 
-# 7. IIAB AUTO-REBOOTS WHEN DONE (typically 1-to-3 hours later) which sets
-#    hostname, improves RTC + memory mgmt, and starts BitTorrents if nec
+# 7. IIAB AUTO-REBOOTS WHEN DONE (typically 1-to-2 hours later) which sets
+#    hostname, improves RTC + memory mgmt, and starts BitTorrents if necessary
 
 # 8. EXPLORE IIAB: http://box or http://box.lan or http://172.18.96.1 THEN
-#    ADD CONTENT at http://box/admin (read http://FAQ.IIAB.IO for passwords!)
+#    ADD CONTENT at http://box.lan/admin -- passwords are at http://FAQ.IIAB.IO
 
 # Thanks   For   Building   Your   Own   Library   To   Serve   One   &   All
 #
-# DRAFT IIAB 6.7 Release Notes:
-# https://github.com/iiab/iiab/wiki/IIAB-6.7-Release-Notes
+# DRAFT IIAB 7.0 Release Notes:
+# https://github.com/iiab/iiab/wiki/IIAB-7.0-Release-Notes
 #
 # Write to bugs @ iiab.io if you find issues, Thank You!  Special Thanks to the
-# countries+communities+volunteers who worked non-stop to bring about IIAB 6.7!
+# countries+communities+volunteers who worked non-stop to bring about IIAB 7.0!
 #
 # IIAB Development Team
 # http://FAQ.IIAB.IO
