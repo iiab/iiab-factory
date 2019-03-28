@@ -256,7 +256,7 @@ echo -e "(1A) A couple minutes after you reboot (below) try to connect any lapto
 echo -e 'Wi-Fi hotspot "Internet in a Box".  If this works, verify that you can browse'
 echo -e "to http://box or http://box.lan or http://172.18.96.1\n"
 
-echo -e "(1B) IF THOSE 3 DON'T WORK, try http://localhost from the IIAB itself.\n"
+echo -e "(1B) IF THOSE 3 DON'T WORK, try http://localhost from your IIAB itself.\n"
 
 echo -e "(1C) IF ALL ABOVE DON'T WORK, ask the person who set up the network/router in"
 echo -e "your building for the IP address of your IIAB, so you can browse to it using"
@@ -268,7 +268,8 @@ echo -e 'Internet-in-a-Box home page?" at http://FAQ.IIAB.IO\n'
 
 echo -e "(3) If you're installing IIAB over Wi-Fi (instead of Ethernet) remember to run"
 echo -e "'iiab-hotspot-on' at the VERY END, when you're ready to ACTIVATE YOUR IIAB's"
-echo -e "INTERNAL WI-FI HOTSPOT (and permanently kill its live Internet!)\n"
+echo -e 'INTERNAL WI-FI HOTSPOT.  CAUTION: this permanently kills your' "IIAB's Internet"
+echo -e 'access -- unless you later run: iiab-hotspot-off\n'
          
 echo -ne "HIT [Enter] TO REBOOT, CONFIRMING YOU'VE" '"photographed" THE ABOVE PARAGRAPHS: '
 read ans < /dev/tty
