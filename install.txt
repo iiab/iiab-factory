@@ -13,9 +13,9 @@
 #    https://github.com/iiab/iiab/wiki/IIAB-Installation#do-everything-from-scratch
 
 # 2. An Ethernet cable is HIGHLY RECOMMENDED during installation, as this is
-#    more reliable than Wi-Fi (and faster!)  If however you must install over
-#    Wi-Fi, remember to run 'iiab-hotspot-on' after IIAB installation, TO
-#    ACTIVATE YOUR RASPBERRY PI's INTERNAL WIFI HOTSPOT (and kill its Internet)
+#    more reliable than Wi-Fi (and faster!)  But if you must install IIAB using
+#    Wi-Fi not Ethernet, remember to run 'iiab-hotspot-on' AT THE VERY END, TO
+#    ACTIVATE IIAB's INTERNAL WI-FI HOTSPOT (as you "perma-kill" its Internet!)
 
 # 3. Run 'sudo raspi-config' on RPi, to set LOCALISATION OPTIONS
 
@@ -29,11 +29,8 @@
 
 # 6. Follow on-screen instructions (TYPE 'sudo iiab' TO RESUME IF EVER NECESS!)
 
-# 7. IIAB AUTO-REBOOTS WHEN DONE (typically 1-to-2 hours later) which sets
-#    hostname, improves RTC + memory mgmt, and starts BitTorrents if necessary
-
-# 8. EXPLORE IIAB: http://box or http://box.lan or http://172.18.96.1 THEN
-#    ADD CONTENT at http://box.lan/admin -- passwords are at http://FAQ.IIAB.IO
+# 7. About 1-2 hours later, it will announce that INTERNET-IN-A-BOX (IIAB)
+#    SOFTWARE INSTALL IS COMPLETE, prompting you to reboot...TO ADD CONTENT!
 
 # Thanks   For   Building   Your   Own   Library   To   Serve   One   &   All
 #
