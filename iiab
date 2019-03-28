@@ -246,13 +246,17 @@ if (systemctl -q is-active transmission-daemon) then
 fi
 
 # L. Educate Implementers prior to rebooting!
-echo -e "\n\nINTERNET-IN-A-BOX (IIAB) SOFTWARE INSTALL IS COMPLETE:\n"
+echo -e "\n\n         ┌───────────────────────────────────────────────────────────┐"
+echo -e "         │                                                           │"
+echo -e "         │   INTERNET-IN-A-BOX (IIAB) SOFTWARE INSTALL IS COMPLETE   │"
+echo -e "         │                                                           │"
+echo -e "         └───────────────────────────────────────────────────────────┘\n"
 
 echo -e "(1A) A couple minutes after you reboot (below) try to connect any laptop to"
 echo -e 'Wi-Fi hotspot "Internet in a Box".  If this works, verify that you can browse'
 echo -e "to http://box or http://box.lan or http://172.18.96.1\n"
 
-echo -e "(1B) IF THOSE ALL DON'T WORK, try http://localhost from the IIAB itself.\n"
+echo -e "(1B) IF THOSE 3 DON'T WORK, try http://localhost from the IIAB itself.\n"
 
 echo -e "(1C) IF ALL ABOVE DON'T WORK, ask the person who set up the network/router in"
 echo -e "your building for the IP address of your IIAB, so you can browse to it using"
@@ -263,10 +267,10 @@ echo -e 'PLEASE READ "What are the default passwords?" and "How do I customize m
 echo -e 'Internet-in-a-Box home page?" at http://FAQ.IIAB.IO\n'
 
 echo -e "(3) If you're installing IIAB over Wi-Fi (instead of Ethernet) remember to run"
-echo -e "'iiab-hotspot-on' at the very end, when you're ready TO ACTIVATE YOUR IIAB's"
+echo -e "'iiab-hotspot-on' at the VERY END, when you're ready to ACTIVATE YOUR IIAB's"
 echo -e "INTERNAL WI-FI HOTSPOT (and permanently kill its live Internet!)\n"
          
-echo -ne "HIT [ENTER] TO REBOOT, CONFIRMING YOU'VE" '"photographed" THE ABOVE PARAGRAPHS: '
+echo -ne "HIT [Enter] TO REBOOT, CONFIRMING YOU'VE" '"photographed" THE ABOVE PARAGRAPHS: '
 read ans < /dev/tty
 
 # Sets hostname, improves RTC + memory mgmt, starts BitTorrents if needed, etc!
