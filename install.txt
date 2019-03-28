@@ -15,7 +15,7 @@
 # 2. An Ethernet cable is HIGHLY RECOMMENDED during installation, as this is
 #    more reliable than Wi-Fi (and faster!)  But if you must install IIAB using
 #    Wi-Fi not Ethernet, remember to run 'iiab-hotspot-on' AT THE VERY END, TO
-#    ACTIVATE IIAB's INTERNAL WI-FI HOTSPOT (as you "perma-kill" its Internet!)
+#    ACTIVATE IIAB's INTERNAL WI-FI HOTSPOT, as this kills Internet over Wi-Fi!
 
 # 3. Run 'sudo raspi-config' on RPi, to set LOCALISATION OPTIONS
 
