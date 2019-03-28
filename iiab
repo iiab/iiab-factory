@@ -13,9 +13,9 @@
 #    https://github.com/iiab/iiab/wiki/IIAB-Installation#do-everything-from-scratch
 
 # 2. An Ethernet cable is HIGHLY RECOMMENDED during installation, as this is
-#    more reliable than Wi-Fi (and faster!)  If however you must install over
-#    Wi-Fi, remember to run 'iiab-hotspot-on' after IIAB installation, TO
-#    ACTIVATE YOUR RASPBERRY PI's INTERNAL WIFI HOTSPOT (and kill its Internet)
+#    more reliable than Wi-Fi (and faster!)  But if you must install IIAB using
+#    Wi-Fi not Ethernet, remember to run 'iiab-hotspot-on' AT THE VERY END, TO
+#    ACTIVATE IIAB's INTERNAL WI-FI HOTSPOT (as you "perma-kill" its Internet!)
 
 # 3. Run 'sudo raspi-config' on RPi, to set LOCALISATION OPTIONS
 
@@ -29,20 +29,8 @@
 
 # 6. Follow on-screen instructions (TYPE 'sudo iiab' TO RESUME IF EVER NECESS!)
 
-# 7. IIAB AUTO-REBOOTS WHEN DONE (typically 1-to-2 hours later) which sets
-#    hostname, improves RTC + memory mgmt, and starts BitTorrents if necessary
-
-# 8. (A) TRY TO CONNECT ANY LAPTOP TO WI-FI HOTSPOT "Internet in a Box".
-#        If this works, verify that you can browse to http://box or
-#        http://box.lan or http://172.18.96.1
-#    (B) IF THOSE ALL DON'T WORK, try http://localhost from the IIAB itself.
-#    (C) IF ALL ABOVE DON'T WORK, ask the person who set up the network/router
-#        in your building for the IP address of your IIAB, so you can browse to
-#        it using (something like) http://192.168.0.100
-
-# 9. ADD CONTENT using http://box.lan/admin (change "box.lan" as above!)
-#    Please read "What are the default passwords?" and "How do I customize my
-#    Internet-in-a-Box home page?" at http://FAQ.IIAB.IO
+# 7. About 1-2 hours later, it will announce that INTERNET-IN-A-BOX (IIAB)
+#    SOFTWARE INSTALL IS COMPLETE, prompting you to reboot...TO ADD CONTENT!
 
 # Thanks   For   Building   Your   Own   Library   To   Serve   One   &   All
 #
@@ -267,7 +255,7 @@ echo -e "to http://box or http://box.lan or http://172.18.96.1\n"
 echo -e "(1B) IF THOSE ALL DON'T WORK, try http://localhost from the IIAB itself.\n"
 
 echo -e "(1C) IF ALL ABOVE DON'T WORK, ask the person who set up the network/router in"
-echo -e "your buiding for the IP address of your IIAB, so you can browse to it using"
+echo -e "your building for the IP address of your IIAB, so you can browse to it using"
 echo -e "(something like) http://192.168.0.100\n"
 
 echo -e '(2) ADD CONTENT using http://box.lan/admin (changing "box.lan" to be as above!)'
@@ -275,10 +263,11 @@ echo -e 'PLEASE READ "What are the default passwords?" and "How do I customize m
 echo -e 'Internet-in-a-Box home page?" at http://FAQ.IIAB.IO\n'
 
 echo -e "(3) If you're installing IIAB over Wi-Fi (instead of Ethernet) remember to run"
-echo -e "'iiab-hotspot-on' at the very end, when you're ready TO ACTIVATE YOUR RASPBERRY"
-echo -e "PI'S INTERNAL WIFI HOTSPOT (and permanently kill its live Internet!)\n"
+echo -e "'iiab-hotspot-on' at the very end, when you're ready TO ACTIVATE YOUR IIAB's"
+echo -e "INTERNAL WI-FI HOTSPOT (and permanently kill its live Internet!)\n"
          
 echo -ne 'HIT [ENTER] TO REBOOT, CONFIRMING YOU'VE "photographed" THE ABOVE PARAGRAPHS: '
 read ans < /dev/tty
 
+# Sets hostname, improves RTC + memory mgmt, starts BitTorrents if needed, etc!
 reboot
