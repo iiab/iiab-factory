@@ -35,7 +35,7 @@
 # 8. (A) TRY TO CONNECT ANY LAPTOP TO WI-FI HOTSPOT "Internet in a Box".
 #        If this works, verify that you can browse to http://box or
 #        http://box.lan or http://172.18.96.1
-#    (B) IF THESE ALL DON'T WORK, try http://localhost from the IIAB itself.
+#    (B) IF THOSE ALL DON'T WORK, try http://localhost from the IIAB itself.
 #    (C) IF ALL ABOVE DON'T WORK, ask the person who set up the network/router
 #        in your building for the IP address of your IIAB, so you can browse to
 #        it using (something like) http://192.168.0.100
