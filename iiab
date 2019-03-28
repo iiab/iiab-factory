@@ -257,23 +257,28 @@ if (systemctl -q is-active transmission-daemon) then
     transmission-remote -n Admin:changeme -t all --start
 fi
 
-# L. Educate Implementers (if their ssh client retains screen output on reboot)
-echo -e "\n\nINTERNET-IN-A-BOX (IIAB) SOFTWARE INSTALL COMPLETE...now rebooting.\n"
+# L. Educate Implementers prior to rebooting!
+echo -e "\n\nINTERNET-IN-A-BOX (IIAB) SOFTWARE INSTALL IS COMPLETE:\n"
 
-echo -e "A couple minutes after reboot, try connecting to your IIAB with various"
-echo -e "devices, then browse to IIAB's Admin Console to add content:\n"
+echo -e "(1A) A couple minutes after you reboot (below) try to connect any laptop to"
+echo -e 'Wi-Fi hotspot "Internet in a Box".  If this works, verify that you can browse'
+echo -e "to http://box or http://box.lan or http://172.18.96.1\n"
 
-echo -e "   http://box/admin"
-echo -e "   http://box.lan/admin"
-echo -e "   http://172.18.96.1/admin\n"
+echo -e "(1B) IF THOSE ALL DON'T WORK, try http://localhost from the IIAB itself.\n"
 
-echo -e "IF THOSE ALL DON'T WORK, try http://localhost/admin from the IIAB itself.\n"
+echo -e "(1C) IF ALL ABOVE DON'T WORK, ask the person who set up the network/router in"
+echo -e "your buiding for the IP address of your IIAB, so you can browse to it using"
+echo -e "(something like) http://192.168.0.100\n"
 
-echo -e "IF ALL ABOVE DON'T WORK, ask the person who set up the network/router in your"
-echo -e "building for the IP address of your IIAB, so you can browse to it using"
-echo -e "(something like) http://192.168.0.100/admin\n"
-
+echo -e '(2) ADD CONTENT using http://box.lan/admin (changing "box.lan" to be as above!)'
 echo -e 'PLEASE READ "What are the default passwords?" and "How do I customize my'
-echo -e 'Internet-in-a-Box home page?" at http://FAQ.IIAB.IO'
+echo -e 'Internet-in-a-Box home page?" at http://FAQ.IIAB.IO\n'
+
+echo -e "(3) If you're installing IIAB over Wi-Fi (instead of Ethernet) remember to run"
+echo -e "'iiab-hotspot-on' at the very end, when you're ready TO ACTIVATE YOUR RASPBERRY"
+echo -e "PI'S INTERNAL WIFI HOTSPOT (and permanently kill its live Internet!)\n"
+         
+echo -ne 'HIT [ENTER] TO REBOOT, CONFIRMING YOU'VE "photographed" THE ABOVE PARAGRAPHS: '
+read ans < /dev/tty
 
 reboot
