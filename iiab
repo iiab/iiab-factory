@@ -267,6 +267,9 @@ echo -e "   http://box/admin"
 echo -e "   http://box.lan/admin"
 echo -e "   http://172.18.96.1/admin\n"
 
+echo -e "Sometimes you'll instead need http://localhost/admin or a custom IP"
+echo -e "address, as provided by your building's network administrator.\n"
+
 echo -e "Please read http://FAQ.IIAB.IO for default passwords and more!\n"
 
 reboot
