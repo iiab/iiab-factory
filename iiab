@@ -271,7 +271,7 @@ echo -e "(3) If you're installing IIAB over Wi-Fi (instead of Ethernet) remember
 echo -e "'iiab-hotspot-on' at the VERY END, when you're ready to ACTIVATE YOUR IIAB's"
 echo -e "INTERNAL WI-FI HOTSPOT.  CAUTION: this permanently kills your IIAB's Internet"
 echo -e "(over Wi-Fi anyway) until you later run 'iiab-hotspot-off'.  CAVEAT: these"
-echo -e "two commands only work with Raspberry Pi as of 2019-04-28.\n"
+echo -e "two commands only work with Raspberry Pi as of 2019-06-27.\n"
 
 echo -ne "HIT [Enter] TO REBOOT, CONFIRMING YOU'VE" '"photographed" THE ABOVE PARAGRAPHS: '
 read ans < /dev/tty
