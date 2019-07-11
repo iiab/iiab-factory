@@ -139,7 +139,7 @@ echo -e " ██                                                                
 echo -e " ██████████████████████████████████████████████████████████████████████████████"
 
 echo -e "\n\n'apt update' is checking for OS updates...\n"
-apt -y update    # TEMPORARY WORKAROUND TO DEAL WITH https://github.com/iiab/iiab/issues/1856 (Raspbian Buster's testing->stable apt glitch)
+apt -y update    # SLOW/TEMPORARY WORKAROUND TO DEAL WITH https://github.com/iiab/iiab/issues/1856 (Raspbian Buster's testing->stable apt glitch)
 apt -qq update > /tmp/apt.stdout 2> /tmp/apt.stderr || true    # Overrides 'set -e'
 if [ $(wc -c < /tmp/apt.stderr) -gt 82 ]; then    # apt.stderr typically contains exactly 82 characters when there are no errors, no matter the primary locale, i.e. 3-line file "\nWARNING: apt does not have a stable CLI interface. Use with caution in scripts.\n\n" ...OR... in other cases more than 82, e.g. many lines of errors when apt is busy/locked/offline/etc
     echo -e "'apt update' FAILED. VERIFY YOU'RE ONLINE and resolve all errors below:\n"
