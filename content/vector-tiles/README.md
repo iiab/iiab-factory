@@ -1,3 +1,5 @@
+# WARNING: THIS OLDER DOC (FROM SEPTEMBER 2018) IS FOR INTERNET-IN-A-BOX 6.6 -- PLEASE SEE THE NEW https://github.com/iiab/iiab/wiki/IIAB-Maps
+
 ## Offline OpenStreetMap + Regional Vector Map Datasets
 
 ### Motivation
