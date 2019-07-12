@@ -44,3 +44,6 @@ cp kalite-serve.service kalite-$1-serve.service
 
 sed  -i -e  "s%KALITE_HOME=/library/ka-lite%KALITE_HOME=$KALITE_HOME%g" kalite-$1-serve.service
 sed  -i -e  "s%--port=8008%--port=$2%g" kalite-$1-serve.service
+
+systemctl start kalite-$1-serve.service
+systemctl enable kalite-$1-serve.service
