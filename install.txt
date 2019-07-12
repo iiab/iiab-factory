@@ -1,8 +1,8 @@
 #!/bin/bash
 # Copied from: https://github.com/iiab/iiab-factory/blob/master/install.txt
 
-# To install Internet-in-a-Box (IIAB) 7.0 / pre-release onto Raspbian Stretch,
-# Ubuntu 18.04 or Debian 9, run this 1-line installer:
+# To install Internet-in-a-Box (IIAB) 7.0 / pre-release onto Raspbian Buster,
+# Ubuntu 18.04 or Debian 10, run this 1-line installer:
 #
 #                 curl d.iiab.io/install.txt | sudo bash
 
