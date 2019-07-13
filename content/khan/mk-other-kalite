@@ -3,7 +3,9 @@
 #
 # create a parallel install of kalite for a specific language
 # directory should be /library/ka-lite-xx where xx is language code
-# port is expected to be 8007 for ES and 8006 for FR
+# port is expected to be 8007 for ES and 8006 for FR.
+# In case of (air)PORT gate changes, check the overhead screens:
+# https://github.com/iiab/iiab/wiki/IIAB-Networking#list-of-ports--services
 
 if [ "$#" -lt 2 ]; then
     echo "usage: $0 <lang code, e.g. es> <new kalite port, e.g. 8007> <optional path to language pack>"
@@ -25,17 +27,17 @@ $KA manage generate_zone
 # get kalite English language pack - takes awhile and seems to re-download if run again
 
 if [ -z "$3" ]; then
-  $KA manage retrievecontentpack download en
+    $KA manage retrievecontentpack download en
 else
-  $KA manage retrievecontentpack local $1 $3/en.zip
+    $KA manage retrievecontentpack local $1 $3/en.zip
 fi
 
 # get new lang pack
 
 if [ -z "$3" ]; then
-  $KA manage retrievecontentpack download $1
+    $KA manage retrievecontentpack download $1
 else
-  $KA manage retrievecontentpack local $1 $3/$1.zip
+    $KA manage retrievecontentpack local $1 $3/$1.zip
 fi
 
 # try to hack up a service file
@@ -47,3 +49,5 @@ sed  -i -e  "s%--port=8008%--port=$2%g" kalite-$1-serve.service
 
 systemctl start kalite-$1-serve.service
 systemctl enable kalite-$1-serve.service
+
+echo -e "\nREMEMBER TO OPEN PORT(S) in iiab-gen-iptables !\n"
