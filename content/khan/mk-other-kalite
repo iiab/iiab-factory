@@ -55,4 +55,9 @@ echo -e "\nAttemping to Start & Enable kalite-$1-serve.service"
 systemctl start kalite-$1-serve.service
 systemctl enable kalite-$1-serve.service
 
-echo -e "\nREMEMBER TO OPEN PORT(S) in iiab-gen-iptables !\n"
+echo -e "\nREMEMBER TO OPEN THE FIREWALL PORT(S) in one of these files:\n"
+
+echo "  /etc/iiab/local_vars.yml"
+echo "  /opt/iiab/iiab/roles/network/templates/gateway/iiab-gen-iptables\n"
+
+echo "Enact the firewall change by running 'cd /opt/iiab/iiab' then './iiab-network'\n"
