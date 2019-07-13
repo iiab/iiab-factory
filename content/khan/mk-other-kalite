@@ -1,14 +1,14 @@
 #!/bin/bash
 # mk-other-kalite
 #
-# create a parallel install of kalite for a specific language
-# directory should be /library/ka-lite-xx where xx is language code
-# port is expected to be 8007 for ES and 8006 for FR.
+# Create a parallel install of KA Lite for a specific language.
+# Directory should be /library/ka-lite-xx where xx is language code.
+# Port is expected to be 8007 for ES and 8006 for FR.
+#
 # In case of (air)PORT gate changes, check the overhead screens:
 # https://github.com/iiab/iiab/wiki/IIAB-Networking#list-of-ports--services
 
-echo -e '\nSee "KA Lite Administration: What tips & tricks exist?"'
-echo -e 'at http://FAQ.IIAB.IO\n'
+echo -e '\nSee "KA Lite Administration: What tips & tricks exist?" at http://FAQ.IIAB.IO\n'
 
 if [ "$#" -lt 2 ]; then
     echo "usage: $0 <lang code, e.g. es> <new kalite port, e.g. 8007> <optional path to both language packs>"
@@ -49,6 +49,8 @@ cp kalite-serve.service kalite-$1-serve.service
 
 sed  -i -e  "s%KALITE_HOME=/library/ka-lite%KALITE_HOME=$KALITE_HOME%g" kalite-$1-serve.service
 sed  -i -e  "s%--port=8008%--port=$2%g" kalite-$1-serve.service
+
+echo -e "\nAttemping to Start & Enable kalite-$1-serve.service"
 
 systemctl start kalite-$1-serve.service
 systemctl enable kalite-$1-serve.service
