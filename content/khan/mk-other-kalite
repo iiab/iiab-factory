@@ -27,7 +27,10 @@ $KA manage setup --username=Admin --password=changeme --noinput
 # register
 $KA manage generate_zone
 
-# get kalite English language pack - takes awhile and seems to re-download if run again
+# Install KA Lite English language pack - takes awhile and re-downloads if run again without $3 (path to both .zips)
+#
+# Example illustrating pre-download of KA Lite's English pack:
+# https://github.com/iiab/iiab-factory/blob/master/iiab#L218-L243
 
 if [ -z "$3" ]; then
     $KA manage retrievecontentpack download en
