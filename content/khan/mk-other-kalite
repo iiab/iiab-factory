@@ -1,12 +1,17 @@
 #!/bin/bash
 # mk-other-kalite
 #
-# create a parallel install of kalite for a specific language
-# directory should be /library/ka-lite-xx where xx is language code
-# port is expected to be 8007 for ES and 8006 for FR
+# Create a parallel install of KA Lite for a specific language.
+# Directory should be /library/ka-lite-xx where xx is language code.
+# Port is expected to be 8007 for ES and 8006 for FR.
+#
+# In case of (air)PORT gate changes, check the overhead screens:
+# https://github.com/iiab/iiab/wiki/IIAB-Networking#list-of-ports--services
+
+echo -e '\nSee "KA Lite Administration: What tips & tricks exist?" at http://FAQ.IIAB.IO\n'
 
 if [ "$#" -lt 2 ]; then
-    echo "usage: $0 <lang code, e.g. es> <new kalite port, e.g. 8007> <optional path to language pack>"
+    echo "usage: $0 <lang code, e.g. es> <new kalite port, e.g. 8007> <optional path to both language packs>"
     exit 1
 fi
 
@@ -22,20 +27,23 @@ $KA manage setup --username=Admin --password=changeme --noinput
 # register
 $KA manage generate_zone
 
-# get kalite English language pack - takes awhile and seems to re-download if run again
+# Install KA Lite English language pack - takes awhile and re-downloads if run again without $3 (path to both .zips)
+#
+# Example illustrating pre-download of KA Lite's English pack:
+# https://github.com/iiab/iiab-factory/blob/master/iiab#L218-L243
 
 if [ -z "$3" ]; then
-  $KA manage retrievecontentpack download en
+    $KA manage retrievecontentpack download en
 else
-  $KA manage retrievecontentpack local $1 $3/en.zip
+    $KA manage retrievecontentpack local en $3/en.zip
 fi
 
 # get new lang pack
 
 if [ -z "$3" ]; then
-  $KA manage retrievecontentpack download $1
+    $KA manage retrievecontentpack download $1
 else
-  $KA manage retrievecontentpack local $1 $3/$1.zip
+    $KA manage retrievecontentpack local $1 $3/$1.zip
 fi
 
 # try to hack up a service file
@@ -44,3 +52,15 @@ cp kalite-serve.service kalite-$1-serve.service
 
 sed  -i -e  "s%KALITE_HOME=/library/ka-lite%KALITE_HOME=$KALITE_HOME%g" kalite-$1-serve.service
 sed  -i -e  "s%--port=8008%--port=$2%g" kalite-$1-serve.service
+
+echo -e "\nAttempting to Start & Enable kalite-$1-serve.service"
+
+systemctl start kalite-$1-serve.service
+systemctl enable kalite-$1-serve.service
+
+echo -e "\nREMEMBER TO OPEN THE FIREWALL PORT(S) in one of these files:\n"
+
+echo -e "  /etc/iiab/local_vars.yml"
+echo -e "  /opt/iiab/iiab/roles/network/templates/gateway/iiab-gen-iptables\n"
+
+echo -e "Enact the firewall change by running 'cd /opt/iiab/iiab' then './iiab-network'\n"
