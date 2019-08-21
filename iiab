@@ -129,8 +129,6 @@ else
             ;;
     esac
 
-    echo -en "\nEdit $CONFDIR/local_vars.yml to customize your Internet-in-a-Box? [Y/n] "
-    read ans < /dev/tty
     echo -en "\nEdit /etc/iiab/local_vars.yml to customize your Internet-in-a-Box? [Y/n] "
     read -t 5 ans < /dev/tty
     if [ "$ans" == "y" ] || [ "$ans" == "Y" ]; then
@@ -179,9 +177,19 @@ if [ -f /proc/device-tree/model ] && grep -qi raspberry /proc/device-tree/model;
     tune2fs -m 1 /dev/mmcblk0p2
 fi
 
-# H. Clone 3 IIAB repos
-# moved to install.txt
-
+# H. update 2 IIAB repos
+if [ $1 == --reinstall ]; then
+    cd $BASEDIR
+    if [ -d iiab ]; then
+        cd iiab
+        git pull
+    fi
+    cd $BASEDIR
+    if [ -d iiab-admin-console ]; then
+        cd iiab-admin-console
+        git pull
+    fi
+fi
 # I. Install Ansible + 2 IIAB repos
 echo -e "\n\nINSTALL ANSIBLE + CORE IIAB SOFTWARE + ADMIN CONSOLE / CONTENT PACK MENUS...\n"
 
@@ -198,9 +206,9 @@ echo -e "│                                                                    
 echo -e "│   child script ./iiab-install -- both avoid repeating any of the 9 stages.   │"
 echo -e "│                                                                              │"
 echo -e "└──────────────────────────────────────────────────────────────────────────────┘"
-cd $BASEDIR/iiab/
-./iiab-install $@
 
+cd $BASEDIR/iiab/
+./iiab-install $1
 echo -e "Install Admin Console... (also runs iiab-get-kiwix-cat to d/l Kiwix catalog, and installs Dynamic Menuing for /library/www/html/home/index.html)\n"
 if [ ! -f $FLAGDIR/iiab-admin-console-complete ]; then
     cd $BASEDIR/iiab-admin-console
