@@ -64,7 +64,7 @@ if check_user_pwd "pi" "raspberry"; then
     echo -e "\n\nRaspberry Pi's are COMPROMISED often if the default password is not changed!\n"
 
     echo -n "What password do you want for GNU/Linux user 'pi' ? "
-    read ans < /dev/tty    # Whines but doesn't change password if [Enter]
+    read -t 5 ans < /dev/tty    # Whines but doesn't change password if [Enter]
     echo pi:"$ans" | chpasswd || true    # Overrides 'set -e'
 fi
 
@@ -81,7 +81,7 @@ if check_user_pwd "iiab-admin" "g0adm1n"; then
     echo -e "This is for login to Internet-in-a-Box's Admin Console (http://box.lan/admin)\n"
 
     echo -n "What password do you want for GNU/Linux user 'iiab-admin' ? "
-    read ans < /dev/tty    # Whines but doesn't change password if [Enter]
+    read -t 5 ans < /dev/tty    # Whines but doesn't change password if [Enter]
     echo iiab-admin:"$ans" | chpasswd || true    # Overrides 'set -e'
 fi
 
