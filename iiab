@@ -180,28 +180,7 @@ if [ -f /proc/device-tree/model ] && grep -qi raspberry /proc/device-tree/model;
 fi
 
 # H. Clone 3 IIAB repos
-echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO $BASEDIR ...\n"
-apt -y install git
-mkdir -p $BASEDIR
-cd $BASEDIR
-echo
-if [ -d iiab ]; then
-    echo -e "REPO EXISTS? Consider 'cd /opt/iiab/iiab; git pull'"
-else
-    git clone https://github.com/iiab/iiab --depth 1
-fi
-echo
-if [ -d iiab-admin-console ]; then
-    echo -e "REPO EXISTS? Consider 'cd /opt/iiab/iiab-admin-console; git pull'"
-else
-    git clone https://github.com/iiab/iiab-admin-console --depth 1
-fi
-echo
-if [ -d iiab-factory ]; then
-    echo -e "REPO EXISTS? Consider 'cd /opt/iiab/iiab-factory; git pull'"
-else
-    git clone https://github.com/iiab/iiab-factory --depth 1
-fi
+# moved to install.txt
 
 # I. Install Ansible + 2 IIAB repos
 echo -e "\n\nINSTALL ANSIBLE + CORE IIAB SOFTWARE + ADMIN CONSOLE / CONTENT PACK MENUS...\n"

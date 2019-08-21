@@ -46,10 +46,29 @@
 set -e                                   # Exit on error (avoids snowballing)
 export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
 
-# Save script to /usr/sbin/iiab (easy resume/continue mnemonic 'sudo iiab')
-mv /usr/sbin/iiab /usr/sbin/iiab.old || true    # Overrides 'set -e'
-curl https://raw.githubusercontent.com/iiab/iiab-factory/master/iiab > /usr/sbin/iiab
-chmod 0744 /usr/sbin/iiab
+-# H. Clone 3 IIAB repos
+echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO /opt/iiab ...\n"
+apt -y install git
+mkdir -p /opt/iiab
+cd /opt/iiab/
+echo
+if [ -d iiab ]; then
+    echo -e "REPO EXISTS? Consider 'cd /opt/iiab/iiab; git pull'"
+else
+    git clone https://github.com/iiab/iiab --depth 1
+fi
+echo
+if [ -d iiab-admin-console ]; then
+    echo -e "REPO EXISTS? Consider 'cd /opt/iiab/iiab-admin-console; git pull'"
+else
+    git clone https://github.com/iiab/iiab-admin-console --depth 1
+fi
+echo
+if [ -d iiab-factory ]; then
+    echo -e "REPO EXISTS? Consider 'cd /opt/iiab/iiab-factory; git pull'"
+else
+    git clone https://github.com/iiab/iiab-factory --depth 1
+    ln -s iiab /usr/sbin/iiab
 
 # Run install script!
 /usr/sbin/iiab
