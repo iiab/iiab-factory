@@ -167,7 +167,7 @@ fi
 cat /tmp/apt.stdout    # "All packages are up to date.\n"
 
 echo -ne "\nHit [ENTER] to confirm you'll TRY TO RERUN 'sudo iiab' IF THERE IS A PROBLEM: "
-read ans < /dev/tty
+read -t 5 ans < /dev/tty
 
 ######################### INTERACTIVE STUFF IS ABOVE #########################
 
