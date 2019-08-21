@@ -48,7 +48,7 @@ export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
 
 -# H. Clone 3 IIAB repos
 echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO /opt/iiab ...\n"
-apt -y install git
+apt -y install git nano
 mkdir -p /opt/iiab
 cd /opt/iiab/
 echo

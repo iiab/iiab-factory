@@ -115,27 +115,27 @@ else
     echo -e '(IIAB apps) are suggested during installation?" within http://FAQ.IIAB.IO\n'
 
     echo -n "Please type 1, 2 or 3 then press [ENTER]: "
-    read local_vars_size < /dev/tty
+    read -t 5 local_vars_size < /dev/tty
     echo
     case $local_vars_size in
         1)
-            wget -O local_vars.yml https://github.com/iiab/iiab/raw/master/vars/local_vars_min.yml
+            cp vars/local_vars_min.yml local_vars.yml
             ;;
         3)
-            wget -O local_vars.yml https://github.com/iiab/iiab/raw/master/vars/local_vars_big.yml
+            cp vars/local_vars_big.yml local_vars.yml
             ;;
         *)
-            wget -O local_vars.yml https://github.com/iiab/iiab/raw/master/vars/local_vars_medium.yml
+            cp vars/local_vars_medium.yml local_vars.yml
             ;;
     esac
 
     echo -en "\nEdit $CONFDIR/local_vars.yml to customize your Internet-in-a-Box? [Y/n] "
     read ans < /dev/tty
-    if [ "$ans" != "n" ] && [ "$ans" != "N" ]; then
-        echo -e "\n1) PLEASE RUN: sudo nano $CONFDIR/local_vars.yml\n"
-
-        echo -e "2) After you're done editing, RUN 'sudo iiab' TO CONTINUE!\n"
-        exit 0
+    echo -en "\nEdit /etc/iiab/local_vars.yml to customize your Internet-in-a-Box? [Y/n] "
+    read -t 5 ans < /dev/tty
+    if [ "$ans" == "y" ] || [ "$ans" == "Y" ]; then
+        echo "ctrl x to save and exit"
+        nano /etc/iiab/local_vars.yml\n"
     fi
 fi
 
