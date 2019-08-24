@@ -48,6 +48,11 @@ export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
 BASEDIR=/opt/iiab
 CONFDIR=/etc/iiab
 FLAGDIR=$CONFDIR/install-flags
+REINSTALL=""
+if [ "$1" = "--reinstall" ]; then
+    rm $FLAGS/*complete
+    REINSTALL="--reinstall"
+fi
 
 # A. Subroutine for B. and D.  Returns true (0) if username ($1) exists with password ($2)
 check_user_pwd() {
@@ -119,24 +124,24 @@ else
     echo
     case $local_vars_size in
         1)
-            cp vars/local_vars_min.yml local_vars.yml
+            cp $BASE/iiab/vars/local_vars_min.yml local_vars.yml
             ;;
         3)
-            cp vars/local_vars_big.yml local_vars.yml
+            cp $BASE/iiab/vars/local_vars_big.yml local_vars.yml
             ;;
         *)
-            cp vars/local_vars_medium.yml local_vars.yml
+            cp $BASE/iiab/vars/local_vars_medium.yml local_vars.yml
             ;;
     esac
 
     echo -en "\nEdit /etc/iiab/local_vars.yml to customize your Internet-in-a-Box? [Y/n] "
     read -t 5 ans < /dev/tty
     if [ "$ans" == "y" ] || [ "$ans" == "Y" ]; then
-        echo "ctrl x to save and exit"
-        nano /etc/iiab/local_vars.yml\n"
+        echo -en "ctrl x to save and exit"
+        sleep 2
+        nano /etc/iiab/local_vars.yml
     fi
 fi
-
 # F. Mandate OS SECURITY/UPDATES if 'apt update' has any (IF SO REBOOT)
 # Educate implementer while waiting for 'apt update'
 echo -e "\n\n ██████████████████████████████████████████████████████████████████████████████"
@@ -144,6 +149,9 @@ echo -e " ██                                                                
 echo -e " ██  RUN 'sudo iiab' IF THIS INSTALL SCRIPT EVER FAILS, TO TRY TO CONTINUE!  ██"
 echo -e " ██                                                                          ██"
 echo -e " ██████████████████████████████████████████████████████████████████████████████"
+if [ -f $FLAGS/iiab-complete ]; then
+   echo -e " IIAB completed successfully nothing to do.."
+fi
 
 echo -e "\n\n'apt update' is checking for OS updates...\n"
 #echo -e "2019-07-11 TEMP WORKAROUND FOR RASPBIAN BUSTER'S testing->stable apt GLITCH...\nDetails @ https://github.com/iiab/iiab/issues/1856\n"
@@ -178,7 +186,7 @@ if [ -f /proc/device-tree/model ] && grep -qi raspberry /proc/device-tree/model;
 fi
 
 # H. update 2 IIAB repos
-if [ $1 == --reinstall ]; then
+if [ $REINSTALL == --reinstall ]; then
     cd $BASEDIR
     if [ -d iiab ]; then
         cd iiab
@@ -190,6 +198,7 @@ if [ $1 == --reinstall ]; then
         git pull
     fi
 fi
+
 # I. Install Ansible + 2 IIAB repos
 echo -e "\n\nINSTALL ANSIBLE + CORE IIAB SOFTWARE + ADMIN CONSOLE / CONTENT PACK MENUS...\n"
 
@@ -206,9 +215,9 @@ echo -e "│                                                                    
 echo -e "│   child script ./iiab-install -- both avoid repeating any of the 9 stages.   │"
 echo -e "│                                                                              │"
 echo -e "└──────────────────────────────────────────────────────────────────────────────┘"
-
 cd $BASEDIR/iiab/
-./iiab-install $1
+./iiab-install $REINSTALL
+
 echo -e "Install Admin Console... (also runs iiab-get-kiwix-cat to d/l Kiwix catalog, and installs Dynamic Menuing for /library/www/html/home/index.html)\n"
 if [ ! -f $FLAGDIR/iiab-admin-console-complete ]; then
     cd $BASEDIR/iiab-admin-console
