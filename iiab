@@ -86,7 +86,9 @@ if check_user_pwd "iiab-admin" "g0adm1n"; then
     echo -e "This is for login to Internet-in-a-Box's Admin Console (http://box.lan/admin)\n"
 
     echo -n "What password do you want for GNU/Linux user 'iiab-admin' ? "
-    read -t 5 ans < /dev/tty    # Whines but doesn't change password if [Enter]
+    echo -n "press [Enter] for no change"
+
+    read -t 15 ans < /dev/tty    # Whines but doesn't change password if [Enter]
     echo iiab-admin:"$ans" | chpasswd || true    # Overrides 'set -e'
 fi
 if [ -f $FLAGSDIR/iiab-complete ]; then

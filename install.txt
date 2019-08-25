@@ -46,7 +46,6 @@
 set -e                                   # Exit on error (avoids snowballing)
 export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
 
--# H. Clone 3 IIAB repos
 echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO /opt/iiab ...\n"
 apt -y install git nano
 mkdir -p /opt/iiab
@@ -57,18 +56,19 @@ if [ -d iiab-factory ]; then
     cd iiab-factory
     git checkout master
     git pull
-    git checkout jv-pi-gen
+    git branch -D jv-pi-gen || true
+    git checkout -b jv-pi-gen
     git pull https://github.com/jvonau/iiab-factory.git pi-gen
-    ln -sf iiab /usr/sbin/iiab
+    ln -sf /opt/iiab/iiab-factory/iiab /usr/sbin/iiab
 
 else
     echo -e "Cloning iiab-factory"
 #    git clone https://github.com/iiab/iiab-factory --depth 1
     git clone https://github.com/iiab/iiab-factory
     cd iiab-factory
-    git checkout -b jv-pi-gen master
+    git checkout -b jv-pi-gen
     git pull https://github.com/jvonau/iiab-factory.git pi-gen
-    ln -sf iiab /usr/sbin/iiab
+    ln -sf /opt/iiab/iiab-factory/iiab /usr/sbin/iiab
 fi
 cd /opt/iiab/
 echo
