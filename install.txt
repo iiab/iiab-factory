@@ -59,6 +59,7 @@ if [ -d iiab-factory ]; then
     git pull
     git checkout jv-pi-gen
     git pull https://github.com/jvonau/iiab-factory.git pi-gen
+    ln -sf iiab /usr/sbin/iiab
 
 else
     echo -e "Cloning iiab-factory"
@@ -67,7 +68,7 @@ else
     cd iiab-factory
     git checkout -b jv-pi-gen master
     git pull https://github.com/jvonau/iiab-factory.git pi-gen
-    ln -s iiab /usr/sbin/iiab
+    ln -sf iiab /usr/sbin/iiab
 fi
 cd /opt/iiab/
 echo
