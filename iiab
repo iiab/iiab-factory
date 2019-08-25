@@ -190,11 +190,13 @@ if [ $REINSTALL == --reinstall ]; then
     cd $BASEDIR
     if [ -d iiab ]; then
         cd iiab
+        git checkout master
         git pull
     fi
     cd $BASEDIR
     if [ -d iiab-admin-console ]; then
         cd iiab-admin-console
+        git checkout master
         git pull
     fi
 fi
