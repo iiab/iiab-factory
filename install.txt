@@ -74,7 +74,9 @@ echo
 if [ -d iiab ]; then
     echo -e "REPO iiab EXISTS? Consider 'sudo iiab --reinstall'"
 else
-    git clone https://github.com/iiab/iiab --depth 1
+    git clone https://github.com/iiab/iiab --depth 10
+    git checkout -b jv-pi-gen master
+    git pull https://github.com/jvonau/iiab.git pi-gen
 fi
 cd /opt/iiab/
 echo
