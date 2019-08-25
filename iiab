@@ -49,6 +49,12 @@ BASEDIR=/opt/iiab
 CONFDIR=/etc/iiab
 FLAGDIR=$CONFDIR/install-flags
 REINSTALL=""
+INTERACTIVE=1
+if [ "$1" = "--non-interactive" ]; then
+    shift 1
+    INTERACTIVE=0
+fi
+
 if [ "$1" = "--reinstall" ]; then
     rm $FLAGS/*complete
     REINSTALL="--reinstall"
@@ -84,12 +90,12 @@ if check_user_pwd "iiab-admin" "g0adm1n"; then
     echo -e "\n\nUser 'iiab-admin' retains default password 'g0adm1n' per http://FAQ.IIAB.IO\n"
 
     echo -e "This is for login to Internet-in-a-Box's Admin Console (http://box.lan/admin)\n"
-
-    echo -n "What password do you want for GNU/Linux user 'iiab-admin' ? "
-    echo -n "press [Enter] for no change"
-
-    read -t 15 ans < /dev/tty    # Whines but doesn't change password if [Enter]
-    echo iiab-admin:"$ans" | chpasswd || true    # Overrides 'set -e'
+    if [ $INTERACTIVE == 1 ]; then
+        echo -n "What password do you want for GNU/Linux user 'iiab-admin' ? "
+        echo -n "press [Enter] for no change"
+        read -t 15 ans < /dev/tty    # Whines but doesn't change password if [Enter]
+        echo iiab-admin:"$ans" | chpasswd || true    # Overrides 'set -e'
+    fi
 fi
 if [ -f $FLAGSDIR/iiab-complete ]; then
    echo -e " IIAB completed successfully nothing to do.."
@@ -167,19 +173,21 @@ if [ $(wc -c < /tmp/apt.stderr) -gt 82 ]; then    # apt.stderr typically contain
     exit 1
 elif grep -q 'apt list --upgradable' /tmp/apt.stdout; then    # apt.stdout typically contains {"All packages are up to date.\n" [even if primary locale is French & Hindi!], "Todos los paquetes están actualizados.\n", "所有软件包均为最新。\n"} ...OR... {"5 packages can be upgraded. Run 'apt list --upgradable' to see them.\n" [even if primary locale is French & Hindi!], "Se puede actualizar 1 paquete. Ejecute «apt list --upgradable» para verlo.\n", "有 1 个软件包可以升级。请执行 ‘apt list --upgradable’ 来查看它们。\n"}
     cat /tmp/apt.stdout
-    echo -e "\nYour OS will now be upgraded...this takes time. THEN IT WILL AUTO-REBOOT.\n"
-
-    echo -n "Hit [ENTER] to confirm you'll RUN 'sudo iiab' AFTER IT REBOOTS: "
-    read ans < /dev/tty
-    echo
-    apt -y dist-upgrade
-    reboot
+    if [ "$INTERACTIVE" == 1 ]; then
+        echo -e "\nYour OS will now be upgraded...this takes time. THEN IT WILL AUTO-REBOOT.\n"
+        echo -n "Hit [ENTER] to confirm you'll RUN 'sudo iiab' AFTER IT REBOOTS: "
+        read ans < /dev/tty
+        echo
+        apt -y dist-upgrade
+        reboot
+    fi
 fi
 cat /tmp/apt.stdout    # "All packages are up to date.\n"
 
-echo -ne "\nHit [ENTER] to confirm you'll TRY TO RERUN 'sudo iiab' IF THERE IS A PROBLEM: "
-read -t 5 ans < /dev/tty
-
+if [ $INTERACTIVE == 1 ]; then
+    echo -ne "\nHit [ENTER] to confirm you'll TRY TO RERUN 'sudo iiab' IF THERE IS A PROBLEM: "
+    read -t 5 ans < /dev/tty
+fi
 ######################### INTERACTIVE STUFF IS ABOVE #########################
 
 # G. If RPi, lower reserve disk space from ~5% to 1%
