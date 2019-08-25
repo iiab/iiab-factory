@@ -89,6 +89,11 @@ if check_user_pwd "iiab-admin" "g0adm1n"; then
     read -t 5 ans < /dev/tty    # Whines but doesn't change password if [Enter]
     echo iiab-admin:"$ans" | chpasswd || true    # Overrides 'set -e'
 fi
+if [ -f $FLAGSDIR/iiab-complete ]; then
+   echo -e " IIAB completed successfully nothing to do.."
+   echo -e " iiab --reinstall if you really want to start over"
+   exit 0
+fi
 
 mkdir -p $FLAGDIR
 if [ -f $FLAGDIR/iiab-complete ]; then
@@ -149,10 +154,6 @@ echo -e " ██                                                                
 echo -e " ██  RUN 'sudo iiab' IF THIS INSTALL SCRIPT EVER FAILS, TO TRY TO CONTINUE!  ██"
 echo -e " ██                                                                          ██"
 echo -e " ██████████████████████████████████████████████████████████████████████████████"
-if [ -f $FLAGS/iiab-complete ]; then
-   echo -e " IIAB completed successfully nothing to do.."
-fi
-
 echo -e "\n\n'apt update' is checking for OS updates...\n"
 #echo -e "2019-07-11 TEMP WORKAROUND FOR RASPBIAN BUSTER'S testing->stable apt GLITCH...\nDetails @ https://github.com/iiab/iiab/issues/1856\n"
 #apt -y update || true    # Overrides 'set -e'
@@ -262,6 +263,8 @@ if [ -d /library/ka-lite ]; then
         echo -e 'Now installing /tmp/en.zip into /library/ka-lite/content/*\n'
         kalite manage retrievecontentpack local en en.zip
         touch $FLAGDIR/kalite-en.zip-complete
+    else
+        echo -e 'kalite zip already done'
     fi
 fi
 # WARNING: /tmp/en.zip (and all stuff in /tmp) is auto-deleted during reboots
