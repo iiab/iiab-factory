@@ -53,8 +53,9 @@ mkdir -p /opt/iiab
 cd /opt/iiab/
 echo
 if [ -d iiab-factory ]; then
-    echo -e "REPO iiab-factory EXISTS? -- updating"
+    echo -e "REPO iiab-factory EXISTS? -- updating master branch"
     cd iiab-factory
+    git checkout master
     git pull
 else
     echo -e "Cloning iiab-factory"
