@@ -25,4 +25,5 @@ kalite_install: True
 kalite_enabled: False
 kiwix_install: True
 kiwix_enabled: False
-
+mysql_install: True
+mysql_enabled: False
