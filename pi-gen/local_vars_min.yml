@@ -1,6 +1,9 @@
 installing: True
-download_timeout: 200
+bluetooth_install: True
+bluetooth_enabled: True
+bluetooth_term_enabled: False
 
+download_timeout: 200
 default_language: en
 language_priority: en es fr
 
