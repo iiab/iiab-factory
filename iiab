@@ -85,6 +85,11 @@ if check_user_pwd "iiab-admin" "g0adm1n"; then
     echo iiab-admin:"$ans" | chpasswd || true    # Overrides 'set -e'
 fi
 
+if [ -f $FLAGS/iiab-complete ]; then
+    echo -e "\n\nIIAB installation (/usr/sbin/iiab) is already complete -- per existence of:"
+    echo -e "$FLAGS/iiab-complete -- nothing to do.\n"
+fi
+
 # E. Position & customize $CONFIGDIR/local_vars.yml
 mkdir -p $FLAGS
 cd $CONFIGDIR
@@ -132,6 +137,7 @@ else
         exit 0
     fi
 fi
+
 # F. Mandate OS SECURITY/UPDATES if 'apt update' has any (IF SO REBOOT)
 # Educate implementer while waiting for 'apt update'
 echo -e "\n\n ██████████████████████████████████████████████████████████████████████████████"
@@ -139,9 +145,6 @@ echo -e " ██                                                                
 echo -e " ██  RUN 'sudo iiab' IF THIS INSTALL SCRIPT EVER FAILS, TO TRY TO CONTINUE!  ██"
 echo -e " ██                                                                          ██"
 echo -e " ██████████████████████████████████████████████████████████████████████████████"
-if [ -f $FLAGS/iiab-complete ]; then
-   echo -e " IIAB completed successfully nothing to do.."
-fi
 
 echo -e "\n\n'apt update' is checking for OS updates...\n"
 echo -e "2019-07-11 TEMP WORKAROUND FOR RASPBIAN BUSTER'S testing->stable apt GLITCH...\nDetails @ https://github.com/iiab/iiab/issues/1856\n"
@@ -205,6 +208,7 @@ echo -e "\n\nINSTALL ANSIBLE + CORE IIAB SOFTWARE + ADMIN CONSOLE / CONTENT PACK
 echo -e "Install Ansible..."
 cd $BASE/iiab/scripts/
 ./ansible
+
 echo -e "\n┌──────────────────────────────────────────────────────────────────────────────┐"
 echo -e "│                                                                              │"
 echo -e "│   NOW INSTALL IIAB SOFTWARE! If glitches arise (connectivity or otherwise)   │"
@@ -216,14 +220,17 @@ echo -e "│                                                                    
 echo -e "└──────────────────────────────────────────────────────────────────────────────┘"
 cd $BASE/iiab/
 ./iiab-install $@
+
 echo -e "Install Admin Console... (also runs iiab-get-kiwix-cat to d/l Kiwix catalog, and installs Dynamic Menuing for /library/www/html/home/index.html)\n"
 if [ ! -f $FLAGS/iiab-admin-console-complete ]; then
     cd $BASE/iiab-admin-console
     ./install
     touch $FLAGS/iiab-admin-console-complete
 else
-    echo -e 'iiab-admin-console complete'
+    echo -e "Admin Console installation is already complete -- per existence of:"
+    echo -e "$FLAGS/iiab-admin-console-complete\n"
 fi
+
 # J. KA Lite prep
 if [ -d /library/ka-lite ]; then
     echo -e "\n\nKA LITE REQUIRES 2 THINGS...\n"
@@ -231,20 +238,21 @@ if [ -d /library/ka-lite ]; then
     echo -e "Register with KA Lite - just the anonymous registration...\n"
     # /usr/bin/kalite venv wrapper invokes 'export KALITE_HOME=/library/ka-lite'
     if [ ! -f $FLAGS/kalite-zone-complete ]; then
-        echo -e 'Now running kalite zone'
-        kalite manage generate_zone || true
+        echo -e "Now running 'kalite manage generate_zone' ...\n"
+        kalite manage generate_zone || true    # Overrides 'set -e'
         touch $FLAGS/kalite-zone-complete
     else
-        echo -e 'kalite zone already done'
+        echo -e "'kalite manage generate_zone' is already complete -- per existence of:"
+        echo -e "$FLAGS/kalite-zone-complete\n"
     fi
 
     echo -e "\nInstall KA Lite's mandatory 0.9 GB English Pack... (en.zip)\n"
     if [ ! -f $FLAGS/kalite-en.zip-complete ]; then
-        echo -e 'Now retreiving kalite en.zip'
+        #echo -e 'Now retrieving it...\n'
         cd /tmp
         if [ -f en.zip ]; then
             if [ $(wc -c < en.zip) -ne 929916955 ]; then
-                echo -e "\nERROR: /tmp/en.zip must be 929,916,955 bytes to proceed. Removing\n" >&2
+                echo -e "\nERROR: /tmp/en.zip must be 929,916,955 bytes to proceed.\n" >&2
                 exit 1
             else
                 echo -e "\nUsing existing /tmp/en.zip whose 929,916,955 byte size is correct!\n"
@@ -252,7 +260,7 @@ if [ -d /library/ka-lite ]; then
         else
             wget http://pantry.learningequality.org/downloads/ka-lite/0.17/content/contentpacks/en.zip
         fi
-        echo -e 'Now installing kalite en.zip'
+        echo -e 'Now installing /tmp/en.zip into /library/ka-lite/content/*\n'
         kalite manage retrievecontentpack local en en.zip
         touch $FLAGS/kalite-en.zip-complete
     fi
@@ -268,7 +276,9 @@ if (systemctl -q is-active transmission-daemon) then
     echo -e "\n\nSTARTING BITTORRENT DOWNLOAD(S) for KA Lite...Please Monitor: http://box:9091\n"
     transmission-remote -n Admin:changeme -t all --start
 fi
+
 touch $FLAGS/iiab-complete
+
 # L. Educate Implementers prior to rebooting!
 echo -e "\n\n         ┌───────────────────────────────────────────────────────────┐"
 echo -e "         │                                                           │"
