@@ -141,6 +141,7 @@ echo -e " ██                                                                
 echo -e " ██████████████████████████████████████████████████████████████████████████████"
 if [ -f $FLAGS/iiab-complete ]; then
    echo -e " IIAB completed successfully nothing to do.."
+   exit 0
 fi
 
 echo -e "\n\n'apt update' is checking for OS updates...\n"
