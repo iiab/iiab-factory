@@ -1,90 +1,55 @@
 #!/bin/bash
-# Copied from: https://github.com/iiab/iiab-factory/blob/master/install.txt
-
-# To install Internet-in-a-Box (IIAB) 7.1 / pre-release onto Raspbian Buster,
-# Ubuntu 18.04 or Debian 10, run this 1-line installer:
-#
-#                 curl d.iiab.io/install.txt | sudo bash
-
-# 1. WARNING: NOOBS IS *NOT* SUPPORTED, as its partitioning is very different.
-#    On a Raspberry Pi, you need to INSTALL THE LATEST VERSION OF RASPBIAN:
-#    https://www.raspberrypi.org/documentation/installation/installing-images/README.md
-#    To attempt IIAB 7.1 on another Linux see the full/manual instructions:
-#    https://github.com/iiab/iiab/wiki/IIAB-Installation#do-everything-from-scratch
-
-# 2. An Ethernet cable is HIGHLY RECOMMENDED during installation, as this is
-#    more reliable than Wi-Fi (and faster!)  But if you must install IIAB using
-#    Wi-Fi not Ethernet, remember to run 'iiab-hotspot-on' AT THE VERY END, TO
-#    ACTIVATE RPi's INTERNAL WI-FI HOTSPOT, as this kills Internet over Wi-Fi!
-
-# 3. Run 'sudo raspi-config' on RPi, to set LOCALISATION OPTIONS
-
-# 4. OPTIONAL: if you have slow/pricey Internet, pre-position KA Lite's
-#    mandatory 0.9 GB English Pack (en.zip) within /tmp -- you can grab a copy
-#    from http://pantry.learningequality.org/downloads/ka-lite/0.17/content/contentpacks/en.zip
-
-# 5. WHEN YOU RUN 1-LINE INSTALLER 'curl d.iiab.io/install.txt | sudo bash'
-#    YOU THEN NEED TO TYPE IN YOUR PASSWORD IF ON UBUNTU/DEBIAN/ETC (for sudo)
-#    ^^^ ^^^^ ^^^^ ^^ ^^^^ ^^ ^^^^ ^^^^^^^^
-
-# 6. Follow on-screen instructions (TYPE 'sudo iiab' TO RESUME IF EVER NECESS!)
-
-# 7. About 1-2 hours later, it will announce that INTERNET-IN-A-BOX (IIAB)
-#    SOFTWARE INSTALL IS COMPLETE, prompting you to reboot...TO ADD CONTENT!
-
-# Thanks   For   Building   Your   Own   Library   To   Serve   One   &   All
-#
-# DRAFT IIAB 7.1 Release Notes:
-# https://github.com/iiab/iiab/wiki/IIAB-7.1-Release-Notes
-#
-# Write to bugs @ iiab.io if you find issues, Thank You!  Special Thanks to the
-# countries+communities+volunteers who worked non-stop to bring about IIAB 7.1!
-#
-# IIAB Development Team
-# http://FAQ.IIAB.IO
-
+# Copied from: https://github.com/jvonau/iiab-factory/blob/pi-gen/install.txt
 set -e                                   # Exit on error (avoids snowballing)
 export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
+BASE=/opt/iiab
 
-echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO /opt/iiab ...\n"
+echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO $BASE ...\n"
 apt -y install git nano
-mkdir -p /opt/iiab
-cd /opt/iiab/
+mkdir -p $BASE
+cd $BASE
 echo
 if [ -d iiab-factory ]; then
     echo -e "REPO iiab-factory EXISTS? -- updating master branch"
     cd iiab-factory
     git checkout master
     git pull
-    git branch -D jv-pi-gen || true
-    git checkout -b jv-pi-gen
-    git pull https://github.com/jvonau/iiab-factory.git pi-gen
+    git branch -D jv-pi-gen || true #remove for production
+    git checkout -b jv-pi-gen #remove for production
+    git pull https://github.com/jvonau/iiab-factory.git pi-gen #remove for production
     ln -sf /opt/iiab/iiab-factory/iiab /usr/sbin/iiab
-
 else
     echo -e "Cloning iiab-factory"
-#    git clone https://github.com/iiab/iiab-factory --depth 1
-    git clone https://github.com/iiab/iiab-factory
+#    git clone https://github.com/iiab/iiab-factory --depth 1 # for production
+    git clone https://github.com/iiab/iiab-factory #remove for production
     cd iiab-factory
-    git checkout -b jv-pi-gen
-    git pull https://github.com/jvonau/iiab-factory.git pi-gen
+    git checkout -b jv-pi-gen #remove for production
+    git pull https://github.com/jvonau/iiab-factory.git pi-gen #remove for production
     ln -sf /opt/iiab/iiab-factory/iiab /usr/sbin/iiab
 fi
-cd /opt/iiab/
+cd $BASE
 echo
 if [ -d iiab ]; then
     echo -e "REPO iiab EXISTS? Consider 'sudo iiab --reinstall'"
 else
-    git clone https://github.com/iiab/iiab --depth 10
-    git checkout -b jv-pi-gen master
-    git pull https://github.com/jvonau/iiab.git pi-gen
+    git clone https://github.com/iiab/iiab --depth 10 --branch release-7.0
+    git checkout -b master
+    git config branch.master.remote origin
+    git config branch.master.merge refs/heads/master
+    git checkout release-7.0
+    git checkout -b jv-pi-gen #remove for production
+    git pull https://github.com/jvonau/iiab.git pi-gen #remove for production
 fi
-cd /opt/iiab/
+cd $BASE
 echo
 if [ -d iiab-admin-console ]; then
     echo -e "REPO iiab-admin-console EXISTS? Consider 'sudo iiab --reinstall'"
 else
-    git clone https://github.com/iiab/iiab-admin-console --depth 1
+    git clone https://github.com/iiab/iiab-admin-console --depth 1 --branch v0.3.7
+    git checkout -b master
+    git config branch.master.remote origin
+    git config branch.master.merge refs/heads/master
+    git checkout v0.3.7
 fi
 
 # Run install script!
