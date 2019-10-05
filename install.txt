@@ -41,48 +41,52 @@
 # IIAB Development Team
 # http://FAQ.IIAB.IO
 
+# Copied from: https://github.com/jvonau/iiab-factory/blob/jv-pi-gen/install.txt
 set -e                                   # Exit on error (avoids snowballing)
 export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
+BASE=/opt/iiab
 
-echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO /opt/iiab ...\n"
+echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO $BASE ...\n"
 apt -y install git nano
-mkdir -p /opt/iiab
-cd /opt/iiab/
+mkdir -p $BASE
+cd $BASE
 echo
 if [ -d iiab-factory ]; then
     echo -e "REPO iiab-factory EXISTS? -- updating master branch"
     cd iiab-factory
     git checkout master
     git pull
-    git branch -D jv-pi-gen || true
-    git checkout -b jv-pi-gen
-    git pull https://github.com/jvonau/iiab-factory.git pi-gen
-    ln -sf /opt/iiab/iiab-factory/iiab /usr/sbin/iiab
-
+    git branch -D release-7.2 || true
+    git checkout -b release-7.2
+    cp /opt/iiab/iiab-factory/iiab /usr/sbin/iiab
 else
     echo -e "Cloning iiab-factory"
-#    git clone https://github.com/iiab/iiab-factory --depth 1
-    git clone https://github.com/iiab/iiab-factory
+    git clone https://github.com/iiab/iiab-factory --depth 1
     cd iiab-factory
-    git checkout -b jv-pi-gen
-    git pull https://github.com/jvonau/iiab-factory.git pi-gen
-    ln -sf /opt/iiab/iiab-factory/iiab /usr/sbin/iiab
+    git checkout -b release-7.2
+    cp /opt/iiab/iiab-factory/iiab /usr/sbin/iiab
 fi
-cd /opt/iiab/
+cd $BASE
 echo
 if [ -d iiab ]; then
     echo -e "REPO iiab EXISTS? Consider 'sudo iiab --reinstall'"
 else
-    git clone https://github.com/iiab/iiab --depth 10
-    git checkout -b jv-pi-gen master
-    git pull https://github.com/jvonau/iiab.git pi-gen
+    git clone https://github.com/iiab/iiab --depth 10 --branch release-7.2
+    git checkout -b master
+    git config branch.master.remote origin
+    git config branch.master.merge refs/heads/master
+    git checkout release-7.2
 fi
-cd /opt/iiab/
+cd $BASE
 echo
 if [ -d iiab-admin-console ]; then
     echo -e "REPO iiab-admin-console EXISTS? Consider 'sudo iiab --reinstall'"
 else
-    git clone https://github.com/iiab/iiab-admin-console --depth 1
+    git clone https://github.com/iiab/iiab-admin-console --depth 1 --branch master
+    git checkout -b release-7.2
+#    git config branch.master.remote origin
+#    git config branch.master.merge refs/heads/master
+#    git checkout v0.3.7
 fi
 
 # Run install script!
