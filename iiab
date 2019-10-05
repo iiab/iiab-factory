@@ -86,9 +86,14 @@ fi
 mkdir -p /etc/iiab
 cd /etc/iiab/
 if [ -f local_vars.yml ]; then
-
     # FUTURE: Test if their local_vars.yml is sufficiently version-compatible !
-
+    # Future is now...
+    OLD_CONF=`grep dansguardian local_vars.yml | grep True | wc -l`
+    if [ ! $OLD_CONF -eq 0 ]; then
+        echo -e "EXISTING /etc/iiab/local_vars.yml has dansguardian enabled"
+        echo -e "and is no longer available upstream, exiting to allow editing."
+        exit 1
+    fi
     echo -e "\n\n  EXISTING /etc/iiab/local_vars.yml is being used to install Internet-in-a-Box\n"
 
     echo -e "   🚂 🚃 🚄 🚅 🚆 🚇 🚈 🚉 🚊 🚋 🚌 🚍 🚎 🚏 🚐 🚑 🚒 🚚 🚛 🚜 🚞 🚟 🚠 🚡 🚲\n"
