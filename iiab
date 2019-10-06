@@ -58,20 +58,14 @@ fi
 
 if [ "$1" = "--upgrade" ]; then
     shift 1
-    rm $FLAGS/*complete
+    rm $FLAGS/iiab*complete || true
     REINSTALL="--reinstall"
     UPGRADE=1
 fi
 
 if [ "$1" = "--reinstall" ]; then
-    rm $FLAGS/*complete
+    rm $FLAGS/iiab*complete || true
     REINSTALL="--reinstall"
-fi
-
-if [ -f $FLAGS/iiab-complete ]; then
-   echo -e " IIAB completed successfully nothing to do.."
-   echo -e " iiab --reinstall if you really want to start over"
-   exit 0
 fi
 
 check_branch(){
@@ -120,6 +114,12 @@ fi
 
 if [ $UPGRADE == 1 ]; then
     use_master
+fi
+
+if [ -f $FLAGS/iiab-complete ]; then
+   echo -e " IIAB completed successfully nothing to do.."
+   echo -e " iiab --reinstall if you really want to start over"
+   exit 0
 fi
 
 # A. Subroutine for B. and D.  Returns true (0) if username ($1) exists with password ($2)
