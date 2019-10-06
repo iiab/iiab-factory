@@ -50,14 +50,76 @@ CONFDIR=/etc/iiab
 FLAGDIR=$CONFDIR/install-flags
 REINSTALL=""
 INTERACTIVE=1
+UPGRADE=0
 if [ "$1" = "--non-interactive" ]; then
     shift 1
     INTERACTIVE=0
 fi
 
+if [ "$1" = "--upgrade" ]; then
+    shift 1
+    rm $FLAGS/*complete
+    REINSTALL="--reinstall"
+    UPGRADE=1
+fi
+
 if [ "$1" = "--reinstall" ]; then
     rm $FLAGS/*complete
     REINSTALL="--reinstall"
+fi
+
+if [ -f $FLAGS/iiab-complete ]; then
+   echo -e " IIAB completed successfully nothing to do.."
+   echo -e " iiab --reinstall if you really want to start over"
+   exit 0
+fi
+
+check_branch(){
+    git branch | grep release-7 | wc -l
+}
+
+use_master(){
+    cd $BASE
+    if [ -d iiab ]; then
+        cd iiab
+        git checkout -b master || true # covers older curls of release-7.0
+        git config branch.master.remote origin # covers older curls of release-7.0
+        git config branch.master.merge refs/heads/master # covers older curls of release-7.0
+        git checkout master
+        git pull
+    fi
+    cd $BASE
+    if [ -d iiab-admin-console ]; then
+        cd iiab-admin-console
+        git checkout -b master || true # covers older curls of release-7.0
+        git config branch.master.remote origin # covers older curls of release-7.0
+        git config branch.master.merge refs/heads/master # covers older curls of release-7.0
+        git checkout master
+        git pull
+    fi
+}
+
+if check_branch == 1; then
+    echo -e "found release-7.X branch would you like (re)install using the latest master?[Y/n]"
+    ans=""
+    if [ $INTERACTIVE == 1 ]; then
+        read -t 5 ans < /dev/tty
+    fi
+    if [ "$ans" == "y" ] || [ "$ans" == "Y" ]; then
+        use_master
+    else
+        echo "remaning on release-7.X branch updating"
+        cd $BASE/iiab
+        git checkout release-7.0
+        git pull
+        cd $BASE/iiab-admin-console
+        git checkout v0.3.7
+        git pull
+    fi
+fi
+
+if [ $UPGRADE == 1 ]; then
+    use_master
 fi
 
 # A. Subroutine for B. and D.  Returns true (0) if username ($1) exists with password ($2)
@@ -96,11 +158,6 @@ if check_user_pwd "iiab-admin" "g0adm1n"; then
         read -t 15 ans < /dev/tty    # Whines but doesn't change password if [Enter]
         echo iiab-admin:"$ans" | chpasswd || true    # Overrides 'set -e'
     fi
-fi
-if [ -f $FLAGSDIR/iiab-complete ]; then
-   echo -e " IIAB completed successfully nothing to do.."
-   echo -e " iiab --reinstall if you really want to start over"
-   exit 0
 fi
 
 mkdir -p $FLAGDIR
