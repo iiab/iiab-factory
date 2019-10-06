@@ -88,6 +88,7 @@ fi
 if [ -f $FLAGS/iiab-complete ]; then
     echo -e "\n\nIIAB installation (/usr/sbin/iiab) is already complete -- per existence of:"
     echo -e "$FLAGS/iiab-complete -- nothing to do.\n"
+    exit 0
 fi
 
 # E. Position & customize $CONFIGDIR/local_vars.yml
