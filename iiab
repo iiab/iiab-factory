@@ -87,7 +87,7 @@ fi
 
 mkdir -p $FLAGDIR
 if [ -f $FLAGDIR/iiab-complete ]; then
-    echo -e "\n\nIIAB installation (/usr/sbin/iiab) is already complete -- per existence of:"
+    echo -e "\n\nIIAB INSTALLATION (/usr/sbin/iiab) IS ALREADY COMPLETE -- per existence of:"
     echo -e "$FLAGDIR/iiab-complete -- nothing to do.\n"
     exit 0
 fi
@@ -228,7 +228,7 @@ if [ ! -f $FLAGDIR/iiab-admin-console-complete ]; then
     ./install
     touch $FLAGDIR/iiab-admin-console-complete
 else
-    echo -e "Admin Console installation is already complete -- per existence of:"
+    echo -e "ADMIN CONSOLE INSTALLATION IS ALREADY COMPLETE -- per existence of:"
     echo -e "$FLAGDIR/iiab-admin-console-complete\n"
 fi
 
@@ -243,7 +243,7 @@ if [ -d /library/ka-lite ]; then
         kalite manage generate_zone || true    # Overrides 'set -e'
         touch $FLAGDIR/kalite-zone-complete
     else
-        echo -e "'kalite manage generate_zone' is already complete -- per existence of:"
+        echo -e "'kalite manage generate_zone' IS ALREADY COMPLETE -- per existence of:"
         echo -e "$FLAGDIR/kalite-zone-complete\n"
     fi
 
