@@ -45,6 +45,9 @@
 
 set -e                                   # Exit on error (avoids snowballing)
 export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
+BASEDIR=/opt/iiab
+CONFDIR=/etc/iiab
+FLAGDIR=$CONFDIR/install-flags
 
 # A. Subroutine for B. and D.  Returns true (0) if username ($1) exists with password ($2)
 check_user_pwd() {
@@ -82,20 +85,26 @@ if check_user_pwd "iiab-admin" "g0adm1n"; then
     echo iiab-admin:"$ans" | chpasswd || true    # Overrides 'set -e'
 fi
 
-# E. Position & customize /etc/iiab/local_vars.yml
-mkdir -p /etc/iiab
-cd /etc/iiab/
+mkdir -p $FLAGDIR
+if [ -f $FLAGDIR/iiab-complete ]; then
+    echo -e "\n\nIIAB INSTALLATION (/usr/sbin/iiab) IS ALREADY COMPLETE -- per existence of:"
+    echo -e "$FLAGDIR/iiab-complete -- nothing to do.\n"
+    exit 0
+fi
+
+# E. Position & customize $CONFDIR/local_vars.yml
+cd $CONFDIR
 if [ -f local_vars.yml ]; then
 
     # FUTURE: Test if their local_vars.yml is sufficiently version-compatible !
 
-    echo -e "\n\n  EXISTING /etc/iiab/local_vars.yml is being used to install Internet-in-a-Box\n"
+    echo -e "\n\n  EXISTING $CONFDIR/local_vars.yml is being used to install Internet-in-a-Box\n"
 
     echo -e "   🚂 🚃 🚄 🚅 🚆 🚇 🚈 🚉 🚊 🚋 🚌 🚍 🚎 🚏 🚐 🚑 🚒 🚚 🚛 🚜 🚞 🚟 🚠 🚡 🚲\n"
 
     echo -e "                     Google 'local_vars.yml' to learn more!"
 else
-    echo -e "\n\nInstalling Internet-in-a-Box requires /etc/iiab/local_vars.yml"
+    echo -e "\n\nInstalling Internet-in-a-Box requires $CONFDIR/local_vars.yml"
     echo -e "Do you want (1) 🚵 MIN-sized (2) 🚢🚣 MEDIUM-sized or (3) 🚂🚃🚃 BIG-sized?\n"
 
     echo -e "These take about 1, 2 or 3 hours on an older Raspberry Pi 3 or 3 B+, depending"
@@ -108,7 +117,6 @@ else
     echo -n "Please type 1, 2 or 3 then press [ENTER]: "
     read local_vars_size < /dev/tty
     echo
-
     case $local_vars_size in
         1)
             wget -O local_vars.yml https://github.com/iiab/iiab/raw/master/vars/local_vars_min.yml
@@ -121,10 +129,10 @@ else
             ;;
     esac
 
-    echo -en "\nEdit /etc/iiab/local_vars.yml to customize your Internet-in-a-Box? [Y/n] "
+    echo -en "\nEdit $CONFDIR/local_vars.yml to customize your Internet-in-a-Box? [Y/n] "
     read ans < /dev/tty
     if [ "$ans" != "n" ] && [ "$ans" != "N" ]; then
-        echo -e "\n1) PLEASE RUN: sudo nano /etc/iiab/local_vars.yml\n"
+        echo -e "\n1) PLEASE RUN: sudo nano $CONFDIR/local_vars.yml\n"
 
         echo -e "2) After you're done editing, RUN 'sudo iiab' TO CONTINUE!\n"
         exit 0
@@ -172,10 +180,10 @@ if [ -f /proc/device-tree/model ] && grep -qi raspberry /proc/device-tree/model;
 fi
 
 # H. Clone 3 IIAB repos
-echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO /opt/iiab ...\n"
+echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO $BASEDIR ...\n"
 apt -y install git
-mkdir -p /opt/iiab
-cd /opt/iiab/
+mkdir -p $BASEDIR
+cd $BASEDIR
 echo
 if [ -d iiab ]; then
     echo -e "REPO EXISTS? Consider 'cd /opt/iiab/iiab; git pull'"
@@ -199,8 +207,9 @@ fi
 echo -e "\n\nINSTALL ANSIBLE + CORE IIAB SOFTWARE + ADMIN CONSOLE / CONTENT PACK MENUS...\n"
 
 echo -e "Install Ansible..."
-cd /opt/iiab/iiab/scripts/
+cd $BASEDIR/iiab/scripts/
 ./ansible
+
 echo -e "\n┌──────────────────────────────────────────────────────────────────────────────┐"
 echo -e "│                                                                              │"
 echo -e "│   NOW INSTALL IIAB SOFTWARE! If glitches arise (connectivity or otherwise)   │"
@@ -210,11 +219,18 @@ echo -e "│                                                                    
 echo -e "│   child script ./iiab-install -- both avoid repeating any of the 9 stages.   │"
 echo -e "│                                                                              │"
 echo -e "└──────────────────────────────────────────────────────────────────────────────┘"
-cd /opt/iiab/iiab/
+cd $BASEDIR/iiab/
 ./iiab-install $@
+
 echo -e "Install Admin Console... (also runs iiab-get-kiwix-cat to d/l Kiwix catalog, and installs Dynamic Menuing for /library/www/html/home/index.html)\n"
-cd /opt/iiab/iiab-admin-console/
-./install
+if [ ! -f $FLAGDIR/iiab-admin-console-complete ]; then
+    cd $BASEDIR/iiab-admin-console
+    ./install
+    touch $FLAGDIR/iiab-admin-console-complete
+else
+    echo -e "ADMIN CONSOLE INSTALLATION IS ALREADY COMPLETE -- per existence of:"
+    echo -e "$FLAGDIR/iiab-admin-console-complete\n"
+fi
 
 # J. KA Lite prep
 if [ -d /library/ka-lite ]; then
@@ -222,20 +238,33 @@ if [ -d /library/ka-lite ]; then
 
     echo -e "Register with KA Lite - just the anonymous registration...\n"
     # /usr/bin/kalite venv wrapper invokes 'export KALITE_HOME=/library/ka-lite'
-    kalite manage generate_zone || true    # Overrides 'set -e' allowing repeat run
-    echo -e "\nInstall KA Lite's mandatory 0.9 GB English Pack... (en.zip)\n"
-    cd /tmp/    # Or /opt/iiab/downloads or /library/downloads if you prefer
-    if [ -f en.zip ]; then
-        if [ $(wc -c < en.zip) -ne 929916955 ]; then
-            echo -e "\nERROR: /tmp/en.zip must be 929,916,955 bytes to proceed.\n" >&2
-            exit 1
-        else
-            echo -e "\nUsing existing /tmp/en.zip whose 929,916,955 byte size is correct!\n"
-        fi
+    if [ ! -f $FLAGDIR/kalite-zone-complete ]; then
+        echo -e "Now running 'kalite manage generate_zone' ...\n"
+        kalite manage generate_zone || true    # Overrides 'set -e'
+        touch $FLAGDIR/kalite-zone-complete
     else
-        wget http://pantry.learningequality.org/downloads/ka-lite/0.17/content/contentpacks/en.zip
+        echo -e "'kalite manage generate_zone' IS ALREADY COMPLETE -- per existence of:"
+        echo -e "$FLAGDIR/kalite-zone-complete\n"
     fi
-    kalite manage retrievecontentpack local en en.zip
+
+    echo -e "\nInstall KA Lite's mandatory 0.9 GB English Pack... (en.zip)\n"
+    if [ ! -f $FLAGDIR/kalite-en.zip-complete ]; then
+        #echo -e 'Now retrieving it...\n'
+        cd /tmp
+        if [ -f en.zip ]; then
+            if [ $(wc -c < en.zip) -ne 929916955 ]; then
+                echo -e "\nERROR: /tmp/en.zip must be 929,916,955 bytes to proceed.\n" >&2
+                exit 1
+            else
+                echo -e "\nUsing existing /tmp/en.zip whose 929,916,955 byte size is correct!\n"
+            fi
+        else
+            wget http://pantry.learningequality.org/downloads/ka-lite/0.17/content/contentpacks/en.zip
+        fi
+        echo -e 'Now installing /tmp/en.zip into /library/ka-lite/content/*\n'
+        kalite manage retrievecontentpack local en en.zip
+        touch $FLAGDIR/kalite-en.zip-complete
+    fi
 fi
 # WARNING: /tmp/en.zip (and all stuff in /tmp) is auto-deleted during reboots
 # NEW WAY ABOVE - since 2018-07-03 - installs KA Lite's mandatory English Pack
@@ -243,11 +272,13 @@ fi
 # kalite manage retrievecontentpack download en
 # OLD WAY ABOVE - fails w/ sev ISPs per https://github.com/iiab/iiab/issues/871
 
-# K. Start BitTorrent downloads, e.g. if /etc/iiab/local_vars.yml requested any
+# K. Start BitTorrent downloads, e.g. if $CONFDIR/local_vars.yml requested any
 if (systemctl -q is-active transmission-daemon) then
     echo -e "\n\nSTARTING BITTORRENT DOWNLOAD(S) for KA Lite...Please Monitor: http://box:9091\n"
     transmission-remote -n Admin:changeme -t all --start
 fi
+
+touch $FLAGDIR/iiab-complete
 
 # L. Educate Implementers prior to rebooting!
 echo -e "\n\n         ┌───────────────────────────────────────────────────────────┐"
