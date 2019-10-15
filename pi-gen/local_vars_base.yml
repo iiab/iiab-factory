@@ -21,9 +21,9 @@ apache_allow_sudo: False
 apache_high_php_limits: False
 dnsmasq_install: True
 dnsmasq_enabled: True
-kalite_install: True
+kalite_install: False
 kalite_enabled: False
-kiwix_install: True
+kiwix_install: False
 kiwix_enabled: False
 mysql_install: True
 mysql_enabled: False
