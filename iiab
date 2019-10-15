@@ -49,17 +49,16 @@ FLAGDIR=$CONFDIR/install-flags
 APT_PATH=/usr/bin    # Avoids problematic /usr/local/bin/apt on Linux Mint
 REINSTALL=""
 INTERACTIVE=1
-UPGRADE=0
+UPDATE=0
 if [ "$1" = "--non-interactive" ]; then
     shift 1
     INTERACTIVE=0
 fi
 
-if [ "$1" = "--upgrade" ]; then
+if [ "$1" = "--update" ]; then
     shift 1
     rm $FLAGS/iiab*complete || true
-    REINSTALL="--reinstall"
-    UPGRADE=1
+    UPDATE=1
 fi
 
 if [ "$1" = "--reinstall" ]; then
@@ -68,6 +67,7 @@ if [ "$1" = "--reinstall" ]; then
 fi
 
 check_branch(){
+    cd $BASE/iiab
     git branch | grep release-7 | wc -l
 }
 
@@ -78,8 +78,6 @@ use_master(){
         git checkout -b master || true # covers older curls of release-7.0
         git config branch.master.remote origin # covers older curls of release-7.0
         git config branch.master.merge refs/heads/master # covers older curls of release-7.0
-        git checkout master
-        git pull
     fi
     cd $BASE
     if [ -d iiab-admin-console ]; then
@@ -87,6 +85,19 @@ use_master(){
         git checkout -b master || true # covers older curls of release-7.0
         git config branch.master.remote origin # covers older curls of release-7.0
         git config branch.master.merge refs/heads/master # covers older curls of release-7.0
+    fi
+}
+
+update_master(){
+    cd $BASEDIR
+    if [ -d iiab ]; then
+        cd iiab
+        git checkout master
+        git pull
+    fi
+    cd $BASEDIR
+    if [ -d iiab-admin-console ]; then
+        cd iiab-admin-console
         git checkout master
         git pull
     fi
@@ -104,15 +115,10 @@ if check_branch == 1; then
         echo "remaning on release-7.X branch updating"
         cd $BASE/iiab
         git checkout release-7.0
-        git pull
-        cd $BASE/iiab-admin-console
-        git checkout v0.3.7
-        git pull
-    fi
 fi
 
-if [ $UPGRADE == 1 ]; then
-    use_master
+if [ $UPDATE == 1 ]; then
+    update_master
 fi
 
 if [ -f $FLAGS/iiab-complete ]; then
@@ -252,22 +258,6 @@ fi
 if [ -e /dev/mmcblk0p2 ]; then
     echo -e "\n\nFound microSD card /dev/mmcblk0p2: Lower its reserve disk space from ~5% to 1%\n"
     tune2fs -m 1 /dev/mmcblk0p2
-fi
-
-# H. update 2 IIAB repos
-if [ $REINSTALL == --reinstall ]; then
-    cd $BASEDIR
-    if [ -d iiab ]; then
-        cd iiab
-        git checkout master
-        git pull
-    fi
-    cd $BASEDIR
-    if [ -d iiab-admin-console ]; then
-        cd iiab-admin-console
-        git checkout master
-        git pull
-    fi
 fi
 
 # I. Install Ansible + 2 IIAB repos
