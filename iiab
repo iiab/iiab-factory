@@ -208,7 +208,7 @@ echo -e "\n\nINSTALL ANSIBLE + CORE IIAB SOFTWARE + ADMIN CONSOLE / CONTENT PACK
 
 echo -e "Install Ansible..."
 cd $BASEDIR/iiab/scripts/
-./ansible
+./ansible-2.7.x    # 2019-10-20: TEMPORARY WORKAROUND, REVERTING ANSIBLE 2.8.6 TO 2.7.14 DUE TO lineinfile BUG, PREVENTING Calibre-Web INSTALL: https://github.com/iiab/iiab/issues/2010
 
 echo -e "\n┌──────────────────────────────────────────────────────────────────────────────┐"
 echo -e "│                                                                              │"
