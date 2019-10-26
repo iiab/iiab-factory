@@ -52,7 +52,10 @@ OS=`grep ^ID= /etc/*release|cut -d= -f2`
 OS=${OS//\"/}
 CURR_KERN=`uname -r`
 MIN_RPI_KERN=4.9.59-v7+    # UPDATE THIS SOON...when Raspbian's Oct 2019 kernels are finally fixed (https://github.com/iiab/iiab/issues/1993 etc)
-REVISION="1274"
+REVISION="1273"    # supplied by pri-update
+# used 1273 to test apt skip kernel below
+# need to retrive the version from the image
+IMAGE_REV="1273"
 
 # A. Subroutine for B. and D.  Returns true (0) if username ($1) exists with password ($2)
 check_user_pwd() {
@@ -95,6 +98,40 @@ if [ -f $FLAGDIR/iiab-complete ]; then
     echo -e "\n\nIIAB INSTALLATION (/usr/sbin/iiab) IS ALREADY COMPLETE -- per existence of:"
     echo -e "$FLAGDIR/iiab-complete -- nothing to do.\n"
     exit 0
+fi
+
+# Subroutine compares software version numbers.  Generates rare false positives
+# like "1.0 > 1" and "2.4.0 > 2.4".  Avoid risks by structuring conditionals w/
+# a consistent # of decimal points e.g. "if version_gt w.x.y.z a.b.c.d; then"
+version_gt() { [ "$(printf '%s\n' "$@" | sort -V | head -1)" != "$1" ]; }
+
+get_apt_list() {
+    apt list --upgradable | grep -v Listing | awk -F "/" '{print $1}'
+}
+
+# Verify that Raspbian is running a recent enough kernel. As Raspbian kernels installed via debs
+# replaces /lib/modules/* without retaining the running kernel's modules directory needing a reboot
+# to avoid a kernel module mismatch when loading kernel modules.
+# Note rpi-update retains the older modules directory
+echo "Found Kernel "$CURR_KERN""
+if [ "$OS" == "raspbian" ] && version_gt $MIN_RPI_KERN $CURR_KERN ; then
+    # grab the kernel revison number
+    rev=`uname -a | awk '{print $4}' | sed 's/#//'`
+    echo -e "Found Kernel revison "$rev"\n"
+    echo -e "\nEXITING: Kernel "$MIN_RPI_KERN" or higher required with Raspbian."
+    echo -e "PLEASE RUN 'apt update' then 'apt install raspberrypi-kernel' then reboot."
+    echo -e "IIAB INSTALL INSTRUCTIONS: https://github.com/iiab/iiab/wiki/IIAB-Installation"
+    exit 1
+else
+    # grab the kernel revison number
+    rev=`uname -a | awk '{print $4}' | sed 's/#//'`
+    echo -e "Found Kernel revison "$rev"\n"
+    if [ "$rev" -lt "$REVISION" ] && [ ! "$rev" -eq "$IMAGE_REV" ]; then
+        echo -e "waiting on upstream kernel\n"
+        exit 1
+    else
+        good_rev=1
+    fi
 fi
 
 # E. Position & customize $CONFDIR/local_vars.yml
@@ -144,33 +181,6 @@ else
     fi
 fi
 
-# Subroutine compares software version numbers.  Generates rare false positives
-# like "1.0 > 1" and "2.4.0 > 2.4".  Avoid risks by structuring conditionals w/
-# a consistent # of decimal points e.g. "if version_gt w.x.y.z a.b.c.d; then"
-version_gt() { [ "$(printf '%s\n' "$@" | sort -V | head -1)" != "$1" ]; }
-
-get_apt_list() {
-    apt list --upgradable | grep -v Listing | awk -F "/" '{print $1}'
-}
-
-# Verify that Raspbian is running a recent enough kernel.  As Raspbian
-# updates on 4.9.41-v7+ broke bridging, WiFi AP & OpenVPN in Oct/Nov 2017.
-echo "Found Kernel "$CURR_KERN""
-if [ "$OS" == "raspbian" ] && version_gt $MIN_RPI_KERN $CURR_KERN ; then
-    echo -e "\nEXITING: Kernel "$MIN_RPI_KERN" or higher required with Raspbian."
-    echo -e "PLEASE RUN 'apt update' then 'apt install raspberrypi-kernel' then reboot."
-    echo -e "IIAB INSTALL INSTRUCTIONS: https://github.com/iiab/iiab/wiki/IIAB-Installation"
-    exit 1
-else
-    # grab the kernel revison number
-    rev=`uname -a | awk '{print $4}' | sed 's/#//'`
-    echo "Found Kernel revison "$rev"
-    if [ "$rev" -lt "$REVISION" ] ; then
-        echo -e "waiting on upstream kernel"
-        exit 1
-    fi
-fi
-
 # F. Mandate OS SECURITY/UPDATES if 'apt update' has any (IF SO REBOOT)
 # Educate implementer while waiting for 'apt update'
 echo -e "\n\n ██████████████████████████████████████████████████████████████████████████████"
@@ -178,6 +188,8 @@ echo -e " ██                                                                
 echo -e " ██  RUN 'sudo iiab' IF THIS INSTALL SCRIPT EVER FAILS, TO TRY TO CONTINUE!  ██"
 echo -e " ██                                                                          ██"
 echo -e " ██████████████████████████████████████████████████████████████████████████████"
+echo -ne "\nHit [ENTER] to confirm you'll TRY TO RERUN 'sudo iiab' IF THERE IS A PROBLEM: "
+read ans < /dev/tty
 
 echo -e "\n\n'apt update' is checking for OS updates...\n"
 #echo -e "2019-07-11 TEMP WORKAROUND FOR RASPBIAN BUSTER'S testing->stable apt GLITCH...\nDetails @ https://github.com/iiab/iiab/issues/1856\n"
@@ -190,22 +202,26 @@ if [ $(wc -c < /tmp/apt.stderr) -gt 82 ]; then    # apt.stderr typically contain
     exit 1
 elif grep -q 'apt list --upgradable' /tmp/apt.stdout; then    # apt.stdout typically contains {"All packages are up to date.\n" [even if primary locale is French & Hindi!], "Todos los paquetes están actualizados.\n", "所有软件包均为最新。\n"} ...OR... {"5 packages can be upgraded. Run 'apt list --upgradable' to see them.\n" [even if primary locale is French & Hindi!], "Se puede actualizar 1 paquete. Ejecute «apt list --upgradable» para verlo.\n", "有 1 个软件包可以升级。请执行 ‘apt list --upgradable’ 来查看它们。\n"}
     cat /tmp/apt.stdout
-    echo -e "\nYour OS will now be upgraded...this takes time.\n"
+    if [ "$OS" == "raspbian" ] && [ $good_rev -eq 1 ]; then
+        updates=`get_apt_list | grep -v kernel | grep -v ansible`
+        echo -e "\nYour OS will now be upgraded...this takes time.\n"
+        echo -e "Excluding: kernel ansible \n"
+        echo -e "Installing updated packages: \n"
+        echo -e "$updates\n"
+        echo -n "Hit [ENTER] to proceed "
+        read ans < /dev/tty
+        apt -y install $updates
+    else
 # THEN IT WILL AUTO-REBOOT.\n"
-#    echo -n "Hit [ENTER] to confirm you'll RUN 'sudo iiab' AFTER IT REBOOTS: "
-#    read ans < /dev/tty
-#    echo
-#    apt -y dist-upgrade
-#    reboot
-    if [ "$OS" == "raspbian" ]; then
-        updates="get_apt_list | grep -v kernel"
-        apt install $updates
+        echo -e "\nYour OS will now be upgraded...this takes time. THEN IT WILL AUTO-REBOOT.\n"
+        echo -n "Hit [ENTER] to confirm you'll RUN 'sudo iiab' AFTER IT REBOOTS: "
+        read ans < /dev/tty
+        echo
+        apt -y dist-upgrade
+        reboot
     fi
 fi
-cat /tmp/apt.stdout    # "All packages are up to date.\n"
-
-echo -ne "\nHit [ENTER] to confirm you'll TRY TO RERUN 'sudo iiab' IF THERE IS A PROBLEM: "
-read ans < /dev/tty
+#cat /tmp/apt.stdout    # "All packages are up to date.\n"
 
 ######################### INTERACTIVE STUFF IS ABOVE #########################
 
