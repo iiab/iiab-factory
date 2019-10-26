@@ -106,7 +106,7 @@ fi
 version_gt() { [ "$(printf '%s\n' "$@" | sort -V | head -1)" != "$1" ]; }
 
 get_apt_list() {
-    apt list --upgradable | grep -v Listing | awk -F "/" '{print $1}'
+    apt list --upgradable | grep -v Listing  | grep -v kernel | grep -v ansible | awk -F "/" '{print $1}'
 }
 
 # Verify that Raspbian is running a recent enough kernel. As Raspbian kernels installed via debs
@@ -191,7 +191,7 @@ echo -e " ███████████████████████�
 echo -ne "\nHit [ENTER] to confirm you'll TRY TO RERUN 'sudo iiab' IF THERE IS A PROBLEM: "
 read ans < /dev/tty
 
-echo -e "\n\n'apt update' is checking for OS updates...\n"
+echo -e "'apt update' is checking for OS updates...\n"
 #echo -e "2019-07-11 TEMP WORKAROUND FOR RASPBIAN BUSTER'S testing->stable apt GLITCH...\nDetails @ https://github.com/iiab/iiab/issues/1856\n"
 #apt -y update || true    # Overrides 'set -e'
 #echo -e "\nNOW THE REAL 'apt update' WILL RUN...\n"
@@ -201,18 +201,23 @@ if [ $(wc -c < /tmp/apt.stderr) -gt 82 ]; then    # apt.stderr typically contain
     cat /tmp/apt.stderr
     exit 1
 elif grep -q 'apt list --upgradable' /tmp/apt.stdout; then    # apt.stdout typically contains {"All packages are up to date.\n" [even if primary locale is French & Hindi!], "Todos los paquetes están actualizados.\n", "所有软件包均为最新。\n"} ...OR... {"5 packages can be upgraded. Run 'apt list --upgradable' to see them.\n" [even if primary locale is French & Hindi!], "Se puede actualizar 1 paquete. Ejecute «apt list --upgradable» para verlo.\n", "有 1 个软件包可以升级。请执行 ‘apt list --upgradable’ 来查看它们。\n"}
-    cat /tmp/apt.stdout
-    if [ "$OS" == "raspbian" ] && [ $good_rev -eq 1 ]; then
-        updates=`get_apt_list | grep -v kernel | grep -v ansible`
-        echo -e "\nYour OS will now be upgraded...this takes time.\n"
+#    cat /tmp/apt.stdout
+    # start bypass
+    if [ "$OS" == "raspbian" ] && [ "$good_rev" -eq 1 ]; then
         echo -e "Excluding: kernel ansible \n"
-        echo -e "Installing updated packages: \n"
-        echo -e "$updates\n"
-        echo -n "Hit [ENTER] to proceed "
-        read ans < /dev/tty
-        apt -y install $updates
-    else
-# THEN IT WILL AUTO-REBOOT.\n"
+        updates=`get_apt_list`
+        echo "$updates"
+        if [ ! -z "$updates" ]; then
+            echo -e "$updates\n"
+            echo -e "Installing updated packages: \n"
+            echo -e "Your OS will now be upgraded...this takes time.\n"
+            echo -n "Hit [ENTER] to proceed "
+            read ans < /dev/tty
+            apt -y install $updates
+        else
+            echo -e "Nothing to do, proceeding...."
+        fi
+    else ## end bypass
         echo -e "\nYour OS will now be upgraded...this takes time. THEN IT WILL AUTO-REBOOT.\n"
         echo -n "Hit [ENTER] to confirm you'll RUN 'sudo iiab' AFTER IT REBOOTS: "
         read ans < /dev/tty
@@ -221,7 +226,7 @@ elif grep -q 'apt list --upgradable' /tmp/apt.stdout; then    # apt.stdout typic
         reboot
     fi
 fi
-#cat /tmp/apt.stdout    # "All packages are up to date.\n"
+cat /tmp/apt.stdout    # "All packages are up to date.\n"
 
 ######################### INTERACTIVE STUFF IS ABOVE #########################
 
