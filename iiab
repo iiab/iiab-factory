@@ -56,6 +56,7 @@ REVISION="1273"    # supplied by pri-update
 # used 1273 to test apt skip kernel below
 # need to retrive the version from the image
 IMAGE_REV="1273"
+USE_MASTER=0
 
 # A. Subroutine for B. and D.  Returns true (0) if username ($1) exists with password ($2)
 check_user_pwd() {
@@ -93,13 +94,17 @@ if check_user_pwd "iiab-admin" "g0adm1n"; then
     echo iiab-admin:"$ans" | chpasswd || true    # Overrides 'set -e'
 fi
 
-mkdir -p $FLAGDIR
 if [ -f $FLAGDIR/iiab-complete ]; then
     echo -e "\n\nIIAB INSTALLATION (/usr/sbin/iiab) IS ALREADY COMPLETE -- per existence of:"
     echo -e "$FLAGDIR/iiab-complete -- nothing to do.\n"
     exit 0
 fi
+mkdir -p $FLAGDIR
 
+check_branch(){
+    cd $BASEDIR/iiab
+    git branch | grep release-7 | wc -l
+}
 # Subroutine compares software version numbers.  Generates rare false positives
 # like "1.0 > 1" and "2.4.0 > 2.4".  Avoid risks by structuring conditionals w/
 # a consistent # of decimal points e.g. "if version_gt w.x.y.z a.b.c.d; then"
@@ -131,6 +136,29 @@ else
         exit 1
     else
         good_rev=1
+    fi
+fi
+
+# existing installs would have local_vars
+if [ -f $CONFDIR/local_vars.yml ]; then
+    if check_branch == 1; then
+        echo -e "found release-7.X branch would you like (re)install using the latest master?[Y/n]"
+#        ans=""
+#        if [ $INTERACTIVE == 1 ]; then
+#            read -t 5 ans < /dev/tty
+#        fi
+        read ans < /dev/tty
+        if [ "$ans" == "y" ] || [ "$ans" == "Y" ]; then
+            USE_MASTER=1
+        else
+            echo "remaning on release-7.X branch updating"
+            cd $BASE/iiab
+            git checkout release-7.0
+            git pull
+            cd $BASE/iiab-admin-console
+            git checkout v0.3.7
+            git pull
+        fi
     fi
 fi
 
@@ -225,8 +253,8 @@ elif grep -q 'apt list --upgradable' /tmp/apt.stdout; then    # apt.stdout typic
         apt -y dist-upgrade
         reboot
     fi
+#    cat /tmp/apt.stdout    # "All packages are up to date.\n"
 fi
-cat /tmp/apt.stdout    # "All packages are up to date.\n"
 
 ######################### INTERACTIVE STUFF IS ABOVE #########################
 
@@ -243,13 +271,33 @@ mkdir -p $BASEDIR
 cd $BASEDIR
 echo
 if [ -d iiab ]; then
-    echo -e "REPO EXISTS? Consider 'cd /opt/iiab/iiab; git pull'"
+    if [ "$USE_MASTER" -eq 1 ]; then
+        cd iiab
+        git checkout -b master > /dev/null 2> /dev/null || true # covers older curls of release-7.0
+        git config branch.master.remote origin # covers older curls of release-7.0
+        git config branch.master.merge refs/heads/master # covers older curls of release-7.0
+        git checkout master
+        git pull
+        cd $BASEDIR
+    else
+        echo -e "REPO EXISTS? Consider 'cd /opt/iiab/iiab; git pull'"
+    fi
 else
     git clone https://github.com/iiab/iiab --depth 1
 fi
 echo
 if [ -d iiab-admin-console ]; then
-    echo -e "REPO EXISTS? Consider 'cd /opt/iiab/iiab-admin-console; git pull'"
+    if [ "$USE_MASTER" -eq 1 ]; then
+        cd iiab-admin-console
+        git checkout -b master > /dev/null 2> /dev/null || true # covers older curls of release-7.0
+        git config branch.master.remote origin # covers older curls of release-7.0
+        git config branch.master.merge refs/heads/master # covers older curls of release-7.0
+        git checkout master
+        git pull
+        cd $BASEDIR
+    else
+        echo -e "REPO EXISTS? Consider 'cd /opt/iiab/iiab-admin-console; git pull'"
+    fi
 else
     git clone https://github.com/iiab/iiab-admin-console --depth 1
 fi
@@ -264,6 +312,7 @@ fi
 echo -e "\n\nINSTALL ANSIBLE + CORE IIAB SOFTWARE + ADMIN CONSOLE / CONTENT PACK MENUS...\n"
 
 echo -e "Install Ansible..."
+# could just use $BASEDIR/iiab/scripts/ansible-2.9.x without the 'cd'
 cd $BASEDIR/iiab/scripts/
 ./ansible-2.9.x    # BULDING ON 2019-10-20'S TEMPORARY WORKAROUND REVERTING ANSIBLE 2.8.6 TO 2.7.14 DUE TO lineinfile BUG, PREVENTING Calibre-Web INSTALL: https://github.com/iiab/iiab/issues/2010
 
