@@ -133,6 +133,7 @@ else
     echo -e "Found Kernel revison "$rev"\n"
     if [ "$rev" -lt "$REVISION" ] && [ ! "$rev" -eq "$IMAGE_REV" ]; then
         echo -e "waiting on upstream kernel\n"
+        echo -e "https://github.com/iiab/iiab/issues/1993\n"
         exit 1
     else
         good_rev=1
