@@ -120,7 +120,7 @@ get_apt_list() {
 # Note rpi-update retains the older modules directory
 echo "Found Kernel "$CURR_KERN""
 if [ "$OS" == "raspbian" ] && version_gt $MIN_RPI_KERN $CURR_KERN ; then
-    # grab the kernel revison number
+# grab the kernel revison number
     rev=`uname -a | awk '{print $4}' | sed 's/#//'`
     echo -e "Found Kernel revison "$rev"\n"
     echo -e "\nEXITING: Kernel "$MIN_RPI_KERN" or higher required with Raspbian."
@@ -128,14 +128,21 @@ if [ "$OS" == "raspbian" ] && version_gt $MIN_RPI_KERN $CURR_KERN ; then
     echo -e "IIAB INSTALL INSTRUCTIONS: https://github.com/iiab/iiab/wiki/IIAB-Installation"
     exit 1
 else
-    # grab the kernel revison number
+# grab the kernel revison number
     rev=`uname -a | awk '{print $4}' | sed 's/#//'`
     echo -e "Found Kernel revison "$rev"\n"
     if [ "$rev" -lt "$REVISION" ] && [ ! "$rev" -eq "$IMAGE_REV" ]; then
-        echo -e "waiting on upstream kernel\n"
+        echo -e "Waiting on upstream apt kernel\n"
         echo -e "https://github.com/iiab/iiab/issues/1993\n"
+# lets not risk having pri-update's kernel being undone when the apt kernel
+# would be installed below.
+        echo -e "Workaround RUN 'apt update' then 'apt install raspberrypi-kernel'"
+        echo -e "Workaround RUN 'rpi-update' at your own risk then REBOOT\n"
+        echo -n "RUN 'sudo iiab' AFTER IT REBOOTS\n"
         exit 1
     else
+# good to go with rpi-update having been run bumping the revison number
+# in uname -a
         good_rev=1
     fi
 fi
