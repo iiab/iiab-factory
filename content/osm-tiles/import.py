@@ -1,4 +1,4 @@
-#!/bin/env python
+#!/opt/iiab/admin/venv/bin/python2
 import os
 import iiab
 import osmtile

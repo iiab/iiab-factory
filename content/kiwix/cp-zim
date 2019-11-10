@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/opt/iiab/admin/venv/bin/python2
 
 import sys, yaml, os, stat, shutil, argparse
 dest_dir = "/library/zims/"

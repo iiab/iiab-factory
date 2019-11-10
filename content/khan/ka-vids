@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/opt/iiab/admin/venv/bin/python2
 # List youtube video ids by topic or list sub topics
 
 import sys, yaml, os, stat, shutil, argparse, sqlite3

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/opt/iiab/admin/venv/bin/python2
 # Scan KA Lite content for mismatches between databases and actual files
 
 import sys, yaml, os.path, argparse, sqlite3

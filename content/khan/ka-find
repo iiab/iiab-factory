@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/opt/iiab/admin/venv/bin/python2
 import sys, yaml, os.path, argparse, sqlite3
 
 kalite_dbase_dir = "/library/ka-lite/database/"
