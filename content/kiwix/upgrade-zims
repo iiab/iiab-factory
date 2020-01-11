@@ -1,0 +1,159 @@
+#!/usr/bin/python3
+
+import os, sys, syslog
+import pwd, grp
+import time
+from datetime import date, datetime
+import json
+import yaml
+import re
+import subprocess
+import shlex
+import configparser
+import xml.etree.ElementTree as ET
+import argparse
+import fnmatch
+import argparse
+import iiab.iiab_lib as iiab
+import iiab.adm_lib as adm
+
+KIWIX_CAT = iiab.CONST.kiwix_cat_path
+lib_xml_file = '/library/zims/library.xml'
+doc_root = iiab.CONST.doc_root
+zim_version_idx_dir = doc_root + "/common/assets/"
+zim_version_idx_file = "zim_version_idx.json"
+zim_content_path = iiab.CONST.zim_path + '/content/'
+
+version_idx = {}
+zims_cat = {}
+cat_perm_ref_id_map = {}
+cat_perm_ref_url_map = {}
+zims_installed = {}
+path_to_id_map = {}
+
+def main():
+    global version_idx
+    global zims_cat
+    global zims_cat
+    global cat_perm_ref_id_map
+    global cat_perm_ref_url_map
+    global zims_installed
+    global path_to_id_map
+
+    args = parse_args()
+
+    version_idx = read_zim_version_idx(zim_version_idx_dir + zim_version_idx_file)
+    zims_cat = read_kiwix_catalog(KIWIX_CAT)
+    cat_perm_ref_id_map, cat_perm_ref_url_map = calc_cat_perm_ref_idx(zims_cat)
+    zims_installed, path_to_id_map = read_library_xml(lib_xml_file)
+
+    if args.keep:
+        keep_flag = True
+    else:
+        keep_flag = False
+    if args.zim:
+        upgrade_zim(args.zim, keep_flag)
+    else:
+        for installed_perma_ref in version_idx:
+            upgrade_zim(installed_perma_ref, keep_flag)
+
+def upgrade_zim(installed_perma_ref, keep_flag):
+    print("Checking for upgrade to " + installed_perma_ref)
+    upgraded_perma_ref = rewrite_perma_ref(installed_perma_ref)
+    if upgraded_perma_ref in cat_perm_ref_id_map: # current kiwix catalog has perma_ref to upgrade
+        installed_perma_ref_path = "content/" + version_idx[installed_perma_ref]["file_name"] + ".zim"
+        full_installed_perma_ref_path = iiab.CONST.zim_path + "/" + installed_perma_ref_path
+        old_zim_id = path_to_id_map[installed_perma_ref_path]
+        new_zim_id = cat_perm_ref_id_map[upgraded_perma_ref]
+        new_url = cat_perm_ref_url_map[upgraded_perma_ref]
+
+        if new_zim_id != old_zim_id: # only download if not already downloaded
+            print (upgraded_perma_ref, new_url)
+            download_zim(new_url, full_installed_perma_ref_path, keep_flag)
+    return
+
+def read_kiwix_catalog(KIWIX_CAT):
+    # Read the kiwix catalog
+    with open(KIWIX_CAT, 'r') as f:
+        json_data = f.read()
+    download = json.loads(json_data)
+    zims_catalog = download['zims']
+    return zims_catalog
+
+def read_library_xml(lib_xml_file, kiwix_exclude_attr=[""]): # duplicated from iiab-cmdsrv
+    kiwix_exclude_attr.append("id") # don't include id
+    kiwix_exclude_attr.append("favicon") # don't include large favicon
+    zims_installed = {}
+    path_to_id_map = {}
+    try:
+        tree = ET.parse(lib_xml_file)
+        root = tree.getroot()
+        xml_item_no = 0
+        for child in root:
+            #xml_item_no += 1 # hopefully this is the array number
+            attributes = {}
+            if 'id' not in child.attrib: # is this necessary? implies there are records with no book id which would break index for removal
+                  print ("xml record missing Book Id")
+            id = child.attrib['id']
+            for attr in child.attrib:
+                if attr not in kiwix_exclude_attr:
+                    attributes[attr] = child.attrib[attr] # copy if not id or in exclusion list
+            zims_installed[id] = attributes
+            path_to_id_map[child.attrib['path']] = id
+    except IOError:
+        zims_installed = {}
+    return zims_installed, path_to_id_map
+
+def read_zim_version_idx(zim_version_idx_file):
+    # Read the zim_version_idx_file
+    with open(zim_version_idx_file, 'r') as f:
+        json_data = f.read()
+    zim_version_idx = json.loads(json_data)
+    return zim_version_idx
+
+def calc_cat_perm_ref_idx(zims_catalog):
+    cat_perm_ref_id_map = {}
+    cat_perm_ref_url_map = {}
+    for zim_id in zims_catalog:
+        perma_ref = zims_catalog[zim_id]['perma_ref']
+        url = zims_catalog[zim_id]['url'].split('.meta')[0]
+        if perma_ref in cat_perm_ref_id_map:
+            print ('duplicate', perma_ref)
+            if url > cat_perm_ref_url_map[perma_ref]:
+                cat_perm_ref_id_map[perma_ref] = zim_id
+                cat_perm_ref_url_map[perma_ref] = url
+        else:
+            cat_perm_ref_id_map[perma_ref] = zim_id
+            cat_perm_ref_url_map[perma_ref] = url
+    return cat_perm_ref_id_map, cat_perm_ref_url_map
+
+def download_zim(new_url, installed_perma_ref_path, keep_flag):
+    # make sure not already downloaded
+    cmdstr = "/usr/bin/wget -c --progress=dot:giga --directory-prefix=" + zim_content_path + " " + new_url
+    try:
+        adm.subproc_run(cmdstr)
+        if not keep_flag:
+            print("Removing " + installed_perma_ref_path)
+            os.remove(installed_perma_ref_path)
+    except:
+        print("Download failed for " + new_url)
+        pass
+
+# Handle any Kiwix renaming issues
+def rewrite_perma_ref(installed_perma_ref):
+    perma_ref = installed_perma_ref
+    if 'novid' in installed_perma_ref:
+        perma_ref = installed_perma_ref.replace('novid', 'maxi')
+    return perma_ref
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Update installed Zims to latest version.")
+    parser.add_argument("-z", "--zim", type=str, help="zim to update (e.g. wikipedia_en_medicine_maxi). Leave blank for All.")
+    parser.add_argument("-k", "--keep", help="don't remove old zim", action="store_true")
+    return parser.parse_args()
+
+# Now start the application
+if __name__ == "__main__":
+
+    # Run the main routine
+    main()
