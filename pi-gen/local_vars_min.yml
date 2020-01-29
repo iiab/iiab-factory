@@ -1,4 +1,4 @@
-installing: True
+imaging: True
 bluetooth_install: True
 bluetooth_enabled: True
 bluetooth_term_enabled: False

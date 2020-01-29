@@ -1,4 +1,4 @@
-installing: True
+imaging: True
 download_timeout: 200
 default_language: en
 language_priority: en es fr
