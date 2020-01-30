@@ -14,6 +14,7 @@ import xml.etree.ElementTree as ET
 import argparse
 import fnmatch
 import argparse
+import concurrent
 import iiab.iiab_lib as iiab
 import iiab.adm_lib as adm
 
@@ -23,6 +24,7 @@ doc_root = iiab.CONST.doc_root
 zim_version_idx_dir = doc_root + "/common/assets/"
 zim_version_idx_file = "zim_version_idx.json"
 zim_content_path = iiab.CONST.zim_path + '/content/'
+MAX_THREADS = 4
 
 version_idx = {}
 zims_cat = {}
@@ -54,8 +56,9 @@ def main():
     if args.zim:
         upgrade_zim(args.zim, keep_flag)
     else:
-        for installed_perma_ref in version_idx:
-            upgrade_zim(installed_perma_ref, keep_flag)
+        with concurrent.futures.ThreadPoolExecutor(MAX_THREADS) as executor:
+            for installed_perma_ref in version_idx:
+                    executor.submit(upgrade_zim, installed_perma_ref, keep_flag)
 
 def upgrade_zim(installed_perma_ref, keep_flag):
     print("Checking for upgrade to " + installed_perma_ref)
