@@ -85,7 +85,7 @@ azuracast_enabled: False
 dokuwiki_install: False
 dokuwiki_enabled: False
 
-mediawiki_install: False
+mediawiki_install: True
 mediawiki_enabled: False
 
 ejabberd_install: False
@@ -94,16 +94,16 @@ ejabberd_enabled: False
 elgg_install: True
 elgg_enabled: False
 
-gitea_install: False
+gitea_install: True
 gitea_enabled: False
 
-lokole_install: False
+lokole_install: True
 lokole_enabled: False
 
 mosquitto_install: False
 mosquitto_enabled: False
 
-nodered_install: False
+nodered_install: True
 nodered_enabled: False
 
 nextcloud_install: True
@@ -121,7 +121,7 @@ kalite_install: True
 kalite_enabled: True
 kalite_cron_enabled: True
 
-kolibri_install: False
+kolibri_install: True
 kolibri_enabled: False
 
 kiwix_install: True
