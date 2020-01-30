@@ -150,6 +150,8 @@ def rewrite_perma_ref(installed_perma_ref):
             perma_ref = installed_perma_ref.replace('_novid', '_maxi')
         elif '_all' in installed_perma_ref:
             perma_ref = installed_perma_ref.replace('_all', '_all_maxi')
+        elif '_medicine' in installed_perma_ref:
+            perma_ref = installed_perma_ref.replace('_medicine', '_medicine_maxi')
 
     return perma_ref
 
