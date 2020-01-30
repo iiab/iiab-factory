@@ -14,7 +14,7 @@ import xml.etree.ElementTree as ET
 import argparse
 import fnmatch
 import argparse
-import concurrent
+import concurrent.futures
 import iiab.iiab_lib as iiab
 import iiab.adm_lib as adm
 
@@ -145,8 +145,12 @@ def download_zim(new_url, installed_perma_ref_path, keep_flag):
 # Handle any Kiwix renaming issues
 def rewrite_perma_ref(installed_perma_ref):
     perma_ref = installed_perma_ref
-    if 'novid' in installed_perma_ref:
-        perma_ref = installed_perma_ref.replace('novid', 'maxi')
+    if '_maxi' not in installed_perma_ref and '_nopic' not in installed_perma_ref and '_mini' not in installed_perma_ref:
+        if '_novid' in installed_perma_ref:
+            perma_ref = installed_perma_ref.replace('_novid', '_maxi')
+        elif '_all' in installed_perma_ref:
+            perma_ref = installed_perma_ref.replace('_all', '_all_maxi')
+
     return perma_ref
 
 def parse_args():
