@@ -3,7 +3,7 @@
         {
             "name": "IIAB",
             "description": "Internet in a Box",
-            "icon": "http://medbox.iiab.me/js-menu/menu-files/images/iiab119.png",
+            "icon": "http://medbox.iiab.me/downloads/iiab-images/iiab40.png",
             "subitems_url": "http://medbox.iiab.me/downloads/iiab-images/os_list_imagingutility_iiab_subitems.json"
         },{
             "name": "Misc utility images",
