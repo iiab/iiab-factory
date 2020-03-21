@@ -1,0 +1,26 @@
+{
+    "os_list": [
+        {
+            "name": "IIAB",
+            "description": "Internet in a Box",
+            "icon": "http://medbox.iiab.me/downloads/iiab-images/iiab40.png",
+            "subitems_url": "http://medbox.iiab.me/downloads/iiab-images/os_list_imagingutility_iiab_subitems.json"
+        },{
+            "name": "Misc utility images",
+            "description": "EEPROM recovery, etc.",
+            "icon": "icons/ic_build_48px.svg",
+            "subitems": [
+                {
+                    "name": "Pi 4 EEPROM boot recovery",
+                    "description": "Use this only if advised to do so",
+                    "icon": "http://downloads.raspberrypi.org/raspbian/Raspbian.png",
+                    "url": "https://static.raspberrypi.org/files/rpi-boot-eeprom-recovery-2019-09-10-vl805-000137ab.zip",
+                    "contains_multiple_files": true,
+                    "extract_size": 684824,
+                    "image_download_size": 150696,
+                    "release_date": "2019-11-25"
+                }
+            ]
+        }
+    ]
+}

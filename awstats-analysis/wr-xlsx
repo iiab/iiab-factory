@@ -1,0 +1,123 @@
+#!/usr/bin/python3
+
+# requires pip3 install XlsxWriter
+# start in destination top level dir
+# such as /media/usb0/Devel/AwstatsAnalysis/Nigeria2019
+# expects a set of subdirectories for each device with files copied from that device
+# writes xlsx to current directory
+# expects awstats file layout as of Mar 10, 2020 (AWSTATS DATA FILE 7.6 build 20161204):
+#   Offset table at top marked by BEGIN_MAP and END_MAP
+#   Data sections with headings such as BEGIN_SIDER with number of newline terminated entries
+#   Followed by the entries
+
+import os
+import xlsxwriter
+
+root_dir = '/media/usb0/Devel/AwstatsAnalysis/Nigeria2019/'
+xlsx_name = 'Nigeria-2019-Stats.xlsx'
+sections = {
+             'Visitors' : {'header' : ['Device','Date','Host','Pages','Hits','Bandwidth','Last visit date','Start date of last visit','Last page of last visit'],
+                           'filter_list' : [],
+                           'offset' : 'POS_VISITOR'},
+             'PageViews' : {'header' : ['Device','Date','URL','Hits','Bandwidth','Entry','Exit'],
+                            'filter_list' : ['iiab_meter'],
+                            'offset' : 'POS_SIDER'}
+           }
+
+def main():
+    # create spreadsheet
+    workbook = xlsxwriter.Workbook(xlsx_name, {'strings_to_numbers': True})
+    bold = workbook.add_format({'bold': True})
+
+    page_view_sheet = workbook.add_worksheet('PageViews')
+    visitor_sheet = workbook.add_worksheet('Visitors')
+
+    # do some formatting
+    page_view_sheet.set_column('B:B', 10)
+    page_view_sheet.set_column('C:C', 100)
+    page_view_sheet.set_column('D:G', 11)
+
+    visitor_sheet.set_column('B:B', 10)
+    visitor_sheet.set_column('C:C', 15)
+    visitor_sheet.set_column('D:F', 11)
+    visitor_sheet.set_column('I:I', 100)
+
+    # write headers
+    for col, item in enumerate(sections['Visitors']['header']):
+        visitor_sheet.write(0, col, item, bold)
+    for col, item in enumerate(sections['PageViews']['header']):
+        page_view_sheet.write(0, col, item, bold)
+
+    visitor_row = 1
+    page_view_row = 1
+
+    # pass through directory tree
+    # top level are devices
+    # within each device find awstats file
+
+    sub_dir = os.listdir(root_dir)
+    for dir in sub_dir:
+        aw_files = os.listdir(root_dir + dir + '/library/awstats/')
+        for f in aw_files:
+            if '.schoolserver' not in f and '.tmp' not in f:
+                print('Reading ' + root_dir + dir + '/library/awstats/' + f)
+                text = read_awstats_file(root_dir + dir + '/library/awstats/' + f)
+                visitor_list = get_section('POS_VISITOR', text)
+                hits_list = get_section('POS_SIDER', text) # for now scan text twice as is not very costly
+                device = dir # these are strings so won't sort properly
+                date_ref = f.split('.txt')[0].split('awstats')[1]
+                date_ref = date_ref[2:6] + '-' + date_ref[0:2]
+
+                # now write to xlsx
+                visitor_row = write_xlsx_worksheet(visitor_sheet, visitor_row, device, date_ref, visitor_list, sections['Visitors']['filter_list'])
+                page_view_row = write_xlsx_worksheet(page_view_sheet, page_view_row, device, date_ref, hits_list, sections['PageViews']['filter_list'])
+    workbook.close()
+
+def write_xlsx_worksheet(worksheet, row_num, device, date_ref, row_list, filter_list):
+    for row_str in row_list:
+        incl_row = True
+        for exclude in filter_list:
+            if exclude in row_str:
+                incl_row = False
+        if incl_row:
+            try:
+                device = int(device) # convert if number
+            except:
+                pass
+            write_xlsx_row(worksheet, row_num, device, date_ref, row_str)
+            row_num += 1
+    return row_num
+
+def write_xlsx_row(worksheet, row_num, device, date_ref, row_str):
+    worksheet.write(row_num, 0, device)
+    worksheet.write(row_num, 1, date_ref)
+    row_array = row_str.split()
+    for col, item in enumerate(row_array):
+        try:
+            item = int(item) # for now assume we have strings and numbers
+        except:
+            pass
+        worksheet.write(row_num, col + 2, item)
+
+def read_awstats_file(file_name):
+    f = open(file_name, "r")
+    text = f.read()
+    f.close()
+    return text
+
+def get_section(section_name, text):
+    map_start = text.find('BEGIN_MAP')
+    map_end = text.find('END_MAP', map_start)
+    offset_start = text.find(section_name, map_start, map_end)
+    offset_end = text.find('\n', offset_start)
+    section_offset = int(text[offset_start:offset_end].split()[1])
+    section = text[section_offset:]
+    section_arr = section.split('\n')
+    section_lines = int(section_arr[0].split(' ')[1])
+    return section_arr[1:section_lines + 1]
+
+# Now start the application
+if __name__ == "__main__":
+
+    # Run the main routine
+    main()
