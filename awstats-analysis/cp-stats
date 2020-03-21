@@ -1,0 +1,30 @@
+# start in destination top level dir
+# such as /media/usb0/Devel/AwstatsAnalysis/Nigeria2019
+# source IIAB expected in another media/usb mount
+
+if [ -d "/media/usb1/library/awstats/" ]
+then
+    SRC_DEV=/media/usb1
+else
+    if [ -d "/media/usb2/library/awstats/" ]
+    then
+        SRC_DEV=/media/usb2
+    else
+        echo "Directory /media/usb{1,2}/library/awstats DOES NOT exist."
+        exit 1
+    fi
+
+fi
+
+echo "Copying from $SRC_DEV."
+
+mkdir -p $1/library/awstats
+mkdir -p $1/var/lib/mysql/iiab_feedback
+mkdir -p $1/var/log/apache2
+
+rsync -av $SRC_DEV/library/awstats/ $1/library/awstats
+rsync -av $SRC_DEV/var/lib/mysql/iiab_feedback/ $1/var/lib/mysql/iiab_feedback
+rsync -av $SRC_DEV/var/log/apache2/ $1/var/log/apache2
+
+umount /media/usb1
+umount /media/usb2
