@@ -21,7 +21,7 @@ then
   SDCARD2=${SDCARD}2
   echo $SDCARD2
   umount $SDCARD2
-  mount $SDCARD2 /mnt/sdcard
+  mount $SDCARD2 /mnt/sdcard  
   if [ -f /mnt/sdcard/.resize-rootfs ];then\
     rm /mnt/sdcard/.resize-rootfs
     umount $SDCARD2
