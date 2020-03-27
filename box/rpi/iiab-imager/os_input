@@ -1,6 +1,16 @@
 {
     "os_list": [
         {
+            "name": "template",
+            "description": "",
+            "url": ""
+        },
+        {
+            "name": "IIAB PRE 7.1 Minimum Version Content Ready",
+            "description": "Internet in a Box with minimal services ready to have content added.",
+            "url": "https://archive.org/download/iiab-PRE7.1-200315-min-content-ready-2020-02-13-raspbian-lite-g1b4f928.img/iiab-PRE7.1-200315-min-content-ready-2020-02-13-raspbian-lite-g1b4f928.img.zip"
+        },
+        {
             "name": "IIAB PRE 7.1 Minimum Version Content Ready",
             "description": "Internet in a Box with minimal services ready to have content added.",
             "url": "https://archive.org/download/iiab-PRE7.1-200315-min-content-ready-2020-02-13-raspbian-lite-g1b4f928.img/iiab-PRE7.1-200315-min-content-ready-2020-02-13-raspbian-lite-g1b4f928.img.zip",
