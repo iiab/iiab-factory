@@ -4,14 +4,12 @@
             "name": "IIAB",
             "description": "Internet in a Box",
             "icon": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/rpi-imager/iiab40.png",
-            "subitems_url": "https://github.com/georgejhunt/iiab-factory/blob/iiab/box/rpi/iiab-imager/os_list_imagingutility_iiab.json"
+            "subitems_url": "https://raw.githubusercontent.com/georgejhunt/iiab-factory/iiab/box/rpi/iiab-imager/os_list_imagingutility_iiab.jsonv"
         },{
             "name": "Raspberry Foundation images",
-            "description": "EEPROM recovery, etc.",
+            "description": "Collection of current Raspberry Pi Images",
             "icon": "http://downloads.raspberrypi.org/raspbian/Raspbian.png",
             "subitems_url": "https://downloads.raspberrypi.org/os_list_imagingutility.json"
         }
             ]
-        }
-    ]
 }
