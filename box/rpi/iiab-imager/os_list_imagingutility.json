@@ -1,74 +1,76 @@
-[
-  {
-    "name": "IIAB",
-    "description": "Internet in a Box Images",
-    "icon": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/rpi-imager/iiab40.png",
-    "subitems_url": "https://raw.githubusercontent.com/georgejhunt/iiab-factory/iiab/box/rpi/iiab-imager/os_list_imagingutility_iiab.json"
-  },
-  {
-    "name": "Raspbian",
-    "description": "A port of Debian with the Raspberry Pi Desktop (Recommended)",
-    "icon": "http://downloads.raspberrypi.org/raspbian/Raspbian.png",
-    "url": "http://downloads.raspberrypi.org/raspbian/images/raspbian-2020-02-14/2020-02-13-raspbian-buster.zip",
-    "extract_size": 3787456512,
-    "extract_sha256": "b11018c3bfa3186f358f42a051b8e97afd3f414833e9229fd0e1f50daf8aadac",
-    "image_download_size": 1191759016,
-    "release_date": "2020-02-13"
-  },
-  {
-    "name": "Raspbian (other)",
-    "description": "Other Raspbian based images",
-    "icon": "http://downloads.raspberrypi.org/raspbian/Raspbian.png",
-    "subitems": [
-      {
-        "name": "Raspbian Lite",
-        "description": "A port of Debian with no desktop environment",
-        "icon": "http://downloads.raspberrypi.org/raspbian_lite/Raspbian_Lite.png",
-        "url": "http://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2020-02-14/2020-02-13-raspbian-buster-lite.zip",
-        "extract_size": 1849688064,
-        "extract_sha256": "4700d93867eed0b047494d381590a1901a32b2c0f8d95d8d45d6e63fb8c46969",
-        "image_download_size": 454047405,
-        "release_date": "2020-02-13"
-      },
-      {
-        "name": "Raspbian Full",
-        "description": "A port of Debian with desktop and recommended applications",
-        "icon": "http://downloads.raspberrypi.org/raspbian_full/Raspbian_Full.png",
-        "url": "http://downloads.raspberrypi.org/raspbian_full/images/raspbian_full-2020-02-14/2020-02-13-raspbian-buster-full.zip",
-        "extract_size": 7323254784,
-        "extract_sha256": "29324cc50cf5cd728419d29db58bbb314d88a58bd4f225acd619b4cbf6e3222d",
-        "image_download_size": 2653723839,
-        "release_date": "2020-02-13"
-      }
-    ]
-  },
-  {
-    "name": "LibreELEC",
-    "description": "A Kodi Entertainment Center distribution",
-    "icon": "http://releases.libreelec.tv/noobs/LibreELEC_RPi/LibreELEC_RPi.png",
-    "subitems_url": "http://releases.libreelec.tv/os_list_imagingutility_le.json"
-  },
-  {
-    "name": "Ubuntu",
-    "description": "Choose from Ubuntu Core and Server images",
-    "icon": "https://assets.ubuntu.com/v1/85a9de76-ubuntu-icon.svg",
-    "subitems_url": "https://changelogs.ubuntu.com/raspi/os_list_imagingutility_ubuntu.json"
-  },
-  {
-    "name": "Misc utility images",
-    "description": "EEPROM recovery, etc.",
-    "icon": "icons/ic_build_48px.svg",
-    "subitems": [
-      {
-        "name": "Pi 4 EEPROM boot recovery",
-        "description": "Use this only if advised to do so",
-        "icon": "http://downloads.raspberrypi.org/raspbian/Raspbian.png",
-        "url": "https://github.com/raspberrypi/rpi-eeprom/releases/download/v2019.09.10/rpi-eeprom-recovery.zip",
-        "contains_multiple_files": true,
-        "extract_size": 684824,
-        "image_download_size": 150696,
-        "release_date": "2020-03-16"
-      }
-    ]
-  }
-]
+{
+  "os_list": [
+    {
+      "name": "IIAB",
+      "description": "Internet in a Box Images",
+      "icon": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/rpi-imager/iiab40.png",
+      "subitems_url": "https://raw.githubusercontent.com/georgejhunt/iiab-factory/iiab/box/rpi/iiab-imager/os_list_imagingutility_iiab.json"
+    },
+    {
+      "name": "Raspbian",
+      "description": "A port of Debian with the Raspberry Pi Desktop (Recommended)",
+      "icon": "http://downloads.raspberrypi.org/raspbian/Raspbian.png",
+      "url": "http://downloads.raspberrypi.org/raspbian/images/raspbian-2020-02-14/2020-02-13-raspbian-buster.zip",
+      "extract_size": 3787456512,
+      "extract_sha256": "b11018c3bfa3186f358f42a051b8e97afd3f414833e9229fd0e1f50daf8aadac",
+      "image_download_size": 1191759016,
+      "release_date": "2020-02-13"
+    },
+    {
+      "name": "Raspbian (other)",
+      "description": "Other Raspbian based images",
+      "icon": "http://downloads.raspberrypi.org/raspbian/Raspbian.png",
+      "subitems": [
+        {
+          "name": "Raspbian Lite",
+          "description": "A port of Debian with no desktop environment",
+          "icon": "http://downloads.raspberrypi.org/raspbian_lite/Raspbian_Lite.png",
+          "url": "http://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2020-02-14/2020-02-13-raspbian-buster-lite.zip",
+          "extract_size": 1849688064,
+          "extract_sha256": "4700d93867eed0b047494d381590a1901a32b2c0f8d95d8d45d6e63fb8c46969",
+          "image_download_size": 454047405,
+          "release_date": "2020-02-13"
+        },
+        {
+          "name": "Raspbian Full",
+          "description": "A port of Debian with desktop and recommended applications",
+          "icon": "http://downloads.raspberrypi.org/raspbian_full/Raspbian_Full.png",
+          "url": "http://downloads.raspberrypi.org/raspbian_full/images/raspbian_full-2020-02-14/2020-02-13-raspbian-buster-full.zip",
+          "extract_size": 7323254784,
+          "extract_sha256": "29324cc50cf5cd728419d29db58bbb314d88a58bd4f225acd619b4cbf6e3222d",
+          "image_download_size": 2653723839,
+          "release_date": "2020-02-13"
+        }
+      ]
+    },
+    {
+      "name": "LibreELEC",
+      "description": "A Kodi Entertainment Center distribution",
+      "icon": "http://releases.libreelec.tv/noobs/LibreELEC_RPi/LibreELEC_RPi.png",
+      "subitems_url": "http://releases.libreelec.tv/os_list_imagingutility_le.json"
+    },
+    {
+      "name": "Ubuntu",
+      "description": "Choose from Ubuntu Core and Server images",
+      "icon": "https://assets.ubuntu.com/v1/85a9de76-ubuntu-icon.svg",
+      "subitems_url": "https://changelogs.ubuntu.com/raspi/os_list_imagingutility_ubuntu.json"
+    },
+    {
+      "name": "Misc utility images",
+      "description": "EEPROM recovery, etc.",
+      "icon": "icons/ic_build_48px.svg",
+      "subitems": [
+        {
+          "name": "Pi 4 EEPROM boot recovery",
+          "description": "Use this only if advised to do so",
+          "icon": "http://downloads.raspberrypi.org/raspbian/Raspbian.png",
+          "url": "https://github.com/raspberrypi/rpi-eeprom/releases/download/v2019.09.10/rpi-eeprom-recovery.zip",
+          "contains_multiple_files": true,
+          "extract_size": 684824,
+          "image_download_size": 150696,
+          "release_date": "2020-03-16"
+        }
+      ]
+    }
+  ]
+}
