@@ -4,7 +4,7 @@
             "name": "IIAB",
             "description": "Internet in a Box",
             "icon": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/rpi-imager/iiab40.png",
-            "subitems_url": "https://raw.githubusercontent.com/georgejhunt/iiab-factory/master/box/rpi/iiab-imager/os_list_imagingutility_iiab.json"
+            "subitems_url": "https://github.com/georgejhunt/iiab-factory/blob/iiab/box/rpi/iiab-imager/os_list_imagingutility_iiab.json"
         },{
             "name": "Raspberry Foundation images",
             "description": "EEPROM recovery, etc.",
