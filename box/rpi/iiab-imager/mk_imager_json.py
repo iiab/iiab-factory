@@ -9,17 +9,35 @@ import subprocess
 import internetarchive
 import re
 from datetime import datetime
+import urllib3
+import certifi
 
-
-with open('os_input','r') as img_fp:
+src_url = "https://downloads.raspberrypi.org/os_list_imagingutility.json"
+iiab_url = "https://raw.githubusercontent.com/georgejhunt/iiab-factory/iiab/box/rpi/iiab-imager/os_list_imagingutility_iiab.json"
+http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED',\
+           ca_certs=certifi.where())
+resp = (http.request("GET",src_url,retries=10))
+#with open('os_input','r') as img_fp:
+if True:
    try:
-      data = json.loads(img_fp.read())
+      data = json.loads(resp.data)
    except:
       print("img.json parse error")
       sys.exit(1)
-   for os in data['os_list']:
-      print(os['name'])
+
+   # create the item for IIAB and put it at the top of the list
+   iiab_json = {}
+   iiab_json['name'] = "IIAB"
+   iiab_json["description"] = "Internet in a Box Images"
+   iiab_json["icon"] = "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/rpi-imager/iiab40.png"
+   iiab_json["subitems_url"] = "https://raw.githubusercontent.com/georgejhunt/iiab-factory/iiab/box/rpi/iiab-imager/os_list_imagingutility_iiab.json"
+   data['os_list'].insert(0,iiab_json)
+
+   with open("os_list_imagingutility.json",'w') as fp:
+      json.dump(data['os_list'],fp,indent=2)
+
    sys.exit(0)
+
    if False:
          # pull the version string out of the url for use in identity
          url = data['regions'][region]['url']
