@@ -32,9 +32,8 @@ if True:
    iiab_json["icon"] = "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/rpi-imager/iiab40.png"
    iiab_json["subitems_url"] = "https://raw.githubusercontent.com/georgejhunt/iiab-factory/iiab/box/rpi/iiab-imager/os_list_imagingutility_iiab.json"
    data['os_list'].insert(0,iiab_json)
-
    with open("os_list_imagingutility.json",'w') as fp:
-      json.dump(data['os_list'],fp,indent=2)
+      json.dump(data,fp,indent=2)
 
    sys.exit(0)
 
