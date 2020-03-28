@@ -33,6 +33,7 @@ if True:
    iiab_json["subitems_url"] = "https://raw.githubusercontent.com/georgejhunt/iiab-factory/iiab/box/rpi/iiab-imager/os_list_imagingutility_experimental.json"
    iiab_json["author"] = "George Hunt"
    data['os_list'].insert(0,iiab_json)
+   iiab_json = {}
    iiab_json['name'] = "IIAB -- Releases"
    iiab_json["description"] = "Internet in a Box Images"
    iiab_json["icon"] = "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/rpi-imager/iiab40.png"
