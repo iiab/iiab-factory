@@ -9,12 +9,6 @@
             "extract_sha256": "a803d21575c2540f6e107c407c29891f3df29a6f3eea612dd6fb84eac805a471",
             "image_download_size": 2379162313,
             "release_date": "2020-03-15"
-        },
-    {
-      "name": "IIAB Experimental",
-      "description": "Experimental and Pre-Release Images",
-      "icon": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/rpi-imager/iiab40.png",
-      "subitems_url": "https://raw.githubusercontent.com/georgejhunt/iiab-factory/iiab/box/rpi/iiab-imager/os_list_imagingutility_iiab_experimental.json"
-    }
+        }
     ]
 }
