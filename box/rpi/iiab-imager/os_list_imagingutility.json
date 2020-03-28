@@ -1,16 +1,18 @@
 {
   "os_list": [
     {
-      "name": "IIAB",
+      "name": "IIAB -- Releases",
       "description": "Internet in a Box Images",
       "icon": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/rpi-imager/iiab40.png",
-      "subitems_url": "https://raw.githubusercontent.com/georgejhunt/iiab-factory/iiab/box/rpi/iiab-imager/os_list_imagingutility_iiab_subitems.json"
+      "subitems_url": "https://raw.githubusercontent.com/georgejhunt/iiab-factory/iiab/box/rpi/iiab-imager/os_list_imagingutility_iiab.json",
+      "author": "George Hunt"
     },
     {
-      "name": "IIAB Experimental",
-      "description": "Experimental and Pre-Release Images",
+      "name": "IIAB -- Releases",
+      "description": "Internet in a Box Images",
       "icon": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/rpi-imager/iiab40.png",
-      "subitems_url": "https://raw.githubusercontent.com/georgejhunt/iiab-factory/iiab/box/rpi/iiab-imager/os_list_imagingutility_iiab_experimental.sjon"
+      "subitems_url": "https://raw.githubusercontent.com/georgejhunt/iiab-factory/iiab/box/rpi/iiab-imager/os_list_imagingutility_iiab.json",
+      "author": "George Hunt"
     },
     {
       "name": "Raspbian",
