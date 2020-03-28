@@ -2,13 +2,14 @@
     "os_list": [
         {
             "name": "Ubuntu 20.04",
-            "description": "Version 19.10 release upgraded to 20.04",
-            "url": "https://archive.org/download/iiab-PRE7.1-200315-min-content-ready-2020-02-13-raspbian-lite-g1b4f928.img/iiab-PRE7.1-200315-min-content-ready-2020-02-13-raspbian-lite-g1b4f928.img.zip",
+            "description": "Version 19.10 release upgraded to 20.04 with Raspbinan Lite",
+            "url": "https://archive.org/download/iiab-7.1-200312-ubuntu_20.04_rpi-g1b4f928c.img/iiab-7.1-200312-ubuntu_20.04_rpi-g1b4f928c.img.zip",
             "icon": "http://iiab.me/downloads/iiab-images/iiab40.png",
+            "extract_size": 4189900800,
             "extract_size": 4966580224,
-            "extract_sha256": "a803d21575c2540f6e107c407c29891f3df29a6f3eea612dd6fb84eac805a471",
-            "image_download_size": 2379162313,
-            "release_date": "2020-03-15"
+            "extract_sha256": "24b184762a2ebdca0e7f8151d3ea84e82c5e0c4a7f5a85f24f12f1cd5b197560",
+            "image_download_size": 1823154985,
+            "release_date": "2020-03-12"
         }
     ]
 }
