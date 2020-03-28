@@ -7,6 +7,12 @@
       "subitems_url": "https://raw.githubusercontent.com/georgejhunt/iiab-factory/iiab/box/rpi/iiab-imager/os_list_imagingutility_iiab_subitems.json"
     },
     {
+      "name": "IIAB Experimental",
+      "description": "Experimental and Pre-Release Images",
+      "icon": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/rpi-imager/iiab40.png",
+      "subitems_url": "https://raw.githubusercontent.com/georgejhunt/iiab-factory/iiab/box/rpi/iiab-imager/os_list_imagingutility_iiab_experimental.sjon"
+    },
+    {
       "name": "Raspbian",
       "description": "A port of Debian with the Raspberry Pi Desktop (Recommended)",
       "icon": "http://downloads.raspberrypi.org/raspbian/Raspbian.png",
