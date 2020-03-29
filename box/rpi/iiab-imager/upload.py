@@ -49,8 +49,8 @@ def fetch_image_info():
       except Exception as e:
          print("error reading %s:%s"%(fname,e,))
          sys.exit(1)
-   md['image_download_size'] = float(md['image_download_size'])
-   md['extract_size'] = float(md['extract_size'])
+   md['image_download_size'] = int(md['image_download_size'])
+   md['extract_size'] = int(md['extract_size'])
    md['url'] = os.path.join(url_prefix,args.image_name,args.image_name + '.zip')
    md['icon'] = icon
    return md

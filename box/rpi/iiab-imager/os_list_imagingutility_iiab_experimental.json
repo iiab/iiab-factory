@@ -3,6 +3,17 @@
     {
       "name": "Ubuntu IIAB 64bit 20.04",
       "description": "Raspberry Pi image for aarch64 runs with Raspbian Lite and IIAB minimum",
+      "extract_size": 4338155520,
+      "extract_sha256": "93209ae58e9558b62711df9733dbef46b193fe40b06e0d53c57ea3ccc2accad0",
+      "image_download_size": 1895658008,
+      "release_date": "2020-03-28",
+      "zip.md5": "24b7cae431153062b520da81722f53f3",
+      "url": "https://archive.org/download/iiab-7.1-200312-ubuntu_20.04_rpi-g1b4f928c.img/iiab-7.1-200312-ubuntu_20.04_rpi-g1b4f928c.img.zip",
+      "icon": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/rpi-imager/iiab40.png"
+    },
+    {
+      "name": "Ubuntu IIAB 64bit 20.04",
+      "description": "Raspberry Pi image for aarch64 runs with Raspbian Lite and IIAB minimum",
       "extract_size": 4338155520.0,
       "extract_sha256": "93209ae58e9558b62711df9733dbef46b193fe40b06e0d53c57ea3ccc2accad0",
       "image_download_size": 1895658008.0,
