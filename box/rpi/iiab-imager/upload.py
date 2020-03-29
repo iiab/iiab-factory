@@ -34,29 +34,6 @@ def parse_args():
     parser.add_argument("image_name", help='Specify the image file namel')
     return parser.parse_args()
 
-#with open('os_input','r') as img_fp:
-if False:
-   try:
-      data = json.loads(resp.data)
-   except:
-      print("img.json parse error")
-      sys.exit(1)
-
-
-   if False:
-         # pull the version string out of the url for use in identity
-         url = data['regions'][region]['url']
-         match = re.search(r'.*\d{4}-\d{2}-\d{2}_(v\d+\.\d+)\..*',url)
-         version =  match.group(1)
-
-         # Fetch the md5 to see if local file needs uploading
-         target_zip = os.path.join(MR_HARD_DISK,'stage4',os.path.basename(url))
-         with open(target_zip + '.md5','r') as md5_fp:
-            instr = md5_fp.read()
-            md5 = instr.split(' ')[0]
-         if len(md5) == 0:
-            print('md5 was zero length. ABORTING')
-            sys.exit(1)
 
 def get_archive_org_info(identifier):
       return internetarchive.get_item(identifier)
@@ -72,6 +49,8 @@ def fetch_image_info():
       except Exception as e:
          print("error reading %s:%s"%(fname,e,))
          sys.exit(1)
+   md['image_download_size'] = float(md['image_download_size'])
+   md['extract_size'] = float(md['extract_size'])
    md['url'] = os.path.join(url_prefix,args.image_name,args.image_name + '.zip')
    md['icon'] = icon
    return md
