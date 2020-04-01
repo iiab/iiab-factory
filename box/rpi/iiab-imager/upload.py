@@ -17,7 +17,8 @@ import xml.etree.ElementTree as ET
 
 src_url = "https://downloads.raspberrypi.org/os_list_imagingutility.json"
 iiab_url = "https://raw.githubusercontent.com/georgejhunt/iiab-factory/iiab/box/rpi/iiab-imager/os_list_imagingutility_iiab.json"
-repo_prefix = "/opt/iiab/iiab-factory/box/rpi/iiab-imager"
+#repo_prefix = "/opt/iiab/iiab-factory/box/rpi/iiab-imager"
+repo_prefix = "/hd/root/images/iiab-factory/box/rpi/iiab-imager"
 imager_menu = "subitems"
 icon = "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/rpi-imager/iiab40.png"
 url_prefix = "https://archive.org/download"
