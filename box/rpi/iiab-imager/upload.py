@@ -149,31 +149,7 @@ def check(name):
    if (info.metadata):
       print("\nArchive.org metadata:%s"%str(info.metadata))
 
-def do__archive():
-   # Check if this has already been uploaded
-   item = internetarchive.get_item(args.image_name)
-
-   # Get the md5 for this .img created during the shrink-copy process
-   recorded_md5 = file_contents('%s.%s'%(args.image.name,'.zip.md5')
-   
-   if recorded_md5 != '':
-      if item and item.metadata['zip_md5'] == recorded_md5:
-         # probably the other metadata recorded at archive is valid
-         # already uploaded
-         print('Skipping %s -- checksums match'%args.image_name)
-      else:
-         print('md5sums for %s do not match'%md['title'])
-         print('local file md5:%s  metadata md5:%s'%(metadata['zip.md5'],item.metadata['zip_md5']))
-         upload = True
-   else: # there is no image.zip.md5.txt
-   upload = False
-   status = 'ok'
-   if not item.metadata:
-      print('Archive.org does not have file with identifier: %s'%identifier) 
-      upload = True
-   else:
-
-   metadata = fetch_image_info()
+def create_metadata():
    #print(str(metadata))
 
    uploaded_md5 = get_archive_file_xml(args.image_name)
@@ -207,9 +183,10 @@ def do__archive():
       date_time = now.strftime("%m/%d/%Y, %H:%M:%S")
       ao_fp.write('Uploaded %s at %s Status:%s\n'%(args.image_name,date_time,status))
 
-def do_rpi_imager():
-   imager_md = fetch_imager_info()
+def upload_image():
+   print("Uploading image to archive.org")
 
+def do_rip_imager():
    # update the menu item json
    imager_menu = "subitems"
    if args.experimental:
@@ -242,6 +219,39 @@ def do_rpi_imager():
    for fn in glob.glob(repo_prefix+'/os_list*'): 
       shutil.copy(fn,"./logs/%s"%date_time)
    sys.exit(1)
+
+def do_archive():
+   # Get the md5 for this .img created during the shrink-copy process
+   recorded_md5 = file_contents('%s.%s'%(args.image_name,'.zip.md5'))
+   if recorded_md5 == '':
+      print('Missing the md5 file created by "cp-sd". Use the -r replace flag ')
+      print('  to recreate the metadata and upload to archive.org')
+      sys.exit(1)
+
+   # Fetch metadata, if it exists, from archive.org
+   item = internetarchive.get_item(args.image_name)
+
+   if item:
+      # Get the md5 calculated by archive.org during upload
+      uploaded_md5 = get_archive_file_xml(args.image_name)
+
+   if uploaded_md5 != '' and uploaded_md5 == recorded_md5:
+      if item and item.metadata['zip_md5'] == recorded_md5:
+         # probably the other metadata recorded at archive is valid
+         # already uploaded
+         print('Skipping %s -- checksums match'%args.image_name)
+      else:
+         print('md5sums for %s do not match'%md['title'])
+         print('local file md5:%s  metadata md5:%s'%(metadata['zip.md5'],item.metadata['zip_md5']))
+         upload = True
+   else: # Img metadata and archive.org missing or wrong
+      if args.check:
+         print("Image at archive.org is either wrong, or missing")
+      else:
+         create_metadata()
+         if not args.check:
+            upload_image()
+
    
 def main():
    global args
@@ -250,6 +260,8 @@ def main():
    args = parse_args()
    do_archive()
    do_rpi_imager()
+   if args.check:
+      check()
 
 if __name__ == "__main__":
    main()
