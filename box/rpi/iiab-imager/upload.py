@@ -26,7 +26,6 @@ http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED',\
            ca_certs=certifi.where())
 #resp = (http.request("GET",src_url,retries=10))
 args = None
-menu_names = [ 'name','description','extract_size','extract_sha256','image_download_size','release_date','zip.md5' ]
 current_working_directory = os.getcwd()
 
 def parse_args():
@@ -39,32 +38,36 @@ def parse_args():
     return parser.parse_args()
 
 
-def get_archive_org_metadata(identifier):
+def get_archive_metadata(identifier):
       return internetarchive.get_item(identifier)
 
 def get_archive_file_xml(identifier):
    url = os.path.join(url_prefix,args.image_name,args.image_name + '_files.xml')
    resp = (http.request("GET",url,retries=10))
    tree = ET.fromstring(resp.data) 
-   file_data = {}
   
    for item in tree.findall('file'):
       if item.attrib['name'] == args.image_name + '.zip':
-        print( item.find('md5').text)
-                   
+         return item.find('md5').text
 
-def fetch_image_info():
+def file_contents(fname):
+   try:
+      with open(fname,'r') as fp:
+         md[item] = fp.read().rstrip()
+   except Exception as e:
+      return ''
+
+# The following are the keys for the rpi-imager os-list.json files
+menu_names = [ 'name','description','extract_size','extract_sha256','image_download_size','release_date','zip.md5' ]
+
+def fetch_rpi_imager_info():
    md = {}
    for item in menu_names:
       fname = './%s.%s'%(args.image_name,item)
-      #print(fname)
-      try:
-         with open(fname,'r') as fp:
-            md[item] = fp.read().rstrip()
-      except Exception as e:
-         print("error reading %s:%s"%(fname,e,))
-         print("Perhaps you did not run 'prepare.sh', which is required by this program")
-         sys.exit(1)
+      retn = file_contents(fname)
+      if retn != '':
+         md[name] = retn 
+         #print(fname)
    md['image_download_size'] = int(md['image_download_size'])
    md['extract_size'] = int(md['extract_size'])
    md['url'] = os.path.join(url_prefix,args.image_name,args.image_name + '.zip')
@@ -72,24 +75,38 @@ def fetch_image_info():
    return md
 
 def check(name):
-   info =  get_archive_org_metadata(name)
+   info =  get_archive_metadata(name)
    if (info.metadata):
       print(str(info.metadata))
 
-def main():
-   global args
-   global imager_menu
-   args = parse_args()
-   get_archive_file_xml(args.image_name)
-   sys.exit(0)
-   if args.check:
-      check(args.image_name)
-      sys.exit(0)
+def do__archive():
+   # Check if this has already been uploaded
+   item = internetarchive.get_item(args.image_name)
 
-   # fall through to do the upload
+   # Get the md5 for this .img created during the shrink-copy process
+   recorded_md5 = file_contents('%s.%s'%(args.image.name,'.zip.md5')
+   
+   if recorded_md5 != '':
+      if item and item.metadata['zip_md5'] == recorded_md5:
+         # probably the other metadata recorded at archive is valid
+         # already uploaded
+         print('Skipping %s -- checksums match'%args.image_name)
+      else:
+         print('md5sums for %s do not match'%md['title'])
+         print('local file md5:%s  metadata md5:%s'%(metadata['zip.md5'],item.metadata['zip_md5']))
+         upload = True
+   else: # there is no image.zip.md5.txt
+   upload = False
+   status = 'ok'
+   if not item.metadata:
+      print('Archive.org does not have file with identifier: %s'%identifier) 
+      upload = True
+   else:
+
    metadata = fetch_image_info()
    #print(str(metadata))
 
+   uploaded_md5 = get_archive_file_xml(args.image_name)
    # Gather together the metadata for archive.org
    md = {}
    md['title'] = metadata['name']
@@ -104,21 +121,6 @@ def main():
    md['extract_size'] =  metadata['extract_size']
    md['image_download_size'] =  metadata['image_download_size']
    
-   # Check is this has already been uploaded
-   item = internetarchive.get_item(args.image_name)
-   upload = False
-   status = 'ok'
-   if not item.metadata:
-      print('Archive.org does not have file with identifier: %s'%identifier) 
-      upload = True
-   else:
-      if item.metadata['zip_md5'] == metadata['zip.md5']:
-         # already uploaded
-         print('Skipping %s -- checksums match'%args.image_name)
-      else:
-         print('md5sums for %s do not match'%md['title'])
-         print('local file md5:%s  metadata md5:%s'%(metadata['zip.md5'],item.metadata['zip_md5']))
-         upload = True
    if upload:
       # Debugging information
       print('MetaData: %s'%md)
@@ -168,8 +170,13 @@ def main():
       shutil.copy(fn,"./logs/%s"%date_time)
    sys.exit(1)
    
-
-if __name__ == "__main__":
+def main():
+   global args
    if not os.path.exists(repo_prefix +'/logs'):
       os.mkdir(repo_prefix +'/logs')
+   args = parse_args()
+   do_archive()
+   do_rpi_imager()
+
+if __name__ == "__main__":
    main()
