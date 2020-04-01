@@ -64,6 +64,7 @@ def file_contents(fname):
       with open(fname,'r') as fp:
          md[item] = fp.read().rstrip()
    except Exception as e:
+      print('File Not Found: %s'%fname)
       return ''
 
 # The following are the keys for the rpi-imager os-list.json files
@@ -106,24 +107,23 @@ def create_metadata():
    md['extract_size'] =  metadata['extract_size']
    md['image_download_size'] =  metadata['image_download_size']
    
-   if upload:
-      # Debugging information
-      print('MetaData: %s'%md)
-      try:
-         r = internetarchive.upload(args.image_name, files=['./%s'%args.image_name], metadata=md)
-         print(r[0].status_code) 
-         status = r[0].status_code
-      except Exception as e:
-         status = 'error'
-         with open('./archive_org.log','a+') as ao_fp:
-            ao_fp.write("Exception from internetarchive:%s"%e) 
-   with open('./archive_org.log','a+') as ao_fp:
-      now = datetime.now()
-      date_time = now.strftime("%m/%d/%Y, %H:%M:%S")
-      ao_fp.write('Uploaded %s at %s Status:%s\n'%(args.image_name + '.zip',date_time,status))
 
 def upload_image():
    print("Uploading image to archive.org")
+   # Debugging information
+   print('MetaData: %s'%md)
+   try:
+      r = internetarchive.upload(args.image_name, files=['./%s'%args.image_name], metadata=md)
+      print(r[0].status_code) 
+      status = r[0].status_code
+   except Exception as e:
+      status = 'error'
+      with open('./logs/archive_org.log','a+') as ao_fp:
+         ao_fp.write("Exception from internetarchive:%s"%e) 
+with open('./archive_org.log','a+') as ao_fp:
+   now = datetime.now()
+   date_time = now.strftime("%m/%d/%Y, %H:%M:%S")
+   ao_fp.write('Uploaded %s at %s Status:%s\n'%(args.image_name,date_time,status))
 
 def do_rip_imager():
    # update the menu item json
@@ -162,7 +162,7 @@ def do_rip_imager():
 
 def do_archive():
    # Get the md5 for this .img created during the shrink-copy process
-   recorded_md5 = file_contents('%s.%s'%(args.image_name,'.zip.md5'))
+   recorded_md5 = file_contents('./%s.%s'%(args.image_name,'zip.md5'))
    if recorded_md5 == '':
       print('Missing the md5 file created by "cp-sd". Use the -r replace flag ')
       print('  to recreate the metadata and upload to archive.org')
