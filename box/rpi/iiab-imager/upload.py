@@ -82,6 +82,31 @@ def check(name):
       print(str(info.metadata))
 
 def create_metadata():
+def do__archive():
+   # Check if this has already been uploaded
+   item = internetarchive.get_item(args.image_name)
+
+   # Get the md5 for this .img created during the shrink-copy process
+   recorded_md5 = file_contents('%s.%s'%(args.image.name,'.zip.md5')
+   
+   if recorded_md5 != '':
+      if item and item.metadata['zip_md5'] == recorded_md5:
+         # probably the other metadata recorded at archive is valid
+         # already uploaded
+         print('Skipping %s -- checksums match'%args.image_name)
+      else:
+         print('md5sums for %s do not match'%md['title'])
+         print('local file md5:%s  metadata md5:%s'%(metadata['zip.md5'],item.metadata['zip_md5']))
+         upload = True
+   else: # there is no image.zip.md5.txt
+   upload = False
+   status = 'ok'
+   if not item.metadata:
+      print('Archive.org does not have file with identifier: %s'%identifier) 
+      upload = True
+   else:
+
+   metadata = fetch_image_info()
    #print(str(metadata))
 
    uploaded_md5 = get_archive_file_xml(args.image_name)
@@ -99,7 +124,6 @@ def create_metadata():
    md['extract_size'] =  metadata['extract_size']
    md['image_download_size'] =  metadata['image_download_size']
    
-
 def upload_image():
    print("Uploading image to archive.org")
    # Debugging information
@@ -182,7 +206,6 @@ def do_archive():
          if not args.check:
             upload_image()
 
-   
 def main():
    global args
    if not os.path.exists(repo_prefix +'/logs'):
