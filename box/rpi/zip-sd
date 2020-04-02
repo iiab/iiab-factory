@@ -1,0 +1,14 @@
+#!/bin/bash -x
+#  zip image file
+# parameter 1 - input file name
+
+if [ $# -eq 0 ]; then
+   echo "Usage: $0 filename (full name with prefix and .img)"
+   exit 1
+fi
+
+FILENAME=$1
+
+zip $FILENAME.zip $FILENAME
+md5sum $FILENAME.zip > $FILENAME.zip.md5.txt
+sha256sum $FILENAME > $FILENAME.sha256.txt
