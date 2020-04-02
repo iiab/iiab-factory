@@ -19,7 +19,6 @@ src_url = "https://downloads.raspberrypi.org/os_list_imagingutility.json"
 iiab_url = "https://raw.githubusercontent.com/georgejhunt/iiab-factory/iiab/box/rpi/iiab-imager/os_list_imagingutility_iiab.json"
 #repo_prefix = "/opt/iiab/iiab-factory/box/rpi/iiab-imager"
 repo_prefix = "/hd/root/images/iiab-factory/box/rpi/iiab-imager"
-imager_menu = "subitems"
 icon = "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/rpi-imager/iiab40.png"
 url_prefix = "https://archive.org/download"
 
@@ -54,7 +53,7 @@ def get_archive_file_xml(identifier):
 def file_contents(fname):
    try:
       with open(fname,'r') as fp:
-         md[item] = fp.read().rstrip()
+         return fp.read().rstrip()
    except Exception as e:
       print('File Not Found: %s'%fname)
       return ''
@@ -62,13 +61,13 @@ def file_contents(fname):
 # The following are the keys for the rpi-imager os-list.json files
 menu_names = [ 'name','description','extract_size','extract_sha256','image_download_size','release_date','zip.md5' ]
 
-def fetch_rpi_imager_info():
+def fetch_rpi_imager_info(imager_json):
    md = {}
    for item in menu_names:
       fname = './%s.%s'%(args.image_name,item)
       retn = file_contents(fname)
       if retn != '':
-         md[name] = retn 
+         md[item] = retn 
          #print(fname)
    md['image_download_size'] = int(md['image_download_size'])
    md['extract_size'] = int(md['extract_size'])
@@ -79,32 +78,12 @@ def fetch_rpi_imager_info():
 def check(name):
    info =  get_archive_metadata(name)
    if (info.metadata):
-      print(str(info.metadata))
+      print(json.dumps(info.metadata,indent=2))
+   else:
+      print('Archive.org does not have file with identifier: %s'%name) 
 
 def create_metadata():
-def do__archive():
-   # Check if this has already been uploaded
-   item = internetarchive.get_item(args.image_name)
-
-   # Get the md5 for this .img created during the shrink-copy process
-   recorded_md5 = file_contents('%s.%s'%(args.image.name,'.zip.md5')
-   
-   if recorded_md5 != '':
-      if item and item.metadata['zip_md5'] == recorded_md5:
-         # probably the other metadata recorded at archive is valid
-         # already uploaded
-         print('Skipping %s -- checksums match'%args.image_name)
-      else:
-         print('md5sums for %s do not match'%md['title'])
-         print('local file md5:%s  metadata md5:%s'%(metadata['zip.md5'],item.metadata['zip_md5']))
-         upload = True
-   else: # there is no image.zip.md5.txt
-   upload = False
-   status = 'ok'
-   if not item.metadata:
-      print('Archive.org does not have file with identifier: %s'%identifier) 
-      upload = True
-   else:
+   print("creating metadata")
 
    metadata = fetch_image_info()
    #print(str(metadata))
@@ -136,12 +115,15 @@ def upload_image():
       status = 'error'
       with open('./logs/archive_org.log','a+') as ao_fp:
          ao_fp.write("Exception from internetarchive:%s"%e) 
-with open('./archive_org.log','a+') as ao_fp:
-   now = datetime.now()
-   date_time = now.strftime("%m/%d/%Y, %H:%M:%S")
-   ao_fp.write('Uploaded %s at %s Status:%s\n'%(args.image_name,date_time,status))
+   with open('./archive_org.log','a+') as ao_fp:
+      now = datetime.now()
+      date_time = now.strftime("%m/%d/%Y, %H:%M:%S")
+      ao_fp.write('Uploaded %s at %s Status:%s\n'%(args.image_name,date_time,status))
 
-def do_rip_imager():
+def do_rpi_imager():
+   imager_menu = "subitems"
+   found = False
+
    # update the menu item json
    if args.experimental:
       imager_menu = 'experimental'
@@ -158,13 +140,17 @@ def do_rip_imager():
    except:
       print("img.json parse error")
       sys.exit(1)
+   menu_json = fetch_rpi_imager_info()
+   if args.check:
+      print(json.dumps(menu_json,indent=2))
+   if args.delete:
+      for item in range(len(menu_json['os_list'])):
+         if menu_json['os_list'}[item].find(args.image_name) > -1:
+            del menu_json['os_list'][item]
+   for item in range(len(menu_json['os_list'])):
+      if menu_json['os_list'}[item].find(args.image_name) > -1:
+         sys.exit(0)
    data['os_list'].insert(0,metadata)
-
-   # write the new json to /tmp and compare with previous version
-   fname = os.path.join(repo_prefix,json_filename_suffix)
-   tmp_name = os.path.join('/tmp',json_filename_suffix)
-   with open (tmp_name,'w') as fp:
-      json.dump(data,fp,indent=2)
 
    # Before changing the json file, make a backup copy, in case things go wrong
    now = datetime.now()
@@ -172,7 +158,12 @@ def do_rip_imager():
    os.makedirs("./logs/%s"%date_time)
    for fn in glob.glob(repo_prefix+'/os_list*'): 
       shutil.copy(fn,"./logs/%s"%date_time)
-   sys.exit(1)
+
+   # write the new json to /tmp and compare with previous version
+   fname = os.path.join(repo_prefix,json_filename_suffix)
+   tmp_name = os.path.join('/tmp',json_filename_suffix)
+   with open (tmp_name,'w') as fp:
+      json.dump(data,fp,indent=2)
 
 def do_archive():
    # Get the md5 for this .img created during the shrink-copy process
@@ -197,24 +188,24 @@ def do_archive():
       else:
          print('md5sums for %s do not match'%md['title'])
          print('local file md5:%s  metadata md5:%s'%(metadata['zip.md5'],item.metadata['zip_md5']))
-         upload = True
+         upload_image()
    else: # Img metadata and archive.org missing or wrong
       if args.check:
          print("Image at archive.org is either wrong, or missing")
       else:
          create_metadata()
-         if not args.check:
-            upload_image()
+         upload_image()
 
 def main():
    global args
    if not os.path.exists(repo_prefix +'/logs'):
       os.mkdir(repo_prefix +'/logs')
    args = parse_args()
-   do_archive()
+   if not args.delete:
+      do_archive()
    do_rpi_imager()
    if args.check:
-      check()
+      check(args.image_name)
 
 if __name__ == "__main__":
    main()
