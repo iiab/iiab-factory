@@ -14,9 +14,15 @@ chmod 700 $ADMIN_SSH
 chmod 600 $ADMIN_SSH/authorized_keys
 chown -R iiab-admin:iiab-admin $ADMIN_SSH
 
-if [ $PLATFORM = "raspberry" ]; then
-  # this is a headless install -- so disable pi password login
-  sed -i -e 's/^pi\:.*/pi\:\*\:17228\:0\:99999\:\:\:\:/' /etc/shadow
+# change the default user for raspbian pixel from pi to xsce-admin
+if [ -f /etc/lightdm/lightdm.conf ]; then
+#  sed -i -e 's/^autologin-user=pi/autologin-user=iiab-admin/' /etc/lightdm/lightdm.conf
+   sleep 1
+else
+  if [ $PLATFORM = "raspberry" ]; then
+    # this is a headless install -- so disable pi password login
+    sed -i -e 's/^pi\:.*/pi\:\*\:17228\:0\:99999\:\:\:\:/' /etc/shadow
+  fi
 fi
 
 # prevent root password

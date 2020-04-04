@@ -24,10 +24,11 @@ src_url = "https://downloads.raspberrypi.org/os_list_imagingutility.json"
 iiab_url = "https://raw.githubusercontent.com/georgejhunt/iiab-factory/iiab/box/rpi/iiab-imager/os_list_imagingutility_iiab.json"
 #repo_prefix = "/opt/iiab/iiab-factory/box/rpi/iiab-imager"
 repo_prefix = "/hd/root/images/iiab-factory/box/rpi/iiab-imager"
-imager_menu = "subitems"
 icon = "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/rpi-imager/iiab40.png"
 url_prefix = "https://archive.org/download"
 args = None
+imager_menu = "subitems"
+imager_md = {}
 
 http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED',\
            ca_certs=certifi.where())
@@ -105,8 +106,8 @@ def ensure(key,value):
          fp.write(value + '\n')
    
 def create_imager_metadata():
+   global imager_md
    print('in create_image_metadata')
-   imager_md = {}
    # in case the zip file is missing
    if not os.path.isfile(args.image_name + '.zip'):
       do_zip()
@@ -260,6 +261,7 @@ def main():
    if not os.path.isfile(args.image_name):
       print(args.image_name + " not found in the current directory: %s"%os.getcwd())
       sys.exit(1)
+
    if not args.delete:
       do_archive()
    do_rpi_imager()
