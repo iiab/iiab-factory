@@ -12,6 +12,7 @@ import urllib3
 import certifi
 import glob
 import shutil
+import zipfile
 import xml.etree.ElementTree as ET 
 import hashlib
 
@@ -86,8 +87,10 @@ def fetch_imager_info():
    imager_md = md.copy()
 
 def do_zip():
-   print('do_zip function is not implemented')
-   sys.exit(1)
+   my_zipfile = zipfile.ZipFile("./%s"%args.image_name  + ".zip", mode='w', compression=zipfile.ZIP_DEFLATED)
+   # Write to zip file
+   my_zipfile.write("./%s"%args.image_name)
+   my_zipfile.close()
 
 def digest(fname,algorithm):
     hasher = hashlib.net(algorithm)
@@ -151,7 +154,7 @@ def xfer_imager_md_to_archive_md(imager_md):
 def check(name):
    info =  get_archive_metadata(name)
    if (info.metadata):
-      print(str(info.metadata))
+      print("\nArchive.org metadata:%s"%str(info.metadata))
 
 def upload_image(archive_md):
    print("Uploading image to archive.org")
@@ -218,9 +221,10 @@ def do_archive():
    # Get the md5 for this .img created during the shrink-copy process
    recorded_md5 = file_contents('./%s.%s'%(args.image_name,'zip.md5'))
    imager_md = fetch_imager_info()
-   print('imager_md:',repr(imager_md))
+   if args.check:
+      print('\nimager_md:',repr(imager_md))
    if recorded_md5 == '' or not imager_md:
-      create_imager_metadata()
+      imager_md = create_imager_metadata()
       recorded_md5 = file_contents('./%s.%s'%(args.image_name,'zip.md5'))
 
    # Fetch metadata, if it exists, from archive.org
@@ -234,14 +238,14 @@ def do_archive():
       if item and item.metadata['zip_md5'] == recorded_md5:
          # probably the other metadata recorded at archive is valid
          # already uploaded
-         print('Skipping %s -- checksums match'%args.image_name)
+         print('\nSkipping upload to archive.org of %s -- checksums match'%args.image_name)
       else:
          print('md5sums for %s do not match'%md['title'])
          print('local file md5:%s  metadata md5:%s'%(metadata['zip.md5'],item.metadata['zip_md5']))
          upload_image()
    else: # Img metadata and archive.org missing or wrong
       if args.check:
-         print("Image at archive.org is either wrong, or missing")
+         print("\nImage at archive.org is either wrong, or missing")
       else:
          imager_md = create_imager_metadata()
          archive_md = xfer_imager_md_to_archive_md(imager_md)
