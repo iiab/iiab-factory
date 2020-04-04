@@ -41,6 +41,5 @@ systemctl disable openvpn@xscenet.service
 systemctl disable openvpn
 
 cd /root
-rm -rf /root/iiab-factory
-rm -rf /root/tools
+
 

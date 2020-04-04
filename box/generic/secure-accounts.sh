@@ -16,7 +16,7 @@ chown -R iiab-admin:iiab-admin $ADMIN_SSH
 
 # change the default user for raspbian pixel from pi to xsce-admin
 if [ -f /etc/lightdm/lightdm.conf ]; then
-#  sed -i -e 's/^autologin-user=pi/autologin-user=xsce-admin/' /etc/lightdm/lightdm.conf
+#  sed -i -e 's/^autologin-user=pi/autologin-user=iiab-admin/' /etc/lightdm/lightdm.conf
    sleep 1
 else
   if [ $PLATFORM = "raspberry" ]; then
