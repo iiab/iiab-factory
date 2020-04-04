@@ -28,6 +28,6 @@ cp -f /home/pi/.bashrc /root/.bashrc
 systemctl disable openvpn@xscenet.service
 systemctl disable openvpn
 
-# following removes standard file used by ghunt
-rm -rf /root/tools
+cd /root
+
 
