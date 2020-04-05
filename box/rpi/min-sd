@@ -17,6 +17,10 @@ if [ $# -eq 0 ]; then
 fi
 
 # get the current settings
+if [ ! -f factory-settings ];then
+   echo We need a "factory-settings" file in this directory
+   exit 1
+fi
 source factory-settings
 
 FILENAME=$1.img
@@ -74,12 +78,16 @@ rm -f /mnt/sdcard/library/awstats/*
 rm -f /mnt/sdcard/var/log/apache2/*
 rm -f /mnt/sdcard/var/log/nginx/*
 rm -f /mnt/sdcard/etc/iiab/uuid
-rm -f /mnt/sdcard/library/www/html/local_content/USB*
-rm -f /mnt/sdcard/usb*
-rm -f /mnt/sdcard/etc/wpa_supplicant/wpa_supplicant.conf
+rm -f /mnt/sdcard/root/.netrc
+rm -rf /mnt/sdcard/root/tools
+rm -rf /mnt/sdcard/root/.ssh/*
 echo $FILENAME > /mnt/sdcard/etc/iiab/openvpn_handle
-echo -e "g0adm1n\ng0admin"|passwd iiab-admin
+echo g0adm1n | passwd --stdin iiab-admin
+
 truncate --size 0 /mnt/sdcard/opt/admin/cmdsrv/cmdsrv.0.2.db
+
+# remove host keys
+rm -f /mnt/sdcard/etc/ssh/*_key*
 
 umount /mnt/sdcard
 
