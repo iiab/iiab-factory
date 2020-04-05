@@ -78,6 +78,7 @@ rm -f /mnt/sdcard/library/www/html/local_content/USB*
 rm -f /mnt/sdcard/usb*
 rm -f /mnt/sdcard/etc/wpa_supplicant/wpa_supplicant.conf
 echo $FILENAME > /mnt/sdcard/etc/iiab/openvpn_handle
+echo -e "g0adm1n\ng0admin"|passwd iiab-admin
 truncate --size 0 /mnt/sdcard/opt/admin/cmdsrv/cmdsrv.0.2.db
 
 umount /mnt/sdcard
