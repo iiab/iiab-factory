@@ -27,3 +27,4 @@ fi
 
 # prevent root password
 sed -i -e 's/^root\:.*/root\:\*\:17228\:0\:99999\:\:\:\:/' /etc/shadow
+rm -f /root/.ssh/*
