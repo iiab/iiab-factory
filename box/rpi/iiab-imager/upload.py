@@ -28,7 +28,9 @@ icon = "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/rpi-i
 url_prefix = "https://archive.org/download"
 args = None
 imager_menu = "subitems"
-imager_md = {}
+imager_md = {} # contains the sibling data in same folder as <fname>.img.<key> with keys needed by rpi-imager
+local_md = {}  # calculated values for the check function
+archive_item = {} # metadata from archive.org version.
 
 http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED',\
            ca_certs=certifi.where())
@@ -65,12 +67,15 @@ def file_contents(fname):
          chunk = fp.read().rstrip()
          return chunk
    except Exception as e:
+      print('not able to read %s'%fname)
       return ''
 
 # The following are the keys for the rpi-imager os-list.json files
 menu_names = [ 'name','description','extract_size','extract_sha256','image_download_size','release_date','zip.md5' ]
 
 def fetch_imager_info():
+   global imager_md
+   print('in fetch_imager_info')
    # reads the sibling files adjacent to *.img with suffix in list [menu_names]
    md = {}  # metadata
    for item in menu_names:
@@ -80,7 +85,8 @@ def fetch_imager_info():
          md[item] = retn 
          #print(fname)
       else:
-         return {}
+         imager_md = {}
+         return
    md['image_download_size'] = int(md['image_download_size'])
    md['extract_size'] = int(md['extract_size'])
    md['url'] = os.path.join(url_prefix,args.image_name,args.image_name + '.zip')
@@ -94,50 +100,54 @@ def do_zip():
    my_zipfile.close()
 
 def digest(fname,algorithm):
-    hasher = hashlib.net(algorithm)
+    print(algorithm)
+    hasher = hashlib.new(algorithm)
     with open(fname, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
            hasher.update(chunk)
     return hasher.hexdigest()
 
-def ensure(key,value):
-   if not os.path.isfile('./%s%s'%(args.image_name,key)):
-      with open('./%s%s'%(args.image_name,key),'w') as fp:
-         fp.write(value + '\n')
+def write_imager_md(imager_md):
+   print('in write_imager_md')
+   for key in imager_md.keys():
+      with open('./%s.%s'%(args.image_name,key),'w') as fp:
+         fp.write(str(imager_md[key]) + '\n')
    
-def create_imager_metadata():
+def calculate_local_md():
+   # This creates a local version of imager_md
+   global local_md
+   local_md = {}
+   local_md['zip.md5'] = digest(args.image_name + '.zip','md5')
+   local_md['extract_sha256'] = digest(args.image_name,'sha256')
+   local_md['extract_size'] = os.stat(args.image_name).st_size
+   local_md['image_download_size'] = os.stat(args.image_name + '.zip').st_size
+   now = datetime.now()
+   release_date = now.strftime("%m/%d/%Y")
+   local_md['release_date'] = release_date
+   
+
+def get_title_description(fieldname):
    global imager_md
-   print('in create_image_metadata')
-   # in case the zip file is missing
-   if not os.path.isfile(args.image_name + '.zip'):
-      do_zip()
-   if not os.path.isfile(args.image_name + '.zip.md5'):
-      imager_md['md5'] = digest(args.image_name + '.zip','md5')
-      ensure('zip.md5',imager_md['md5'])
-   if not os.path.isfile(args.image_name + '.zip.md5.txt'):
-      ensure('zip.md5.txt',imager_md['md5'])
-   if not os.path.isfile(args.image_name + '.extract_sha256'):
-      imager_md['sha256'] = digest(args.image_name,'sha256')
-      ensure('extract_sha256',imager_md['sha256'])
-   if not os.path.isfile(args.image_name + '.extract_size'):
-      imager_md['extract_size'] = os.stat(args.image_name).st_size
-      ensure('extract_size',imager_md['extract_size'])
-   if not os.path.isfile(args.image_name + '.image_download_size'):
-      imager_md['image_download__size'] = os.stat('./%s%s'%(args.image_name + '.zip')).st_size
-      ensure('image_download_size',imager_md['image_download_size'])
-   return imager_md
+   if local_md and local_md.get(fieldname,'') == '' and fieldname not in local_md.keys():
+      prompt = f'Please enter a {fieldname.capitalize()} for this image: '
+   else:
+      prompt = f'Enter new {fieldname.capitalize()}, or just return to keep current Title \n{imager_md[fieldname]}'
+   resp = input(prompt)
+   if resp == '':
+      resp = imager_md[fieldname]
+   return resp
+ 
+def create_imager_metadata():
+   print('in create_imager_metadata')
+   global imager_md
+   global local_md
+   calculate_local_md()
+   local_md['name'] = get_title_description('name')
+   local_md['description'] = get_title_description('description`')
+   write_imager_md(local_md)
+   imager_md = local_md.copy()
 
-def calculate_imager_md():
-   imager_md = {}
-   imager_md['md5'] = digest(args.image_name + '.zip','md5')
-   imager_md['sha256'] = digest(args.image_name,'sha256')
-   imager_md['extract_size'] = os.stat(args.image_name).st_size
-   imager_md['image_download__size'] = os.stat('./%s%s'%(args.image_name + '.zip')).st_size
-   return imager_md
-
-
-def xfer_imager_md_to_archive_md(imager_md):
-   print(repr(imager_md))
+def xfer_imager_md_to_archive_md():
    archive_md = {}
    archive_md['title'] = imager_md['name']
    #archive_md['collection'] = "internetinabox"
@@ -175,7 +185,7 @@ def upload_image(archive_md):
       ao_fp.write('Uploaded %s at %s Status:%s\n'%(args.image_name,date_time,status))
 
 def do_rpi_imager():
-   imager_md = fetch_imager_info()
+   fetch_imager_info()
 
    # update the menu item json
    imager_menu = "subitems"
@@ -219,9 +229,12 @@ def do_rpi_imager():
       json.dump(data,fp,indent=2)
 
 def do_archive():
+   global archive_item
+   global imager_md
    # Get the md5 for this .img created during the shrink-copy process
    recorded_md5 = file_contents('./%s.%s'%(args.image_name,'zip.md5'))
-   imager_md = fetch_imager_info()
+   fetch_imager_info()
+   print(str(imager_md))
    if args.check:
       print('\nimager_md:',repr(imager_md))
    if recorded_md5 == '' or not imager_md:
@@ -229,27 +242,29 @@ def do_archive():
       recorded_md5 = file_contents('./%s.%s'%(args.image_name,'zip.md5'))
 
    # Fetch metadata, if it exists, from archive.org
-   item = internetarchive.get_item(args.image_name)
+   archive_item = internetarchive.get_item(args.image_name)
 
-   if item:
+   if archive_item:
       # Get the md5 calculated by archive.org during upload
       uploaded_md5 = get_archive_file_xml(args.image_name)
 
    if uploaded_md5 != '' and uploaded_md5 == recorded_md5:
-      if item and item.metadata['zip_md5'] == recorded_md5:
+      if archive_item and archive_item.metadata['zip_md5'] == recorded_md5:
          # probably the other metadata recorded at archive is valid
          # already uploaded
          print('\nSkipping upload to archive.org of %s -- checksums match'%args.image_name)
       else:
          print('md5sums for %s do not match'%md['title'])
-         print('local file md5:%s  metadata md5:%s'%(metadata['zip.md5'],item.metadata['zip_md5']))
+         print('local file md5:%s  metadata md5:%s'%(metadata['zip.md5'],archive_item.metadata['zip_md5']))
          upload_image()
    else: # Img metadata and archive.org missing or wrong
       if args.check:
          print("\nImage at archive.org is either wrong, or missing")
       else:
-         imager_md = create_imager_metadata()
-         archive_md = xfer_imager_md_to_archive_md(imager_md)
+         if not imager_md:
+            create_imager_metadata()
+         archive_md = xfer_imager_md_to_archive_md()
+         print(str(archive_md))
          upload_image(archive_md)
 
    
