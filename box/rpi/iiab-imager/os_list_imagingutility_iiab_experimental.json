@@ -1,6 +1,17 @@
 {
   "os_list": [
     {
+      "name": "raspbian_lite_ap0",
+      "description": "A image for testing splitting WiFi ro upstream and downstream",
+      "extract_size": 6940041216,
+      "extract_sha256": "df43539d1390f323168d90624463300a97d35e24c63616f49a7d7043a5a7e119",
+      "image_download_size": 2249755671,
+      "release_date": "04/08/2020",
+      "zip.md5": "df098429366ac6d74539de1bd1cb8a05",
+      "url": "https://archive.org/download/iiab-7.1-200404-raspbian_lite_ap0-gaa9acec1.img.zip/iiab-7.1-200404-raspbian_lite_ap0-gaa9acec1.img.zip",
+      "icon": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/rpi-imager/iiab40.png"
+    },
+    {
       "name": "Ubuntu IIAB 64bit 20.04",
       "description": "Raspberry Pi image for aarch64 runs with Raspbian Lite and IIAB minimum",
       "extract_size": 4338155520,

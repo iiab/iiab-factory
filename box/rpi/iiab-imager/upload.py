@@ -15,6 +15,7 @@ import shutil
 import zipfile
 import xml.etree.ElementTree as ET 
 import hashlib
+import pdb
 
 
 # Think of the sibling files of an image file as imager_metadata
@@ -41,7 +42,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Upload img to archive.org, Set rpi-imager json files.")
     parser.add_argument("-c","--check", help='Check archive.org version and metadata (no changes).',action='store_true')
     parser.add_argument("-d","--delete", help='Delete this menu item.',action='store_true')
-    parser.add_argument("-r","--replace", help='Replace img.zip at archive.org.',action='store_true')
+    #parser.add_argument("-r","--replace", help='Replace img.zip at archive.org.',action='store_true')
     parser.add_argument("-e","--experimental", help='Put image into Experimental menu.',action='store_true')
     parser.add_argument("image_name", help='Specify the image file name')
     return parser.parse_args()
@@ -75,7 +76,7 @@ menu_names = [ 'name','description','extract_size','extract_sha256','image_downl
 
 def fetch_imager_info():
    global imager_md
-   print('in fetch_imager_info')
+   #print('in fetch_imager_info')
    # reads the sibling files adjacent to *.img with suffix in list [menu_names]
    md = {}  # metadata
    for item in menu_names:
@@ -205,6 +206,7 @@ def do_rpi_imager():
    json_filename_suffix = os.path.join('os_list_imagingutility_iiab_' + imager_menu + '.json')
    json_filename = os.path.join(repo_prefix,json_filename_suffix)
    #print('json_filename:%s'%json_filename)
+   #pdb.set_trace()
    try:
       with open(json_filename,'r') as fp:
          json_str = fp.read()
@@ -219,14 +221,18 @@ def do_rpi_imager():
 
    # does the args.image_name already exist in the imager json?
    image_index = find_url_in_imager_json(imager_md['url'],data)
-   if image_index != -1 and args.replace:
-      os_item = data[image_index]
+   if image_index != -1 and (args.replace or args.delete):
+      os_item = data['os_list'][image_index]
       for key,value in os_item.items():
-         os[key] = value 
-   elif image_index != -1:
-      print('%s is already in imager %s\n  Skipping\n\n'%(args.imager-name + '.zip',imager_meun))
-      sys.exit(0)
-
+         os_item[key] = value 
+      del data['os_list'][image_index]
+   if image_index == -1 and args.delete:
+      print('\n%s not found in imager %s\n  Cannot delete what is not present. . .  Skipping'%(args.image_name + '.zip',json_filename_suffix))
+      return
+   if args.check:
+      print('\nContents of imager %s:\n'%imager_menu)
+      print(json.dumps(data,indent=2))
+      return
    # Before changing the json file, make a backup copy, in case things go wrong
    now = datetime.now()
    date_time = now.strftime("%m-%d-%Y_%H:%M")
@@ -235,11 +241,11 @@ def do_rpi_imager():
    for fn in glob.glob(repo_prefix+'/os_list*'): 
       shutil.copy(fn,"./logs/%s"%date_time)
 
-   # write the new json to /tmp and compare with previous version
-   data['os_list'].insert(0,imager_md)
+   if not args.delete:
+      data['os_list'].insert(0,imager_md)
    fname = os.path.join(repo_prefix,json_filename_suffix)
-   tmp_name = os.path.join('/tmp',json_filename_suffix)
-   with open (tmp_name,'w') as fp:
+   #tmp_name = os.path.join('/tmp',json_filename_suffix)
+   with open (fname,'w') as fp:
       json.dump(data,fp,indent=2)
 
 def do_archive():
