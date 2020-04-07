@@ -51,7 +51,7 @@ def get_archive_metadata(identifier):
       return internetarchive.get_item(identifier)
 
 def get_archive_file_xml(identifier):
-   url = os.path.join(url_prefix,args.image_name,args.image_name + '_files.xml')
+   url = os.path.join(url_prefix,identifier,identifier + '_files.xml')
    resp = (http.request("GET",url,retries=10))
    if resp.status == 200:
       tree = ET.fromstring(resp.data) 
@@ -89,11 +89,13 @@ def fetch_imager_info():
          return
    md['image_download_size'] = int(md['image_download_size'])
    md['extract_size'] = int(md['extract_size'])
-   md['url'] = os.path.join(url_prefix,args.image_name,args.image_name + '.zip')
+   identifier = args.image_name + '.zip'
+   md['url'] = os.path.join(url_prefix,identifier,identifier,)
    md['icon'] = icon
    imager_md = md.copy()
 
 def do_zip():
+   print("Creating zip file")
    my_zipfile = zipfile.ZipFile("./%s"%args.image_name  + ".zip", mode='w', compression=zipfile.ZIP_DEFLATED)
    # Write to zip file
    my_zipfile.write("./%s"%args.image_name)
@@ -139,6 +141,9 @@ def get_title_description(fieldname):
  
 def create_imager_metadata():
    print('in create_imager_metadata')
+   # check that we have a zip file. If not create it now
+   if not os.path.isfile(args.image_name + '.zip'):
+      do_zip()
    global imager_md
    global local_md
    calculate_local_md()
@@ -162,17 +167,23 @@ def xfer_imager_md_to_archive_md():
    archive_md['image_download_size'] =  imager_md['image_download_size']
    return archive_md
        
+def find_url_in_imager_json(url, imager_json):
+   for index in range(len(imager_json['os_list'])):
+      if url == imager_json['os_list'][index]['url']:
+         return index   
+   return -1
+   
 def check(name):
    info =  get_archive_metadata(name)
    if (info.metadata):
-      print("\nArchive.org metadata:%s"%str(info.metadata))
+      print("\nArchive.org metadata:\n%s"%json.dumps(info.metadata,indent=2))
 
 def upload_image(archive_md):
    print("Uploading image to archive.org")
    # Debugging information
    print('MetaData: %s'%archive_md)
    try:
-      r = internetarchive.upload(args.image_name, files=['./%s'%args.image_name], metadata=archive_md)
+      r = internetarchive.upload(args.image_name + '.zip', files=['./%s'%args.image_name + '.zip'], metadata=archive_md, verbose=True)
       print(r[0].status_code) 
       status = r[0].status_code
    except Exception as e:
@@ -182,7 +193,7 @@ def upload_image(archive_md):
    with open('./archive_org.log','a+') as ao_fp:
       now = datetime.now()
       date_time = now.strftime("%m/%d/%Y, %H:%M:%S")
-      ao_fp.write('Uploaded %s at %s Status:%s\n'%(args.image_name,date_time,status))
+      ao_fp.write('Uploaded %s at %s Status:%s\n'%(args.image_name + '.zip',date_time,status))
 
 def do_rpi_imager():
    fetch_imager_info()
@@ -205,14 +216,16 @@ def do_rpi_imager():
    except:
       print("%s img.json parse error"%json_filename)
       sys.exit(1)
-   data['os_list'].insert(0,imager_md)
 
-   # Before changing the json file, make a backup copy, in case things go wrong
-   now = datetime.now()
-   date_time = now.strftime("%m-%d-%Y_%H:%M")
-   os.makedirs("./logs/%s"%date_time)
-   for fn in glob.glob(repo_prefix+'/os_list*'): 
-      shutil.copy(fn,"./logs/%s"%date_time)
+   # does the args.image_name already exist in the imager json?
+   image_index = find_url_in_imager_json(imager_md['url'],data)
+   if image_index != -1 and args.replace:
+      os_item = data[image_index]
+      for key,value in os_item.items():
+         os[key] = value 
+   elif image_index != -1:
+      print('%s is already in imager %s\n  Skipping\n\n'%(args.imager-name + '.zip',imager_meun))
+      sys.exit(0)
 
    # Before changing the json file, make a backup copy, in case things go wrong
    now = datetime.now()
@@ -223,6 +236,7 @@ def do_rpi_imager():
       shutil.copy(fn,"./logs/%s"%date_time)
 
    # write the new json to /tmp and compare with previous version
+   data['os_list'].insert(0,imager_md)
    fname = os.path.join(repo_prefix,json_filename_suffix)
    tmp_name = os.path.join('/tmp',json_filename_suffix)
    with open (tmp_name,'w') as fp:
@@ -234,19 +248,19 @@ def do_archive():
    # Get the md5 for this .img created during the shrink-copy process
    recorded_md5 = file_contents('./%s.%s'%(args.image_name,'zip.md5'))
    fetch_imager_info()
-   print(str(imager_md))
+   #print(str(imager_md))
    if args.check:
-      print('\nimager_md:',repr(imager_md))
+      print('\nSibling file contents:\n%s'%json.dumps(imager_md,indent=2))
    if recorded_md5 == '' or not imager_md:
       imager_md = create_imager_metadata()
       recorded_md5 = file_contents('./%s.%s'%(args.image_name,'zip.md5'))
 
    # Fetch metadata, if it exists, from archive.org
-   archive_item = internetarchive.get_item(args.image_name)
+   archive_item = internetarchive.get_item(args.image_name + '.zip')
 
    if archive_item:
       # Get the md5 calculated by archive.org during upload
-      uploaded_md5 = get_archive_file_xml(args.image_name)
+      uploaded_md5 = get_archive_file_xml(args.image_name + '.zip')
 
    if uploaded_md5 != '' and uploaded_md5 == recorded_md5:
       if archive_item and archive_item.metadata['zip_md5'] == recorded_md5:
@@ -260,6 +274,7 @@ def do_archive():
    else: # Img metadata and archive.org missing or wrong
       if args.check:
          print("\nImage at archive.org is either wrong, or missing")
+         print('local file md5:%s  archive.org metadata md5:%s'%(imager_md['zip.md5'],uploaded_md5))
       else:
          if not imager_md:
             create_imager_metadata()
@@ -276,12 +291,14 @@ def main():
    if not os.path.isfile(args.image_name):
       print(args.image_name + " not found in the current directory: %s"%os.getcwd())
       sys.exit(1)
+   if args.image_name.endswith('.zip'):
+      args.image_name = args.image_name[:-4]
 
    if not args.delete:
       do_archive()
    do_rpi_imager()
    if args.check:
-      check(args.image_name)
+      check(args.image_name + '.zip')
 
 if __name__ == "__main__":
    main()
