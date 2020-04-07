@@ -221,7 +221,8 @@ def do_rpi_imager():
 
    # does the args.image_name already exist in the imager json?
    image_index = find_url_in_imager_json(imager_md['url'],data)
-   if image_index != -1 and (args.replace or args.delete):
+   #if image_index != -1 and (args.replace or args.delete):
+   if image_index != -1 and (args.delete):
       os_item = data['os_list'][image_index]
       for key,value in os_item.items():
          os_item[key] = value 
