@@ -103,19 +103,19 @@ update_master(){
     fi
 }
 
-if check_branch == 1; then
-    echo -e "found release-7.X branch would you like (re)install using the latest master?[Y/n]"
-    ans=""
-    if [ $INTERACTIVE == 1 ]; then
-        read -t 5 ans < /dev/tty
-    fi
-    if [ "$ans" == "y" ] || [ "$ans" == "Y" ]; then
-        use_master
-    else
-        echo "remaning on release-7.X branch updating"
-        cd $BASE/iiab
-        git checkout release-7.0
-fi
+#if check_branch == 1; then
+#    echo -e "found release-7.X branch would you like (re)install using the latest master?[Y/n]"
+#    ans=""
+#    if [ $INTERACTIVE == 1 ]; then
+#        read -t 5 ans < /dev/tty
+#    fi
+#    if [ "$ans" == "y" ] || [ "$ans" == "Y" ]; then
+#        use_master
+#    else
+#        echo "remaning on release-7.X branch updating"
+#        cd $BASE/iiab
+#        git checkout release-7.0
+#fi
 
 if [ $UPDATE == 1 ]; then
     update_master
@@ -195,7 +195,7 @@ else
     echo -e '(IIAB apps) are suggested during installation?" within http://FAQ.IIAB.IO\n'
 
     echo -n "Please type 1, 2 or 3 then press [ENTER]: "
-    read -t 5 local_vars_size < /dev/tty
+    read local_vars_size < /dev/tty
     echo
     case $local_vars_size in
         1)
@@ -209,13 +209,13 @@ else
             ;;
     esac
 
-    echo -en "\nEdit /etc/iiab/local_vars.yml to customize your Internet-in-a-Box? [Y/n] "
-    read -t 5 ans < /dev/tty
-    if [ "$ans" == "y" ] || [ "$ans" == "Y" ]; then
-        echo -en "ctrl x to save and exit"
-        sleep 2
-        nano /etc/iiab/local_vars.yml
-    fi
+#    echo -en "\nEdit /etc/iiab/local_vars.yml to customize your Internet-in-a-Box? [Y/n] "
+#    read -t 5 ans < /dev/tty
+#    if [ "$ans" == "y" ] || [ "$ans" == "Y" ]; then
+#        echo -en "ctrl x to save and exit"
+#        sleep 2
+#        nano /etc/iiab/local_vars.yml
+#    fi
 fi
 # F. Mandate OS SECURITY/UPDATES if 'apt update' has any (IF SO REBOOT)
 # Educate implementer while waiting for 'apt update'
