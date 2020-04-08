@@ -50,15 +50,17 @@ APT_PATH=/usr/bin    # Avoids problematic /usr/local/bin/apt on Linux Mint
 REINSTALL=""
 INTERACTIVE=1
 UPDATE=0
+
 if [ "$1" = "--non-interactive" ]; then
     shift 1
     INTERACTIVE=0
 fi
 
-if [ "$1" = "--update" ]; then
+if [ "$1" = "--upgrade" ]; then
     shift 1
     rm $FLAGS/iiab*complete || true
     UPDATE=1
+    REINSTALL="--reinstall"
 fi
 
 if [ "$1" = "--reinstall" ]; then
@@ -67,24 +69,23 @@ if [ "$1" = "--reinstall" ]; then
 fi
 
 check_branch(){
-    cd $BASE/iiab
-    git branch | grep release-7 | wc -l
+    git -C $BASEDIR/iiab branch | grep \* | grep release-7 | wc -l
 }
 
 use_master(){
-    cd $BASE
+    cd $BASEDIR
     if [ -d iiab ]; then
         cd iiab
-        git checkout -b master || true # covers older curls of release-7.0
-        git config branch.master.remote origin # covers older curls of release-7.0
-        git config branch.master.merge refs/heads/master # covers older curls of release-7.0
+        git checkout -b master &> /dev/null || true # covers older curls of release-7.0
+        git config branch.master.remote origin || true # covers older curls of release-7.0
+        git config branch.master.merge refs/heads/master || true # covers older curls of release-7.0
     fi
-    cd $BASE
+    cd $BASEDIR
     if [ -d iiab-admin-console ]; then
         cd iiab-admin-console
-        git checkout -b master || true # covers older curls of release-7.0
-        git config branch.master.remote origin # covers older curls of release-7.0
-        git config branch.master.merge refs/heads/master # covers older curls of release-7.0
+        git checkout -b master &> /dev/null || true # covers older curls of release-7.0
+        git config branch.master.remote origin || true # covers older curls of release-7.0
+        git config branch.master.merge refs/heads/master || true # covers older curls of release-7.0
     fi
 }
 
@@ -92,38 +93,43 @@ update_master(){
     cd $BASEDIR
     if [ -d iiab ]; then
         cd iiab
+        echo -e "\nUpdating iiab"
         git checkout master
         git pull
     fi
     cd $BASEDIR
     if [ -d iiab-admin-console ]; then
+        echo -e "\nUpdating iiab-admin-console"
         cd iiab-admin-console
         git checkout master
         git pull
     fi
 }
 
-#if check_branch == 1; then
-#    echo -e "found release-7.X branch would you like (re)install using the latest master?[Y/n]"
-#    ans=""
-#    if [ $INTERACTIVE == 1 ]; then
-#        read -t 5 ans < /dev/tty
-#    fi
-#    if [ "$ans" == "y" ] || [ "$ans" == "Y" ]; then
-#        use_master
-#    else
-#        echo "remaning on release-7.X branch updating"
-#        cd $BASE/iiab
-#        git checkout release-7.0
-#fi
+if [ `check_branch` -gt 0 ]; then
+    echo -e "\nFound release-7.X branch would you like (re)install using the latest master?"
+    echo -e "[Y/n]\n"
+    ans="n"
+    if [ $INTERACTIVE == 1 ]; then
+        read -t 5 ans < /dev/tty
+    fi
+    if [ "$ans" == "y" ] || [ "$ans" == "Y" ]; then
+        UPDATE=1
+    else
+        echo "remaning on release-7.X branch updating"
+        cd $BASEDIR/iiab
+        git pull
+    fi
+fi
 
 if [ $UPDATE == 1 ]; then
+    use_master
     update_master
 fi
 
 if [ -f $FLAGS/iiab-complete ]; then
    echo -e " IIAB completed successfully nothing to do.."
-   echo -e " iiab --reinstall if you really want to start over"
+#   echo -e " iiab --reinstall if you really want to start over"
    exit 0
 fi
 
@@ -140,7 +146,6 @@ check_user_pwd() {
 # B. Ask for password change if pi/raspberry default remains
 if check_user_pwd "pi" "raspberry"; then
     echo -e "\n\nRaspberry Pi's are COMPROMISED often if the default password is not changed!\n"
-
     echo -n "What password do you want for GNU/Linux user 'pi' ? "
     read -t 5 ans < /dev/tty    # Whines but doesn't change password if [Enter]
     echo pi:"$ans" | chpasswd || true    # Overrides 'set -e'
@@ -199,23 +204,25 @@ else
     echo
     case $local_vars_size in
         1)
-            cp $BASE/iiab/vars/local_vars_min.yml local_vars.yml
+            cp $BASEDIR/iiab/vars/local_vars_min.yml local_vars.yml
             ;;
         3)
-            cp $BASE/iiab/vars/local_vars_big.yml local_vars.yml
+            cp $BASEDIR/iiab/vars/local_vars_big.yml local_vars.yml
             ;;
         *)
-            cp $BASE/iiab/vars/local_vars_medium.yml local_vars.yml
+            cp $BASEDIR/iiab/vars/local_vars_medium.yml local_vars.yml
             ;;
     esac
 
-#    echo -en "\nEdit /etc/iiab/local_vars.yml to customize your Internet-in-a-Box? [Y/n] "
-#    read -t 5 ans < /dev/tty
-#    if [ "$ans" == "y" ] || [ "$ans" == "Y" ]; then
+    echo -en "\nEdit /etc/iiab/local_vars.yml to customize your Internet-in-a-Box? [Y/n] "
+    ans="n"
+    read -t 5 ans < /dev/tty
+    if [ "$ans" == "y" ] || [ "$ans" == "Y" ]; then
+        exit 0
 #        echo -en "ctrl x to save and exit"
 #        sleep 2
 #        nano /etc/iiab/local_vars.yml
-#    fi
+    fi
 fi
 # F. Mandate OS SECURITY/UPDATES if 'apt update' has any (IF SO REBOOT)
 # Educate implementer while waiting for 'apt update'
@@ -240,7 +247,7 @@ elif grep -q 'apt list --upgradable' /tmp/apt.stdout; then    # apt.stdout typic
         echo -n "Hit [ENTER] to confirm you'll RUN 'sudo iiab' AFTER IT REBOOTS: "
         read ans < /dev/tty
         echo
-        apt -y dist-upgrade
+        $APT_PATH -y dist-upgrade
         reboot
         exit 0    # Nec to avoid both output lines below (that confuse implementers!)
     fi
@@ -264,8 +271,7 @@ fi
 echo -e "\n\nINSTALL ANSIBLE + CORE IIAB SOFTWARE + ADMIN CONSOLE / CONTENT PACK MENUS...\n"
 
 echo -e "Install Ansible..."
-cd $BASEDIR/iiab/scripts/
-./ansible
+$BASEDIR/iiab/scripts/ansible
 
 echo -e "\n┌──────────────────────────────────────────────────────────────────────────────┐"
 echo -e "│                                                                              │"
@@ -280,7 +286,7 @@ cd $BASEDIR/iiab/
 ./iiab-install $REINSTALL
 
 echo -e "Install Admin Console... (also runs iiab-get-kiwix-cat to d/l Kiwix catalog, and installs Dynamic Menuing for /library/www/html/home/index.html)\n"
-if [ ! -f $FLAGDIR/iiab-admin-console-complete ]; then
+if [ ! -f $FLAGDIR/iiab-admin-console-complete ] || [ UPDATE == 1 ]; then
     cd $BASEDIR/iiab-admin-console
     ./install
     touch $FLAGDIR/iiab-admin-console-complete
