@@ -82,12 +82,11 @@ rm -f /mnt/sdcard/root/.netrc
 rm -rf /mnt/sdcard/root/tools
 rm -rf /mnt/sdcard/root/.ssh/*
 echo $FILENAME > /mnt/sdcard/etc/iiab/openvpn_handle
-echo g0adm1n | passwd --stdin iiab-admin
-
-truncate --size 0 /mnt/sdcard/opt/admin/cmdsrv/cmdsrv.0.2.db
 
 # remove host keys
 rm -f /mnt/sdcard/etc/ssh/*_key*
+echo -e "g0adm1n\ng0admin"|passwd iiab-admin
+truncate --size 0 /mnt/sdcard/opt/admin/cmdsrv/cmdsrv.0.2.db
 
 umount /mnt/sdcard
 
