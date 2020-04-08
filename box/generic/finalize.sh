@@ -4,7 +4,6 @@
 
 # the secure-accounts.sh  script removes developer credentials
 source ./secure-accounts.sh
-rm -f /root/.netrc
 
 # if this is a Raspberry Pi GUI pixel version (think young kids) -nuc history
 if [ -f /etc/lightdm/lightdm.conf -a "$PLATFORM" = "raspbian" ]; then
@@ -28,6 +27,10 @@ cp -f /home/pi/.bashrc /root/.bashrc
 systemctl disable openvpn@xscenet.service
 systemctl disable openvpn
 
-# following removes standard file used by ghunt
+# following removes standard files used by ghunt
 rm -rf /root/tools
+rm -f /root/.netrc
+if [ "$PLATFORM" == 'raspbian' ]; then
+   cp -f ../rpi/pibashrc /root/.bashrc
+fi
 
