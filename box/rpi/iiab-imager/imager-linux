@@ -1,0 +1,3 @@
+#!/bin/bash
+# start up the rpi-imager and specify a root menu
+/usr/bin/rpi-imager --repo https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/iiab-imager/os_list_imagingutility.json

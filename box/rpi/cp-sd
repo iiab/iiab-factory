@@ -2,7 +2,7 @@
 # resize the SD card to minimum size and zip it to image directory
 # assume /dev/sdg2 is partition to be shrunk
 # parameter 1 - output file name
-# parameter 2 - target root device partition, e.g. /dev/sdg2
+# parameter 2 - optional root device partition otherwise /dev/sdg2
 # parameter 3 - optional image directory otherwise CWD
 # Automatically determine a size for the output disk image
 # (including root, swap, and boot partitions).
@@ -11,8 +11,8 @@
 # occupied by previous partitions
 # Assumes root is last partition
 
-if [ $# -lt 2 ]; then
-   echo "Usage: $0 <filename> (no .img) <rootfs device> (like /dev/sdg2) optional <image directory> (like /curation/images, otherwise uses CWD)"
+if [ $# -eq 0 ]; then
+   echo "Usage: $0 filename (no .img), optional rootfs device (like /dev/sdg), optional image directory (like /curation/images), otherwise CWD"
    exit 1
 fi
 
@@ -73,5 +73,7 @@ echo "last sector: $last"
 dd if=$DEVICE of=$FILENAME bs=4K count=$last
 echo "last sector: $last"
 
-zip $FILENAME.zip $FILENAME
-md5sum $FILENAME.zip > $FILENAME.zip.md5.txt
+#zip $FILENAME.zip $FILENAME
+#md5sum $FILENAME.zip > $FILENAME.zip.md5.txt
+
+# run zip-sd to zip and create md5sum
