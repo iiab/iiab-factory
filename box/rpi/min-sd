@@ -17,6 +17,10 @@ if [ $# -eq 0 ]; then
 fi
 
 # get the current settings
+if [ ! -f factory-settings ];then
+   echo We need a "factory-settings" file in this directory
+   exit 1
+fi
 source factory-settings
 
 FILENAME=$1.img
