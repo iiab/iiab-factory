@@ -1,17 +1,6 @@
 {
   "os_list": [
     {
-      "name": "Desktop Medium size",
-      "description": "Raspbian Desktop loaded with IIAB Medium Selection 7.1 Preview 2",
-      "extract_size": 10839474176,
-      "extract_sha256": "8eefcd1d9f9557d44accc9100020d991585b4b58888aff0a02e048935a5df349",
-      "image_download_size": 3729947350,
-      "release_date": "04/08/2020",
-      "zip.md5": "08f1e092ee9c8a67772e1743005ecb82",
-      "url": "https://archive.org/download/200408-raspbian-desktop-med-preview2-gc0f79ec--.img.zip/200408-raspbian-desktop-med-preview2-gc0f79ec--.img.zip",
-      "icon": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/rpi-imager/iiab40.png"
-    },
-    {
       "name": "IIAB PRE 7.1 Minimum Version Content Ready",
       "description": "Internet in a Box with minimal services ready to have content added.",
       "url": "https://archive.org/download/iiab-PRE7.1-200315-min-content-ready-2020-02-13-raspbian-lite-g1b4f928.img/iiab-PRE7.1-200315-min-content-ready-2020-02-13-raspbian-lite-g1b4f928.img.zip",
