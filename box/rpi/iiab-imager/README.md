@@ -17,8 +17,8 @@ positional arguments:
 optional arguments:
   -h, --help          show this help message and exit
   -c, --check         Check version, update metadata.
-  -r, --replace       Replace img.zip at archive.org.
-  -e, --experimental  Put image into Experimental menu.
+  -d, --delete        Delete item from json file.
+  -e, --experimental  Put/delete image to/from Experimental menu.
 ```
 6. "rpi/iiab-imager/upload.py <image filename.zip>" uploads the image to archive.org, sets the metadata at archive.org, and adds the image metadata and url to the json files that specify the "Released" and "Experimental" sub menus.
 1. The "Released" menu is the default target for a new image. The "Experimental" menu is targeted by using the "-e" flag.
