@@ -1,0 +1,15 @@
+#!/bin/bash
+# Display subitems or experimental menu json
+
+# Any parameter will display experimental menu
+# Default is subitems menu
+
+scriptdir=`dirname "$BASH_SOURCE"`
+
+PREFIX=$scriptdir/os_list_imagingutility_iiab_
+if [ $# -eq 1 ];then
+   vim "${PREFIX}experimental.json"
+else
+   vim "${PREFIX}subitems.json"
+fi
+
