@@ -166,6 +166,7 @@ def xfer_imager_md_to_archive_md():
    archive_md["extract_sha256"] = imager_md['extract_sha256']
    archive_md['extract_size'] =  imager_md['extract_size']
    archive_md['image_download_size'] =  imager_md['image_download_size']
+   archive_md['release_date'] =  imager_md['release_date']
    return archive_md
        
 def find_url_in_imager_json(url, imager_json):
@@ -219,10 +220,15 @@ def do_rpi_imager():
       print("%s img.json parse error"%json_filename)
       sys.exit(1)
 
+   if args.check:
+      print('\nContents of imager %s:\n'%imager_menu)
+      print(json.dumps(data,indent=2))
+      return
+
    # does the args.image_name already exist in the imager json?
    image_index = find_url_in_imager_json(imager_md['url'],data)
-   #if image_index != -1 and (args.replace or args.delete):
-   if image_index != -1 and (args.delete):
+
+   if image_index != -1:
       os_item = data['os_list'][image_index]
       for key,value in os_item.items():
          os_item[key] = value 
@@ -230,10 +236,7 @@ def do_rpi_imager():
    if image_index == -1 and args.delete:
       print('\n%s not found in imager %s\n  Cannot delete what is not present. . .  Skipping'%(args.image_name + '.zip',json_filename_suffix))
       return
-   if args.check:
-      print('\nContents of imager %s:\n'%imager_menu)
-      print(json.dumps(data,indent=2))
-      return
+
    # Before changing the json file, make a backup copy, in case things go wrong
    now = datetime.now()
    date_time = now.strftime("%m-%d-%Y_%H:%M")
@@ -272,6 +275,10 @@ def do_archive():
    if uploaded_md5 != '' and uploaded_md5 == recorded_md5:
       if archive_item and archive_item.metadata['zip_md5'] == recorded_md5:
          # probably the other metadata recorded at archive is valid
+         print('Updating metadata at Archive.org')
+         archive_md = xfer_imager_md_to_archive_md()
+         archive_item.modify_metadata(metadata=archive_md)
+            
          # already uploaded
          print('\nSkipping upload to archive.org of %s -- checksums match'%args.image_name)
       else:
