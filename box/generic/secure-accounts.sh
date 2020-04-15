@@ -6,7 +6,7 @@ set -e
 # Try to determin if this is raspbian
 PLATFORM=`cat /etc/*release|grep ^ID=|cut -f2 -d=`
 
-ADMIN_SSH=/home/iiab-admin/.ssh
+ADMIN_SSH=/root/.ssh
 
 mkdir -p $ADMIN_SSH
 cp ../keys/developers_authorized_keys $ADMIN_SSH/authorized_keys
