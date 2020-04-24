@@ -76,7 +76,15 @@ rm -f /mnt/sdcard/var/log/nginx/*
 rm -f /mnt/sdcard/etc/iiab/uuid
 rm -f /mnt/sdcard/library/www/html/local_content/USB*
 rm -f /mnt/sdcard/usb*
-rm -f /mnt/sdcard/etc/wpa_supplicant/wpa_supplicant.conf
+
+# sanitize wpa_supplicant.conf but preserve country code
+COUNTRY_CODE_LINE=`cat /mnt/sdcard/etc/wpa_supplicant/wpa_supplicant.conf | grep  country=`
+cat <<EOF > /mnt/sdcard/etc/wpa_supplicant/wpa_supplicant.conf
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+EOF
+echo $COUNTRY_CODE_LINE >> /mnt/sdcard/etc/wpa_supplicant/wpa_supplicant.conf
+
 echo $FILENAME > /mnt/sdcard/etc/iiab/openvpn_handle
 truncate --size 0 /mnt/sdcard/opt/admin/cmdsrv/cmdsrv.0.2.db
 
