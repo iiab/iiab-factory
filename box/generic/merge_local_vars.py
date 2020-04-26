@@ -7,7 +7,6 @@
 # if the -p flag is present local_vars takes precedence over the merge file
 
 import sys, yaml, os.path, argparse
-import iiab.adm_lib as adm
 
 local_vars = {}
 merge_vars = {}
@@ -17,47 +16,59 @@ var_path = '/etc/iiab/'
 iiab_local_vars_file = var_path + 'local_vars.yml'
 default_vars_file = '/opt/iiab/iiab/vars/default_vars.yml'
 
-parser = argparse.ArgumentParser(description="Merge a file with local_vars")
-parser.add_argument("file_path", help="the full path to the file you want to merge")
-parser.add_argument("-p", "--preserve", help="preserve local_var values", action="store_true")
-parser.add_argument("-c", "--nocomment", help="don't copy comments", action="store_true")
-parser.add_argument("-d", "--nodefault", help="don't copy values same as default", action="store_true")
+def main():
+    parser = argparse.ArgumentParser(description="Merge a file with local_vars")
+    parser.add_argument("file_path", help="the full path to the file you want to merge")
+    parser.add_argument("-p", "--preserve", help="preserve local_var values", action="store_true")
+    parser.add_argument("-c", "--nocomment", help="don't copy comments", action="store_true")
+    parser.add_argument("-d", "--nodefault", help="don't copy values same as default", action="store_true")
 
-args = parser.parse_args()
+    args = parser.parse_args()
 
-merge_file = args.file_path
+    merge_file = args.file_path
 
-if not os.path.isfile(merge_file):
-    print("File " + merge_file + " not found.")
-    sys.exit(1)
+    if not os.path.isfile(merge_file):
+        print("File " + merge_file + " not found.")
+        sys.exit(1)
 
-try:
-    local_vars = adm.read_yaml(iiab_local_vars_file)
-except:
-    pass # OK if local_vars does not exist
+    try:
+        local_vars = read_yaml(iiab_local_vars_file)
+    except:
+        pass # OK if local_vars does not exist
 
-if  type(local_vars) == type(None):
-    local_vars = {}
+    if  type(local_vars) == type(None):
+        local_vars = {}
 
-if args.preserve:
-    print("preserving values in local_vars")
-else:
-    print("overriding values in local_vars with " + merge_file)
+    if args.preserve:
+        print("preserving values in local_vars")
+    else:
+        print("overriding values in local_vars with " + merge_file)
 
-try:
-    merge_vars = adm.read_yaml(merge_file)
+    try:
+        merge_vars = read_yaml(merge_file)
 
-    for key in merge_vars:
-        if key not in local_vars: # local vars values take precedence
-            delta_vars[key] = merge_vars[key]
-        else:
-             if not args.preserve: # merge vars values take precedence
-                 delta_vars[key] = merge_vars[key]
-except:
-    print("Merge unsuccessful; error:", sys.exc_info()[0])
-    sys.exit(1)
+        for key in merge_vars:
+            if key not in local_vars: # local vars values take precedence
+                delta_vars[key] = merge_vars[key]
+            else:
+                 if not args.preserve: # merge vars values take precedence
+                     delta_vars[key] = merge_vars[key]
+    except:
+        print("Merge unsuccessful; error:", sys.exc_info()[0])
+        sys.exit(1)
 
+    write_iiab_local_vars(delta_vars, strip_comments=args.nocomment, strip_defaults=args.nodefault)
+
+    print("File " + merge_file + " merged into local_vars.")
+
+# from adm_lib
 def write_iiab_local_vars(delta_vars, strip_comments=False, strip_defaults=False):
+    output_lines = merge_local_vars(delta_vars, strip_comments=strip_comments, strip_defaults=strip_defaults)
+    with open(iiab_local_vars_file, 'w') as f:
+        for line in output_lines:
+            f.write(line)
+
+def merge_local_vars(delta_vars, strip_comments=False, strip_defaults=False):
     local_vars_lines = []
     output_lines = []
     local_vars = {}
@@ -67,11 +78,11 @@ def write_iiab_local_vars(delta_vars, strip_comments=False, strip_defaults=False
     remove_defaults = []
     separator_found = False
 
-    local_vars = adm.read_yaml(iiab_local_vars_file)
+    local_vars = read_yaml(iiab_local_vars_file)
     with open(iiab_local_vars_file) as f:
         local_vars_lines = f.readlines()
 
-    default_vars = adm.read_yaml(default_vars_file)
+    default_vars = read_yaml(default_vars_file)
     if strip_defaults:
         for key in local_vars:
             if local_vars[key] == default_vars.get(key, None):
@@ -133,10 +144,16 @@ def write_iiab_local_vars(delta_vars, strip_comments=False, strip_defaults=False
         line += '\n'
         output_lines.append(line)
 
-    with open('xxx.yml', 'w') as f:
-        for line in output_lines:
-            f.write(line)
+    return output_lines
 
-write_iiab_local_vars(delta_vars, strip_comments=args.nocomment, strip_defaults=args.nodefault)
+# from adm_lib
+def read_yaml(file_name, loader=yaml.SafeLoader):
+    try:
+        with open(file_name, 'r') as f:
+            y = yaml.load(f, Loader=loader)
+            return y
+    except:
+        raise
 
-print("File " + merge_file + " merged into local_vars.")
+if __name__ == "__main__":
+     main()
