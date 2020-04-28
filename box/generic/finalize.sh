@@ -21,7 +21,6 @@ chmod 640 /home/iiab-admin/.ssh/authorized_keys
 # remove any aliases we might have added
 rm -f /root/.bash_aliases
 rm -f /home/iiab-admin/.bash_aliases
-cp -f /home/pi/.bashrc /root/.bashrc
 
 # none of the FINAL images should have openvpn enabled
 systemctl disable openvpn@xscenet.service
@@ -32,5 +31,12 @@ rm -rf /root/tools
 rm -f /root/.netrc
 if [ "$PLATFORM" == 'raspbian' ]; then
    cp -f ../rpi/pibashrc /root/.bashrc
+   echo -e g0adm1n\ng0adm1n | passwd iiab-admin
+   echo -e raspberry\nraspberry | passwd pi
+   
+   # if hostkeys are missing, recreate them and restart sshd
+   if [ ! -f /etc/ssh/ssh_host_rsa_key.pub ]; then
+      sed '/^exit.*/i ssh-keygen -A\nsystemctl restart sshd' /etc/rc.local
+   fi
 fi
 
