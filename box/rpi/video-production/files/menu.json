@@ -1,0 +1,28 @@
+{
+  "mobile_incl_footnote": false, 
+  "poweroff_prompt": "Power Off", 
+  "autoupdate_menu": true, 
+  "mobile_header_font": "Open Sans", 
+  "mobile_incl_description": false, 
+  "desktop_incl_footnote": true, 
+  "mobile_incl_extra_description": false, 
+  "allow_server_time_update": true, 
+  "desktop_incl_description": true, 
+  "mobile_incl_extra_html": false, 
+  "menu_items_1": [
+    "en-MwxMsaFFycg.mp4",
+    "en-oob" 
+  ], 
+  "menu_lang": "en", 
+  "multi_tab": false, 
+  "desktop_incl_extra_html": true, 
+  "debug": false, 
+  "tab_names": [
+    "Main"
+  ], 
+  "allow_kiwix_search": true, 
+  "desktop_header_font": "Finger Paint", 
+  "desktop_incl_extra_description": true, 
+  "allow_poweroff": true, 
+  "force_mobile_layout": false
+}

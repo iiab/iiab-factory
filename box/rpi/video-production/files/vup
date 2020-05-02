@@ -1,0 +1,6 @@
+#!/bin/bash
+# copy action routines to where they reside
+
+cp -f ./index.html /library/www/html/videos/index.html
+cp -f ./menu.json /library/www/html/videos/menu.json
+cp -f ./js-menu.js /library/www/html/videos/js-menu.js
