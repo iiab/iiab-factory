@@ -1,0 +1,98 @@
+2020-05-02 12:47:29,489 p=24298 u=root n=ansible | ERROR! vars file vars/default_vars.yml was not found
+Could not find file on the Ansible Controller.
+If you are using a module and expect the file to exist on the remote, see the remote_src option
+2020-05-02 14:10:44,557 p=10786 u=root n=ansible | PLAY [all] *********************************************************************
+2020-05-02 14:10:44,598 p=10786 u=root n=ansible | TASK [Gathering Facts] *********************************************************
+2020-05-02 14:10:48,579 p=10786 u=root n=ansible | [WARNING]: Platform linux on host 127.0.0.1 is using the discovered Python
+interpreter at /usr/bin/python, but future installation of another Python
+interpreter could change this. See https://docs.ansible.com/ansible/2.9/referen
+ce_appendices/interpreter_discovery.html for more information.
+
+2020-05-02 14:10:48,579 p=10786 u=root n=ansible | ok: [127.0.0.1]
+2020-05-02 14:10:48,652 p=10786 u=root n=ansible | TASK [video : Install video and audio packages] ********************************
+2020-05-02 14:10:51,576 p=10786 u=root n=ansible | ok: [127.0.0.1]
+2020-05-02 14:10:51,648 p=10786 u=root n=ansible | TASK [video : Add required directories] ****************************************
+2020-05-02 14:10:52,691 p=10786 u=root n=ansible | ok: [127.0.0.1] => (item=/opt/iiab/production/webpack)
+2020-05-02 14:10:53,138 p=10786 u=root n=ansible | ok: [127.0.0.1] => (item=/opt/iiab/production/static)
+2020-05-02 14:10:53,586 p=10786 u=root n=ansible | ok: [127.0.0.1] => (item=/opt/iiab/production/templates)
+2020-05-02 14:10:53,684 p=10786 u=root n=ansible | TASK [video : Copy the files needed] *******************************************
+2020-05-02 14:10:53,746 p=10786 u=root n=ansible | fatal: [127.0.0.1]: FAILED! => {"msg": "'doc_root' is undefined"}
+2020-05-02 14:10:53,749 p=10786 u=root n=ansible | PLAY RECAP *********************************************************************
+2020-05-02 14:10:53,749 p=10786 u=root n=ansible | 127.0.0.1                  : ok=3    changed=0    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0   
+2020-05-02 14:21:37,596 p=13331 u=root n=ansible | ERROR! Syntax Error while loading YAML.
+  did not find expected key
+
+The error appears to be in '/opt/iiab/iiab-factory/box/rpi/video-production/run-one-role.yml': line 11, column 16, but may
+be elsewhere in the file depending on the exact syntax problem.
+
+The offending line appears to be:
+
+#    - { role: 0-init, tags: ['0-init'] }
+    - { role: "{{ role_to_run }}", tags: ['run'] }
+               ^ here
+We could be wrong, but this one looks like it might be an issue with
+missing quotes. Always quote template expression brackets when they
+start a value. For instance:
+
+    with_items:
+      - {{ foo }}
+
+Should be written as:
+
+    with_items:
+      - "{{ foo }}"
+
+2020-05-02 14:22:53,243 p=13491 u=root n=ansible | PLAY [all] *********************************************************************
+2020-05-02 14:22:53,286 p=13491 u=root n=ansible | TASK [Gathering Facts] *********************************************************
+2020-05-02 14:22:57,228 p=13491 u=root n=ansible | [WARNING]: Platform linux on host 127.0.0.1 is using the discovered Python
+interpreter at /usr/bin/python, but future installation of another Python
+interpreter could change this. See https://docs.ansible.com/ansible/2.9/referen
+ce_appendices/interpreter_discovery.html for more information.
+
+2020-05-02 14:22:57,229 p=13491 u=root n=ansible | ok: [127.0.0.1]
+2020-05-02 14:22:57,309 p=13491 u=root n=ansible | TASK [video : Install video and audio packages] ********************************
+2020-05-02 14:23:00,215 p=13491 u=root n=ansible | ok: [127.0.0.1]
+2020-05-02 14:23:00,294 p=13491 u=root n=ansible | TASK [video : Add required directories] ****************************************
+2020-05-02 14:23:01,328 p=13491 u=root n=ansible | ok: [127.0.0.1] => (item=/opt/iiab/production/webpack)
+2020-05-02 14:23:01,764 p=13491 u=root n=ansible | ok: [127.0.0.1] => (item=/opt/iiab/production/static)
+2020-05-02 14:23:02,225 p=13491 u=root n=ansible | ok: [127.0.0.1] => (item=/opt/iiab/production/templates)
+2020-05-02 14:23:02,305 p=13491 u=root n=ansible | TASK [video : Copy the files needed] *******************************************
+2020-05-02 14:23:03,769 p=13491 u=root n=ansible | ok: [127.0.0.1] => (item={u'dest': u'/library/www/html/info/videos/', u'src': u'viewer.php'})
+2020-05-02 14:23:04,643 p=13491 u=root n=ansible | ok: [127.0.0.1] => (item={u'dest': u'/library/www/html/info/videos/', u'src': u'viewer.css'})
+2020-05-02 14:23:05,608 p=13491 u=root n=ansible | ok: [127.0.0.1] => (item={u'dest': u'/library/www/html/info/videos/', u'src': u'viewer.js'})
+2020-05-02 14:23:06,467 p=13491 u=root n=ansible | ok: [127.0.0.1] => (item={u'dest': u'/library/www/html/info/videos/', u'src': u'video-js.css'})
+2020-05-02 14:23:06,551 p=13491 u=root n=ansible | TASK [video : Configure Apache to serve wsgi python server for videos metadata update] ***
+2020-05-02 14:23:07,506 p=13491 u=root n=ansible | ok: [127.0.0.1]
+2020-05-02 14:23:07,582 p=13491 u=root n=ansible | TASK [video : Enable the videos config for apache] *****************************
+2020-05-02 14:23:08,098 p=13491 u=root n=ansible | changed: [127.0.0.1]
+2020-05-02 14:23:08,175 p=13491 u=root n=ansible | TASK [video : Get saved video.js which displays closed captions] ***************
+2020-05-02 14:23:08,230 p=13491 u=root n=ansible | fatal: [127.0.0.1]: FAILED! => {"msg": "The conditional check 'internet_available | bool' failed. The error was: error while evaluating conditional (internet_available | bool): 'internet_available' is undefined\n\nThe error appears to be in '/opt/iiab/iiab-factory/box/rpi/video-production/roles/video/tasks/main.yml': line 51, column 3, but may\nbe elsewhere in the file depending on the exact syntax problem.\n\nThe offending line appears to be:\n\n\n- name: Get saved video.js which displays closed captions\n  ^ here\n"}
+2020-05-02 14:23:08,233 p=13491 u=root n=ansible | PLAY RECAP *********************************************************************
+2020-05-02 14:23:08,234 p=13491 u=root n=ansible | 127.0.0.1                  : ok=6    changed=1    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0   
+2020-05-02 14:24:22,383 p=14100 u=root n=ansible | PLAY [all] *********************************************************************
+2020-05-02 14:24:22,426 p=14100 u=root n=ansible | TASK [Gathering Facts] *********************************************************
+2020-05-02 14:24:26,299 p=14100 u=root n=ansible | [WARNING]: Platform linux on host 127.0.0.1 is using the discovered Python
+interpreter at /usr/bin/python, but future installation of another Python
+interpreter could change this. See https://docs.ansible.com/ansible/2.9/referen
+ce_appendices/interpreter_discovery.html for more information.
+
+2020-05-02 14:24:26,300 p=14100 u=root n=ansible | ok: [127.0.0.1]
+2020-05-02 14:24:26,376 p=14100 u=root n=ansible | TASK [video : Install video and audio packages] ********************************
+2020-05-02 14:24:29,296 p=14100 u=root n=ansible | ok: [127.0.0.1]
+2020-05-02 14:24:29,370 p=14100 u=root n=ansible | TASK [video : Add required directories] ****************************************
+2020-05-02 14:24:30,442 p=14100 u=root n=ansible | ok: [127.0.0.1] => (item=/opt/iiab/production/webpack)
+2020-05-02 14:24:30,885 p=14100 u=root n=ansible | ok: [127.0.0.1] => (item=/opt/iiab/production/static)
+2020-05-02 14:24:31,318 p=14100 u=root n=ansible | ok: [127.0.0.1] => (item=/opt/iiab/production/templates)
+2020-05-02 14:24:31,398 p=14100 u=root n=ansible | TASK [video : Copy the files needed] *******************************************
+2020-05-02 14:24:32,810 p=14100 u=root n=ansible | ok: [127.0.0.1] => (item={u'dest': u'/library/www/html/info/videos/', u'src': u'viewer.php'})
+2020-05-02 14:24:33,700 p=14100 u=root n=ansible | ok: [127.0.0.1] => (item={u'dest': u'/library/www/html/info/videos/', u'src': u'viewer.css'})
+2020-05-02 14:24:34,597 p=14100 u=root n=ansible | ok: [127.0.0.1] => (item={u'dest': u'/library/www/html/info/videos/', u'src': u'viewer.js'})
+2020-05-02 14:24:35,421 p=14100 u=root n=ansible | ok: [127.0.0.1] => (item={u'dest': u'/library/www/html/info/videos/', u'src': u'video-js.css'})
+2020-05-02 14:24:35,501 p=14100 u=root n=ansible | TASK [video : Configure Apache to serve wsgi python server for videos metadata update] ***
+2020-05-02 14:24:36,430 p=14100 u=root n=ansible | ok: [127.0.0.1]
+2020-05-02 14:24:36,504 p=14100 u=root n=ansible | TASK [video : Enable the videos config for apache] *****************************
+2020-05-02 14:24:37,022 p=14100 u=root n=ansible | ok: [127.0.0.1]
+2020-05-02 14:24:37,096 p=14100 u=root n=ansible | TASK [video : Get saved video.js which displays closed captions] ***************
+2020-05-02 14:24:40,690 p=14100 u=root n=ansible | ok: [127.0.0.1]
+2020-05-02 14:24:40,694 p=14100 u=root n=ansible | PLAY RECAP *********************************************************************
+2020-05-02 14:24:40,695 p=14100 u=root n=ansible | 127.0.0.1                  : ok=7    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   

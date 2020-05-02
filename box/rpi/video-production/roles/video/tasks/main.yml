@@ -6,13 +6,14 @@
       - youtube-dl
       - openshot
       - pavucontrol
-      - gimp
+#      - gimp
       - ffmpeg
       - cheese
-      - vim-gtk3
-      - python-flask
-      - php-getid3
-      - gnome-screenshot
+
+#      - vim-gtk3
+#      - python-flask
+#      - php-getid3
+#      - gnome-screenshot
     state: present
   tags:
     - download
@@ -36,15 +37,6 @@
       - { src: "viewer.js", dest: "{{ doc_root }}/info/videos/"  }
       - { src: "video-js.css", dest: "{{ doc_root }}/info/videos/"  }
 
-- name: Install flask with dependencies using pip, into virtualenv
-  pip:
-    name: 
-      - flask 
-      - googletrans
-    virtualenv: "{{ production_venv }}"
-    virtualenv_python: python3
-  when: internet_available | bool
-
 - name: Configure Apache to serve wsgi python server for videos metadata update
   template:
       dest: /etc/apache2/sites-available/production.conf
@@ -60,4 +52,3 @@
   get_url:
       url: '{{ iiab_download_url }}/../content/videos/video.js'
       dest: '{{ doc_root }}/info/videos/'
-  when: internet_available | bool
