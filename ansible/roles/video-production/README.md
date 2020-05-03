@@ -7,6 +7,11 @@
     * Tripod
     * Lots of patience. The linux tools are not as foolproof as those that run on my MacBook.
     
+## A Work Flow And Framework for Videos
+1. There is an open source javascript viewer from Brighcove that I've incorporated into a page which plays closed captions (I've chosen English, French, and Spanish). But any additional translations rely on Google Translate, and are easy to add if needed.
+2. There was a steep learning curve for me, as I tried to learn to edit video. Many open source editors blew up for me on a PRi4, and destroyed a lot of work in process. The more capable editors, might have more programming horsepower to arrive at a stable platform, but they seemed overly complicated.
+3. It may have just been my luck. But I had successful output, and a fairly easy time, with OpenShot. It runs adequately on the RPi.
+
 ### Start a Video Project July 26,2019
 * My first video effort had a nummber of failings:
    1. It was not scripted, was too long, and planned on the fly.
