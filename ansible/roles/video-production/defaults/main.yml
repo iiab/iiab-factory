@@ -1,6 +1,0 @@
-production_install: False
-production_enabled: False
-production_dir: /opt/iiab/production
-production_venv: "{{ production_dir }}/venv"
-
-
