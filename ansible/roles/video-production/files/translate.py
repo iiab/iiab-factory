@@ -31,7 +31,7 @@ for lang in target_langs:
       outfh.write("WEBVTT\n")
       outfh.write("Kind: captions\n")
       outfh.write(f"Language: {lang}\n\n")
-      with open(sys.argv[1]) as fh:
+      with open(sys.argv[1],'r') as fh:
          lines = fh.readlines()
          for line in lines:
             if line[:4] == 'WEBV': continue
@@ -44,5 +44,8 @@ for lang in target_langs:
                outfh.write(line)
                continue
             print(line)
-            tline = translator.translate(line, dest=lang, src="en")
-            outfh.write(tline.text+'\n')
+            if lang == 'en':
+               outfh.write(line + '\n')
+            else:
+               tline = translator.translate(line, dest=lang, src="en")
+               outfh.write(tline.text+'\n')
