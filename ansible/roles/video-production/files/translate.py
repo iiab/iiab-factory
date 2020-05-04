@@ -7,7 +7,7 @@ from googletrans import Translator
 translator = Translator()
 
 target_langs = ['es','fr','en']
-#target_langs = ['es']
+#target_langs = ['fr']
 
 if len(sys.argv) == 1:
    print('Please include the file to translate as first parameter')
@@ -39,6 +39,9 @@ for lang in target_langs:
             if line[:4] == 'Lang': continue
             if line.rstrip() == '':
                outfh.write(line + '\n')
+               continue
+            if line.find('-->') != -1:
+               outfh.write(line )
                continue
             if re.match(r'\d\d:\d\d',line):
                line = line.split(',') 
