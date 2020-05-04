@@ -41,7 +41,8 @@ for lang in target_langs:
                outfh.write(line + '\n')
                continue
             if re.match(r'\d\d:\d\d',line):
-               outfh.write(line)
+               line = line.split(',') 
+               outfh.write(line[0] + " --> " + line[1])
                continue
             print(line)
             if lang == 'en':

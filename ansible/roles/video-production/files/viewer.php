@@ -1,5 +1,4 @@
 <?php
-   $edit_enable = false;
    $video_base = '/library/www/html/info/videos';
    $video_url = '/info/videos';
    if ( ! isset($_REQUEST['name'])){
@@ -7,9 +6,6 @@
       exit(1);
    } else {
       $suffix = '.mp4';
-      if ( isset($_REQUEST['edit'])){
-         $edit_enable = true;
-      }
 
       //name may include a category in path preceeding video directory specifier
       $video_name = $_REQUEST['name'];
@@ -59,12 +55,12 @@
   $pretty = human_filesize($filesize);
   $video_time = getDuration($filename);
   $modate = date ("F d Y", filemtime($filename));
-  $info = getLines("$path/info");
-  $info_html = implode('<br>',$info);
-  $text_md = implode($info);
-  if (! $edit_enable){
-      $text_html = shell_exec("pandoc -f markdown $path/info");
-  } else $text_html = $info_html;
+  if ( is_file("$path/info")){
+     $info = getLines("$path/info");
+     $info_html = implode('<br>',$info);
+  } elseif ( is_file("$path/info.md")){
+      $info_html = shell_exec("pandoc -f markdown $path/info.md");
+  } else $info_html = '';
 
   $info = "$pretty Duration: $video_time Recorded: $modate";
   chdir($cwd);
@@ -184,28 +180,13 @@ var name="<?=$video_basename?>";
             <input id="details" name="details" type="text" size="80" 
                value="<?=$details?>"></td></tr>
             <tr><td>More <br>Information:</td><td>
-            <?php if (! $edit_enable){ ?>
                <div id="info">
-               <?php  echo($text_html); ?>
+               <?php  echo($info_html); ?>
                 </div>
-             <?php } else { ?>
-               <textarea id="info_textarea" rows="7" cols="80">
-                  <?php  echo($text_md); ?>
-               </textarea>
-            <?php } ?>
               </td></tr>
             </table>
             </fieldset>
             </div>
-            <?php 
-               if ($edit_enable){
-            ?>
-            <span>
-               <button id="edit" value="edit">Edit</button>
-               <button id="preview" value="preview">Preview</button>
-               <button id="save" value="save">Save</button>
-             </span>
-               <?php } ?>
         </div> <!-- End content container -->
       </div> <!-- Flex -->
     </div> <!-- Wrapper -->

@@ -6,27 +6,21 @@
       - youtube-dl
       - openshot
       - pavucontrol
-#      - gimp
       - ffmpeg
       - cheese
-
-#      - vim-gtk3
-#      - python-flask
-#      - php-getid3
-#      - gnome-screenshot
+      - vim-gtk3
     state: present
   tags:
     - download
 
-- name: Add required directories
+- name: Create directories for videos
   file:
-      path: '{{ item }}'
-      state: directory
+     path: "{{ item }}"
+     state: directory
   with_items:
-      - '{{ production_dir }}/webpack'
-      - '{{ production_dir }}/static'
-      - '{{ production_dir }}/templates'
-
+      - "{{ doc_root }}/info/video"
+      - "{{ doc_root }}/video"
+     
 - name: Copy the files needed
   copy:
       src: "{{ item.src }}"
@@ -37,11 +31,6 @@
       - { src: "viewer.js", dest: "{{ doc_root }}/info/videos/"  }
       - { src: "video-js.css", dest: "{{ doc_root }}/info/videos/"  }
 
-- name: Configure Apache to serve wsgi python server for videos metadata update
-  template:
-      dest: /etc/apache2/sites-available/production.conf
-      src: production.conf.apache
-
 - name: Enable the videos config for apache
   file:
       src: /etc/apache2/sites-available/production.conf
@@ -51,4 +40,9 @@
 - name: Get saved video.js which displays closed captions
   get_url:
       url: '{{ iiab_download_url }}/../content/videos/video.js'
+      dest: '{{ doc_root }}/info/videos/'
+
+- name: Get tool for downloading youtube closed captions
+  get_url:
+      url: '{{ iiab_download_url }}/../content/videos/save-vtt-files.js'
       dest: '{{ doc_root }}/info/videos/'
