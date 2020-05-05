@@ -21,11 +21,10 @@
 #      - { src: "metadata.php", dest: "{{ doc_root }}/info/videos/"  }
 #      - { src: "walk.php", dest: "{{ doc_root }}/info/videos/"  }
 
-- name: Enable the videos config for apache
-  file:
-      src: /etc/apache2/sites-available/production.conf
-      dest: /etc/apache2/sites-enabled/production.conf
-      state: link
+- name: Set nginx config for player
+  template:
+      src: player.conf.j2
+      dest: /etc/nginx/conf.d/player.conf
 
 - name: Get saved video.js which displays closed captions
   get_url:
@@ -35,7 +34,7 @@
 - name: Get saved zipped archive of videos
   get_url:
       url: '{{ iiab_download_url }}/../content/videos/videos.zip'
-      dest: '{{ doc_root }}/info/videos/'
+      dest: '{{ doc_root }}/info/videos/videos.zip'
 
 - name: Extract the videos
   unarchive:
