@@ -6,6 +6,7 @@
   with_items:
       - "{{ doc_root }}/info/video"
       - "{{ doc_root }}/video"
+      - /usr/share/php/getid3
      
 - name: Copy the files needed
   copy:
@@ -20,6 +21,7 @@
 #      - { src: "readtext.php", dest: "{{ doc_root }}/info/videos/"  }
 #      - { src: "metadata.php", dest: "{{ doc_root }}/info/videos/"  }
 #      - { src: "walk.php", dest: "{{ doc_root }}/info/videos/"  }
+      - { src: "getid3.php", dest: "/usr/share/php/getid3/getid3.php"  }
 
 - name: Enable the videos config for apache
   file:
