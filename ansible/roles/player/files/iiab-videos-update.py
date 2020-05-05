@@ -85,6 +85,8 @@ def get_file_contents(file):
 video_suffixes = ('.mp4','.m4v')
 grand_parents = {}
 grand_parents["other_videos"] = []
+os.makedirs("/library/www/html/videos/menu-defs",mode=755,exist_ok=True)
+os.makedirs("/library/www/html/videos/images",mode=755,exist_ok=True)
 
 for root,dirname,files in os.walk(source_root):
    for filename in files:
