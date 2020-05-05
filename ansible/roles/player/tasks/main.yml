@@ -1,4 +1,10 @@
 
+- name: Install video file look up tool php-getid3
+  package:
+    name:
+      - php-getid3
+    state: present
+
 - name: Create directories for videos
   file:
      path: "{{ item }}"
@@ -6,7 +12,6 @@
   with_items:
       - "{{ doc_root }}/info/video"
       - "{{ doc_root }}/video"
-      - /usr/share/php/getid3
      
 - name: Copy the files needed
   copy:
@@ -21,7 +26,6 @@
 #      - { src: "readtext.php", dest: "{{ doc_root }}/info/videos/"  }
 #      - { src: "metadata.php", dest: "{{ doc_root }}/info/videos/"  }
 #      - { src: "walk.php", dest: "{{ doc_root }}/info/videos/"  }
-      - { src: "getid3.php", dest: "/usr/share/php/getid3/getid3.php"  }
 
 - name: Set nginx config for player
   template:
