@@ -1,0 +1,44 @@
+
+- name: Create directories for videos
+  file:
+     path: "{{ item }}"
+     state: directory
+  with_items:
+      - "{{ doc_root }}/info/video"
+      - "{{ doc_root }}/video"
+     
+- name: Copy the files needed
+  copy:
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+  with_items:
+      - { src: "viewer.php", dest: "{{ doc_root }}/info/videos/"  }
+      - { src: "viewer.css", dest: "{{ doc_root }}/info/videos/"  }
+      - { src: "viewer.js", dest: "{{ doc_root }}/info/videos/"  }
+      - { src: "video-js.css", dest: "{{ doc_root }}/info/videos/"  }
+      - { src: "index.php", dest: "{{ doc_root }}/info/videos/"  }
+#      - { src: "readtext.php", dest: "{{ doc_root }}/info/videos/"  }
+#      - { src: "metadata.php", dest: "{{ doc_root }}/info/videos/"  }
+#      - { src: "walk.php", dest: "{{ doc_root }}/info/videos/"  }
+
+- name: Enable the videos config for apache
+  file:
+      src: /etc/apache2/sites-available/production.conf
+      dest: /etc/apache2/sites-enabled/production.conf
+      state: link
+
+- name: Get saved video.js which displays closed captions
+  get_url:
+      url: '{{ iiab_download_url }}/../content/videos/video.js'
+      dest: '{{ doc_root }}/info/videos/'
+
+- name: Get saved zipped archive of videos
+  get_url:
+      url: '{{ iiab_download_url }}/../content/videos/videos.zip'
+      dest: '{{ doc_root }}/info/videos/'
+
+- name: Extract the videos
+  unarchive:
+      dest: '{{ doc_root }}/info/videos/'
+      src: '{{ doc_root }}/info/videos/videos.zip'
+      creates:  '{{ doc_root }}/info/videos/group4-Rpi'
