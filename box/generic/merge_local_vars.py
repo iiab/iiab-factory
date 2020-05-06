@@ -75,7 +75,7 @@ def merge_local_vars(delta_vars, strip_comments=False, strip_defaults=False):
     default_vars = {}
     defined = {}
     undefined = {}
-    remove_defaults = []
+    defaults_to_skip = []
     separator_found = False
 
     local_vars = read_yaml(iiab_local_vars_file)
@@ -86,14 +86,18 @@ def merge_local_vars(delta_vars, strip_comments=False, strip_defaults=False):
     if strip_defaults:
         for key in local_vars:
             if local_vars[key] == default_vars.get(key, None):
-                remove_defaults.append(key)
+                defaults_to_skip.append(key) # any keys where local = default
 
     for key in delta_vars:
         if strip_defaults: # remove any keys that have default value
             if delta_vars[key] == default_vars.get(key, None):
+                if key not in defaults_to_skip:
+                    defaults_to_skip.append(key) # any keys where delta = default
                 continue
         if key in local_vars:
            defined[key] = delta_vars[key]
+           if key in defaults_to_skip:
+               defaults_to_skip.remove(key) # any keys where local = default, but delta != default
         else:
            undefined[key] = delta_vars[key]
 
@@ -123,7 +127,7 @@ def merge_local_vars(delta_vars, strip_comments=False, strip_defaults=False):
         if strip_comments and hash_pos > 0 and line[:hash_pos].isspace(): # indented comment line
             copy_line = False
         if copy_line: # still not rid of this line?
-            for key in remove_defaults: # skip keys marked for removal
+            for key in defaults_to_skip: # skip keys marked for removal
                 key_pos = line.find(key)
                 if key_pos < 0:
                     continue
