@@ -1,4 +1,5 @@
 <?php
+   // This provides a list of closed caption .vtt fies to the viewer.php
    $video_base = '/library/www/html/info/videos';
    if ( ! isset($_REQUEST['name'])){
       echo('Please enter the video name as a "name=blah" parameter');

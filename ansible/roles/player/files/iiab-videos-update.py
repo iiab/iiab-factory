@@ -1,6 +1,9 @@
 #!/usr/bin/python3
 
 """
+   Reads through the videos in /library/www/html/info/videos/ and
+      writes them in form useable by IIAB menuing software,
+      -- updates menu.json, copies poster to images, creates menu-defs
    Author: George Hunt <georgejhunt <at> gmail.com>
 """
 

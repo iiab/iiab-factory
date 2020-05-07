@@ -1,4 +1,8 @@
 <?php
+   // This scans $video_base and prints out a catalog with two menu levels.
+   // -- Looking forward to a time when there ase so many videos that 
+   //    collapsing each top level item would help navigation
+
    $video_base = '/library/www/html/info/videos';
    $video_url = '/info/videos';
 
