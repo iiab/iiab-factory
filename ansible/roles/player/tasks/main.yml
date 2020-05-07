@@ -23,11 +23,7 @@
       - { src: "viewer.js", dest: "{{ doc_root }}/info/videos/"  }
       - { src: "video-js.css", dest: "{{ doc_root }}/info/videos/"  }
       - { src: "index.php", dest: "{{ doc_root }}/info/videos/"  }
-#      - { src: "readtext.php", dest: "{{ doc_root }}/info/videos/"  }
-#      - { src: "metadata.php", dest: "{{ doc_root }}/info/videos/"  }
-#      - { src: "walk.php", dest: "{{ doc_root }}/info/videos/"  }
       - { src: "menu.json", dest: "{{ doc_root }}/videos/"  }
-      - { src: "js-menu.js", dest: "{{ doc_root }}/videos/"  }
       - { src: "index.html", dest: "{{ doc_root }}/videos/"  }
 
 - name: Set nginx config for player
