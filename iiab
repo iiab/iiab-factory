@@ -87,9 +87,20 @@ fi
 
 mkdir -p $FLAGDIR
 if [ -f $FLAGDIR/iiab-complete ]; then
-    echo -e "\n\nIIAB INSTALLATION (/usr/sbin/iiab) IS ALREADY COMPLETE -- per existence of:"
-    echo -e "$FLAGDIR/iiab-complete -- nothing to do.\n"
-    exit 0
+    if [ "$1" == "--upgrade" ]; then
+        cd $BASEDIR/iiab
+        git pull
+        if [ -f $BASEDIR/iiab/upgrade_roles ]; then
+            for force in $(cat $BASEDIR/iiab/upgrade_roles); do
+                sed -i -e '/^$force/d' $CONFDIR/iiab_state.yml
+            done
+        fi
+        ./iiab-configure
+    else
+        echo -e "\n\nIIAB INSTALLATION (/usr/sbin/iiab) IS ALREADY COMPLETE -- per existence of:"
+        echo -e "$FLAGDIR/iiab-complete -- nothing to do.\n"
+        exit 0
+    fi
 fi
 
 # E. Position & customize $CONFDIR/local_vars.yml
