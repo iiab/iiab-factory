@@ -3,8 +3,7 @@
   become: yes
 
   vars_files:
-  - vars/default_vars.yml
-  - "{{ IIAB_DIR }}/vars/default_vars.yml"
+  - "/opt/iiab/iiab/vars/default_vars.yml"
 
   roles:
 #    - { role: 0-init, tags: ['0-init'] }
