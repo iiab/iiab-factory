@@ -1,0 +1,21 @@
+- name: Install video and audio packages
+  package:
+    name:
+      - pulseaudio
+      - simplescreenrecorder
+      - youtube-dl
+      - openshot
+      - pavucontrol
+      - ffmpeg
+      - cheese
+      - vim-gtk3
+    state: present
+  tags:
+    - download
+
+
+
+- name: Get tool for downloading youtube closed captions
+  get_url:
+      url: '{{ iiab_download_url }}/../content/videos/save-vtt-files.js'
+      dest: '{{ doc_root }}/info/videos/'

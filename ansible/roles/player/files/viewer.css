@@ -1,0 +1,233 @@
+html {font-size: 16px;}
+.h1 { font-size: 2.2em;
+      font-weight: 600;}
+
+@media screen and (max-width: 400px) {
+    html {font-size: 14px;}
+    .h1 { font-size: 1.6em; }
+}
+
+body {
+  background-color: #CBFFAA;
+  font-size: 100%;
+  font-family: 'Open Sans', sans-serif;
+  max-width: 1180px;
+  margin: auto;
+  text-align: center;
+}
+
+.row {
+  text-align: center;
+  flex:1;
+  width: 80%;
+}
+
+#editor1 {
+   height: 200px;
+}
+
+.wrapper {
+  background-color: rgba(203,255,170,0.99);
+  font-size: 100%;
+  font-family: 'Open Sans', sans-serif;
+  max-width: 1180px;
+  margin: auto;
+  /*opacity: 0.99;*/
+  z-index: 1;
+}
+.overlay {
+  position: fixed;
+  top: 0;
+  /*left: 0; */
+  height: 100%;
+  width: 100%;
+  max-width: 1180px;
+  /*margin: auto;*/
+  background-color: rgba(0,0,0,0.6);
+  z-index: -1;
+  /*box-shadow: 10px 10px 8px #888888;*/
+  /* filter: blur(4px); */
+}
+
+.nav-icon { font-size: 1.5em; }
+
+b { font-weight: bold; }
+a {
+    color: #249;
+    text-decoration: none;
+    outline: none; /* don't outline image links (ff) */
+}
+a:hover { text-decoration: underline; }
+a:visited { color: #649; }
+
+.dflex {
+  display: flex;
+}
+
+.flex-row{
+  display: flex;
+  flex-direction: row;
+}
+
+.flex-col{
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+#headerMobile, #headerDesktop {
+width:100%;
+background: #73b9ff;
+color: #913900;
+border-radius: 5px;
+margin: auto;
+/*display: flex; */
+}
+
+#headerMobile {
+font-weight: 600;
+height: 4vw;
+min-height: 50px;
+}
+
+#headerDesktop {
+font-weight: 600;
+height: 50px;
+}
+
+#content {
+    margin: 10px auto;
+}
+
+/* used on about.html page only - clean this up */
+.thumblist {
+    /* automatically expands to fill container */
+    padding: 9px 10px 10px 9px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    background-color: #fff;
+    border-top:  1px solid #666;
+    border-left: 1px solid #666;
+    border-bottom:  2px solid #666;
+    border-right: 2px solid #666;
+}
+
+/* elipsis menu */
+.slide-menu {
+    height: 300px;
+    width: 0;
+    position: fixed;
+    z-index: 2;
+    top: 15px;
+    /*border-top-right-radius: 10px;*/
+    /* left: 0;*/
+    background-color: #fff;
+    /* background-color: #111; */
+    /* background-color: #CBFFAA; */
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 60px;
+}
+
+.slide-menu a {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #666;
+    display: block;
+    transition: 0.3s;
+}
+
+.slide-menu a:hover {
+    color: #333;
+}
+
+.slide-menu .closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    /* font-size: 36px; */
+    margin-left: 50px;
+}
+
+@media screen and (max-height: 450px) {
+  .slide-menu {padding-top: 15px;}
+  .slide-menu a {font-size: 18px;}
+}
+
+/* Language Selector */
+.lang-list {
+	margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.lang-codes {
+	display:inline-block;
+	width:15em;
+}
+
+/* Feedback Form */
+
+.rating {
+	direction: rtl;
+	unicode-bidi: bidi-override;
+	color: #ddd; /* Personal choice */
+}
+
+.rating input {
+	display: none;
+}
+.rating label:hover,
+.rating label:hover ~ label,
+.rating input:checked + label,
+.rating input:checked + label ~ label {
+	color: #ffc107; /* Personal color choice. Lifted from Bootstrap 4 */
+}
+
+
+
+*/
+/*-------------------------------------------*/
+/* sphider (search) specific                 */
+/*-------------------------------------------*/
+#results { margin-top: 20px; }
+#results .title { font-size: 100%; }
+#results .url { font-size: 80%; color: green; margin: 5px 0 5px 0; }
+#results .description{ font-size: 90%; margin-bottom: 10px; }
+
+#editor1 {
+   height: 200px;
+}
+.content-item {
+    font-size: 1em;
+    padding: 10px 10px 10px 10px;
+    border: 1px solid #aaa;
+    border-radius: 10px;
+    margin: 3px;
+    background-color: #fff;
+    text-align: left;
+    width: 96%
+}
+.flex-col{
+  display: flex;
+  flex-direction: column;
+  width: auto;
+}
+
+.translated {
+  display: none;
+}
+fieldset {
+    background: #73b9ff;
+    border-radius: 10px;
+    width: auto;
+}
+#info, #info_textarea{
+    margin: 3px;
+    padding: 10px 10px 10px 10px;
+    background-color: #fff;
+    border: 1px solid #aaa;
+    border-radius: 5px;
+}

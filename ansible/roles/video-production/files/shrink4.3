@@ -1,0 +1,10 @@
+#!/bin/bash
+# Shrink vidoes
+
+if [ $# -eq 0 ]; then
+   echo Need an input file 
+   exit 1
+fi
+mkdir -p output
+#ffmpeg -i $1  -r 12 -s 640x360 -b 400k output/$1
+ffmpeg -i $1  -c:v libx264 -crf 28 -r 12 -s 640x480 -b 400k -profile:v baseline -level 3.0 output/$1
