@@ -1,0 +1,1 @@
+open /Applications/Raspberry\ Pi\ Imager.app/ --args --repo  https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/iiab-imager/os_list_imagingutility.json

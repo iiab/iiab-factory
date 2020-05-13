@@ -174,8 +174,9 @@ read ans < /dev/tty
 ######################### INTERACTIVE STUFF IS ABOVE #########################
 
 # G. If RPi, lower reserve disk space from ~5% to 1%
-if [ -f /proc/device-tree/model ] && grep -qi raspberry /proc/device-tree/model; then
-    echo -e "\n\nDetected RPi: Lower reserve disk (SD card) space from ~5% to 1%\n"
+#if [ -f /proc/device-tree/model ] && grep -qi raspberry /proc/device-tree/model; then
+if [ -e /dev/mmcblk0p2 ]; then
+    echo -e "\n\nFound microSD card /dev/mmcblk0p2: Lower its reserve disk space from ~5% to 1%\n"
     tune2fs -m 1 /dev/mmcblk0p2
 fi
 

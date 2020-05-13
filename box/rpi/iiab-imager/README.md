@@ -17,9 +17,15 @@ positional arguments:
 optional arguments:
   -h, --help          show this help message and exit
   -c, --check         Check version, update metadata.
-  -r, --replace       Replace img.zip at archive.org.
-  -e, --experimental  Put image into Experimental menu.
+  -d, --delete        Delete item from json file.
+  -e, --experimental  Put/delete image to/from Experimental menu.
 ```
 6. "rpi/iiab-imager/upload.py <image filename.zip>" uploads the image to archive.org, sets the metadata at archive.org, and adds the image metadata and url to the json files that specify the "Released" and "Experimental" sub menus.
 1. The "Released" menu is the default target for a new image. The "Experimental" menu is targeted by using the "-e" flag.
 1. The rpi/iiab-imager/toplevel.py refreshes the top level menu items from Raspberry Pi Foundation site, and adds the IIAB **Released** and **Experimental** menu items. The ```toplevel.py``` should be run after the release of a new vesion of raspbian (on average every 2-3 months).
+  
+  #### Notes for Testing Images and the "testiiab" Branch
+  1. This workflow creates a "private" installer which is contained in the "testiiab" branch of the http://github.com/georgejhunt/iiab-factory repo.
+  2. Use of this imager workflow requies a desktop shortcut that specifies a "--repo" that points to the branch (#1 above).
+  3. Images that pass the testing phase, can be published via the upload.py in master. Upload will check archive.org, and skip the upload if it already exists -- in which case it just adjusts the json file which advertises availaability.
+  
