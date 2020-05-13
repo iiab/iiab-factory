@@ -20,7 +20,7 @@ fi
 source factory-settings
 
 if [ -z $2 ]; then
-   PARTITION=/dev/sdg2
+   PARTITION=/dev/sdb2
 else
    PARTITION=$2
 fi

@@ -2,5 +2,5 @@
 # this file is sourced to supply current context
 
 PRODUCT=iiab
-VERSION=6.4
+VERSION=7.1_rc2
 PLATFORM=`cat /etc/*release|grep ^ID=|cut -f2 -d=`
