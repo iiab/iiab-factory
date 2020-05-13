@@ -12,21 +12,16 @@
 # Assumes root is last partition
 
 if [ $# -eq 0 ]; then
-   echo "Usage: $0 filename (no .img), optional rootfs device (like /dev/sdg3), optional image directory (like /curation/images), otherwise CWD"
+   echo "Usage: $0 filename (no .img), optional rootfs device (like /dev/sdb2), optional image directory (like /curation/images), otherwise CWD"
    exit 1
 fi
 
-# get the current settings
-if [ ! -f factory-settings ];then
-   echo We need a "factory-settings" file in this directory
-   exit 1
-fi
-source factory-settings
+source /opt/iiab/iiab-factory/factory-settings
 
 FILENAME=$1.img
 
 if [ -z $2 ]; then
-   PARTITION=/dev/sdg2
+   PARTITION=/dev/sdb2
 else
    PARTITION=$2
 fi
