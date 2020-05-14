@@ -1,6 +1,17 @@
 {
   "os_list": [
     {
+      "name": "Lite with IIAB min.",
+      "description": "A small building block -- add services with apt ad roles with IIAB console.",
+      "extract_size": 7033942016,
+      "extract_sha256": "21b0c41c67ce884103ef3b50f0c1fc4e2d4bdb8386ee4c330a295c44d46088b6",
+      "image_download_size": 3220375889,
+      "release_date": "05/13/2020",
+      "zip.md5": "a0eda95757687a2fd1383d429e9f3a33",
+      "url": "https://archive.org/download/200513-lite-min-g7140176--.img.zip/200513-lite-min-g7140176--.img.zip",
+      "icon": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/rpi-imager/iiab40.png"
+    },
+    {
       "name": "Desktop Medium size",
       "description": "Raspbian Desktop loaded with IIAB Medium Selection 7.1 Preview 2",
       "extract_size": 10839474176,
