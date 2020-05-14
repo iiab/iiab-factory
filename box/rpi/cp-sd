@@ -17,7 +17,7 @@ if [ $# -eq 0 ]; then
 fi
 
 # get the current settings
-source factory-settings
+source /opt/iiab/iiab-factory/factory-settings
 
 if [ -z $2 ]; then
    PARTITION=/dev/sdb2
