@@ -1,6 +1,5 @@
 #!/bin/bash
-# lock down root and pi (where appropriate) accounts
-# put keys in iiab-admin for support
+# put keys in root for support
 set -e
 
 # Try to determin if this is raspbian
@@ -24,4 +23,4 @@ fi
 
 # prevent root password
 sed -i -e 's/^root\:.*/root\:\*\:17228\:0\:99999\:\:\:\:/' /etc/shadow
-rm -f /root/.ssh/*
+rm -f /root/.ssh/id_rsa
