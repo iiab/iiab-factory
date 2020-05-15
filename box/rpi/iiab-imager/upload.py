@@ -22,9 +22,13 @@ import pdb
 
 #  GLOBALS
 src_url = "https://downloads.raspberrypi.org/os_list_imagingutility.json"
-iiab_url = "https://raw.githubusercontent.com/georgejhunt/iiab-factory/iiab/box/rpi/iiab-imager/os_list_imagingutility_iiab.json"
-#repo_prefix = "/opt/iiab/iiab-factory/box/rpi/iiab-imager"
-repo_prefix = "/hd/root/images/iiab-factory/box/rpi/iiab-imager"
+
+url_owner = 'georgejhunt'
+url_branch = 'testiiab'
+# the following may eventually reset to iiab-factory branch=master -- currently unused
+iiab_url = "https://raw.githubusercontent.com/%s/iiab-factory/%s/box/rpi/iiab-imager/os_list_imagingutility_iiab.json"%(url_owner,url_branch)
+
+repo_prefix = "/opt/iiab/iiab-factory/box/rpi/iiab-imager"
 icon = "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/rpi-imager/iiab40.png"
 url_prefix = "https://archive.org/download"
 args = None
@@ -41,10 +45,13 @@ http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED',\
 def parse_args():
     parser = argparse.ArgumentParser(description="Upload img to archive.org, Set rpi-imager json files.")
     parser.add_argument("-c","--check", help='Check archive.org version and metadata (no changes).',action='store_true')
-    parser.add_argument("-d","--delete", help='Delete this menu item.',action='store_true')
+    parser.add_argument("-d","--delete", help='Delete this menu item.',type=int)
     #parser.add_argument("-r","--replace", help='Replace img.zip at archive.org.',action='store_true')
     parser.add_argument("-e","--experimental", help='Put image into Experimental menu.',action='store_true')
-    parser.add_argument("image_name", help='Specify the image file name')
+    parser.add_argument("-l","--list", help='List menus (-e=experimental).',action='store_true')
+    parser.add_argument("-s","--save", help='Save current menus',action='store_true')
+    parser.add_argument("-r","--restore", help='Restore saved menus',action='store_true')
+    parser.add_argument("image_name", nargs='?',default='',  help='Specify the image file name')
     return parser.parse_args()
 
 
@@ -197,12 +204,9 @@ def upload_image(archive_md):
       date_time = now.strftime("%m/%d/%Y, %H:%M:%S")
       ao_fp.write('Uploaded %s at %s Status:%s\n'%(args.image_name + '.zip',date_time,status))
 
-def do_rpi_imager():
-   fetch_imager_info()
-
-   # update the menu item json
+def get_os_list(experimental):
    imager_menu = "subitems"
-   if args.experimental:
+   if experimental:
       imager_menu = 'experimental'
    json_filename_suffix = os.path.join('os_list_imagingutility_iiab_' + imager_menu + '.json')
    json_filename = os.path.join(repo_prefix,json_filename_suffix)
@@ -219,7 +223,66 @@ def do_rpi_imager():
    except:
       print("%s img.json parse error"%json_filename)
       sys.exit(1)
+   return data
 
+def print_os_list():
+   experimental = False
+   num = 1
+   data =  get_os_list(experimental)
+   print("\nReleased")
+   for item in data['os_list']:
+      print("%s %s -- %s"%(num, item['name'],item['description']))
+      num += 1
+   experimental = True
+   data =  get_os_list(experimental)
+   print("\nExperimental")
+   for item in data['os_list']:
+      print("%s %s -- %s"%(num, item['name'],item['description']))
+      num += 1
+   print()
+
+def do_delete(delete_num):
+   experimental = False
+   num = 1
+   released = 0
+   data =  get_os_list(experimental)
+   for item in data['os_list']:
+      released = num
+      if num == delete_num:
+         del data['os_list'][num - 1]
+         json_filename_suffix = os.path.join('os_list_imagingutility_iiab_' + 'subitems' + '.json')
+         json_filename = os.path.join(repo_prefix,json_filename_suffix)
+         with open (json_filename,'w') as fp:
+            json.dump(data,fp,indent=2)
+         return
+      num += 1
+   experimental = True
+   data =  get_os_list(experimental)
+   for item in data['os_list']:
+      if num  == delete_num:
+         del data['os_list'][num - released - 1]
+         json_filename_suffix = os.path.join('os_list_imagingutility_iiab_' + 'experimental' + '.json')
+         json_filename = os.path.join(repo_prefix,json_filename_suffix)
+         with open (json_filename,'w') as fp:
+            json.dump(data,fp,indent=2)
+         return
+      num += 1
+
+def save(to_dir):
+   for fn in glob.glob(repo_prefix+'/os_list*'): 
+      shutil.copy(fn,to_dir)
+
+def restore_from(to_dir):
+   for fn in glob.glob(to_dir + '/os_list*'): 
+      shutil.copy(fn,repo_prefix)
+
+def do_rpi_imager():
+   global imager_md
+   fetch_imager_info()
+
+   # update the menu item json
+   # but first get the menu as it exists currently
+   data = get_os_list(args.experimental)
    if args.check:
       print('\nContents of imager %s:\n'%imager_menu)
       print(json.dumps(data,indent=2))
@@ -229,26 +292,14 @@ def do_rpi_imager():
    image_index = find_url_in_imager_json(imager_md['url'],data)
 
    if image_index != -1:
-      os_item = data['os_list'][image_index]
-      for key,value in os_item.items():
-         os_item[key] = value 
-      del data['os_list'][image_index]
-   if image_index == -1 and args.delete:
-      print('\n%s not found in imager %s\n  Cannot delete what is not present. . .  Skipping'%(args.image_name + '.zip',json_filename_suffix))
+      print("This item is already in the rpi_imager")
       return
 
-   # Before changing the json file, make a backup copy, in case things go wrong
-   now = datetime.now()
-   date_time = now.strftime("%m-%d-%Y_%H:%M")
-   if not os.path.exists("./logs/%s"%date_time):
-      os.makedirs("./logs/%s"%date_time)
-   for fn in glob.glob(repo_prefix+'/os_list*'): 
-      shutil.copy(fn,"./logs/%s"%date_time)
+   # insert the new metadata into the menu json
+   data['os_list'].insert(0,imager_md)
 
-   if not args.delete:
-      data['os_list'].insert(0,imager_md)
+   # and write it
    fname = os.path.join(repo_prefix,json_filename_suffix)
-   #tmp_name = os.path.join('/tmp',json_filename_suffix)
    with open (fname,'w') as fp:
       json.dump(data,fp,indent=2)
 
@@ -302,14 +353,28 @@ def main():
    if not os.path.exists(repo_prefix +'/logs'):
       os.mkdir(repo_prefix +'/logs')
    args = parse_args()
+   if args.save:
+      save(repo_prefix +'/logs')
+      print("The following menu items were saved.d")
+      print_os_list()
+      sys.exit(0)
+   if args.restore:
+      restore_from(repo_prefix +'/logs')
+      print_os_list()
+      sys.exit(0)
+   if args.list:
+      print_os_list()
+      sys.exit(0)
+   if args.delete:
+      do_delete(args.delete)
+      print_os_list()
+      sys.exit(0)
    if not os.path.isfile(args.image_name):
       print(args.image_name + " not found in the current directory: %s"%os.getcwd())
       sys.exit(1)
    if args.image_name.endswith('.zip'):
       args.image_name = args.image_name[:-4]
 
-   if not args.delete:
-      do_archive()
    do_rpi_imager()
    if args.check:
       check(args.image_name + '.zip')
