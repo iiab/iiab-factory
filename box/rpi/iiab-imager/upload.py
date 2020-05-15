@@ -45,15 +45,27 @@ http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED',\
 def parse_args():
     parser = argparse.ArgumentParser(description="Upload img to archive.org, Set rpi-imager json files.")
     parser.add_argument("-c","--check", help='Check archive.org version and metadata (no changes).',action='store_true')
-    parser.add_argument("-d","--delete", help='Delete this menu item.',type=int)
+    parser.add_argument("-d","--delete", help='Delete listed item by number.',type=int)
     #parser.add_argument("-r","--replace", help='Replace img.zip at archive.org.',action='store_true')
     parser.add_argument("-e","--experimental", help='Put image into Experimental menu.',action='store_true')
-    parser.add_argument("-l","--list", help='List menus (-e=experimental).',action='store_true')
+    parser.add_argument("-l","--list", help='List menus.',action='store_true')
     parser.add_argument("-s","--save", help='Save current menus',action='store_true')
     parser.add_argument("-r","--restore", help='Restore saved menus',action='store_true')
     parser.add_argument("image_name", nargs='?',default='',  help='Specify the image file name')
     return parser.parse_args()
 
+def human_readable(num):
+    # return 3 significant digits and unit specifier
+    num = float(num)
+    units = [ '','K','M','G']
+    for i in range(4):
+        if num<10.0:
+            return "%.2f%s"%(num,units[i])
+        if num<100.0:
+            return "%.1f%s"%(num,units[i])
+        if num < 1000.0:
+            return "%.0f%s"%(num,units[i])
+        num /= 1000.0
 
 def get_archive_metadata(identifier):
       return internetarchive.get_item(identifier)
@@ -205,6 +217,7 @@ def upload_image(archive_md):
       ao_fp.write('Uploaded %s at %s Status:%s\n'%(args.image_name + '.zip',date_time,status))
 
 def get_os_list(experimental):
+   global imager_menu
    imager_menu = "subitems"
    if experimental:
       imager_menu = 'experimental'
@@ -231,13 +244,13 @@ def print_os_list():
    data =  get_os_list(experimental)
    print("\nReleased")
    for item in data['os_list']:
-      print("%s %s -- %s"%(num, item['name'],item['description']))
+      print("%s %s-%s,%s, %s"%(num, item['name'],item['description'],human_readable(item['extract_size']),item['release_date']))
       num += 1
    experimental = True
    data =  get_os_list(experimental)
    print("\nExperimental")
    for item in data['os_list']:
-      print("%s %s -- %s"%(num, item['name'],item['description']))
+      print("%s %s-%s,%s, %s"%(num, item['name'],item['description'],human_readable(item['extract_size']),item['release_date']))
       num += 1
    print()
 
@@ -306,6 +319,7 @@ def do_rpi_imager():
 def do_archive():
    global archive_item
    global imager_md
+   uploaded_md5 = ''
    # Get the md5 for this .img created during the shrink-copy process
    recorded_md5 = file_contents('./%s.%s'%(args.image_name,'zip.md5'))
    fetch_imager_info()
@@ -335,7 +349,8 @@ def do_archive():
       else:
          print('md5sums for %s do not match'%md['title'])
          print('local file md5:%s  metadata md5:%s'%(metadata['zip.md5'],archive_item.metadata['zip_md5']))
-         upload_image()
+         if not args.check:
+            upload_image()
    else: # Img metadata and archive.org missing or wrong
       if args.check:
          print("\nImage at archive.org is either wrong, or missing")
@@ -374,7 +389,7 @@ def main():
       sys.exit(1)
    if args.image_name.endswith('.zip'):
       args.image_name = args.image_name[:-4]
-
+   do_archive()
    do_rpi_imager()
    if args.check:
       check(args.image_name + '.zip')
