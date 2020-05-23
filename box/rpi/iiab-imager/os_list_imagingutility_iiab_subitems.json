@@ -12,6 +12,16 @@
       "icon": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/rpi-imager/iiab40.png"
     },
     {
+      "name": "IIAB PRE 7.1 Medical Version Content Ready",
+      "description": "Internet in a Box Medical Edition Ready for Adding Content",
+      "url": "https://archive.org/download/iiab-PRE7.1-200522-medical-content-ready-g1945b28.img/iiab-PRE7.1-200522-medical-content-ready-g1945b28.img.zip",
+      "icon": "http://iiab.me/downloads/iiab-images/iiab40.png",
+      "extract_size": 5299564544,
+      "extract_sha256": "50f3d6ce0d322d558c84567dc7331721c107fc5addec7e04caf1c9477b66b0f3",
+      "image_download_size": 1759193708,
+      "release_date": "2020-05-23"
+    },
+    {
       "name": "IIAB PRE 7.1 Minimum Version Content Ready",
       "description": "Internet in a Box with minimal services ready to have content added.",
       "url": "https://archive.org/download/iiab-PRE7.1-200315-min-content-ready-2020-02-13-raspbian-lite-g1b4f928.img/iiab-PRE7.1-200315-min-content-ready-2020-02-13-raspbian-lite-g1b4f928.img.zip",
