@@ -1,0 +1,4 @@
+#!/bin/bash -x
+# put any new videos up at the demo spot
+
+rsync -rpv /library/www/html/info/videos/* root@iiab.net:/library/www/html/info/videos/

@@ -1,21 +1,19 @@
 #!/bin/bash
 # Copied from: https://github.com/iiab/iiab-factory/blob/master/iiab
 
-# To install Internet-in-a-Box (IIAB) 7.1 / pre-release onto Raspbian Buster,
-# Ubuntu 18.04 or Debian 10, run this 1-line installer:
+# To install Internet-in-a-Box (IIAB) 7.2 / pre-release onto Raspberry Pi OS,
+# Ubuntu 20.04 or Debian 10, run this 1-line installer:
 #
 #                 curl d.iiab.io/install.txt | sudo bash
 
 # 1. WARNING: NOOBS IS *NOT* SUPPORTED, as its partitioning is very different.
-#    On a Raspberry Pi, you need to INSTALL THE LATEST VERSION OF RASPBIAN:
+#    On a Raspberry Pi, WE RECOMMEND YOU INSTALL THE LATEST RASPBERRY PI OS:
 #    https://www.raspberrypi.org/documentation/installation/installing-images/README.md
-#    To attempt IIAB 7.1 on another Linux see the full/manual instructions:
+#    To attempt IIAB 7.2 on another Linux see the full/manual instructions:
 #    https://github.com/iiab/iiab/wiki/IIAB-Installation#do-everything-from-scratch
 
 # 2. An Ethernet cable is HIGHLY RECOMMENDED during installation, as this is
-#    more reliable than Wi-Fi (and faster!)  But if you must install IIAB using
-#    Wi-Fi not Ethernet, remember to run 'iiab-hotspot-on' AT THE VERY END, TO
-#    ACTIVATE RPi's INTERNAL WI-FI HOTSPOT, as this kills Internet over Wi-Fi!
+#    more reliable than Wi-Fi (and faster!)
 
 # 3. Run 'sudo raspi-config' on RPi, to set LOCALISATION OPTIONS
 
@@ -34,11 +32,11 @@
 
 # Thanks   For   Building   Your   Own   Library   To   Serve   One   &   All
 #
-# DRAFT IIAB 7.1 Release Notes:
-# https://github.com/iiab/iiab/wiki/IIAB-7.1-Release-Notes
+# DRAFT IIAB 7.2 Release Notes:
+# https://github.com/iiab/iiab/wiki/IIAB-7.2-Release-Notes
 #
 # Write to bugs @ iiab.io if you find issues, Thank You!  Special Thanks to the
-# countries+communities+volunteers who worked non-stop to bring about IIAB 7.1!
+# countries+communities+volunteers who worked non-stop to bring about IIAB 7.2!
 #
 # IIAB Development Team
 # http://FAQ.IIAB.IO
@@ -174,8 +172,9 @@ read ans < /dev/tty
 ######################### INTERACTIVE STUFF IS ABOVE #########################
 
 # G. If RPi, lower reserve disk space from ~5% to 1%
-if [ -f /proc/device-tree/model ] && grep -qi raspberry /proc/device-tree/model; then
-    echo -e "\n\nDetected RPi: Lower reserve disk (SD card) space from ~5% to 1%\n"
+#if [ -f /proc/device-tree/model ] && grep -qi raspberry /proc/device-tree/model; then
+if [ -e /dev/mmcblk0p2 ]; then
+    echo -e "\n\nFound microSD card /dev/mmcblk0p2: Lower its reserve disk space from ~5% to 1%\n"
     tune2fs -m 1 /dev/mmcblk0p2
 fi
 
@@ -302,11 +301,16 @@ echo -e '(2) ADD CONTENT using http://box.lan/admin (changing "box.lan" to be as
 echo -e 'PLEASE READ "What are the default passwords?" and "How do I customize my'
 echo -e 'Internet-in-a-Box home page?" at http://FAQ.IIAB.IO\n'
 
-echo -e "(3) If you're installing IIAB over Wi-Fi (instead of Ethernet) remember to run"
-echo -e "'iiab-hotspot-on' at the VERY END, when you're ready to ACTIVATE YOUR IIAB's"
-echo -e "INTERNAL WI-FI HOTSPOT.  CAUTION: this permanently kills your IIAB's Internet"
-echo -e "(over Wi-Fi anyway) until you later run 'iiab-hotspot-off'.  CAVEAT: these"
-echo -e "two commands only work with Raspberry Pi as of 2019-09-30.\n"
+echo -e "(3) Please run the 'iiab-diagnostics' command, to generate a URL summarizing"
+echo -e "your IIAB configuration, for volunteers seeking to help you.  We strongly"
+echo -e "encourage you to share this URL also when connecting with others in the IIAB"
+echo -e "global community, learning from other initiatives in your region and beyond!\n"
+
+#echo -e "(3) If you're installing IIAB over Wi-Fi (instead of Ethernet) remember to run"
+#echo -e "'iiab-hotspot-on' at the VERY END, when you're ready to ACTIVATE YOUR IIAB's"
+#echo -e "INTERNAL WI-FI HOTSPOT.  CAUTION: this permanently kills your IIAB's Internet"
+#echo -e "(over Wi-Fi anyway) until you later run 'iiab-hotspot-off'.  CAVEAT: these"
+#echo -e "two commands only work with Raspberry Pi as of 2019-09-30.\n"
 
 echo -ne "HIT [Enter] TO REBOOT, CONFIRMING YOU'VE" '"photographed" THE ABOVE PARAGRAPHS: '
 read ans < /dev/tty

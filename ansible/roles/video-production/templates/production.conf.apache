@@ -1,0 +1,20 @@
+#video production apache2 config file
+
+WSGIScriptAlias /videos {{ production_dir }}/videos-wsgi.py
+WSGIScriptReloading On 
+
+Alias /videos-edit {{ production_venv }}
+
+<Directory {{ production_dir }}>
+#    AuthType Basic
+#    AuthName "Admin Console"
+#    AuthBasicProvider external
+#    AuthExternal pwauth
+#    require user iiab-admin
+    require all granted
+</Directory>
+
+<IfModule mod_authnz_external.c>
+    AddExternalAuth pwauth /usr/sbin/pwauth
+    SetExternalAuthMethod pwauth pipe
+</IfModule>

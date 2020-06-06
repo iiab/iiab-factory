@@ -1,0 +1,48 @@
+
+- name: Install video file look up tool php-getid3
+  package:
+    name:
+      - php-getid3
+    state: present
+
+- name: Create directories for videos
+  file:
+     path: "{{ item }}"
+     state: directory
+  with_items:
+      - "{{ doc_root }}/info/video"
+      - "{{ doc_root }}/video"
+     
+- name: Copy the files needed
+  copy:
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+  with_items:
+      - { src: "viewer.php", dest: "{{ doc_root }}/info/videos/"  }
+      - { src: "viewer.css", dest: "{{ doc_root }}/info/videos/"  }
+      - { src: "viewer.js", dest: "{{ doc_root }}/info/videos/"  }
+      - { src: "video-js.css", dest: "{{ doc_root }}/info/videos/"  }
+      - { src: "index.php", dest: "{{ doc_root }}/info/videos/"  }
+      - { src: "menu.json", dest: "{{ doc_root }}/videos/"  }
+      - { src: "index.html", dest: "{{ doc_root }}/videos/"  }
+
+- name: Set nginx config for player
+  template:
+      src: player.conf.j2
+      dest: /etc/nginx/conf.d/player.conf
+
+- name: Get saved video.js which displays closed captions
+  get_url:
+      url: '{{ iiab_download_url }}/../content/videos/video.js'
+      dest: '{{ doc_root }}/info/videos/'
+
+- name: Get saved zipped archive of videos
+  get_url:
+      url: '{{ iiab_download_url }}/../content/videos/videos.zip'
+      dest: '{{ doc_root }}/info/videos/videos.zip'
+
+- name: Extract the videos
+  unarchive:
+      dest: '{{ doc_root }}/info/videos/'
+      src: '{{ doc_root }}/info/videos/videos.zip'
+      creates:  '{{ doc_root }}/info/videos/group4-Rpi'
