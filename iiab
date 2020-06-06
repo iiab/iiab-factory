@@ -304,7 +304,7 @@ echo -e 'Internet-in-a-Box home page?" at http://FAQ.IIAB.IO\n'
 echo -e "(3) Please run the 'iiab-diagnostics' command, to generate a URL summarizing"
 echo -e "your IIAB configuration, for volunteers seeking to help you.  We strongly"
 echo -e "encourage you to share this URL also when connecting with others in the IIAB"
-echo -e "global community, learning from other initiatives in your region and beyond!"
+echo -e "global community, learning from other initiatives in your region and beyond!\n"
 
 #echo -e "(3) If you're installing IIAB over Wi-Fi (instead of Ethernet) remember to run"
 #echo -e "'iiab-hotspot-on' at the VERY END, when you're ready to ACTIVATE YOUR IIAB's"
