@@ -2,7 +2,7 @@
   "os_list": [
     {
       "name": "Ubuntu IIAB 64bit 20.04",
-      "description": "Raspberry Pi image for aarch64 runs with Raspbian Lite and IIAB minimum",
+      "description": "Raspberry Pi image for aarch64 runs with Ubuntu Server 20.04 LTS Operating System  and IIAB minimum",
       "extract_size": 4338155520,
       "extract_sha256": "93209ae58e9558b62711df9733dbef46b193fe40b06e0d53c57ea3ccc2accad0",
       "image_download_size": 1895658008,
