@@ -386,6 +386,8 @@ def main():
       sys.exit(0)
    if not os.path.isfile(args.image_name):
       print(args.image_name + " not found in the current directory: %s"%os.getcwd())
+      if args.image_name == '':
+         print("You must specify an Image file to upload to archive.org")
       sys.exit(1)
    if args.image_name.endswith('.zip'):
       args.image_name = args.image_name[:-4]
