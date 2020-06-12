@@ -13,39 +13,39 @@
       "subitems_url": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/iiab-imager/os_list_imagingutility_iiab_experimental.json"
     },
     {
-      "name": "Raspbian",
+      "name": "Raspberry Pi OS (32-bit)",
       "description": "A port of Debian with the Raspberry Pi Desktop (Recommended)",
-      "icon": "http://downloads.raspberrypi.org/raspbian/Raspbian.png",
-      "url": "http://downloads.raspberrypi.org/raspbian/images/raspbian-2020-02-14/2020-02-13-raspbian-buster.zip",
-      "extract_size": 3787456512,
-      "extract_sha256": "b11018c3bfa3186f358f42a051b8e97afd3f414833e9229fd0e1f50daf8aadac",
-      "image_download_size": 1191759016,
-      "release_date": "2020-02-13"
+      "icon": "http://downloads.raspberrypi.org/raspios_armhf/Raspberry_Pi_OS_(32-bit).png",
+      "url": "http://downloads.raspberrypi.org/raspios_armhf/images/raspios_armhf-2020-05-28/2020-05-27-raspios-buster-armhf.zip",
+      "extract_size": 3829399552,
+      "extract_sha256": "0d4a8fd5886b25d1218d9439ed3d6ad402ce7062f906fae349666a00c6c43f8a",
+      "image_download_size": 1181855929,
+      "release_date": "2020-05-27"
     },
     {
-      "name": "Raspbian (other)",
-      "description": "Other Raspbian based images",
-      "icon": "http://downloads.raspberrypi.org/raspbian/Raspbian.png",
+      "name": "Raspberry Pi OS (other)",
+      "description": "Other Raspberry Pi OS based images",
+      "icon": "http://downloads.raspberrypi.org/raspios_armhf/Raspberry_Pi_OS_(32-bit).png",
       "subitems": [
         {
-          "name": "Raspbian Lite",
+          "name": "Raspberry Pi OS Lite (32-bit)",
           "description": "A port of Debian with no desktop environment",
-          "icon": "http://downloads.raspberrypi.org/raspbian_lite/Raspbian_Lite.png",
-          "url": "http://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2020-02-14/2020-02-13-raspbian-buster-lite.zip",
-          "extract_size": 1849688064,
-          "extract_sha256": "4700d93867eed0b047494d381590a1901a32b2c0f8d95d8d45d6e63fb8c46969",
-          "image_download_size": 454047405,
-          "release_date": "2020-02-13"
+          "icon": "http://downloads.raspberrypi.org/raspios_lite_armhf/Raspberry_Pi_OS_Lite_(32-bit).png",
+          "url": "http://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2020-05-28/2020-05-27-raspios-buster-lite-armhf.zip",
+          "extract_size": 1853882368,
+          "extract_sha256": "3fe88721668543899fc8de9168bed798bdaa795b5a403f0332d7731b0afbaaa3",
+          "image_download_size": 452715448,
+          "release_date": "2020-05-27"
         },
         {
-          "name": "Raspbian Full",
+          "name": "Raspberry Pi OS Full (32-bit)",
           "description": "A port of Debian with desktop and recommended applications",
-          "icon": "http://downloads.raspberrypi.org/raspbian_full/Raspbian_Full.png",
-          "url": "http://downloads.raspberrypi.org/raspbian_full/images/raspbian_full-2020-02-14/2020-02-13-raspbian-buster-full.zip",
-          "extract_size": 7323254784,
-          "extract_sha256": "29324cc50cf5cd728419d29db58bbb314d88a58bd4f225acd619b4cbf6e3222d",
-          "image_download_size": 2653723839,
-          "release_date": "2020-02-13"
+          "icon": "http://downloads.raspberrypi.org/raspios_full_armhf/Raspberry_Pi_OS_Full_(32-bit).png",
+          "url": "http://downloads.raspberrypi.org/raspios_full_armhf/images/raspios_full_armhf-2020-05-28/2020-05-27-raspios-buster-full-armhf.zip",
+          "extract_size": 7365197824,
+          "extract_sha256": "a461c8108fab8b885b71d5e2c621866e05ff300e848c1ec2a6fa9c9cb8dd63e2",
+          "image_download_size": 2645200349,
+          "release_date": "2020-05-27"
         }
       ]
     },
@@ -67,14 +67,14 @@
       "icon": "icons/ic_build_48px.svg",
       "subitems": [
         {
-          "name": "Pi 4 EEPROM boot recovery",
+          "name": "Raspberry Pi 4 EEPROM boot recovery",
           "description": "Use this only if advised to do so",
-          "icon": "http://downloads.raspberrypi.org/raspbian/Raspbian.png",
-          "url": "https://github.com/raspberrypi/rpi-eeprom/releases/download/v2019.09.10/rpi-eeprom-recovery.zip",
+          "icon": "https://downloads.raspberrypi.org/raspios_armhf/Raspbian.png",
+          "url": "https://github.com/raspberrypi/rpi-eeprom/releases/download/v2020.04.16-137ad/rpi-boot-eeprom-recovery-2020-04-16-vl805-000137ad.zip",
           "contains_multiple_files": true,
-          "extract_size": 684824,
-          "image_download_size": 150696,
-          "release_date": "2020-03-16"
+          "extract_size": 712338,
+          "image_download_size": 278380,
+          "release_date": "2020-04-23"
         }
       ]
     }
