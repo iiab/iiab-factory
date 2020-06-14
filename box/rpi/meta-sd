@@ -1,0 +1,39 @@
+#!/usr/bin/python3
+# Generate rpi-imager meta data
+
+import os,sys
+import json
+import argparse
+import internetarchive
+
+def main():
+   global args
+   args = parse_args()
+   image_name = args.image_name
+   metatdata = get_ia_meta(args.image_name)
+   #print (metatdata)
+   imager_metatdata = {}
+
+   imager_metatdata['name'] = metatdata['title']
+   imager_metatdata['description'] = metatdata['description']
+   imager_metatdata['extract_size'] = metatdata['img_size']
+   imager_metatdata['extract_sha256'] = metatdata['img_sha256']
+   imager_metatdata['image_download_size'] = metatdata['zip_size']
+   imager_metatdata['release_date'] = metatdata['publicdate']
+   imager_metatdata['zip.md5'] = metatdata['zip_md5']
+   imager_metatdata['url'] = 'https://archive.org/download/' + image_name + '/' + image_name + '.zip'
+   imager_metatdata['icon'] = 'https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/rpi-imager/iiab40.png'
+   s = json.dumps(imager_metatdata, indent=2)
+   print(s)
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="rpi image identifier (includes .img, but not .zip.")
+    parser.add_argument("image_name", help='Specify the image file name')
+    return parser.parse_args()
+
+def get_ia_meta(identifier):
+    item = internetarchive.get_item(identifier)
+    return item.metadata
+
+if __name__ == "__main__":
+   main()
