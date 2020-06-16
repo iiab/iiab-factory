@@ -229,6 +229,11 @@ def get_os_list(experimental):
       with open(json_filename,'r') as fp:
          json_str = fp.read()
          data = json.loads(json_str)
+         # following 3 lines are cludge to change string to int
+         for index in range(len(data['os_list'])):
+            #pdb.set_trace()
+            data['os_list'][index]['extract_size'] = int(data['os_list'][index]['extract_size'])
+            data['os_list'][index]['image_download_size'] = int(data['os_list'][index]['image_download_size'])
    except FileNotFoundError as e:
       print(json_filename)
       print("File not found: %s"%e)
@@ -370,7 +375,7 @@ def main():
    args = parse_args()
    if args.save:
       save(repo_prefix +'/logs')
-      print("The following menu items were saved.d")
+      print("The following menu items were saved.")
       print_os_list()
       sys.exit(0)
    if args.restore:
