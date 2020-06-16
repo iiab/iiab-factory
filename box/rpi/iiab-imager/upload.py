@@ -23,8 +23,10 @@ import pdb
 #  GLOBALS
 src_url = "https://downloads.raspberrypi.org/os_list_imagingutility.json"
 
-url_owner = 'georgejhunt'
-url_branch = 'testiiab'
+#url_owner = 'georgejhunt'
+#url_branch = 'testiiab'
+url_owner = 'iiab'
+url_branch = 'master'
 # the following may eventually reset to iiab-factory branch=master -- currently unused
 iiab_url = "https://raw.githubusercontent.com/%s/iiab-factory/%s/box/rpi/iiab-imager/os_list_imagingutility_iiab.json"%(url_owner,url_branch)
 
