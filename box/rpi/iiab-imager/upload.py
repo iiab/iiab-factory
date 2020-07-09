@@ -211,18 +211,21 @@ def upload_image(archive_md):
       status = 'error'
       with open('./logs/archive_org.log','a+') as ao_fp:
          ao_fp.write("Exception from internetarchive:%s"%e) 
-   with open('./archive_org.log','a+') as ao_fp:
+   with open('%s/archive_org.log'%repo_prefix,'a+') as ao_fp:
       now = datetime.now()
       date_time = now.strftime("%m/%d/%Y, %H:%M:%S")
       ao_fp.write('Uploaded %s at %s Status:%s\n'%(args.image_name + '.zip',date_time,status))
 
-def get_os_list(experimental):
+def get_json_filename(experimental):
    global imager_menu
    imager_menu = "subitems"
    if experimental:
       imager_menu = 'experimental'
-   json_filename_suffix = os.path.join('os_list_imagingutility_iiab_' + imager_menu + '.json')
-   json_filename = os.path.join(repo_prefix,json_filename_suffix)
+   return os.path.join(repo_prefix,'os_list_imagingutility_iiab_' + imager_menu + '.json')
+
+def get_os_list(experimental):
+   global imager_menu
+   json_filename = get_json_filename(experimental)
    #print('json_filename:%s'%json_filename)
    #pdb.set_trace()
    try:
@@ -317,7 +320,7 @@ def do_rpi_imager():
    data['os_list'].insert(0,imager_md)
 
    # and write it
-   fname = os.path.join(repo_prefix,json_filename_suffix)
+   fname = get_json_filename(args.experimental)
    with open (fname,'w') as fp:
       json.dump(data,fp,indent=2)
 
