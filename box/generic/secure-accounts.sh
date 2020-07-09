@@ -16,7 +16,7 @@ chown -R root:root $ADMIN_SSH
 
 if [ $PLATFORM = "raspberry" ]; then
     # this is a headless install -- so disable pi password login
-    sed -i -e 's/^pi\:.*/pi\:\*\:17228\:0\:99999\:\:\:\:/' /etc
+    sed -i -e 's/^pi\:.*/pi\:\*\:17228\:0\:99999\:\:\:\:/' /etc/shadow
     #echo -e "raspberry\nraspberry"| passwd pi
 fi
 
