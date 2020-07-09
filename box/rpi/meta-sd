@@ -16,9 +16,9 @@ def main():
 
    imager_metatdata['name'] = metatdata['title']
    imager_metatdata['description'] = metatdata['description']
-   imager_metatdata['extract_size'] = metatdata['img_size']
+   imager_metatdata['extract_size'] = int(metatdata['img_size'])
    imager_metatdata['extract_sha256'] = metatdata['img_sha256']
-   imager_metatdata['image_download_size'] = metatdata['zip_size']
+   imager_metatdata['image_download_size'] = int(metatdata['zip_size'])
    imager_metatdata['release_date'] = metatdata['publicdate']
    imager_metatdata['zip.md5'] = metatdata['zip_md5']
    imager_metatdata['url'] = 'https://archive.org/download/' + image_name + '/' + image_name + '.zip'
