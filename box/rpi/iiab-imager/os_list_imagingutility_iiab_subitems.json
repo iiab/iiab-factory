@@ -1,14 +1,14 @@
 {
   "os_list": [
     {
-      "name": "Desktop Rpi OS -- IIAB 7.1 Medium",
-      "description": "Frequently Selected IIAB Services with Graphical User Interface (GUI)",
-      "extract_size": 11075993600,
-      "extract_sha256": "8a228a3300e714f6a4b7a76f26274e3c845047494ed8f5fd610a55c7d37c845a",
-      "image_download_size": 4128100390,
-      "release_date": "06/15/2020",
-      "zip.md5": "7d8ee53f3ee63be8826abedebeca1cab",
-      "url": "https://archive.org/download/iiab-7.1-200614-raspberry-pi-os-desktop-g17253d4.img.zip/iiab-7.1-200614-raspberry-pi-os-desktop-g17253d4.img.zip",
+      "name": "Desktop Rpi OS",
+      "description": "IIAB 7.1 Medium -- Frequently Selected Services and Graphical User Interface",
+      "extract_size": 11079725056,
+      "extract_sha256": "b9e6315468c509adf1269d2533e4749287a52773630240f58005c37c1e4f8efc",
+      "image_download_size": 4175260044,
+      "release_date": "07/08/2020",
+      "zip.md5": "d44ad121023b79cbe0706ca3cbea6cf0",
+      "url": "https://archive.org/download/iiab-7.1-200708-raspbian-desktop-sqlite3-g17253d4.img.zip/iiab-7.1-200708-raspbian-desktop-sqlite3-g17253d4.img.zip",
       "icon": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/rpi-imager/iiab40.png"
     },
     {
