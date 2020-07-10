@@ -93,9 +93,10 @@ def file_contents(fname):
 # The following are the keys for the rpi-imager os-list.json files
 menu_names = [ 'name','description','extract_size','extract_sha256','image_download_size','release_date','zip.md5' ]
 
-def fetch_imager_info():
+def exists_imager_info():
    global imager_md
-   #print('in fetch_imager_info')
+   exists = True
+   #print('in exists_imager_info')
    # reads the sibling files adjacent to *.img with suffix in list [menu_names]
    md = {}  # metadata
    for item in menu_names:
@@ -105,14 +106,18 @@ def fetch_imager_info():
          md[item] = retn 
          #print(fname)
       else:
-         imager_md = {}
-         return
+         exists = False
+         print('No existing file found: %s'%fname)
    md['image_download_size'] = int(md['image_download_size'])
    md['extract_size'] = int(md['extract_size'])
    identifier = args.image_name + '.zip'
    md['url'] = os.path.join(url_prefix,identifier,identifier,)
    md['icon'] = icon
    imager_md = md.copy()
+   return exists
+   #print("\nArchive.org metadata:\n%s"%json.dumps(imager_md,indent=2))
+   #sys.exit(1)
+
 
 def do_zip():
    print("Creating zip file")
@@ -166,6 +171,8 @@ def create_imager_metadata():
       do_zip()
    global imager_md
    global local_md
+   #if len(imager_md) > 0:
+      #return
    calculate_local_md()
    local_md['name'] = get_title_description('name')
    local_md['description'] = get_title_description('description`')
@@ -299,7 +306,6 @@ def restore_from(to_dir):
 
 def do_rpi_imager():
    global imager_md
-   fetch_imager_info()
 
    # update the menu item json
    # but first get the menu as it exists currently
@@ -313,8 +319,8 @@ def do_rpi_imager():
    image_index = find_url_in_imager_json(imager_md['url'],data)
 
    if image_index != -1:
-      print("This item is already in the rpi_imager")
-      return
+      print("This item is already in the rpi_imager. Replacing ...")
+      del data['os_list'][image_index]
 
    # insert the new metadata into the menu json
    data['os_list'].insert(0,imager_md)
@@ -330,12 +336,11 @@ def do_archive():
    uploaded_md5 = ''
    # Get the md5 for this .img created during the shrink-copy process
    recorded_md5 = file_contents('./%s.%s'%(args.image_name,'zip.md5'))
-   fetch_imager_info()
-   #print(str(imager_md))
    if args.check:
       print('\nSibling file contents:\n%s'%json.dumps(imager_md,indent=2))
-   if recorded_md5 == '' or not imager_md:
-      imager_md = create_imager_metadata()
+   if recorded_md5 == '' or len(imager_md) == 0:
+      if not exists_imager_info():
+         create_imager_metadata()
       recorded_md5 = file_contents('./%s.%s'%(args.image_name,'zip.md5'))
 
    # Fetch metadata, if it exists, from archive.org
@@ -364,7 +369,7 @@ def do_archive():
          print("\nImage at archive.org is either wrong, or missing")
          print('local file md5:%s  archive.org metadata md5:%s'%(imager_md['zip.md5'],uploaded_md5))
       else:
-         if not imager_md:
+         if len(imager_md) == 0:
             create_imager_metadata()
          archive_md = xfer_imager_md_to_archive_md()
          print(str(archive_md))
@@ -373,6 +378,7 @@ def do_archive():
    
 def main():
    global args
+   orig_dir = ''
    if not os.path.exists(repo_prefix +'/logs'):
       os.mkdir(repo_prefix +'/logs')
    args = parse_args()
@@ -392,17 +398,27 @@ def main():
       do_delete(args.delete)
       print_os_list()
       sys.exit(0)
+   
    if not os.path.isfile(args.image_name):
       print(args.image_name + " not found in the current directory: %s"%os.getcwd())
       if args.image_name == '':
          print("You must specify an Image file to upload to archive.org")
       sys.exit(1)
+
+   # if path is absolute, record curdir, and change to dir with sibling files
+   if args.image_name[0] == '/':
+      orig_dir = os.getcwd()
+      os.chdir(os.path.dirname(args.image_name))
+      args.image_name = os.path.basename(args.image_name)
+
    if args.image_name.endswith('.zip'):
       args.image_name = args.image_name[:-4]
    do_archive()
    do_rpi_imager()
    if args.check:
       check(args.image_name + '.zip')
+   if orig_dir != '':
+      os.chdir(orig_dir)
 
 if __name__ == "__main__":
    main()
