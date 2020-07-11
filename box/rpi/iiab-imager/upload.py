@@ -108,8 +108,8 @@ def exists_imager_info():
       else:
          exists = False
          print('No existing file found: %s'%fname)
-   md['image_download_size'] = int(md['image_download_size'])
-   md['extract_size'] = int(md['extract_size'])
+   md['image_download_size'] = int(md.get('image_download_size','0'))
+   md['extract_size'] = int(md.get('extract_size','0'))
    identifier = args.image_name + '.zip'
    md['url'] = os.path.join(url_prefix,identifier,identifier,)
    md['icon'] = icon
@@ -176,6 +176,8 @@ def create_imager_metadata():
    calculate_local_md()
    local_md['name'] = get_title_description('name')
    local_md['description'] = get_title_description('description`')
+   identifier = args.image_name + '.zip'
+   local_md['url'] = os.path.join(url_prefix,identifier,identifier,)
    write_imager_md(local_md)
    imager_md = local_md.copy()
 
@@ -306,6 +308,10 @@ def restore_from(to_dir):
 
 def do_rpi_imager():
    global imager_md
+
+   if not exists_imager_info():
+      print('Got to do_rpi_imager without sibling files and imager_md. Quitting..')
+      sys.exit(1)
 
    # update the menu item json
    # but first get the menu as it exists currently
