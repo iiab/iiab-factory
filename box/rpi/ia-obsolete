@@ -1,0 +1,30 @@
+#!/usr/bin/python3
+# Mark image as obsolete
+
+import os,sys
+import json
+import argparse
+import internetarchive
+
+def main():
+    global args
+    args = parse_args()
+    image_name = args.image_name
+    item = internetarchive.get_item(image_name)
+    if not item.exists:
+        print('Nothing found. Exiting')
+        sys.exit(1)
+
+    title = item.metadata['title']
+    title = 'OBSOLETE - ' + title
+    upd_metadata = dict(title=title)
+    response = item.modify_metadata(upd_metadata)
+    print (response)
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="rpi image identifier (includes .img, but not .zip.")
+    parser.add_argument("image_name", help='Specify the image file name')
+    return parser.parse_args()
+
+if __name__ == "__main__":
+   main()
