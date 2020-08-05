@@ -19,6 +19,7 @@ from datetime import date
 
 import socket
 import asyncio
+import threading
 # import subprocess
 # import shlex
 
@@ -62,9 +63,10 @@ SLEEP_SECONDS = 1
 
 vmac_counter = 0
 run_flag = True
-verbose = False
+verbose = True
 
 async def main_async():
+    global total_connections
     print('Starting')
     threading.Thread(target=key_capture_thread, args=(), name='key_capture_thread', daemon=True).start()
     print('Press the ENTER key to terminate')
@@ -75,6 +77,10 @@ async def main_async():
         usb_wifi_ifaces[dev]['task'] = asyncio.create_task(one_dev(dev))
 
     while run_flag:
+        total_connections = 0
+        for dev in usb_wifi_ifaces:
+            if 'ip-addr' in usb_wifi_ifaces[dev]:
+                total_connections += 1
         print('Total Connections ', total_connections)
         await asyncio.sleep(SLEEP_SECONDS)
 
