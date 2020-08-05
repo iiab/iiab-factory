@@ -1,21 +1,22 @@
+#!/usr/bin/python3
+
 import http.server
 import subprocess
 
 PORT = 10080
 server_address = ('', PORT)
 
-#Handler = http.server.SimpleHTTPRequestHandler
-
-class MyHandler(http.server.BaseHTTPRequestHandler):
+class MyHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(s):
-        html = ''
         if s.path == '/test':
             s.test_resp()
-        else:
+        elif s.path == '/stat':
             s.get_wifi_stat()
+        else:
+            super().do_GET()
 
     def test_resp(s):
-        html = "<html><head><title>Title goes here.</title></head>"
+        html = "<html><head><title>Test Page.</title></head>"
         html += "<body><p>This is a test.</p>"
         html += "<p>You accessed path: %s</p>" % s.path
         html += "</body></html>"
@@ -36,6 +37,5 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
         s.end_headers()
         s.wfile.write(html)
 
-Handler = MyHandler
-httpd = http.server.HTTPServer(server_address, Handler)
+httpd = http.server.HTTPServer(server_address, MyHandler)
 httpd.serve_forever()

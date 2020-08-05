@@ -13,13 +13,17 @@ This utility helps test how many such connections are allowed for a given config
 
 ## On the test IIAB server
 
+* Add the following two lines to /etc/hostapd/hostapd.conf
+  * ctrl_interface=/var/run/hostapd
+  * ctrl_interface_group=0
+
 * Run wifi-stat.py from this directory
 
 ## Hardware
 
 This utility expects many USB WiFi dongles, which can be ganged together on a USB hub.
 
-# Known Problems
+## Known Problems
 
 * An attempt is made to clone WiFi interfaces to get two connections, but most dongles
 do not support this.
