@@ -23,7 +23,7 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
         s.send_html(html)
 
     def get_wifi_stat(s):
-        comp_proc = subprocess.run('./get_sta.sh', capture_output=True)
+        comp_proc = subprocess.run('./get_stat.sh', capture_output=True)
         html = '<html><body>'
         html += comp_proc.stdout.decode()
         html += '</body></html>'
@@ -33,7 +33,8 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
         if type(html) != bytes:
             html = html.encode()
         s.send_response(200)
-        s.send_header("Content-type", "text/html")
+        s.send_header("Content-Type", "text/html")
+        s.send_header("Content-Length", len(html))
         s.end_headers()
         s.wfile.write(html)
 
