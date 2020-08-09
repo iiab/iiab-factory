@@ -1,0 +1,4 @@
+#!/bin/bash
+killall dhclient
+killall wpa
+rm /var/lib/dhcp/dhclient.leases
