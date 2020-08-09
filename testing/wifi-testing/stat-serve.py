@@ -2,6 +2,7 @@
 
 import http.server
 import subprocess
+import json
 
 PORT = 10080
 server_address = ('', PORT)
@@ -24,19 +25,18 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
 
     def get_wifi_stat(s):
         comp_proc = subprocess.run('./get_stat.sh', capture_output=True)
-        html = '<html><body>'
-        html += comp_proc.stdout.decode()
-        html += '</body></html>'
-        s.send_html(html)
+        mac_arr = comp_proc.stdout.decode().split('\n')[:-1}]
+        mac_arr_json = json.dumps(mac_arr)
+        s.send_html(mac_arr_json, content_type="application/json")
 
-    def send_html(s, html):
-        if type(html) != bytes:
-            html = html.encode()
+    def send_html(s, payload, content_type="text/html"):
+        if type(payload) != bytes:
+            payload = payload.encode()
         s.send_response(200)
-        s.send_header("Content-Type", "text/html")
-        s.send_header("Content-Length", len(html))
+        s.send_header("Content-Type", content_type)
+        s.send_header("Content-Length", len(payload))
         s.end_headers()
-        s.wfile.write(html)
+        s.wfile.write(payload)
 
 httpd = http.server.HTTPServer(server_address, MyHandler)
 httpd.serve_forever()
