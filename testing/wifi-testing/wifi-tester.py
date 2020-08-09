@@ -64,6 +64,7 @@ VMAC_BASE = '02:00:00:00:00:' # for local 2nd least significant bit of first oct
 START_URL = '/testing/index.html' # no protocol or host
 SLEEP_SECONDS = 1
 WIFI_DEV_PREFIX = 'wl'
+ESC='\033'
 
 vmac_counter = 0
 run_flag = True
@@ -121,27 +122,32 @@ def show_stat(stat_json):
     global total_connections
     global usb_wifi_ifaces
 
+    clear_line = ESC+'[0K'
+
     if not verbose:
-        print('\033[0;0H') # cursor to top of screen
+        print(ESC+'[0;0H') # cursor to top of screen
     server_mac_arr = json.loads(stat_json)
     client_mac_arr = {}
-    print('These are our interfaces:')
+    print(f'Total Connections on Server: {len(server_mac_arr)}{clear_line}')
+    print(clear_line)
+    print(f'These are our interfaces:{clear_line}')
     for dev in usb_wifi_ifaces:
         if 'ip-addr' in usb_wifi_ifaces[dev]:
-            print(dev + ' has IP Addr ' + usb_wifi_ifaces[dev]['ip-addr'])
+            ip_addr = usb_wifi_ifaces[dev]['ip-addr']
+            print(f'{dev} has IP Addr {ip_addr}{clear_line}')
         if 'mac' in usb_wifi_ifaces[dev]:
             client_mac_arr[usb_wifi_ifaces[dev]['mac']] = dev
             if usb_wifi_ifaces[dev]['mac'] in server_mac_arr:
-                print(dev + ': connected to server')
+                print(f'{dev}: connected to server{clear_line}')
         else:
-            print('Why no mac for ' + dev)
-    print('These mac addresses seen on the server:')
+            print(f'Why no mac for {dev}{clear_line}')
+    print(clear_line)
+    print(f'These mac addresses seen on the server:{clear_line}')
     for mac in server_mac_arr:
         if mac in client_mac_arr:
-            print (mac + ' (' + client_mac_arr[mac] + ') connected to server')
+            print (f'{mac} ( {client_mac_arr[mac]} ) connected to server{clear_line}')
         else:
-            print(mac + ' on server is not ours')
-    print('Total Connections on Server: ', len(server_mac_arr))
+            print(f'{mac}  on server is not ours{clear_line}')
     #print('Server has additional ' + str(len(mac_arr - total_connections)) + ' connections')
 
 async def one_dev(dev):
@@ -196,8 +202,8 @@ async def init():
     total_connections = 0
 
     if not verbose:
-        print('\033[0;0H') # cursor to top of screen
-        print('\033[2J')   # clear screen
+        print(ESC+'[0;0H') # cursor to top of screen
+        print(ESC+'[2J')   # clear screen
     print('Starting init')
 
     # remove existing connections
