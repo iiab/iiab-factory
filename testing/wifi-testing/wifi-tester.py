@@ -167,7 +167,7 @@ async def get_html(client_ip, page_url, port=80, server_ip='172.18.96.1'):
         try:
             s.connect((server_ip , port))
         except ConnectionRefusedError as e:
-            print ('socket error: ' + e)
+            print ('socket error: ' + str(e))
             header = {'status': '503', 'content-length': '0'} # pseudo status for not connection
             html = ''
             return header, html
