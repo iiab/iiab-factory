@@ -6,6 +6,7 @@ import csv
 import operator
 import base64
 import os.path
+import os
 import sys
 import shutil
 import urllib.request, urllib.error, urllib.parse
@@ -51,22 +52,27 @@ import threading
 # one gets rename28 (wlx801f02bbfa46) and the other gets similar name (wlx000f6003c82f gets wlx000f6003c828)
 # one (wlx801f02bbfa46)seems to allow multiple clones and now doesn't rename, but all have the same mac address
 # assign mac address works on edimmax but canakit does automatically and ignores parameter
+# cat /var/lib/dhcp/dhclient.leases for leases
 
 usb_wifi_ifaces = {}
 total_connections = 0
+monitor_iface = None
 
 CLONE_DEVS = False
 VDEV_SUFFIX = 'vdev'
 VMAC_BASE = '02:00:00:00:00:' # for local 2nd least significant bit of first octet must be 1 (2, 6, A, E)
 START_URL = '/testing/index.html' # no protocol or host
 SLEEP_SECONDS = 1
+WIFI_DEV_PREFIX = 'wl'
 
 vmac_counter = 0
 run_flag = True
-verbose = True
+verbose = False
 
 async def main_async():
     global total_connections
+    global monitor_iface
+
     print('Starting')
     threading.Thread(target=key_capture_thread, args=(), name='key_capture_thread', daemon=True).start()
     print('Press the ENTER key to terminate')
@@ -74,15 +80,69 @@ async def main_async():
     await init()
 
     for dev in usb_wifi_ifaces:
-        usb_wifi_ifaces[dev]['task'] = asyncio.create_task(one_dev(dev))
+        if not monitor_iface: # pick first dev as monitor
+            monitor_iface = dev
+            await connect_wifi(dev)
+            usb_wifi_ifaces[dev]['task'] = asyncio.create_task(monitor_dev(dev))
+        else:
+            usb_wifi_ifaces[dev]['task'] = asyncio.create_task(one_dev(dev))
 
     while run_flag:
-        total_connections = 0
-        for dev in usb_wifi_ifaces:
-            if 'ip-addr' in usb_wifi_ifaces[dev]:
-                total_connections += 1
-        print('Total Connections ', total_connections)
-        await asyncio.sleep(SLEEP_SECONDS)
+
+        await asyncio.sleep(SLEEP_SECONDS) # vamp until ready
+
+    # now wait for all async to terminate
+    for dev in usb_wifi_ifaces:
+        if 'task' in usb_wifi_ifaces[dev]:
+            await usb_wifi_ifaces[dev]['task']
+    await reset_all_ifaces()
+
+async def monitor_dev(dev):
+    global total_connections
+    global usb_wifi_ifaces
+
+    # await connect_wifi(dev) # try to get a connection
+    url = '/stat'
+    while run_flag:
+        client_ip = usb_wifi_ifaces[dev].get('ip-addr', None)
+        #print(client_ip)
+        if client_ip:
+            header, stat_json = await get_html(client_ip, url, port=10080)
+            #print(header)
+            if header['status'] >= '500':
+                print('Error Connecting to Status Server')
+            else:
+                show_stat(stat_json)
+        else:
+            await connect_wifi(dev)
+        await asyncio.sleep(5)
+
+def show_stat(stat_json):
+    global total_connections
+    global usb_wifi_ifaces
+
+    if not verbose:
+        print('\033[0;0H') # cursor to top of screen
+    server_mac_arr = json.loads(stat_json)
+    client_mac_arr = {}
+    print('These are our interfaces:')
+    for dev in usb_wifi_ifaces:
+        if 'ip-addr' in usb_wifi_ifaces[dev]:
+            print(dev + ' has IP Addr ' + usb_wifi_ifaces[dev]['ip-addr'])
+        if 'mac' in usb_wifi_ifaces[dev]:
+            client_mac_arr[usb_wifi_ifaces[dev]['mac']] = dev
+            if usb_wifi_ifaces[dev]['mac'] in server_mac_arr:
+                print(dev + ': connected to server')
+        else:
+            print('Why no mac for ' + dev)
+    print('These mac addresses seen on the server:')
+    for mac in server_mac_arr:
+        if mac in client_mac_arr:
+            print (mac + ' (' + client_mac_arr[mac] + ') connected to server')
+        else:
+            print(mac + ' on server is not ours')
+    print('Total Connections on Server: ', len(server_mac_arr))
+    #print('Server has additional ' + str(len(mac_arr - total_connections)) + ' connections')
 
 async def one_dev(dev):
     global total_connections
@@ -98,18 +158,19 @@ async def one_dev(dev):
             await connect_wifi(dev)
         await asyncio.sleep(SLEEP_SECONDS)
 
-async def get_html(client_ip, page_url, server_ip='172.18.96.1'):
+async def get_html(client_ip, page_url, port=80, server_ip='172.18.96.1'):
     print_msg('Retrieving page for ' + client_ip)
     BUF_SIZE = 4096
+
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((client_ip, 0)) # use ip of interface
-        s.connect((server_ip , 80))
-        # s.sendall(b"HEAD / HTTP/1.1\r\nHost: webcode.me\r\nAccept: text/html\r\n\r\n")
-        # s.sendall(b"GET / HTTP/1.1\r\nHost: 72.18.96.1\r\nAccept: text/html\r\n\r\n")
-        # s.sendall(b"GET /kiwix/wikipedia_es_medicine_maxi_2019-11/A/Wikiproyecto:Medicina/Open_Textbook_of_Medicine HTTP/1.1\r\nHost: 72.18.96.1\r\nAccept: text/html\r\n\r\n")
-        # b'GET / HTTP/1.1\r\nHost: ' + b'172.18.114.43' + b'\r\nAccept: text/html\r\n\r\n'
-        # b'GET / HTTP/1.1\r\nHost: ' + server_ip.encode() + b'\r\nAccept: text/html\r\n\r\n'
-        # request = b'GET ' +  page_url.encode('utf-8') +  b' HTTP/1.1\r\nHost: ' + server_ip.encode() + b'\r\nAccept: text/html\r\n\r\n'
+        try:
+            s.connect((server_ip , port))
+        except ConnectionRefusedError as e:
+            print ('socket error: ' + e)
+            header = {'status': '503', 'content-length': '0'} # pseudo status for not connection
+            html = ''
+            return header, html
         head = 'HEAD ' +  page_url +  ' HTTP/1.1\r\nHost: ' + server_ip + '\r\nAccept: text/html\r\n\r\n'
         request = 'GET ' +  page_url +  ' HTTP/1.1\r\nHost: ' + server_ip + '\r\nAccept: text/html\r\n\r\n'
         s.sendall(request.encode('utf8'))
@@ -122,28 +183,41 @@ async def get_html(client_ip, page_url, server_ip='172.18.96.1'):
                 html_bytes = parts[1]
             else:
                 html_bytes += buf
-            if len(html_bytes) >= int(header['Content-Length']):
+            if len(html_bytes) >= int(header['content-length']):
+            # if len(buf) < BUF_SIZE: # this can fail if header and body are two fetches
                 break
         html = html_bytes.decode()
         print_msg (header)
-        return header, html
+    return header, html
 
 async def init():
     global total_connections
     vdevs = {}
     total_connections = 0
+
+    if not verbose:
+        print('\033[0;0H') # cursor to top of screen
+        print('\033[2J')   # clear screen
+    print('Starting init')
+
+    # remove existing connections
+    await reset_all_ifaces()
+
     await find_wifi_dev() # get dict of physical wifi devices
+    #for dev in usb_wifi_ifaces: # reset any wpa services
+    #    await reset_wifi_conn(dev)
+
     if CLONE_DEVS:
         await find_wiphy() # find support for iw but can return false positive
-    for dev in usb_wifi_ifaces:
-        if VDEV_SUFFIX in dev: # it's virtual
-            continue
-        wiphy = usb_wifi_ifaces[dev].get('wiphy', None)
-        if wiphy:
-            vdev = dev + VDEV_SUFFIX
-            if await add_vdev(wiphy, vdev):
-                vdevs[vdev] = {'vdev': True}
-    await find_wifi_dev()
+        for dev in usb_wifi_ifaces:
+            if VDEV_SUFFIX in dev: # it's virtual
+                continue
+            wiphy = usb_wifi_ifaces[dev].get('wiphy', None)
+            if wiphy:
+                vdev = dev + VDEV_SUFFIX
+                if await add_vdev(wiphy, vdev):
+                    vdevs[vdev] = {'vdev': True}
+        await find_wifi_dev()
 
 async def add_vdev(phy, vdev):
     global vmac_counter
@@ -191,6 +265,14 @@ async def connect_wifi(iface):
         await get_wifi_dev_ip(iface)
         return True
 
+async def reset_all_ifaces():
+    await subproc_run('killall dhclient')
+    await subproc_run('killall wpa')
+    try:
+        os.remove('/var/lib/dhcp/dhclient.leases') # get rid of existing leases
+    except OSError:
+        pass
+
 async def reset_wifi_conn(iface, force=False):
     cmdstr = 'wpa_cli -i ' + iface + ' status'
     compl_proc = await subproc_run(cmdstr)
@@ -201,7 +283,7 @@ async def reset_wifi_conn(iface, force=False):
     cmdstr = 'wpa_cli -i ' + iface + ' terminate'
     compl_proc = await subproc_run(cmdstr)
 
-async def find_wifi_dev(filter='wlan', virt='vdev'):
+async def find_wifi_dev(filter=WIFI_DEV_PREFIX, virt=VDEV_SUFFIX):
     global usb_wifi_ifaces
     usb_wifi_ifaces = {}
     compl_proc = await subproc_run('ip a')
@@ -251,12 +333,11 @@ async def get_wifi_dev_ip(iface):
 def parse_header(header_str, delim='\r\n'):
     hdr_dict = {}
     lines = header_str.split(delim)
-    for l in lines:
-        if 'HTTP/' in l:
-            hdr_dict['status'] = l.split()[1]
+    hdr_dict['status'] = lines[0].split()[1]
+    for l in lines[1:]:
         if ': ' in l:
             key, val = l.split(': ')
-            hdr_dict[key] = val
+            hdr_dict[key.lower()] = val
     return hdr_dict
 
 async def subproc_run(cmd):
