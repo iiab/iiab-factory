@@ -8,8 +8,9 @@ This utility helps test how many such connections are allowed for a given config
 ## On a suitable client
 
 * Use a non-IIAB Raspberry Pi as the client.
-* Run wifi_tester.py from this directory.
+* Run wifi-tester.py from this directory.
 * At the very least hostapd should not be running and wlan0 should be available
+* The initial connection can take some time.
 
 ## On the test IIAB server
 
@@ -17,7 +18,7 @@ This utility helps test how many such connections are allowed for a given config
   * ctrl_interface=/var/run/hostapd
   * ctrl_interface_group=0
 
-* Run wifi-stat.py from this directory
+* Run stat-serve.py from this directory
 
 ## Hardware
 
@@ -25,5 +26,9 @@ This utility expects many USB WiFi dongles, which can be ganged together on a US
 
 ## Known Problems
 
+* A Raspberry Pi client can be overwhelmed when USB dongles are attached
+* Make sure all dongles are powered off when starting client.
+* Power on the USB hubs one at a time.
+* It can happen that a few dongles do not connect. Power off and try again.
 * An attempt is made to clone WiFi interfaces to get two connections, but most dongles
-do not support this.
+do not support this. August, 2020 This is disabled.
