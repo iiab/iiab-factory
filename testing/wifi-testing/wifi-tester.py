@@ -57,11 +57,12 @@ import threading
 usb_wifi_ifaces = {}
 total_connections = 0
 monitor_iface = None
+start_time = None
 
 CLONE_DEVS = False
 VDEV_SUFFIX = 'vdev'
 VMAC_BASE = '02:00:00:00:00:' # for local 2nd least significant bit of first octet must be 1 (2, 6, A, E)
-START_URL = '/testing/index.html' # no protocol or host
+START_URL = '/home/index.html' # no protocol or host
 SLEEP_SECONDS = 1
 WIFI_DEV_PREFIX = 'wl'
 ESC='\033'
@@ -80,6 +81,7 @@ async def main_async():
 
     await init()
 
+    print('Starting connections. Could take a little time.')
     for dev in usb_wifi_ifaces:
         if not monitor_iface: # pick first dev as monitor
             monitor_iface = dev
@@ -109,6 +111,7 @@ async def monitor_dev(dev):
         #print(client_ip)
         if client_ip:
             header, stat_json = await get_html(client_ip, url, port=10080)
+            usb_wifi_ifaces[dev]['access_cnt'] += 1
             #print(header)
             if header['status'] >= '500':
                 print('Error Connecting to Status Server')
@@ -123,24 +126,28 @@ def show_stat(stat_json):
     global usb_wifi_ifaces
 
     clear_line = ESC+'[0K'
+    curtime = time.time()
+    elapsed = time.strftime('%H:%M:%S', time.gmtime(curtime - start_time))
 
     if not verbose:
         print(ESC+'[0;0H') # cursor to top of screen
     server_mac_arr = json.loads(stat_json)
     client_mac_arr = {}
+    print(f'Time Started {time.ctime(start_time)}. Elapsed {elapsed}{clear_line}')
     print(f'Total Connections on Server: {len(server_mac_arr)}{clear_line}')
     print(clear_line)
     print(f'These are our interfaces:{clear_line}')
     for dev in usb_wifi_ifaces:
-        if 'ip-addr' in usb_wifi_ifaces[dev]:
-            ip_addr = usb_wifi_ifaces[dev]['ip-addr']
-            print(f'{dev} has IP Addr {ip_addr}{clear_line}')
-        if 'mac' in usb_wifi_ifaces[dev]:
-            client_mac_arr[usb_wifi_ifaces[dev]['mac']] = dev
-            if usb_wifi_ifaces[dev]['mac'] in server_mac_arr:
-                print(f'{dev}: connected to server{clear_line}')
+        ip_addr = usb_wifi_ifaces[dev]['ip-addr']
+        mac = usb_wifi_ifaces[dev]['mac']
+        if mac in server_mac_arr:
+            conn_stat = 'connected to server'
         else:
-            print(f'Why no mac for {dev}{clear_line}')
+            conn_stat = 'no connection'
+        access_cnt = usb_wifi_ifaces[dev]['access_cnt']
+
+        print(f'{dev} mac: {mac} ip: {ip_addr} connection: {conn_stat}{clear_line} urls accessed: {access_cnt}')
+
     print(clear_line)
     print(f'These mac addresses seen on the server:{clear_line}')
     for mac in server_mac_arr:
@@ -160,6 +167,7 @@ async def one_dev(dev):
         client_ip = usb_wifi_ifaces[dev].get('ip-addr', None)
         if client_ip:
             header, html = await get_html(client_ip, url)
+            usb_wifi_ifaces[dev]['access_cnt'] += 1
         else:
             await connect_wifi(dev)
         await asyncio.sleep(SLEEP_SECONDS)
@@ -198,6 +206,9 @@ async def get_html(client_ip, page_url, port=80, server_ip='172.18.96.1'):
 
 async def init():
     global total_connections
+    global start_time
+
+    start_time = time.time()
     vdevs = {}
     total_connections = 0
 
@@ -292,23 +303,28 @@ async def reset_wifi_conn(iface, force=False):
 async def find_wifi_dev(filter=WIFI_DEV_PREFIX, virt=VDEV_SUFFIX):
     global usb_wifi_ifaces
     usb_wifi_ifaces = {}
-    compl_proc = await subproc_run('ip a')
-    lines = compl_proc.stdoutarr
-    for l in lines:
-        if ':' in l and filter in l:
-            wifi_info_split = l.split()
-            wifi_dev = wifi_info_split[1][:-1]
-            if virt in wifi_dev:
-                vdev = True
+    compl_proc = await subproc_run('ip -j a')
+    if compl_proc.returncode != 0:
+        print('Error accessing ip a')
+    else:
+        ip_info = json.loads(compl_proc.stdout)
+        for item in ip_info:
+            wifi_dev = item['ifname']
+            if filter not in wifi_dev:
+                continue
+            usb_wifi_ifaces[wifi_dev] = {}
+            usb_wifi_ifaces[wifi_dev]['status'] = item['operstate']
+            usb_wifi_ifaces[wifi_dev]['mac'] = item['address']
+            if len(item['addr_info']) > 0:
+                ip_addr = item['addr_info'][0]['local']
             else:
-                vdev = False
-            if wifi_dev not in usb_wifi_ifaces:
-                dev_info = {}
-                dev_info['status'] = wifi_info_split[8]
-                usb_wifi_ifaces[wifi_dev] = dev_info
+                ip_addr = None
+            usb_wifi_ifaces[wifi_dev]['ip-addr'] = ip_addr
+            usb_wifi_ifaces[wifi_dev]['access_cnt'] = 0
+            if virt not in wifi_dev:
+                usb_wifi_ifaces[wifi_dev]['vdev'] = False
             else:
-                usb_wifi_ifaces[wifi_dev]['status'] = wifi_info_split[8]
-            usb_wifi_ifaces[wifi_dev]['vdev'] = vdev
+                usb_wifi_ifaces[wifi_dev]['vdev'] = True
 
 async def find_wiphy():
     global usb_wifi_ifaces
@@ -321,20 +337,19 @@ async def find_wiphy():
 
 async def get_wifi_dev_ip(iface):
     global usb_wifi_ifaces
-    wifi_info = {}
-    cmdstr = 'ip  a show dev ' + iface
+
+    cmdstr = 'ip -j a show dev ' + iface
     compl_proc = await subproc_run(cmdstr)
-    lines = compl_proc.stdout.split('\n')
-    for l in lines:
-        if 'inet ' in l: # only ipv4
-            wifi_info_split = l.split()
-            if len(wifi_info_split) != 0:
-                wifi_info['ip-addr'] = wifi_info_split[1].split('/')[0]
-        if 'link/ether ' in l: # mac
-            wifi_info_split = l.split()
-            if len(wifi_info_split) != 0:
-                wifi_info['mac'] = wifi_info_split[1]
-    usb_wifi_ifaces[iface].update(wifi_info)
+    if compl_proc.returncode != 0:
+        print('Error accessing ip a')
+    else:
+        wifi_info = json.loads(compl_proc.stdout)[0] # for some reason it's an array
+        if len(wifi_info['addr_info']) > 0:
+            ip_addr = wifi_info['addr_info'][0]['local']
+        else:
+            ip_addr = None
+        usb_wifi_ifaces[iface]['ip-addr'] = ip_addr
+        usb_wifi_ifaces[iface]['status'] = wifi_info['operstate']
 
 def parse_header(header_str, delim='\r\n'):
     hdr_dict = {}
@@ -371,4 +386,4 @@ def key_capture_thread():
 
 if __name__ == "__main__":
     # Now run the main routine
-    asyncio.run(main_async())
+    asyncio.run(main_async(), debug=False)
