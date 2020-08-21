@@ -1,14 +1,14 @@
 {
   "os_list": [
     {
-      "name": "Ubuntu IIAB 64bit 20.04",
-      "description": "Raspberry Pi image for aarch64 runs with Raspbian Lite and IIAB minimum",
-      "extract_size": 4338155520,
-      "extract_sha256": "93209ae58e9558b62711df9733dbef46b193fe40b06e0d53c57ea3ccc2accad0",
-      "image_download_size": 1895658008,
-      "release_date": "2020-03-28",
-      "zip.md5": "24b7cae431153062b520da81722f53f3",
-      "url": "https://archive.org/download/iiab-7.1-200312-ubuntu_20.04_rpi-g1b4f928c.img/iiab-7.1-200312-ubuntu_20.04_rpi-g1b4f928c.img.zip",
+      "name": "IIAB 7.1 Medium Content Ready on Ubuntu 20.04",
+      "description": "Internet in a Box Release 7.1 Medium Install for Raspberry Pi 4 on Ubuntu 20.04 LTS",
+      "extract_size": 9477328896,
+      "extract_sha256": "e232c510427978845cc509f3897e8f0480243ec7a1fcbd46c928def9b682aa9a",
+      "image_download_size": 2855148137,
+      "release_date": "2020-07-13 12:55:43",
+      "zip.md5": "a756ebdd881420fcf6b738b262f8e5d7",
+      "url": "https://archive.org/download/iiab-7.1-200713-ub20-medium-content-ready-g5440636.img/iiab-7.1-200713-ub20-medium-content-ready-g5440636.img.zip",
       "icon": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/rpi-imager/iiab40.png"
     }
   ]

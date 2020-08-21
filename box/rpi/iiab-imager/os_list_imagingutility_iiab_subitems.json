@@ -1,35 +1,48 @@
 {
   "os_list": [
     {
-      "name": "Desktop Medium size",
-      "description": "Raspbian Desktop loaded with IIAB Medium Selection 7.1 Preview 2",
-      "extract_size": 10839474176,
-      "extract_sha256": "8eefcd1d9f9557d44accc9100020d991585b4b58888aff0a02e048935a5df349",
-      "image_download_size": 3729947350,
-      "release_date": "04/08/2020",
-      "zip.md5": "08f1e092ee9c8a67772e1743005ecb82",
-      "url": "https://archive.org/download/200408-raspbian-desktop-med-preview2-gc0f79ec--.img.zip/200408-raspbian-desktop-med-preview2-gc0f79ec--.img.zip",
+      "name": "Desktop IIAB 7.1 Rpi OS",
+      "description": "Frequently selected IIAB services with Graphical User Interface",
+      "extract_size": 11080921088,
+      "extract_sha256": "18fa2cda432ca96ed62d80708056e4ccdb99cf8e958e69d581f564c71284f043",
+      "image_download_size": 4126639167,
+      "release_date": "07/11/2020",
+      "zip.md5": "024624d4d63b2bfc4dfd31e4da58b925",
+      "url": "https://archive.org/download/iiab-7.1-200711-desktop-raspbian-g17253d4.img.zip/iiab-7.1-200711-desktop-raspbian-g17253d4.img.zip",
       "icon": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/rpi-imager/iiab40.png"
     },
     {
-      "name": "IIAB PRE 7.1 Medical Version Content Ready",
-      "description": "Internet in a Box Medical Edition Ready for Adding Content",
-      "url": "https://archive.org/download/iiab-PRE7.1-200522-medical-content-ready-g1945b28.img/iiab-PRE7.1-200522-medical-content-ready-g1945b28.img.zip",
-      "icon": "http://iiab.me/downloads/iiab-images/iiab40.png",
-      "extract_size": 5299564544,
-      "extract_sha256": "50f3d6ce0d322d558c84567dc7331721c107fc5addec7e04caf1c9477b66b0f3",
-      "image_download_size": 1759193708,
-      "release_date": "2020-05-23"
+      "name": "IIAB Release 7.1 Minimum Version Content Ready",
+      "description": "Internet in a Box with minimal services ready to have content added",
+      "extract_size": 5225291776,
+      "extract_sha256": "31dc93adbb1e42d28a45de1be096d8b4f44133d072b6842a701254976b8fc268",
+      "image_download_size": 2059292637,
+      "release_date": "2020-07-12 22:40:49",
+      "zip.md5": "19d80d82eb47995cd3a3dda557d4d53d",
+      "url": "https://archive.org/download/iiab-7.1-200712-min-content-ready-g54406367.img/iiab-7.1-200712-min-content-ready-g54406367.img.zip",
+      "icon": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/rpi-imager/iiab40.png"
     },
     {
-      "name": "IIAB PRE 7.1 Minimum Version Content Ready",
-      "description": "Internet in a Box with minimal services ready to have content added.",
-      "url": "https://archive.org/download/iiab-PRE7.1-200315-min-content-ready-2020-02-13-raspbian-lite-g1b4f928.img/iiab-PRE7.1-200315-min-content-ready-2020-02-13-raspbian-lite-g1b4f928.img.zip",
-      "icon": "http://iiab.me/downloads/iiab-images/iiab40.png",
-      "extract_size": 4966580224,
-      "extract_sha256": "a803d21575c2540f6e107c407c29891f3df29a6f3eea612dd6fb84eac805a471",
-      "image_download_size": 2379162313,
-      "release_date": "2020-03-15"
+      "name": "IIAB Release 7.1 Medium Version Content Ready",
+      "description": "Internet in a Box with a medium number of services ready to have content added",
+      "extract_size": 8631013376,
+      "extract_sha256": "2a439b80b17b4685fff334212d942c0b3cfe804eb48bbe77b6ba385e743d34d0",
+      "image_download_size": 3411637907,
+      "release_date": "2020-07-12 22:45:16",
+      "zip.md5": "fcaed69062a6dc5f23a625638bc37954",
+      "url": "https://archive.org/download/iiab-7.1-200712-medium-content-ready-g54406367.img/iiab-7.1-200712-medium-content-ready-g54406367.img.zip",
+      "icon": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/rpi-imager/iiab40.png"
+    },
+    {
+      "name": "IIAB Release 7.1 Medical Edition Content Ready",
+      "description": "Internet in a Box Medical Edition Ready for Adding Content",
+      "extract_size": 5363200000,
+      "extract_sha256": "6965fc46886c5ea15be63c9c29eba3d7534bb82dcfdfe8c528ee9f35234cccdd",
+      "image_download_size": 2035285776,
+      "release_date": "2020-06-13 16:50:42",
+      "zip.md5": "d9256cdb8c69242d14184a06291b760c",
+      "url": "https://archive.org/download/iiab-7.1-200612-medical-content-ready-g17253d4.img/iiab-7.1-200612-medical-content-ready-g17253d4.img.zip",
+      "icon": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/rpi-imager/iiab40.png"
     }
   ]
 }
