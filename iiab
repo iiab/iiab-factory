@@ -46,6 +46,7 @@ export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
 BASEDIR=/opt/iiab
 CONFDIR=/etc/iiab
 FLAGDIR=$CONFDIR/install-flags
+APT_PATH=/usr/bin    # Avoids problematic /usr/local/bin/apt on Linux Mint
 
 # A. Subroutine for B. and D.  Returns true (0) if username ($1) exists with password ($2)
 check_user_pwd() {
@@ -149,7 +150,7 @@ echo -e "\n\n'apt update' is checking for OS updates...\n"
 #echo -e "2019-07-11 TEMP WORKAROUND FOR RASPBIAN BUSTER'S testing->stable apt GLITCH...\nDetails @ https://github.com/iiab/iiab/issues/1856\n"
 #apt -y update || true    # Overrides 'set -e'
 #echo -e "\nNOW THE REAL 'apt update' WILL RUN...\n"
-apt -qq update > /tmp/apt.stdout 2> /tmp/apt.stderr || true    # Overrides 'set -e'
+$APT_PATH/apt -qq update > /tmp/apt.stdout 2> /tmp/apt.stderr || true    # Overrides 'set -e'
 if [ $(wc -c < /tmp/apt.stderr) -gt 82 ]; then    # apt.stderr typically contains exactly 82 characters when there are no errors, no matter the primary locale, i.e. 3-line file "\nWARNING: apt does not have a stable CLI interface. Use with caution in scripts.\n\n" ...OR... in other cases more than 82, e.g. many lines of errors when apt is busy/locked/offline/etc
     echo -e "'apt update' FAILED. VERIFY YOU'RE ONLINE and resolve all errors below:\n"
     cat /tmp/apt.stderr
@@ -161,7 +162,7 @@ elif grep -q 'apt list --upgradable' /tmp/apt.stdout; then    # apt.stdout typic
     echo -n "Hit [ENTER] to confirm you'll RUN 'sudo iiab' AFTER IT REBOOTS: "
     read ans < /dev/tty
     echo
-    apt -y dist-upgrade
+    $APT_PATH/apt -y dist-upgrade
     reboot
     exit 0    # Nec to avoid both output lines below (that confuse implementers!)
 fi
@@ -181,7 +182,7 @@ fi
 
 # H. Clone 3 IIAB repos
 echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO $BASEDIR ...\n"
-apt -y install git
+$APT_PATH/apt -y install git
 mkdir -p $BASEDIR
 cd $BASEDIR
 echo
