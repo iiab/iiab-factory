@@ -1,0 +1,10 @@
+#!/bin/bash -x
+# copy the chart source to where it is in document root
+
+dest=/library/www/html/gh
+
+rsync /opt/iiab/chart.js/node_modules/chart.js/dist/Chart.bundle.js /library/www/html/gh/
+rsync /opt/iiab/chart.js/node_modules/chart.js/dist/Chart.css /library/www/html/gh/
+rsync ./index.php /library/www/html/gh/
+rsync ./fetch.php /library/www/html/gh/
+rsync ./human.php /library/www/html/gh/
