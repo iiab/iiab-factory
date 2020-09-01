@@ -171,6 +171,24 @@ cat /tmp/apt.stdout    # "All packages are up to date.\n"
 echo -ne "\nHit [ENTER] to confirm you'll TRY TO RERUN 'sudo iiab' IF THERE IS A PROBLEM: "
 read ans < /dev/tty
 
+# Subroutine compares software version numbers.  Generates rare false positives
+# like "1.0 > 1" and "2.4.0 > 2.4".  Avoid risks by structuring conditionals w/
+# a consistent # of decimal points e.g. "if version_gt w.x.y.z a.b.c.d; then"
+version_gt() { [ "$(printf '%s\n' "$@" | sort -V | head -1)" != "$1" ]; }
+
+# Verify that Raspbian is running a recent enough kernel.  As Raspbian
+# kernel 1333 has wifi issues https://github.com/iiab/iiab/issues/2497.
+MIN_RPI_KERN=1336
+CURR_KERN=`uname -v | awk '{print $1}' | sed -e s'/#//'`
+echo "Found Kernel ""$CURR_KERN"
+if [ -f /etc/rpi-issue ] && version_gt $MIN_RPI_KERN $CURR_KERN; then
+    echo -e "\nWARNING: Kernel ""$MIN_RPI_KERN"" or higher required with Raspbian."
+#    echo -e "PLEASE RUN 'apt update' then 'apt install raspberrypi-kernel' then reboot."
+    echo -e "THEN IF NEC run 'rpi-update' to install a more recent kernel, then reboot."
+#    echo -e "IIAB INSTALL INSTRUCTIONS: https://github.com/iiab/iiab/wiki/IIAB-Installation"
+#    exit 1
+fi
+
 ######################### INTERACTIVE STUFF IS ABOVE #########################
 
 # G. If RPi, lower reserve disk space from ~5% to 1%
