@@ -47,7 +47,7 @@ export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
 BASE=/opt/iiab
 
 echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO $BASE ...\n"
-apt -y install git nano
+/usr/bin/apt -y install git nano
 mkdir -p $BASE
 cd $BASE
 echo
@@ -58,13 +58,13 @@ if [ -d iiab-factory ]; then
     git pull
     git branch -D release-7.2 || true
     git checkout -b release-7.2
-    cp /opt/iiab/iiab-factory/iiab /usr/sbin/iiab
+    cp $BASE/iiab-factory/iiab /usr/sbin/iiab
 else
     echo -e "Cloning iiab-factory"
     git clone https://github.com/iiab/iiab-factory --depth 1
     cd iiab-factory
     git checkout -b release-7.2
-    cp /opt/iiab/iiab-factory/iiab /usr/sbin/iiab
+    cp $BASE/iiab-factory/iiab /usr/sbin/iiab
 fi
 cd $BASE
 echo
