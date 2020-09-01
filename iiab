@@ -48,9 +48,9 @@ RELEASE=1
 BASEDIR=/opt/iiab
 CONFDIR=/etc/iiab
 FLAGDIR=$CONFDIR/install-flags
-APT_PATH=/usr/bin    # Avoids problematic /usr/local/bin/apt on Linux Mint
+APT_PATH=/usr/bin/apt    # Avoids problematic /usr/local/bin/apt on Linux Mint
 REINSTALL=""
-INTERACTIVE=1
+INTERACTIVE=0
 UPDATE=0
 MIN_RPI_KERN=1336
 SELFUPDATE_SCRIPT="/tmp/.updateScript.sh"
@@ -119,11 +119,12 @@ function update_master(){
 
 if [ `check_branch` -gt 0 ]; then
     echo -e "\nFound release-7.X branch would you like (re)install using the latest master?"
-    echo -e "[Y/n]\n Y default 5 second timeout"
-    ans="y"
-    if [ $INTERACTIVE == 1 ]; then
-        read -t 5 ans < /dev/tty
-    fi
+    echo -e "[Y/n]\n n default 5 second timeout"
+    ans="n"
+#    if [ $INTERACTIVE == 1 ]; then
+#        read -t 5 ans < /dev/tty
+#    fi
+    read -t 5 ans < /dev/tty
     if [ "$ans" == "y" ] || [ "$ans" == "Y" ]; then
         UPDATE=1
     else
@@ -257,6 +258,7 @@ else
 fi
 
 if [ $UPDATE == 1 ]; then
+    update_self
     use_master
     update_master
 fi
@@ -272,7 +274,7 @@ echo -e "\n\n'apt update' is checking for OS updates...\n"
 #echo -e "2019-07-11 TEMP WORKAROUND FOR RASPBIAN BUSTER'S testing->stable apt GLITCH...\nDetails @ https://github.com/iiab/iiab/issues/1856\n"
 #apt -y update || true    # Overrides 'set -e'
 #echo -e "\nNOW THE REAL 'apt update' WILL RUN...\n"
-$APT_PATH/apt -qq update > /tmp/apt.stdout 2> /tmp/apt.stderr || true    # Overrides 'set -e'
+$APT_PATH -qq update > /tmp/apt.stdout 2> /tmp/apt.stderr || true    # Overrides 'set -e'
 if [ $(wc -c < /tmp/apt.stderr) -gt 82 ]; then    # apt.stderr typically contains exactly 82 characters when there are no errors, no matter the primary locale, i.e. 3-line file "\nWARNING: apt does not have a stable CLI interface. Use with caution in scripts.\n\n" ...OR... in other cases more than 82, e.g. many lines of errors when apt is busy/locked/offline/etc
     echo -e "'apt update' FAILED. VERIFY YOU'RE ONLINE and resolve all errors below:\n"
     cat /tmp/apt.stderr
