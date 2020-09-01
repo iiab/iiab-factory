@@ -184,9 +184,9 @@ echo "Found Kernel ""$CURR_KERN"
 if [ -f /etc/rpi-issue ] && version_gt $MIN_RPI_KERN $CURR_KERN; then
     echo -e "\nWARNING: Kernel ""$MIN_RPI_KERN"" or higher required with Raspbian."
 #    echo -e "PLEASE RUN 'apt update' then 'apt install raspberrypi-kernel' then reboot."
-    echo -e "THEN IF NEC run 'rpi-update' to install a more recent kernel, then reboot."
-#    echo -e "IIAB INSTALL INSTRUCTIONS: https://github.com/iiab/iiab/wiki/IIAB-Installation"
-#    exit 1
+    echo -e "THEN IF NEC run 'rpi-update' to install a more recent kernel post-install, then reboot."
+    echo -e "'enter to continue'"
+    read ans < /dev/tty
 fi
 
 ######################### INTERACTIVE STUFF IS ABOVE #########################
