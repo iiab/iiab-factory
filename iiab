@@ -200,7 +200,10 @@ else
     echo -e '(IIAB apps) are suggested during installation?" within http://FAQ.IIAB.IO\n'
 
     echo -n "Please type 1, 2 or 3 then press [ENTER]: "
-    read local_vars_size < /dev/tty
+    local_vars_size=""
+    if [ "$INTERACTIVE" == 1 ]; then
+        read local_vars_size < /dev/tty
+    fi
     echo
     case $local_vars_size in
         1)
@@ -216,7 +219,9 @@ else
 
     echo -en "\nEdit /etc/iiab/local_vars.yml to customize your Internet-in-a-Box? [Y/n] "
     ans="n"
-    read -t 5 ans < /dev/tty
+    if [ "$INTERACTIVE" == 1 ]; then
+        read -t 5 ans < /dev/tty
+    fi
     if [ "$ans" == "y" ] || [ "$ans" == "Y" ]; then
         exit 0
 #        echo -en "ctrl x to save and exit"
@@ -250,6 +255,8 @@ elif grep -q 'apt list --upgradable' /tmp/apt.stdout; then    # apt.stdout typic
         $APT_PATH -y dist-upgrade
         reboot
         exit 0    # Nec to avoid both output lines below (that confuse implementers!)
+    else
+        $APT_PATH -y dist-upgrade
     fi
 fi
 cat /tmp/apt.stdout    # "All packages are up to date.\n"
@@ -307,7 +314,7 @@ cd $BASEDIR/iiab/
 ./iiab-install $REINSTALL
 
 echo -e "Install Admin Console... (also runs iiab-get-kiwix-cat to d/l Kiwix catalog, and installs Dynamic Menuing for /library/www/html/home/index.html)\n"
-if [ ! -f $FLAGDIR/iiab-admin-console-complete ] || [ UPDATE == 1 ]; then
+if [ ! -f $FLAGDIR/iiab-admin-console-complete ] || [ $UPDATE == 1 ]; then
     cd $BASEDIR/iiab-admin-console
     ./install
     touch $FLAGDIR/iiab-admin-console-complete
@@ -399,8 +406,9 @@ echo -e "global community, learning from other initiatives in your region and be
 #echo -e "(over Wi-Fi anyway) until you later run 'iiab-hotspot-off'.  CAVEAT: these"
 #echo -e "two commands only work with Raspberry Pi as of 2019-09-30.\n"
 
-echo -ne "HIT [Enter] TO REBOOT, CONFIRMING YOU'VE" '"photographed" THE ABOVE PARAGRAPHS: '
-read ans < /dev/tty
-
-# Sets hostname, improves RTC + memory mgmt, starts BitTorrents if needed, etc!
-reboot
+if [ $INTERACTIVE == 1 ]; then
+    echo -ne "HIT [Enter] TO REBOOT, CONFIRMING YOU'VE" '"photographed" THE ABOVE PARAGRAPHS: '
+    read ans < /dev/tty
+    # Sets hostname, improves RTC + memory mgmt, starts BitTorrents if needed, etc!
+    reboot
+fi
