@@ -258,6 +258,27 @@ if [ $INTERACTIVE == 1 ]; then
     echo -ne "\nHit [ENTER] to confirm you'll TRY TO RERUN 'sudo iiab' IF THERE IS A PROBLEM: "
     read -t 5 ans < /dev/tty
 fi
+
+# Subroutine compares software version numbers.  Generates rare false positives
+# like "1.0 > 1" and "2.4.0 > 2.4".  Avoid risks by structuring conditionals w/
+# a consistent # of decimal points e.g. "if version_gt w.x.y.z a.b.c.d; then"
+version_gt() { [ "$(printf '%s\n' "$@" | sort -V | head -1)" != "$1" ]; }
+
+# Verify that Raspbian is running a recent enough kernel.  As Raspbian
+# kernel 1333 has wifi issues https://github.com/iiab/iiab/issues/2497.
+#MIN_RPI_KERN=1336
+MIN_RPI_KERN=1340
+CURR_KERN=`uname -v | awk '{print $1}' | sed -e s'/#//'`
+echo "Found Kernel ""$CURR_KERN"
+if [ -f /etc/rpi-issue ] && version_gt $MIN_RPI_KERN $CURR_KERN; then
+    echo -e "\033[31;5mWARNING: Kernel ""$MIN_RPI_KERN"" or higher required with Raspbian.\033[0m"
+#    echo -e "\033[31;5mPLEASE RUN 'apt update' then 'apt install raspberrypi-kernel' then reboot.\033[0m"
+    echo -e "\033[31;5mTHEN IF NEC run 'rpi-update' to install a more recent kernel post-install, then reboot.\033[0m"
+    echo -e "'enter' to continue"
+    read -t 10 ans < /dev/tty
+fi
+
+
 ######################### INTERACTIVE STUFF IS ABOVE #########################
 
 # G. If RPi, lower reserve disk space from ~5% to 1%
