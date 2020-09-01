@@ -1,0 +1,408 @@
+#!/bin/bash
+# jvonau
+set -e                                   # Exit on error (avoids snowballing)
+export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
+SCRIPT=iiab-upgrade
+RELEASE=1
+BASEDIR=/opt/iiab
+CONFDIR=/etc/iiab
+FLAGDIR=$CONFDIR/install-flags
+APT_PATH=/usr/bin/apt    # Avoids problematic /usr/local/bin/apt on Linux Mint
+REINSTALL=""
+INTERACTIVE=0
+UPDATE=0
+MIN_RPI_KERN=1336
+SELFUPDATE_SCRIPT="/tmp/.updateScript.sh"
+# scrape the command line
+if [ "$1" = "--non-interactive" ]; then
+    shift 1
+    INTERACTIVE=0
+fi
+
+if [ "$1" = "--upgrade" ]; then
+    shift 1
+    rm $FLAGS/iiab*complete || true
+    UPDATE=1
+    REINSTALL="--reinstall"
+fi
+
+if [ "$1" = "--reinstall" ]; then
+    rm $FLAGS/iiab*complete || true
+    REINSTALL="--reinstall"
+fi
+
+# cleanup
+#if [ -f $SELFUPDATE_SCRIPT ]; then
+#    rm $SELFUPDATE_SCRIPT
+#fi
+
+# Subroutines for upgrade logic
+check_branch(){
+    git -C $BASEDIR/iiab branch | grep \* | grep release-7 | wc -l
+}
+
+function use_master(){
+    cd $BASEDIR
+    if [ -d iiab ]; then
+        cd iiab
+        git checkout -b master &> /dev/null || true # covers older curls of release-7.0
+        git config branch.master.remote origin || true # covers older curls of release-7.0
+        git config branch.master.merge refs/heads/master || true # covers older curls of release-7.0
+    fi
+    cd $BASEDIR
+    if [ -d iiab-admin-console ]; then
+        cd iiab-admin-console
+        git checkout -b master &> /dev/null || true # covers older curls of release-7.0
+        git config branch.master.remote origin || true # covers older curls of release-7.0
+        git config branch.master.merge refs/heads/master || true # covers older curls of release-7.0
+    fi
+}
+
+function update_master(){
+    cd $BASEDIR
+    if [ -d iiab ]; then
+        cd iiab
+        echo -e "\nUpdating iiab"
+        git checkout master
+        git pull
+    fi
+    cd $BASEDIR
+    if [ -d iiab-admin-console ]; then
+        echo -e "\nUpdating iiab-admin-console"
+        cd iiab-admin-console
+        git checkout master
+        git pull
+    fi
+}
+
+function update_self() {
+    echo " *** Performing self-update"
+    cd $BASEDIR
+    if [ -d iiab-factory ]; then
+        echo -e "\nUpdating iiab-factory"
+        cd iiab-factory
+        git checkout master
+        git pull
+    fi
+
+    NEW_VERSION=$(grep RELEASE /opt/iiab/iiab-factory/$SCRIPT | awk -F = '{print $2}' | head -n 1)
+    if [ $NEW_VERSION -gt $RELEASE ]; then
+        cp /opt/iiab/iiab-factory/$SCRIPT /usr/sbin/$SCRIPT
+        echo "Latest $SCRIPT now installed"
+        cat > "$SELFUPDATE_SCRIPT" << EOF
+        #!/bin/bash
+        echo " *** Relaunching $SCRIPT after update"
+#        exec env /bin/bash /usr/sbin/$SCRIPT
+        exec /usr/sbin/$SCRIPT
+EOF
+        exec /bin/bash $SELFUPDATE_SCRIPT
+    else
+        echo " Latest $SCRIPT is already installed"
+    fi
+}
+
+# start exec here
+update_self
+
+if [ `check_branch` -gt 0 ]; then
+    echo -e "\nFound release-7.X branch would you like (re)install using the latest master?"
+    echo -e "[Y/n]\n n default 5 second timeout"
+    ans="n"
+#    if [ $INTERACTIVE == 1 ]; then
+#        read -t 5 ans < /dev/tty
+#    fi
+    read -t 5 ans < /dev/tty
+    if [ "$ans" == "y" ] || [ "$ans" == "Y" ]; then
+        UPDATE=1
+    else
+        echo "remaning on release-7.X branch updating"
+        cd $BASEDIR/iiab
+        git pull
+    fi
+fi
+
+# A. Subroutine for B. and D.  Returns true (0) if username ($1) exists with password ($2)
+check_user_pwd() {
+    # $meth (hashing method) is typically '6' which implies 5000 rounds
+    # of SHA-512 per /etc/login.defs -> /etc/pam.d/common-password
+    meth=$(grep "^$1:" /etc/shadow | cut -d: -f2 | cut -d$ -f2)
+    salt=$(grep "^$1:" /etc/shadow | cut -d: -f2 | cut -d$ -f3)
+    hash=$(grep "^$1:" /etc/shadow | cut -d: -f2 | cut -d$ -f4)
+    [ $(python3 -c "import crypt; print(crypt.crypt('$2', '\$$meth\$$salt'))") == "\$$meth\$$salt\$$hash" ]
+}
+
+# B. Ask for password change if pi/raspberry default remains
+if check_user_pwd "pi" "raspberry"; then
+    echo -e "\n\nRaspberry Pi's are COMPROMISED often if the default password is not changed!\n"
+    echo -n "What password do you want for GNU/Linux user 'pi' ? "
+    read -t 5 ans < /dev/tty    # Whines but doesn't change password if [Enter]
+    echo pi:"$ans" | chpasswd || true    # Overrides 'set -e'
+fi
+
+# C. Create user 'iiab-admin' as nec, with default password
+if ! id -u iiab-admin > /dev/null 2> /dev/null; then
+    useradd iiab-admin
+    echo iiab-admin:g0adm1n | chpasswd
+fi
+
+# D. Ask for password change if iiab-admin/g0adm1n default remains
+if check_user_pwd "iiab-admin" "g0adm1n"; then
+    echo -e "\n\nUser 'iiab-admin' retains default password 'g0adm1n' per http://FAQ.IIAB.IO\n"
+
+    echo -e "This is for login to Internet-in-a-Box's Admin Console (http://box.lan/admin)\n"
+    if [ $INTERACTIVE == 1 ]; then
+        echo -n "What password do you want for GNU/Linux user 'iiab-admin' ? "
+        echo -n "press [Enter] for no change"
+        read -t 15 ans < /dev/tty    # Whines but doesn't change password if [Enter]
+        echo iiab-admin:"$ans" | chpasswd || true    # Overrides 'set -e'
+    fi
+fi
+
+if [ -f $FLAGDIR/iiab-complete ]; then
+    echo -e "\n\nIIAB INSTALLATION (/usr/sbin/iiab) IS ALREADY COMPLETE -- per existence of:"
+    echo -e "$FLAGDIR/iiab-complete -- nothing to do.\n"
+    exit 0
+fi
+
+mkdir -p $FLAGDIR
+# E. Position & customize $CONFDIR/local_vars.yml
+cd $CONFDIR
+if [ -f local_vars.yml ]; then
+
+    # FUTURE: Test if their local_vars.yml is sufficiently version-compatible !
+
+    echo -e "\n\n  EXISTING $CONFDIR/local_vars.yml is being used to install Internet-in-a-Box\n"
+
+    echo -e "   🚂 🚃 🚄 🚅 🚆 🚇 🚈 🚉 🚊 🚋 🚌 🚍 🚎 🚏 🚐 🚑 🚒 🚚 🚛 🚜 🚞 🚟 🚠 🚡 🚲\n"
+
+    echo -e "                     Google 'local_vars.yml' to learn more!"
+else
+    echo -e "\n\nInstalling Internet-in-a-Box requires $CONFDIR/local_vars.yml"
+    echo -e "Do you want (1) 🚵 MIN-sized (2) 🚢🚣 MEDIUM-sized or (3) 🚂🚃🚃 BIG-sized?\n"
+
+    echo -e "These take about 1, 2 or 3 hours on an older Raspberry Pi 3 or 3 B+, depending"
+    echo -e "on Internet speed, CPU speed/temperature and microSD card/disk speed.  Please"
+    echo -e "use a Raspberry Pi 4 or x86_64 to install in about an hour or less !\n"
+
+    echo -e 'See "What can I do with E-books and Internet-in-a-Box?" and "What services'
+    echo -e '(IIAB apps) are suggested during installation?" within http://FAQ.IIAB.IO\n'
+
+    echo -n "Please type 1, 2 or 3 then press [ENTER]: "
+    local_vars_size=""
+    if [ "$INTERACTIVE" == 1 ]; then
+        read local_vars_size < /dev/tty
+    fi
+    echo
+    case $local_vars_size in
+        1)
+            cp $BASEDIR/iiab/vars/local_vars_min.yml local_vars.yml
+            ;;
+        3)
+            cp $BASEDIR/iiab/vars/local_vars_big.yml local_vars.yml
+            ;;
+        *)
+            cp $BASEDIR/iiab/vars/local_vars_medium.yml local_vars.yml
+            ;;
+    esac
+
+    echo -en "\nEdit /etc/iiab/local_vars.yml to customize your Internet-in-a-Box? [Y/n] "
+    ans="n"
+    if [ "$INTERACTIVE" == 1 ]; then
+        read -t 5 ans < /dev/tty
+    fi
+    if [ "$ans" == "y" ] || [ "$ans" == "Y" ]; then
+        exit 0
+#        echo -en "ctrl x to save and exit"
+#        sleep 2
+#        nano /etc/iiab/local_vars.yml
+    fi
+fi
+
+if [ $UPDATE == 1 ]; then
+    use_master
+    update_master
+fi
+
+# F. Mandate OS SECURITY/UPDATES if 'apt update' has any (IF SO REBOOT)
+# Educate implementer while waiting for 'apt update'
+echo -e "\n\n ██████████████████████████████████████████████████████████████████████████████"
+echo -e " ██                                                                          ██"
+echo -e " ██  RUN 'sudo iiab' IF THIS INSTALL SCRIPT EVER FAILS, TO TRY TO CONTINUE!  ██"
+echo -e " ██                                                                          ██"
+echo -e " ██████████████████████████████████████████████████████████████████████████████"
+echo -e "\n\n'apt update' is checking for OS updates...\n"
+#echo -e "2019-07-11 TEMP WORKAROUND FOR RASPBIAN BUSTER'S testing->stable apt GLITCH...\nDetails @ https://github.com/iiab/iiab/issues/1856\n"
+#apt -y update || true    # Overrides 'set -e'
+#echo -e "\nNOW THE REAL 'apt update' WILL RUN...\n"
+$APT_PATH -qq update > /tmp/apt.stdout 2> /tmp/apt.stderr || true    # Overrides 'set -e'
+if [ $(wc -c < /tmp/apt.stderr) -gt 82 ]; then    # apt.stderr typically contains exactly 82 characters when there are no errors, no matter the primary locale, i.e. 3-line file "\nWARNING: apt does not have a stable CLI interface. Use with caution in scripts.\n\n" ...OR... in other cases more than 82, e.g. many lines of errors when apt is busy/locked/offline/etc
+    echo -e "'apt update' FAILED. VERIFY YOU'RE ONLINE and resolve all errors below:\n"
+    cat /tmp/apt.stderr
+    exit 1
+elif grep -q 'apt list --upgradable' /tmp/apt.stdout; then    # apt.stdout typically contains {"All packages are up to date.\n" [even if primary locale is French & Hindi!], "Todos los paquetes están actualizados.\n", "所有软件包均为最新。\n"} ...OR... {"5 packages can be upgraded. Run 'apt list --upgradable' to see them.\n" [even if primary locale is French & Hindi!], "Se puede actualizar 1 paquete. Ejecute «apt list --upgradable» para verlo.\n", "有 1 个软件包可以升级。请执行 ‘apt list --upgradable’ 来查看它们。\n"}
+    cat /tmp/apt.stdout
+    if [ "$INTERACTIVE" == 1 ]; then
+        echo -e "\nYour OS will now be upgraded...this takes time. THEN IT WILL AUTO-REBOOT.\n"
+        echo -n "Hit [ENTER] to confirm you'll RUN 'sudo iiab' AFTER IT REBOOTS: "
+        read ans < /dev/tty
+        echo
+        $APT_PATH -y dist-upgrade
+        reboot
+        exit 0    # Nec to avoid both output lines below (that confuse implementers!)
+    else
+        $APT_PATH -y dist-upgrade
+    fi
+fi
+cat /tmp/apt.stdout    # "All packages are up to date.\n"
+
+if [ $INTERACTIVE == 1 ]; then
+    echo -ne "\nHit [ENTER] to confirm you'll TRY TO RERUN 'sudo iiab' IF THERE IS A PROBLEM: "
+    read -t 5 ans < /dev/tty
+fi
+
+# Subroutine compares software version numbers.  Generates rare false positives
+# like "1.0 > 1" and "2.4.0 > 2.4".  Avoid risks by structuring conditionals w/
+# a consistent # of decimal points e.g. "if version_gt w.x.y.z a.b.c.d; then"
+version_gt() { [ "$(printf '%s\n' "$@" | sort -V | head -1)" != "$1" ]; }
+
+# Verify that Raspbian is running a recent enough kernel.  As Raspbian
+# kernel 1333 has wifi issues https://github.com/iiab/iiab/issues/2497.
+CURR_KERN=`uname -v | awk '{print $1}' | sed -e s'/#//'`
+echo "Found Kernel ""$CURR_KERN"
+if [ -f /etc/rpi-issue ] && version_gt $MIN_RPI_KERN $CURR_KERN; then
+    echo -e "\033[31;5mWARNING: Kernel ""$MIN_RPI_KERN"" or higher required with Raspbian.\033[0m"
+#    echo -e "\033[31;5mPLEASE RUN 'apt update' then 'apt install raspberrypi-kernel' then reboot.\033[0m"
+    echo -e "\033[31;5mTHEN IF NEC run 'rpi-update' to install a more recent kernel post-install, then reboot.\033[0m"
+    echo -e "'enter' to continue"
+    if [ $INTERACTIVE == 1 ]; then
+        read -t 10 ans < /dev/tty
+    fi
+fi
+
+
+######################### INTERACTIVE STUFF IS ABOVE #########################
+
+# G. If RPi, lower reserve disk space from ~5% to 1%
+#if [ -f /proc/device-tree/model ] && grep -qi raspberry /proc/device-tree/model; then
+if [ -e /dev/mmcblk0p2 ]; then
+    echo -e "\n\nFound microSD card /dev/mmcblk0p2: Lower its reserve disk space from ~5% to 1%\n"
+    tune2fs -m 1 /dev/mmcblk0p2
+fi
+
+# I. Install Ansible + 2 IIAB repos
+echo -e "\n\nINSTALL ANSIBLE + CORE IIAB SOFTWARE + ADMIN CONSOLE / CONTENT PACK MENUS...\n"
+
+echo -e "Install Ansible..."
+$BASEDIR/iiab/scripts/ansible
+
+echo -e "\n┌──────────────────────────────────────────────────────────────────────────────┐"
+echo -e "│                                                                              │"
+echo -e "│   NOW INSTALL IIAB SOFTWARE! If glitches arise (connectivity or otherwise)   │"
+echo -e "│                                                                              │"
+echo -e "│   PLEASE TRY TO CONTINUE BY RE-RUNNING PARENT SCRIPT 'sudo iiab' -- or run   │"
+echo -e "│                                                                              │"
+echo -e "│   child script ./iiab-install -- both avoid repeating any of the 9 stages.   │"
+echo -e "│                                                                              │"
+echo -e "└──────────────────────────────────────────────────────────────────────────────┘"
+cd $BASEDIR/iiab/
+./iiab-install $REINSTALL
+
+echo -e "Install Admin Console... (also runs iiab-get-kiwix-cat to d/l Kiwix catalog, and installs Dynamic Menuing for /library/www/html/home/index.html)\n"
+if [ ! -f $FLAGDIR/iiab-admin-console-complete ] || [ $UPDATE == 1 ]; then
+    cd $BASEDIR/iiab-admin-console
+    ./install
+    touch $FLAGDIR/iiab-admin-console-complete
+else
+    echo -e "ADMIN CONSOLE INSTALLATION IS ALREADY COMPLETE -- per existence of:"
+    echo -e "$FLAGDIR/iiab-admin-console-complete\n"
+fi
+
+# J. KA Lite prep
+if [ -d /library/ka-lite ]; then
+    echo -e "\n\nKA LITE REQUIRES 2 THINGS...\n"
+
+    echo -e "Register with KA Lite - just the anonymous registration...\n"
+    # /usr/bin/kalite venv wrapper invokes 'export KALITE_HOME=/library/ka-lite'
+    if [ ! -f $FLAGDIR/kalite-zone-complete ]; then
+        echo -e "Now running 'kalite manage generate_zone' ...\n"
+        kalite manage generate_zone || true    # Overrides 'set -e'
+        touch $FLAGDIR/kalite-zone-complete
+    else
+        echo -e "'kalite manage generate_zone' IS ALREADY COMPLETE -- per existence of:"
+        echo -e "$FLAGDIR/kalite-zone-complete\n"
+    fi
+
+    echo -e "\nInstall KA Lite's mandatory 0.9 GB English Pack... (en.zip)\n"
+    if [ ! -f $FLAGDIR/kalite-en.zip-complete ]; then
+        #echo -e 'Now retrieving it...\n'
+        cd /tmp
+        if [ -f en.zip ]; then
+            if [ $(wc -c < en.zip) -ne 929916955 ]; then
+                echo -e "\nERROR: /tmp/en.zip must be 929,916,955 bytes to proceed.\n" >&2
+                exit 1
+            else
+                echo -e "\nUsing existing /tmp/en.zip whose 929,916,955 byte size is correct!\n"
+            fi
+        else
+            wget http://pantry.learningequality.org/downloads/ka-lite/0.17/content/contentpacks/en.zip
+        fi
+        echo -e 'Now installing /tmp/en.zip into /library/ka-lite/content/*\n'
+        kalite manage retrievecontentpack local en en.zip
+        touch $FLAGDIR/kalite-en.zip-complete
+    else
+        echo -e 'kalite zip already done'
+    fi
+fi
+# WARNING: /tmp/en.zip (and all stuff in /tmp) is auto-deleted during reboots
+# NEW WAY ABOVE - since 2018-07-03 - installs KA Lite's mandatory English Pack
+#
+# kalite manage retrievecontentpack download en
+# OLD WAY ABOVE - fails w/ sev ISPs per https://github.com/iiab/iiab/issues/871
+
+# K. Start BitTorrent downloads, e.g. if $CONFDIR/local_vars.yml requested any
+if (systemctl -q is-active transmission-daemon) then
+    echo -e "\n\nSTARTING BITTORRENT DOWNLOAD(S) for KA Lite...Please Monitor: http://box:9091\n"
+    transmission-remote -n Admin:changeme -t all --start
+fi
+
+touch $FLAGDIR/iiab-complete
+
+# L. Educate Implementers prior to rebooting!
+echo -e "\n\n         ┌───────────────────────────────────────────────────────────┐"
+echo -e "         │                                                           │"
+echo -e "         │   INTERNET-IN-A-BOX (IIAB) SOFTWARE INSTALL IS COMPLETE   │"
+echo -e "         │                                                           │"
+echo -e "         └───────────────────────────────────────────────────────────┘\n"
+
+echo -e "(1A) A couple minutes after you reboot (below) try to connect any laptop to"
+echo -e 'Wi-Fi hotspot "Internet in a Box".  If this works, verify that you can browse'
+echo -e "to http://box or http://box.lan or http://172.18.96.1\n"
+
+echo -e "(1B) IF THOSE 3 DON'T WORK, try http://box.local from any device connected to"
+echo -e "your usual network.  Or try http://localhost from your IIAB itself!\n"
+
+echo -e "(1C) IF ALL 5 ABOVE DON'T WORK, ask the person who set up the network/router"
+echo -e "in your building for the IP address of your IIAB, so you can browse to it"
+echo -e "using (something like) http://192.168.0.100\n"
+
+echo -e '(2) ADD CONTENT using http://box.lan/admin (changing "box.lan" to be as above!)'
+echo -e 'PLEASE READ "What are the default passwords?" and "How do I customize my'
+echo -e 'Internet-in-a-Box home page?" at http://FAQ.IIAB.IO\n'
+
+echo -e "(3) Please run the 'iiab-diagnostics' command, to generate a URL summarizing"
+echo -e "your IIAB configuration, for volunteers seeking to help you.  We strongly"
+echo -e "encourage you to share this URL also when connecting with others in the IIAB"
+echo -e "global community, learning from other initiatives in your region and beyond!\n"
+
+#echo -e "(3) If you're installing IIAB over Wi-Fi (instead of Ethernet) remember to run"
+#echo -e "'iiab-hotspot-on' at the VERY END, when you're ready to ACTIVATE YOUR IIAB's"
+#echo -e "INTERNAL WI-FI HOTSPOT.  CAUTION: this permanently kills your IIAB's Internet"
+#echo -e "(over Wi-Fi anyway) until you later run 'iiab-hotspot-off'.  CAVEAT: these"
+#echo -e "two commands only work with Raspberry Pi as of 2019-09-30.\n"
+
+if [ $INTERACTIVE == 1 ]; then
+    echo -ne "HIT [Enter] TO REBOOT, CONFIRMING YOU'VE" '"photographed" THE ABOVE PARAGRAPHS: '
+    read ans < /dev/tty
+    # Sets hostname, improves RTC + memory mgmt, starts BitTorrents if needed, etc!
+    reboot
+fi
