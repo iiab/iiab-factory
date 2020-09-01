@@ -56,7 +56,7 @@ if [ -d iiab-factory ]; then
     cd iiab-factory
     git checkout master
     git pull
-    git branch -D release-7.2 || true
+    git branch -D release-7.2 &> /dev/null || true
     git checkout -b release-7.2
     cp $BASE/iiab-factory/iiab /usr/sbin/iiab
 else
@@ -69,19 +69,21 @@ fi
 cd $BASE
 echo
 if [ -d iiab ]; then
-    echo -e "REPO iiab EXISTS? Consider 'sudo iiab --reinstall'"
+    echo -e "REPO iiab EXISTS? Consider 'sudo iiab --upgrade'"
 else
     cd iiab
-    git clone https://github.com/iiab/iiab --depth 10 --branch release-7.2
-    git checkout -b master
-    git config branch.master.remote origin
-    git config branch.master.merge refs/heads/master
-    git checkout release-7.2
+    git clone https://github.com/iiab/iiab --depth 10 --branch master
+#    git clone https://github.com/iiab/iiab --depth 10 --branch release-7.2
+#    git checkout -b master
+#    git config branch.master.remote origin
+#    git config branch.master.merge refs/heads/master
+#    git checkout release-7.2
+    git checkout -b release-7.2
 fi
 cd $BASE
 echo
 if [ -d iiab-admin-console ]; then
-    echo -e "REPO iiab-admin-console EXISTS? Consider 'sudo iiab --reinstall'"
+    echo -e "REPO iiab-admin-console EXISTS? Consider 'sudo iiab --upgrade'"
 else
     git clone https://github.com/iiab/iiab-admin-console --depth 1 --branch master
     git checkout -b release-7.2
