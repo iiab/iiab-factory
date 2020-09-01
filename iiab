@@ -202,6 +202,7 @@ if [ -d iiab-factory ]; then
     echo -e "REPO EXISTS? Consider 'cd /opt/iiab/iiab-factory; git pull'"
 else
     git clone https://github.com/iiab/iiab-factory --depth 1
+    cp -f iiab-factory/iiab-upgrade /usr/sbin/iiab-upgrade
 fi
 
 # I. Install Ansible + 2 IIAB repos
