@@ -43,6 +43,8 @@
 
 set -e                                   # Exit on error (avoids snowballing)
 export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
+SCRIPT=iiab
+RELEASE=1
 BASEDIR=/opt/iiab
 CONFDIR=/etc/iiab
 FLAGDIR=$CONFDIR/install-flags
@@ -50,7 +52,10 @@ APT_PATH=/usr/bin    # Avoids problematic /usr/local/bin/apt on Linux Mint
 REINSTALL=""
 INTERACTIVE=1
 UPDATE=0
+MIN_RPI_KERN=1336
+SELFUPDATE_SCRIPT="/tmp/.updateScript.sh"
 
+# scrape the command line
 if [ "$1" = "--non-interactive" ]; then
     shift 1
     INTERACTIVE=0
@@ -68,11 +73,17 @@ if [ "$1" = "--reinstall" ]; then
     REINSTALL="--reinstall"
 fi
 
+# cleanup
+#if [ -f $SELFUPDATE_SCRIPT ]; then
+#    rm $SELFUPDATE_SCRIPT
+#fi
+
+# Subroutines for upgrade logic
 check_branch(){
     git -C $BASEDIR/iiab branch | grep \* | grep release-7 | wc -l
 }
 
-use_master(){
+function use_master(){
     cd $BASEDIR
     if [ -d iiab ]; then
         cd iiab
@@ -89,7 +100,7 @@ use_master(){
     fi
 }
 
-update_master(){
+function update_master(){
     cd $BASEDIR
     if [ -d iiab ]; then
         cd iiab
@@ -108,8 +119,8 @@ update_master(){
 
 if [ `check_branch` -gt 0 ]; then
     echo -e "\nFound release-7.X branch would you like (re)install using the latest master?"
-    echo -e "[Y/n]\n"
-    ans="n"
+    echo -e "[Y/n]\n Y default 5 second timeout"
+    ans="y"
     if [ $INTERACTIVE == 1 ]; then
         read -t 5 ans < /dev/tty
     fi
@@ -122,16 +133,31 @@ if [ `check_branch` -gt 0 ]; then
     fi
 fi
 
-if [ $UPDATE == 1 ]; then
-    use_master
-    update_master
-fi
+function update_self() {
+    cat > "$SELFUPDATE_SCRIPT" << EOF
+    #!/bin/bash
+    echo " *** Performing self-update"
+    cd $BASEDIR
+    if [ -d iiab-factory ]; then
+        echo -e "\nUpdating iiab-factory"
+        cd iiab-factory
+        git checkout master
+        git pull
+    fi
+    VERSION=$RELEASE
+    NEW_VERSION=`grep RELEASE /opt/iiab/iiab-factory/$SCRIPT | awk -F = '{print $2}' | head -n 1`
 
-if [ -f $FLAGS/iiab-complete ]; then
-   echo -e " IIAB completed successfully nothing to do.."
-#   echo -e " iiab --reinstall if you really want to start over"
-   exit 0
-fi
+    if [ $NEW_VERSION -gt $VERSION ]; then
+        cp /opt/iiab/iiab-factory/$SCRIPT /usr/sbin/$SCRIPT
+        echo "Latest $SCRIPT now installed"
+    else
+        echo "Latest $SCRIPT is already installed"
+    fi
+    exec env /bin/bash /usr/sbin/$SCRIPT
+EOF
+    echo " *** Relaunching $SCRIPT after update"
+    exec /bin/bash $SELFUPDATE_SCRIPT
+}
 
 # A. Subroutine for B. and D.  Returns true (0) if username ($1) exists with password ($2)
 check_user_pwd() {
@@ -170,13 +196,13 @@ if check_user_pwd "iiab-admin" "g0adm1n"; then
     fi
 fi
 
-mkdir -p $FLAGDIR
 if [ -f $FLAGDIR/iiab-complete ]; then
     echo -e "\n\nIIAB INSTALLATION (/usr/sbin/iiab) IS ALREADY COMPLETE -- per existence of:"
     echo -e "$FLAGDIR/iiab-complete -- nothing to do.\n"
     exit 0
 fi
 
+mkdir -p $FLAGDIR
 # E. Position & customize $CONFDIR/local_vars.yml
 cd $CONFDIR
 if [ -f local_vars.yml ]; then
@@ -229,6 +255,12 @@ else
 #        nano /etc/iiab/local_vars.yml
     fi
 fi
+
+if [ $UPDATE == 1 ]; then
+    use_master
+    update_master
+fi
+
 # F. Mandate OS SECURITY/UPDATES if 'apt update' has any (IF SO REBOOT)
 # Educate implementer while waiting for 'apt update'
 echo -e "\n\n ██████████████████████████████████████████████████████████████████████████████"
@@ -273,8 +305,6 @@ version_gt() { [ "$(printf '%s\n' "$@" | sort -V | head -1)" != "$1" ]; }
 
 # Verify that Raspbian is running a recent enough kernel.  As Raspbian
 # kernel 1333 has wifi issues https://github.com/iiab/iiab/issues/2497.
-#MIN_RPI_KERN=1336
-MIN_RPI_KERN=1340
 CURR_KERN=`uname -v | awk '{print $1}' | sed -e s'/#//'`
 echo "Found Kernel ""$CURR_KERN"
 if [ -f /etc/rpi-issue ] && version_gt $MIN_RPI_KERN $CURR_KERN; then
@@ -282,7 +312,9 @@ if [ -f /etc/rpi-issue ] && version_gt $MIN_RPI_KERN $CURR_KERN; then
 #    echo -e "\033[31;5mPLEASE RUN 'apt update' then 'apt install raspberrypi-kernel' then reboot.\033[0m"
     echo -e "\033[31;5mTHEN IF NEC run 'rpi-update' to install a more recent kernel post-install, then reboot.\033[0m"
     echo -e "'enter' to continue"
-    read -t 10 ans < /dev/tty
+    if [ $INTERACTIVE == 1 ]; then
+        read -t 10 ans < /dev/tty
+    fi
 fi
 
 
