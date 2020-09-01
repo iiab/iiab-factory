@@ -45,7 +45,7 @@
 set -e                                   # Exit on error (avoids snowballing)
 export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
 BASE=/opt/iiab
-
+BRANCH=release-7.2
 echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO $BASE ...\n"
 /usr/bin/apt -y install git nano
 mkdir -p $BASE
@@ -56,14 +56,14 @@ if [ -d iiab-factory ]; then
     cd iiab-factory
     git checkout master
     git pull
-    git branch -D release-7.2 &> /dev/null || true
-    git checkout -b release-7.2
+    git branch -D $BRANCH &> /dev/null || true
+    git checkout -b $BRANCH
     cp $BASE/iiab-factory/iiab /usr/sbin/iiab
 else
     echo -e "Cloning iiab-factory"
     git clone https://github.com/iiab/iiab-factory --depth 1
     cd iiab-factory
-    git checkout -b release-7.2
+    git checkout -b $BRANCH
     cp $BASE/iiab-factory/iiab /usr/sbin/iiab
 fi
 cd $BASE
@@ -73,12 +73,13 @@ if [ -d iiab ]; then
 else
     cd iiab
     git clone https://github.com/iiab/iiab --depth 10 --branch master
-#    git clone https://github.com/iiab/iiab --depth 10 --branch release-7.2
+    git checkout -b $BRANCH
+# post branching below
+#    git clone https://github.com/iiab/iiab --depth 10 --branch $BRANCH
 #    git checkout -b master
 #    git config branch.master.remote origin
 #    git config branch.master.merge refs/heads/master
-#    git checkout release-7.2
-    git checkout -b release-7.2
+#    git checkout $BRANCH
 fi
 cd $BASE
 echo
@@ -86,7 +87,7 @@ if [ -d iiab-admin-console ]; then
     echo -e "REPO iiab-admin-console EXISTS? Consider 'sudo iiab --upgrade'"
 else
     git clone https://github.com/iiab/iiab-admin-console --depth 1 --branch master
-    git checkout -b release-7.2
+    git checkout -b $BRANCH
 #    git config branch.master.remote origin
 #    git config branch.master.merge refs/heads/master
 #    git checkout v0.3.7
