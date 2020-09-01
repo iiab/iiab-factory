@@ -86,13 +86,12 @@ function update_self() {
     fi
 
     NEW_VERSION=$(grep RELEASE /opt/iiab/iiab-factory/$SCRIPT | awk -F = '{print $2}' | head -n 1)
+    cp $SCRIPT /usr/sbin/$SCRIPT
+    echo "Latest $SCRIPT now installed"
     if [ $NEW_VERSION -gt $RELEASE ]; then
-        cp /opt/iiab/iiab-factory/$SCRIPT /usr/sbin/$SCRIPT
-        echo "Latest $SCRIPT now installed"
+        echo " *** Relaunching $SCRIPT after update"
         cat > "$SELFUPDATE_SCRIPT" << EOF
         #!/bin/bash
-        echo " *** Relaunching $SCRIPT after update"
-#        exec env /bin/bash /usr/sbin/$SCRIPT
         exec /usr/sbin/$SCRIPT
 EOF
         exec /bin/bash $SELFUPDATE_SCRIPT
