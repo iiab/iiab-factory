@@ -23,18 +23,13 @@ if [ "$1" = "--upgrade" ]; then
     shift 1
     rm $FLAGS/iiab*complete || true
     UPDATE=1
-    REINSTALL="--reinstall"
+#    REINSTALL="--reinstall"
 fi
 
 if [ "$1" = "--reinstall" ]; then
     rm $FLAGS/iiab*complete || true
     REINSTALL="--reinstall"
 fi
-
-# cleanup
-#if [ -f $SELFUPDATE_SCRIPT ]; then
-#    rm $SELFUPDATE_SCRIPT
-#fi
 
 # Subroutines for upgrade logic
 check_branch(){
@@ -304,7 +299,16 @@ echo -e "│   child script ./iiab-install -- both avoid repeating any of the 9 
 echo -e "│                                                                              │"
 echo -e "└──────────────────────────────────────────────────────────────────────────────┘"
 cd $BASEDIR/iiab/
-./iiab-install $REINSTALL
+if [ $UPDATE == 1 ]; then
+    if [ -f upgrade_roles ]; then
+        for force in $(cat upgrade_roles); do
+            sed -i -e '/^$force/d' $CONFDIR/iiab_state.yml
+        done
+    fi
+    ./iiab-configure
+else
+    ./iiab-install $REINSTALL
+fi
 
 echo -e "Install Admin Console... (also runs iiab-get-kiwix-cat to d/l Kiwix catalog, and installs Dynamic Menuing for /library/www/html/home/index.html)\n"
 if [ ! -f $FLAGDIR/iiab-admin-console-complete ] || [ $UPDATE == 1 ]; then
@@ -399,9 +403,14 @@ echo -e "global community, learning from other initiatives in your region and be
 #echo -e "(over Wi-Fi anyway) until you later run 'iiab-hotspot-off'.  CAVEAT: these"
 #echo -e "two commands only work with Raspberry Pi as of 2019-09-30.\n"
 
+# cleanup
+if [ -f $SELFUPDATE_SCRIPT ]; then
+    rm $SELFUPDATE_SCRIPT
+fi
 if [ $INTERACTIVE == 1 ]; then
     echo -ne "HIT [Enter] TO REBOOT, CONFIRMING YOU'VE" '"photographed" THE ABOVE PARAGRAPHS: '
     read ans < /dev/tty
     # Sets hostname, improves RTC + memory mgmt, starts BitTorrents if needed, etc!
     reboot
 fi
+exit 0
