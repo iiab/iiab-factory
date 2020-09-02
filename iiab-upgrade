@@ -302,7 +302,7 @@ echo -e "│   child script ./iiab-install -- both avoid repeating any of the 9 
 echo -e "│                                                                              │"
 echo -e "└──────────────────────────────────────────────────────────────────────────────┘"
 cd $BASEDIR/iiab/
-if [ $UPDATE == 1 ]; then
+if [ -f $IIABENV ] && [ $UPDATE == 1 ]; then
     source $IIABENV
     OLDREV=$IIAB_REVISION
     if [ -f upgrade_roles ]; then
