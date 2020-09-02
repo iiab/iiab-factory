@@ -6,6 +6,7 @@ SCRIPT=iiab-upgrade
 RELEASE=1
 BASEDIR=/opt/iiab
 CONFDIR=/etc/iiab
+IIABENV=$CONFDIR/iiab.env
 FLAGDIR=$CONFDIR/install-flags
 APT_PATH=/usr/bin/apt    # Avoids problematic /usr/local/bin/apt on Linux Mint
 REINSTALL=""
@@ -60,6 +61,7 @@ function update_master(){
         echo -e "\nUpdating iiab"
         git checkout master
         git pull
+        NEWREV=$(grep iiab_revision vars/default_vars.yml | awk '{print $2}')
     fi
     cd $BASEDIR
     if [ -d iiab-admin-console ]; then
@@ -112,6 +114,7 @@ if [ `check_branch` -gt 0 ]; then
         echo "remaning on release-7.X branch updating"
         cd $BASEDIR/iiab
         git pull
+        NEWREV=$(grep iiab_revision vars/default_vars.yml | awk '{print $2}')
     fi
 fi
 
@@ -300,9 +303,14 @@ echo -e "│                                                                    
 echo -e "└──────────────────────────────────────────────────────────────────────────────┘"
 cd $BASEDIR/iiab/
 if [ $UPDATE == 1 ]; then
+    source $IIABENV
+    OLDREV=$IIAB_REVISION
     if [ -f upgrade_roles ]; then
-        for force in $(cat upgrade_roles); do
-            sed -i -e '/^$force/d' $CONFDIR/iiab_state.yml
+        for REV in $(cat upgrade_roles | awk '{print $1}'); do
+            if [ $REV -gt $OLDREV ]; then
+                force=$(grep $REV upgrade_roles | awk '{print $2}')
+                sed -i -e '/^$force/d' $CONFDIR/iiab_state.yml
+            fi
         done
     fi
     ./iiab-configure
