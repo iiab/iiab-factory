@@ -93,7 +93,7 @@ function update_self() {
 EOF
         exec /bin/bash $SELFUPDATE_SCRIPT
     else
-        echo " Latest $SCRIPT is already installed"
+        echo "Latest $SCRIPT is already running skipping re-exec"
     fi
 }
 
