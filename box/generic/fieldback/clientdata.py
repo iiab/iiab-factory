@@ -245,35 +245,40 @@ def get_uuid():
       return ''
    return uuid
 
-def host_id(client_id):
-   sql = "select host_id from lookup where client_id = ?"
+def host_number(client_id):
+   sql = "select host_num from lookup where client_id = ?"
    db.c.execute(sql,(client_id,))
    looked_up = db.c.fetchone()
-   if looked_up:
+   if looked_up != None:
       return looked_up[0]
-   sql = "select max(host_num) from lookup"
+   sql = "select * from lookup"
    db.c.execute(sql)
-   host_num = db.c.fetchone()
-   if host_num == None:   
+   row = db.c.fetchone()
+   if row == None:
       host_num = 1
-   sql = "insert or replace into lookup ( host_id,client_id) values (?, ?)" 
+   else:
+      sql = "select max(id) from lookup"
+      db.c.execute(sql)
+      host_num = db.c.fetchone()[0]
+      host_num += 1
+   sql = "insert or replace into lookup ( host_num,client_id) values (?, ?)" 
    db.c.execute(sql,(host_num,client_id,))
    return host_num 
 
 def create_connection_history():
    db.c.execute("CREATE TABLE if not exists connections (id INTEGER PRIMARY KEY,"\
-                "host_id TEXT, client_id TEXT, start_time_stamp TEXT,"\
+                "host_num TEXT, client_id TEXT, start_time_stamp TEXT,"\
                 "tx_bytes INTEGER, rx_bytes INTEGER,connected_time TEXT,"\
-                "connected_str TEXT,"\
+                "connected_str TEXT,hour INTEGER,minute INTEGER,"\
                 "datestr TEXT,month INTEGER,day INTEGER,dow INTEGER,week INTEGER,"\
-                "doy INTEGER,datetime TEXT,year TEXT,site TEXT"\
+                "doy INTEGER,datetime TEXT,year INTEGER,site TEXT"\
                 ")")
    db.c.execute("CREATE UNIQUE INDEX IF NOT EXISTS client_id on connections "\
                 "(client_id,start_time_stamp)")
    db.c.execute("CREATE TABLE if not exists lookup (id INTEGER PRIMARY KEY,"\
-                "host_id TEXT, client_id TEXT),name TEXT")
+                "host_num INTEGER, client_id TEXT,name TEXT)")
    db.c.execute("CREATE UNIQUE INDEX IF NOT EXISTS  lookup_index ON lookup "\
-                "(client_id,host_id)")
+                "(client_id)")
    
 def hash_id(id):
    m = hashlib.sha256()
@@ -289,13 +294,15 @@ def update_connections(client_id,start_time_stamp,tx_bytes,rx_bytes,connected_ti
    if row != None:
       start_time_stamp = row[1]
    
-   host = host_id(client_id)
+   host_num = host_number(client_id)
    datetime_object = tools.get_datetime_object(start_time_stamp)
    datetime = tools.format_datetime(datetime_object)
    datestr = tools.ts2date(int(start_time_stamp))
    month = datetime_object.month
    day = datetime_object.day
-   year = str(datetime_object.year)
+   year = datetime_object.year
+   hour = datetime_object.hour
+   minute = datetime_object.minute
    d = datetime_object.date()
    week = int(d.isocalendar()[1])
    site = get_uuid()
@@ -303,13 +310,13 @@ def update_connections(client_id,start_time_stamp,tx_bytes,rx_bytes,connected_ti
    doy = int(datetime_object.strftime('%j'))
    days, hours, minutes = tools.dhm_from_seconds(int(connected_time))
    connected_str = "%s:%s:%s:"%(days,hours,minutes,)
-   print(host,client_id,start_time_stamp,tx_bytes,rx_bytes,connected_time,
+   print(host_num,client_id,start_time_stamp,tx_bytes,rx_bytes,connected_time,
                datestr,month,day,dow,doy,week,datetime,year,site,)
-   sql = "insert or replace into connections (host_id,client_id,start_time_stamp,tx_bytes,"\
-         "rx_bytes,connected_time,connected_str,datestr,month,day,dow,doy,week,datetime,year,site) "\
-         "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-   db.c.execute(sql,(host,client_id,start_time_stamp,tx_bytes,rx_bytes,connected_time,connected_str,
-               datestr,month,day,dow,doy,week,datetime,year,site,))
+   sql = "insert or replace into connections (host_num,client_id,start_time_stamp,tx_bytes,"\
+         "rx_bytes,connected_time,connected_str,hour,minute,datestr,month,day,dow,doy,week,datetime,year,site) "\
+         "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+   db.c.execute(sql,(host_num,client_id,start_time_stamp,tx_bytes,rx_bytes,connected_time,connected_str,
+               hour,minute,datestr,month,day,dow,doy,week,datetime,year,site,))
 
 
 ###########################################################

@@ -8,3 +8,5 @@ rsync /opt/iiab/chart.js/node_modules/chart.js/dist/Chart.css /library/www/html/
 rsync ./index.php /library/www/html/gh/
 rsync ./fetch.php /library/www/html/gh/
 rsync ./human.php /library/www/html/gh/
+rsync ./select.php /library/www/html/gh/
+rsync ./test.php /library/www/html/gh/
