@@ -1,14 +1,21 @@
-#!/bin/bash -x
-# copy the chart source to where it is in document root
+#!/bin/bash -xe
+# compile the javascript for this page and copy for execution in html server tree"
 
+packer=/opt/iiab/maps/osm-source/pages/webpack/
 dest=/library/www/html/gh
 
-rsync -a assets /library/www/html/gh/
-rsync /opt/iiab/chart.js/node_modules/chart.js/dist/Chart.css /library/www/html/gh/
-rsync ./index.php /library/www/html/gh/
-rsync ./fetch.php /library/www/html/gh/
-rsync ./human.php /library/www/html/gh/
-rsync ./select.php /library/www/html/gh/
-rsync ./test.php /library/www/html/gh/
-rsync ./report.css /library/www/html/gh/
-rsync ./report.js /library/www/html/gh/
+cp -fp ./webpack.config.js $packer 
+cp -fp ./report.js  $packer
+cp -fp ./index.php  $packer
+cp -fp ./report.css  $packer
+cp -fp ./report.js  $packer
+
+cd $packer
+
+npm run build
+:
+cd /opt/iiab/iiab-factory/box/generic/fieldback/
+rsync -a assets $dest
+rsync ./select.php  $dest
+rsync ./usage.css  $dest
+rsync ./built/*   $dest

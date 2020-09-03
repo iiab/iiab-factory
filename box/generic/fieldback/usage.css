@@ -5,7 +5,7 @@
   justify-content: space-between;
   background-color: lightgrey;
   padding: 10px;
-  border: 10px;
+  margin: 10px;
 }
 #buttonBox{
    width: 100%;
@@ -18,9 +18,20 @@
   justify-content: space-between;
   background-color: lightgrey;
   padding: 10px;
-  border: 10px;
+  margin: 10px;
+  border-radius: 8px;
 }
 #timebox{
    width: 100%;
    font-size: 2em;
+}
+.chooseAxis{
+   border-radius: 8px;
+}
+.bttn{
+   border-radius: 8px;
+}
+.chosen{
+   background-color: blue;
+   color: white;
 }
