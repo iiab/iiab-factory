@@ -3,10 +3,12 @@
 
 dest=/library/www/html/gh
 
-rsync /opt/iiab/chart.js/node_modules/chart.js/dist/Chart.bundle.js /library/www/html/gh/
+rsync -a assets /library/www/html/gh/
 rsync /opt/iiab/chart.js/node_modules/chart.js/dist/Chart.css /library/www/html/gh/
 rsync ./index.php /library/www/html/gh/
 rsync ./fetch.php /library/www/html/gh/
 rsync ./human.php /library/www/html/gh/
 rsync ./select.php /library/www/html/gh/
 rsync ./test.php /library/www/html/gh/
+rsync ./report.css /library/www/html/gh/
+rsync ./report.js /library/www/html/gh/

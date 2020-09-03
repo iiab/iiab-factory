@@ -1,0 +1,26 @@
+#x-axis{
+  display: flex;
+  min-height: 80px;
+  align-items: center;
+  justify-content: space-between;
+  background-color: lightgrey;
+  padding: 10px;
+  border: 10px;
+}
+#buttonBox{
+   width: 100%;
+   font-size: 2em;
+}
+#timescale{
+  display: flex;
+  min-height: 80px;
+  align-items: center;
+  justify-content: space-between;
+  background-color: lightgrey;
+  padding: 10px;
+  border: 10px;
+}
+#timebox{
+   width: 100%;
+   font-size: 2em;
+}
