@@ -97,6 +97,21 @@ EOF
     fi
 }
 
+# Subroutine compares software version numbers.  Generates rare false positives
+# like "1.0 > 1" and "2.4.0 > 2.4".  Avoid risks by structuring conditionals w/
+# a consistent # of decimal points e.g. "if version_gt w.x.y.z a.b.c.d; then"
+version_gt() { [ "$(printf '%s\n' "$@" | sort -V | head -1)" != "$1" ]; }
+
+# A. Subroutine for B. and D.  Returns true (0) if username ($1) exists with password ($2)
+check_user_pwd() {
+    # $meth (hashing method) is typically '6' which implies 5000 rounds
+    # of SHA-512 per /etc/login.defs -> /etc/pam.d/common-password
+    meth=$(grep "^$1:" /etc/shadow | cut -d: -f2 | cut -d$ -f2)
+    salt=$(grep "^$1:" /etc/shadow | cut -d: -f2 | cut -d$ -f3)
+    hash=$(grep "^$1:" /etc/shadow | cut -d: -f2 | cut -d$ -f4)
+    [ $(python3 -c "import crypt; print(crypt.crypt('$2', '\$$meth\$$salt'))") == "\$$meth\$$salt\$$hash" ]
+}
+
 # start exec here
 update_self
 
@@ -117,16 +132,6 @@ if [ `check_branch` -gt 0 ]; then
         NEWREV=$(grep iiab_revision vars/default_vars.yml | awk '{print $2}')
     fi
 fi
-
-# A. Subroutine for B. and D.  Returns true (0) if username ($1) exists with password ($2)
-check_user_pwd() {
-    # $meth (hashing method) is typically '6' which implies 5000 rounds
-    # of SHA-512 per /etc/login.defs -> /etc/pam.d/common-password
-    meth=$(grep "^$1:" /etc/shadow | cut -d: -f2 | cut -d$ -f2)
-    salt=$(grep "^$1:" /etc/shadow | cut -d: -f2 | cut -d$ -f3)
-    hash=$(grep "^$1:" /etc/shadow | cut -d: -f2 | cut -d$ -f4)
-    [ $(python3 -c "import crypt; print(crypt.crypt('$2', '\$$meth\$$salt'))") == "\$$meth\$$salt\$$hash" ]
-}
 
 # B. Ask for password change if pi/raspberry default remains
 if check_user_pwd "pi" "raspberry"; then
@@ -255,25 +260,6 @@ cat /tmp/apt.stdout    # "All packages are up to date.\n"
 if [ $INTERACTIVE == 1 ]; then
     echo -ne "\nHit [ENTER] to confirm you'll TRY TO RERUN 'sudo iiab' IF THERE IS A PROBLEM: "
     read -t 5 ans < /dev/tty
-fi
-
-# Subroutine compares software version numbers.  Generates rare false positives
-# like "1.0 > 1" and "2.4.0 > 2.4".  Avoid risks by structuring conditionals w/
-# a consistent # of decimal points e.g. "if version_gt w.x.y.z a.b.c.d; then"
-version_gt() { [ "$(printf '%s\n' "$@" | sort -V | head -1)" != "$1" ]; }
-
-# Verify that Raspbian is running a recent enough kernel.  As Raspbian
-# kernel 1333 has wifi issues https://github.com/iiab/iiab/issues/2497.
-CURR_KERN=`uname -v | awk '{print $1}' | sed -e s'/#//'`
-echo "Found Kernel ""$CURR_KERN"
-if [ -f /etc/rpi-issue ] && version_gt $MIN_RPI_KERN $CURR_KERN; then
-    echo -e "\033[31;5mWARNING: Kernel ""$MIN_RPI_KERN"" or higher required with Raspbian.\033[0m"
-#    echo -e "\033[31;5mPLEASE RUN 'apt update' then 'apt install raspberrypi-kernel' then reboot.\033[0m"
-    echo -e "\033[31;5mTHEN IF NEC run 'rpi-update' to install a more recent kernel post-install, then reboot.\033[0m"
-    echo -e "'enter' to continue"
-    if [ $INTERACTIVE == 1 ]; then
-        read -t 10 ans < /dev/tty
-    fi
 fi
 
 
@@ -411,14 +397,32 @@ echo -e "global community, learning from other initiatives in your region and be
 #echo -e "(over Wi-Fi anyway) until you later run 'iiab-hotspot-off'.  CAVEAT: these"
 #echo -e "two commands only work with Raspberry Pi as of 2019-09-30.\n"
 
+# Verify that Raspbian is running a recent enough kernel.  As Raspbian
+# kernel 1333 has wifi issues https://github.com/iiab/iiab/issues/2497.
+CURR_KERN=`uname -v | awk '{print $1}' | sed -e s'/#//'`
+echo "Found Kernel ""$CURR_KERN"
+if [ -f /etc/rpi-issue ] && version_gt $MIN_RPI_KERN $CURR_KERN; then
+    echo -e "\033[31;5mWARNING: Kernel ""$MIN_RPI_KERN"" or higher required with Raspbian.\033[0m"
+#    echo -e "\033[31;5mPLEASE RUN 'apt update' then 'apt install raspberrypi-kernel' then reboot.\033[0m"
+    echo -e "\033[31;5mTHEN IF NEC run 'rpi-update' to install a more recent kernel \033[0m"
+    echo -e "\033[31;5mPlease check with developers before running this command"
+#    if [ $INTERACTIVE == 1 ]; then
+#        echo -e "'enter' to continue"
+#        read -t 10 ans < /dev/tty
+#    fi
+fi
+
 # cleanup
 if [ -f $SELFUPDATE_SCRIPT ]; then
     rm $SELFUPDATE_SCRIPT
 fi
 if [ $INTERACTIVE == 1 ]; then
-    echo -ne "HIT [Enter] TO REBOOT, CONFIRMING YOU'VE" '"photographed" THE ABOVE PARAGRAPHS: '
+    echo -ne "HIT [Y] [Enter] TO REBOOT, [Enter] to exit, CONFIRMING YOU'VE" '"photographed" THE ABOVE PARAGRAPHS: '
+    ans=n
     read ans < /dev/tty
-    # Sets hostname, improves RTC + memory mgmt, starts BitTorrents if needed, etc!
-    reboot
+    if [ "$ans" == "y" ] || [ "$ans" == "Y" ]; then
+        reboot
+    fi
 fi
+echo -e "Remember to reboot"
 exit 0
