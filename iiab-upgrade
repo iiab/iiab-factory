@@ -116,14 +116,8 @@ check_user_pwd() {
 update_self
 
 if [ `check_branch` -gt 0 ]; then
-    echo -e "\nFound release-7.X branch would you like (re)install using the latest master?"
-    echo -e "[Y/n]\n n default 5 second timeout"
-    ans="n"
-#    if [ $INTERACTIVE == 1 ]; then
-#        read -t 5 ans < /dev/tty
-#    fi
-    read -t 5 ans < /dev/tty
-    if [ "$ans" == "y" ] || [ "$ans" == "Y" ]; then
+    if whiptail --yesno "\nFound release-7.X branch would you like (re)install using the latest master?" 20 60 2 3>&1 1>&2 2>&3; then
+        echo "matched yes for master"
         UPDATE=1
     else
         echo "remaning on release-7.X branch updating"
