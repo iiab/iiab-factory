@@ -35,3 +35,17 @@
    background-color: blue;
    color: white;
 }
+#endBox{
+   float: right;
+}
+.changeStart{
+   border-radius: 8px;
+   background-color: blue;
+   color: white;
+}
+#redraw{
+   border-radius: 8px;
+   background-color: blue;
+   color: white;
+}
+

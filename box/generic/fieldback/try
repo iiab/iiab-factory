@@ -6,9 +6,7 @@ dest=/library/www/html/gh
 
 cp -fp ./webpack.config.js $packer 
 cp -fp ./report.js  $packer
-cp -fp ./index.php  $packer
-cp -fp ./report.css  $packer
-cp -fp ./report.js  $packer
+cp -fp ./index.html  $packer
 
 cd $packer
 
