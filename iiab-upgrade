@@ -95,20 +95,19 @@ function update_self() {
         cd iiab-factory
         git checkout master
         git pull
-    fi
-
-    NEW_VERSION=$(grep RELEASE /opt/iiab/iiab-factory/$SCRIPT | awk -F = '{print $2}' | head -n 1)
-    cp $SCRIPT /usr/sbin/$SCRIPT
-    echo "Latest $SCRIPT now installed"
-    if [ $NEW_VERSION -gt $RELEASE ]; then
-        echo " *** Relaunching $SCRIPT after update"
-        cat > "$SELFUPDATE_SCRIPT" << EOF
-        #!/bin/bash
-        exec /usr/sbin/$SCRIPT
+        NEW_VERSION=$(grep RELEASE $SCRIPT | awk -F = '{print $2}' | head -n 1)
+        cp $SCRIPT /usr/sbin/$SCRIPT
+        echo "Latest $SCRIPT now installed"
+        if [ $NEW_VERSION -gt $RELEASE ]; then
+            echo " *** Relaunching $SCRIPT after update"
+            cat > "$SELFUPDATE_SCRIPT" << EOF
+#!/bin/bash
+exec /usr/sbin/$SCRIPT
 EOF
-        exec /bin/bash $SELFUPDATE_SCRIPT
-    else
-        echo "Latest $SCRIPT is already running skipping re-exec"
+            exec /bin/bash $SELFUPDATE_SCRIPT
+        else
+            echo "Latest $SCRIPT is already running skipping re-exec"
+        fi
     fi
 }
 
