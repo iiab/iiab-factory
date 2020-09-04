@@ -1,4 +1,5 @@
 #!/bin/bash
+# Copied from: https://github.com/jvonau/iiab-factory/blob/iiab-update/iiab-update
 # jvonau
 set -e                                   # Exit on error (avoids snowballing)
 export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
@@ -9,8 +10,8 @@ CONFDIR=/etc/iiab
 IIABENV=$CONFDIR/iiab.env
 FLAGDIR=$CONFDIR/install-flags
 APT_PATH=/usr/bin/apt    # Avoids problematic /usr/local/bin/apt on Linux Mint
-REINSTALL=""
 INTERACTIVE=0
+REINSTALL=""
 UPDATE=0
 MIN_RPI_KERN=1336
 SELFUPDATE_SCRIPT="/tmp/.updateScript.sh"

@@ -47,14 +47,14 @@ SCRIPT=iiab
 RELEASE=1
 BASEDIR=/opt/iiab
 CONFDIR=/etc/iiab
+IIABENV=$CONFDIR/iiab.env
 FLAGDIR=$CONFDIR/install-flags
 APT_PATH=/usr/bin/apt    # Avoids problematic /usr/local/bin/apt on Linux Mint
+INTERACTIVE=1
 REINSTALL=""
-INTERACTIVE=0
 UPDATE=0
 MIN_RPI_KERN=1336
 SELFUPDATE_SCRIPT="/tmp/.updateScript.sh"
-
 # scrape the command line
 if [ "$1" = "--non-interactive" ]; then
     shift 1
@@ -65,18 +65,13 @@ if [ "$1" = "--upgrade" ]; then
     shift 1
     rm $FLAGS/iiab*complete || true
     UPDATE=1
-    REINSTALL="--reinstall"
+#    REINSTALL="--reinstall"
 fi
 
 if [ "$1" = "--reinstall" ]; then
     rm $FLAGS/iiab*complete || true
     REINSTALL="--reinstall"
 fi
-
-# cleanup
-#if [ -f $SELFUPDATE_SCRIPT ]; then
-#    rm $SELFUPDATE_SCRIPT
-#fi
 
 # Subroutines for upgrade logic
 check_branch(){
@@ -107,6 +102,7 @@ function update_master(){
         echo -e "\nUpdating iiab"
         git checkout master
         git pull
+        NEWREV=$(grep iiab_revision vars/default_vars.yml | awk '{print $2}')
     fi
     cd $BASEDIR
     if [ -d iiab-admin-console ]; then
@@ -117,26 +113,7 @@ function update_master(){
     fi
 }
 
-if [ `check_branch` -gt 0 ]; then
-    echo -e "\nFound release-7.X branch would you like (re)install using the latest master?"
-    echo -e "[Y/n]\n n default 5 second timeout"
-    ans="n"
-#    if [ $INTERACTIVE == 1 ]; then
-#        read -t 5 ans < /dev/tty
-#    fi
-    read -t 5 ans < /dev/tty
-    if [ "$ans" == "y" ] || [ "$ans" == "Y" ]; then
-        UPDATE=1
-    else
-        echo "remaning on release-7.X branch updating"
-        cd $BASEDIR/iiab
-        git pull
-    fi
-fi
-
 function update_self() {
-    cat > "$SELFUPDATE_SCRIPT" << EOF
-    #!/bin/bash
     echo " *** Performing self-update"
     cd $BASEDIR
     if [ -d iiab-factory ]; then
@@ -144,21 +121,26 @@ function update_self() {
         cd iiab-factory
         git checkout master
         git pull
-    fi
-    VERSION=$RELEASE
-    NEW_VERSION=`grep RELEASE /opt/iiab/iiab-factory/$SCRIPT | awk -F = '{print $2}' | head -n 1`
-
-    if [ $NEW_VERSION -gt $VERSION ]; then
-        cp /opt/iiab/iiab-factory/$SCRIPT /usr/sbin/$SCRIPT
+        NEW_VERSION=$(grep RELEASE $SCRIPT | awk -F = '{print $2}' | head -n 1)
+        cp $SCRIPT /usr/sbin/$SCRIPT
         echo "Latest $SCRIPT now installed"
-    else
-        echo "Latest $SCRIPT is already installed"
-    fi
-    exec env /bin/bash /usr/sbin/$SCRIPT
+        if [ $NEW_VERSION -gt $RELEASE ]; then
+            echo " *** Relaunching $SCRIPT after update"
+            cat > "$SELFUPDATE_SCRIPT" << EOF
+#!/bin/bash
+exec /usr/sbin/$SCRIPT
 EOF
-    echo " *** Relaunching $SCRIPT after update"
-    exec /bin/bash $SELFUPDATE_SCRIPT
+            exec /bin/bash $SELFUPDATE_SCRIPT
+        else
+            echo "Latest $SCRIPT is already running skipping re-exec"
+        fi
+    fi
 }
+
+# Subroutine compares software version numbers.  Generates rare false positives
+# like "1.0 > 1" and "2.4.0 > 2.4".  Avoid risks by structuring conditionals w/
+# a consistent # of decimal points e.g. "if version_gt w.x.y.z a.b.c.d; then"
+version_gt() { [ "$(printf '%s\n' "$@" | sort -V | head -1)" != "$1" ]; }
 
 # A. Subroutine for B. and D.  Returns true (0) if username ($1) exists with password ($2)
 check_user_pwd() {
@@ -170,12 +152,33 @@ check_user_pwd() {
     [ $(python3 -c "import crypt; print(crypt.crypt('$2', '\$$meth\$$salt'))") == "\$$meth\$$salt\$$hash" ]
 }
 
+# start exec here
+update_self
+
+if [ `check_branch` -gt 0 ]; then
+    if whiptail --yesno "\nFound release-7.X branch would you like (re)install using the latest master?" 20 60 2 3>&1 1>&2 2>&3; then
+        echo "matched yes for master"
+        UPDATE=1
+    else
+        echo "remaning on release-7.X branch updating"
+        cd $BASEDIR/iiab
+        git pull
+        NEWREV=$(grep iiab_revision vars/default_vars.yml | awk '{print $2}')
+    fi
+fi
+
 # B. Ask for password change if pi/raspberry default remains
 if check_user_pwd "pi" "raspberry"; then
-    echo -e "\n\nRaspberry Pi's are COMPROMISED often if the default password is not changed!\n"
-    echo -n "What password do you want for GNU/Linux user 'pi' ? "
-    read -t 5 ans < /dev/tty    # Whines but doesn't change password if [Enter]
-    echo pi:"$ans" | chpasswd || true    # Overrides 'set -e'
+    if [ $INTERACTIVE == 1 ]; then
+        whiptail --msgbox "\
+Raspberry Pi's are COMPROMISED often if the default password is not changed!
+What password do you want for GNU/Linux user 'pi' ?
+press [Enter] 3 times for no change \
+" 20 60 1
+        passwd raspberry &&
+        whiptail --msgbox "done" 20 60 1
+        #chpasswd || true    # Overrides 'set -e'
+    fi
 fi
 
 # C. Create user 'iiab-admin' as nec, with default password
@@ -186,14 +189,16 @@ fi
 
 # D. Ask for password change if iiab-admin/g0adm1n default remains
 if check_user_pwd "iiab-admin" "g0adm1n"; then
-    echo -e "\n\nUser 'iiab-admin' retains default password 'g0adm1n' per http://FAQ.IIAB.IO\n"
-
-    echo -e "This is for login to Internet-in-a-Box's Admin Console (http://box.lan/admin)\n"
     if [ $INTERACTIVE == 1 ]; then
-        echo -n "What password do you want for GNU/Linux user 'iiab-admin' ? "
-        echo -n "press [Enter] for no change"
-        read -t 15 ans < /dev/tty    # Whines but doesn't change password if [Enter]
-        echo iiab-admin:"$ans" | chpasswd || true    # Overrides 'set -e'
+        whiptail --msgbox "\
+User 'iiab-admin' retains default password 'g0adm1n' per http://FAQ.IIAB.IO
+This is for login to Internet-in-a-Box's Admin Console (http://box.lan/admin)
+What password do you want for GNU/Linux user 'iiab-admin' ?
+press [Enter] 3 times for no change /
+" 20 60 1
+        passwd iiab-admin &&
+        whiptail --msgbox "done" 20 60 1
+        #chpasswd  || true    # Overrides 'set -e'
     fi
 fi
 
@@ -258,7 +263,6 @@ else
 fi
 
 if [ $UPDATE == 1 ]; then
-    update_self
     use_master
     update_master
 fi
@@ -270,6 +274,16 @@ echo -e " ██                                                                
 echo -e " ██  RUN 'sudo iiab' IF THIS INSTALL SCRIPT EVER FAILS, TO TRY TO CONTINUE!  ██"
 echo -e " ██                                                                          ██"
 echo -e " ██████████████████████████████████████████████████████████████████████████████"
+echo -e "\n"
+# catch updates when apt runs
+# add logic to force updates later
+if [ $(command -v ansible-playbook) ]; then    # "command -v" is POSIX compliant; also catches built-in commands like "cd"
+    CURR_VER=`ansible --version | head -1 | awk '{print $2}'`    # To match iiab-install.  Was: CURR_VER=`ansible --version | head -n 1 | cut -f 2 -d " "`
+    echo -e "CURRENTLY INSTALLED ANSIBLE: $CURR_VER skipping install!"
+else
+    echo -e "Install Ansible..."
+    $BASEDIR/iiab/scripts/ansible
+fi
 echo -e "\n\n'apt update' is checking for OS updates...\n"
 #echo -e "2019-07-11 TEMP WORKAROUND FOR RASPBIAN BUSTER'S testing->stable apt GLITCH...\nDetails @ https://github.com/iiab/iiab/issues/1856\n"
 #apt -y update || true    # Overrides 'set -e'
@@ -300,25 +314,6 @@ if [ $INTERACTIVE == 1 ]; then
     read -t 5 ans < /dev/tty
 fi
 
-# Subroutine compares software version numbers.  Generates rare false positives
-# like "1.0 > 1" and "2.4.0 > 2.4".  Avoid risks by structuring conditionals w/
-# a consistent # of decimal points e.g. "if version_gt w.x.y.z a.b.c.d; then"
-version_gt() { [ "$(printf '%s\n' "$@" | sort -V | head -1)" != "$1" ]; }
-
-# Verify that Raspbian is running a recent enough kernel.  As Raspbian
-# kernel 1333 has wifi issues https://github.com/iiab/iiab/issues/2497.
-CURR_KERN=`uname -v | awk '{print $1}' | sed -e s'/#//'`
-echo "Found Kernel ""$CURR_KERN"
-if [ -f /etc/rpi-issue ] && version_gt $MIN_RPI_KERN $CURR_KERN; then
-    echo -e "\033[31;5mWARNING: Kernel ""$MIN_RPI_KERN"" or higher required with Raspbian.\033[0m"
-#    echo -e "\033[31;5mPLEASE RUN 'apt update' then 'apt install raspberrypi-kernel' then reboot.\033[0m"
-    echo -e "\033[31;5mTHEN IF NEC run 'rpi-update' to install a more recent kernel post-install, then reboot.\033[0m"
-    echo -e "'enter' to continue"
-    if [ $INTERACTIVE == 1 ]; then
-        read -t 10 ans < /dev/tty
-    fi
-fi
-
 
 ######################### INTERACTIVE STUFF IS ABOVE #########################
 
@@ -330,10 +325,7 @@ if [ -e /dev/mmcblk0p2 ]; then
 fi
 
 # I. Install Ansible + 2 IIAB repos
-echo -e "\n\nINSTALL ANSIBLE + CORE IIAB SOFTWARE + ADMIN CONSOLE / CONTENT PACK MENUS...\n"
-
-echo -e "Install Ansible..."
-$BASEDIR/iiab/scripts/ansible
+#echo -e "\n\nINSTALL ANSIBLE + CORE IIAB SOFTWARE + ADMIN CONSOLE / CONTENT PACK MENUS...\n"
 
 echo -e "\n┌──────────────────────────────────────────────────────────────────────────────┐"
 echo -e "│                                                                              │"
@@ -345,7 +337,21 @@ echo -e "│   child script ./iiab-install -- both avoid repeating any of the 9 
 echo -e "│                                                                              │"
 echo -e "└──────────────────────────────────────────────────────────────────────────────┘"
 cd $BASEDIR/iiab/
-./iiab-install $REINSTALL
+if [ -f $IIABENV ] && [ $UPDATE == 1 ]; then
+    source $IIABENV
+    OLDREV=$IIAB_REVISION
+    if [ -f upgrade_roles ]; then
+        for REV in $(cat upgrade_roles | awk '{print $1}'); do
+            if [ $REV -gt $OLDREV ]; then
+                force=$(grep $REV upgrade_roles | awk '{print $2}')
+                sed -i -e '/^$force/d' $CONFDIR/iiab_state.yml
+            fi
+        done
+    fi
+    ./iiab-configure
+else
+    ./iiab-install $REINSTALL
+fi
 
 echo -e "Install Admin Console... (also runs iiab-get-kiwix-cat to d/l Kiwix catalog, and installs Dynamic Menuing for /library/www/html/home/index.html)\n"
 if [ ! -f $FLAGDIR/iiab-admin-console-complete ] || [ $UPDATE == 1 ]; then
@@ -440,9 +446,32 @@ echo -e "global community, learning from other initiatives in your region and be
 #echo -e "(over Wi-Fi anyway) until you later run 'iiab-hotspot-off'.  CAVEAT: these"
 #echo -e "two commands only work with Raspberry Pi as of 2019-09-30.\n"
 
-if [ $INTERACTIVE == 1 ]; then
-    echo -ne "HIT [Enter] TO REBOOT, CONFIRMING YOU'VE" '"photographed" THE ABOVE PARAGRAPHS: '
-    read ans < /dev/tty
-    # Sets hostname, improves RTC + memory mgmt, starts BitTorrents if needed, etc!
-    reboot
+# Verify that Raspbian is running a recent enough kernel.  As Raspbian
+# kernel 1333 has wifi issues https://github.com/iiab/iiab/issues/2497.
+CURR_KERN=`uname -v | awk '{print $1}' | sed -e s'/#//'`
+echo "Found Kernel ""$CURR_KERN"
+if [ -f /etc/rpi-issue ] && version_gt $MIN_RPI_KERN $CURR_KERN; then
+    echo -e "\033[31;5mWARNING: Kernel ""$MIN_RPI_KERN"" or higher required with Raspbian.\033[0m"
+#    echo -e "\033[31;5mPLEASE RUN 'apt update' then 'apt install raspberrypi-kernel' then reboot.\033[0m"
+    echo -e "\033[31;5mTHEN IF NEC run 'rpi-update' to install a more recent kernel \033[0m"
+    echo -e "\033[31;5mPlease check with developers before running this command"
+#    if [ $INTERACTIVE == 1 ]; then
+#        echo -e "'enter' to continue"
+#        read -t 10 ans < /dev/tty
+#    fi
 fi
+
+# cleanup
+if [ -f $SELFUPDATE_SCRIPT ]; then
+    rm $SELFUPDATE_SCRIPT
+fi
+if [ $INTERACTIVE == 1 ]; then
+    echo -ne "HIT [Y] [Enter] TO REBOOT, [Enter] to exit, CONFIRMING YOU'VE" '"photographed" THE ABOVE PARAGRAPHS: '
+    ans=n
+    read ans < /dev/tty
+    if [ "$ans" == "y" ] || [ "$ans" == "Y" ]; then
+        reboot
+    fi
+fi
+echo -e "Remember to reboot"
+exit 0
