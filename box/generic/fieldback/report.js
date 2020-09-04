@@ -6,18 +6,18 @@ $( '#hour' ).addClass('chosen');
 $( '#usage' ).addClass('chosen');
 
 
-///////////   Button click action routines //////////////
-var xAxisUnit = "day";
+var xAxisUnit = "hour";
 var pdEnd = document.getElementById('pdEnd');
 var pdStart = document.getElementById('pdStart');
 var pdYear = moment().format('YYYY');
 pdEnd.value = moment().format('YYYY/MM/DD');
 pdStart.value = moment().format('YYYY/MM/DD');
-var sql = hourly()  + hourly_selector();
+var sql = hourly()  + daily_where();
 var now = moment();
 var startDay;
 
 
+///////////   Button click action routines //////////////
 function xAxis(elem){
   var clickedId = elem.id;
   $( ".chooseAxis" ).removeClass('chosen');
@@ -27,31 +27,35 @@ function xAxis(elem){
   switch( clickedId ){
      case "hour":
        xAxisUnit = "hour";
-       sql = hourly()  + hourly_selector();
        pdEnd.value = moment().format('YYYY/MM/DD');
        pdStart.value = moment().format('YYYY/MM/DD');
+       sql = hourly()  + daily_where();
        showGraph();
        break;
      case "day":
        xAxisUnit = "day";
-       pdEnd = now.clone();
-       startDay = pdEnd.clone();
+       startDay = moment(pdEnd.value);
        startDay.add(-1, "week");
        pdStart.value = startDay.format("YYYY/MM/DD");
+       sql = daily()  + daily_where() + daily_groupby();
+       showGraph();
        break;
      case "week":
        xAxisUnit = "week";
-       pdEnd = now.clone();
-       startDay = pdEnd.clone();
+       startDay = moment(pdEnd.value);
        startDay.add(-1, "month");
        pdStart.value = startDay.format("YYYY/MM/DD");
+       sql = daily()  + daily_where() + daily_groupby();
+       alert(sql);
+       showGraph();
        break;
      case "month":
        xAxisUnit = "month";
-       pdEnd = now.clone();
-       startDay = pdEnd.clone();
+       startDay = moment(pdEnd.value);
        startDay.add(-1, "year");
        pdStart.value = startDay.format("YYYY/MM/DD");
+       alert(sql);
+       showGraph();
        break;
      default:
        break;
@@ -59,19 +63,61 @@ function xAxis(elem){
 }
 window.xAxis = xAxis;
 
-function hourly_selector(){
+function validate_inputs(){
+   if ( moment( pdStart.value ).isValid() && 
+        moment( pdEnd.value ).isValid() ){
+      return true;
+   } else return false;
+}
+
+function hourly(){
+   sql = 'SELECT connected_time/60 AS value1, tx_bytes/1000000 AS value2,hour as xaxis, hour FROM connections WHERE '
+   return sql;
+}
+
+function daily(){
+   sql = 'SELECT sum(connected_time)/60 AS value1, sum(tx_bytes)/1000000 AS value2,datestr as xaxis, hour FROM connections WHERE '
+   return sql;
+}
+
+function daily_where(){
+   if ( ! validate_inputs ){
+      alert('Bad Date value');
+      return;
+   }
    sql = "datestr >= '" + pdStart.value + "' AND datestr <= '" + pdEnd.value + "'";
    return sql;
 }
 
-function hourly(){
-   sql = 'SELECT connected_time/60 AS value1, tx_bytes/1000000 AS value2,hour as xaxis,hour FROM connections WHERE '
+function daily_groupby(){
+   switch ( xAxisUnit ){
+      case "week":
+         sql = " GROUP BY year,week";
+         break;
+      case "month":
+         sql = " GROUP BY year,month";
+         break;
+      default:
+         // hour, and day
+         sql = " GROUP BY datestr";
+         break;
+   }
    return sql;
 }
+
 function redraw(){
-   sql = hourly()  + hourly_selector();
+   switch ( xAxisUnit ){
+      case "hour":
+         sql = hourly()  + daily_where();
+         break;
+      default:
+         sql = daily()  + daily_where();
+         break;
+   }
    showGraph();
-}
+}         
+
+
 window.redraw = redraw;
 
 function earlier(){

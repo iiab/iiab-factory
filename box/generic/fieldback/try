@@ -16,4 +16,4 @@ cd /opt/iiab/iiab-factory/box/generic/fieldback/
 rsync -a assets $dest
 rsync ./select.php  $dest
 rsync ./usage.css  $dest
-rsync ./built/*   $dest
+rsync ./build/*   $dest
