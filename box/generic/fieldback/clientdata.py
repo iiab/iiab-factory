@@ -323,7 +323,7 @@ def update_connections(client_id,start_time_stamp,tx_bytes,rx_bytes,connected_ti
 if __name__ == "__main__":
    # ########## database operations ##############
    #db = MySQL('clientinfo')
-   db = Sqlite('/etc/iiab/clientinfo.sqlite')
+   db = Sqlite('/opt/iiab/clientinfo.sqlite')
 
    #db.c.execute('drop table if exists connections')
    create_connection_history()
