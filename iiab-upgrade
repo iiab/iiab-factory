@@ -12,6 +12,7 @@ APT_PATH=/usr/bin/apt    # Avoids problematic /usr/local/bin/apt on Linux Mint
 REINSTALL=""
 INTERACTIVE=0
 UPDATE=0
+MASTER=1
 MIN_RPI_KERN=1336
 SELFUPDATE_SCRIPT="/tmp/.updateScript.sh"
 # scrape the command line
@@ -72,6 +73,18 @@ function update_master(){
     fi
 }
 
+
+function check_revision(){
+    if [ -f $IIABENV ]; then
+        source $IIABENV
+        OLDREV=$IIAB_REVISION
+        if [ $NEWREV -gt $OLDREV ]; then
+            echo -e "\nNEW IIAB Revison Found\n"
+            UPDATE=1
+        fi
+    fi
+}
+
 function update_self() {
     echo " *** Performing self-update"
     cd $BASEDIR
@@ -118,10 +131,11 @@ update_self
 if [ `check_branch` -gt 0 ]; then
     if whiptail --yesno "\nFound release-7.X branch would you like (re)install using the latest master?" 20 60 2 3>&1 1>&2 2>&3; then
         echo "matched yes for master"
-        UPDATE=1
+        use_master
     else
         echo "remaning on release-7.X branch updating"
         cd $BASEDIR/iiab
+        MASTER=0
         git pull
         NEWREV=$(grep iiab_revision vars/default_vars.yml | awk '{print $2}')
     fi
@@ -159,6 +173,11 @@ if [ -f $FLAGDIR/iiab-complete ]; then
     echo -e "$FLAGDIR/iiab-complete -- nothing to do.\n"
     exit 0
 fi
+
+if [ $MASTER == 1 ]; then
+    update_master
+fi
+check_revision
 
 mkdir -p $FLAGDIR
 # E. Position & customize $CONFDIR/local_vars.yml
@@ -212,11 +231,6 @@ else
 #        sleep 2
 #        nano /etc/iiab/local_vars.yml
     fi
-fi
-
-if [ $UPDATE == 1 ]; then
-    use_master
-    update_master
 fi
 
 # F. Mandate OS SECURITY/UPDATES if 'apt update' has any (IF SO REBOOT)
@@ -282,17 +296,13 @@ echo -e "│   child script ./iiab-install -- both avoid repeating any of the 9 
 echo -e "│                                                                              │"
 echo -e "└──────────────────────────────────────────────────────────────────────────────┘"
 cd $BASEDIR/iiab/
-if [ -f $IIABENV ] && [ $UPDATE == 1 ]; then
-    source $IIABENV
-    OLDREV=$IIAB_REVISION
-    if [ -f upgrade_roles ]; then
-        for REV in $(cat upgrade_roles | awk '{print $1}'); do
-            if [ $REV -gt $OLDREV ]; then
-                force=$(grep $REV upgrade_roles | awk '{print $2}')
-                sed -i -e '/^$force/d' $CONFDIR/iiab_state.yml
-            fi
-        done
-    fi
+if [ -f upgrade_roles ] && [ $UPDATE == 1 ]; then
+    for REV in $(cat upgrade_roles | awk '{print $1}'); do
+        if [ $REV -gt $OLDREV ]; then
+            force=$(grep $REV upgrade_roles | awk '{print $2}')
+            sed -i -e '/^$force/d' $CONFDIR/iiab_state.yml
+        fi
+    done
     ./iiab-configure
 else
     ./iiab-install $REINSTALL
