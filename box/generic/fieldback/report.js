@@ -7,14 +7,15 @@ $( '#usage' ).addClass('chosen');
 
 
 ///////////   Button click action routines //////////////
-var xAxisUnit = "doy";
+var xAxisUnit = "day";
 var pdEnd = document.getElementById('pdEnd');
 var pdStart = document.getElementById('pdStart');
 var pdYear = moment().format('YYYY');
 pdEnd.value = moment().format('YYYY/MM/DD');
 pdStart.value = moment().format('YYYY/MM/DD');
 var sql = hourly()  + hourly_selector();
-var now = moment().format('YYYY/MM/DD');
+var now = moment();
+var startDay;
 
 
 function xAxis(elem){
@@ -24,22 +25,33 @@ function xAxis(elem){
   xAxisUnit = clickedId;
 
   switch( clickedId ){
-    case "hour":
-      xAxisUnit = "doy";
-        sql = hourly()  + hourly_selector();
-        //sql = 'select host_num, hour as xaxis,sum(connected_time) as value1,sum(tx_bytes) as value2 from connections group by year,doy,hour'; 
+     case "hour":
+       xAxisUnit = "hour";
+       sql = hourly()  + hourly_selector();
        pdEnd.value = moment().format('YYYY/MM/DD');
        pdStart.value = moment().format('YYYY/MM/DD');
        showGraph();
        break;
      case "day":
-       xAxisUnit = "doy";
+       xAxisUnit = "day";
        pdEnd = now.clone();
-       pdStart.value = pdEnd
+       startDay = pdEnd.clone();
+       startDay.add(-1, "week");
+       pdStart.value = startDay.format("YYYY/MM/DD");
        break;
      case "week":
+       xAxisUnit = "week";
+       pdEnd = now.clone();
+       startDay = pdEnd.clone();
+       startDay.add(-1, "month");
+       pdStart.value = startDay.format("YYYY/MM/DD");
        break;
      case "month":
+       xAxisUnit = "month";
+       pdEnd = now.clone();
+       startDay = pdEnd.clone();
+       startDay.add(-1, "year");
+       pdStart.value = startDay.format("YYYY/MM/DD");
        break;
      default:
        break;
@@ -48,7 +60,7 @@ function xAxis(elem){
 window.xAxis = xAxis;
 
 function hourly_selector(){
-      sql = "datestr >= '" + pdStart.value + "' AND datestr <= '" + pdEnd.value + "'";
+   sql = "datestr >= '" + pdStart.value + "' AND datestr <= '" + pdEnd.value + "'";
    return sql;
 }
 
@@ -61,6 +73,72 @@ function redraw(){
    showGraph();
 }
 window.redraw = redraw;
+
+function earlier(){
+   switch (xAxisUnit){
+   case 'hour':
+      var startDay = moment(pdStart.value);
+      startDay.add(-1, "day");
+      pdStart.value = startDay.format('YYYY/MM/DD'); 
+      //showGraph();
+      break;
+   case 'day':
+      var startDay = moment(pdStart.value);
+      startDay.add(-1, "week");
+      pdStart.value = startDay.format('YYYY/MM/DD'); 
+      //showGraph();
+      break;
+   case 'week':
+      var startDay = moment(pdStart.value).add(-1,"month");
+      startDay.add(-1, "month");
+      pdStart.value = startDay.format('YYYY/MM/DD'); 
+      //showGraph();
+      break;
+   case 'month':
+      var startDay = moment(pdStart.value).add(-1,"year");
+      startDay.add(-1, "year");
+      pdStart.value = startDay.format('YYYY/MM/DD'); 
+      //showGraph();
+      break;
+   default:
+      alert('No match found for xAxisUnits = ' + xAxisUnit);
+      break;
+   }
+}
+window.earlier = earlier;
+      
+function later(){
+   switch (xAxisUnit){
+   case 'hour':
+      var startDay = moment(pdStart.value);
+      startDay = startDay.add(1, "day");
+      pdStart.value = startDay.format('YYYY/MM/DD'); 
+      //showGraph();
+      break;
+   case 'day':
+      var startDay = moment(pdStart.value);
+      startDay = startDay.add(1, "week");
+      pdStart.value = startDay.format('YYYY/MM/DD'); 
+      //showGraph();
+      break;
+   case 'week':
+      var startDay = moment(pdStart.value).add(-1,"month");
+      startDay = startDay.add(1, "month");
+      pdStart.value = startDay.format('YYYY/MM/DD'); 
+      //showGraph();
+      break;
+   case 'month':
+      var startDay = moment(pdStart.value).add(-1,"year");
+      startDay = startDay.add(1, "year");
+      pdStart.value = startDay.format('YYYY/MM/DD'); 
+      //showGraph();
+      break;
+   default:
+      alert('No match found for xAxisUnits = ' + xAxisUnit);
+      break;
+  }
+}
+window.later = later;
 
 $(document).ready(function () {
    showGraph();
