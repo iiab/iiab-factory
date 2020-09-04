@@ -4,6 +4,8 @@ set -e                                   # Exit on error (avoids snowballing)
 export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
 SCRIPT=iiab-upgrade
 RELEASE=1
+CURR_VER=""             # Ansible version you currently have installed
+GOOD_VER="2.9.13"       # preferred Ansible version
 BASEDIR=/opt/iiab
 CONFDIR=/etc/iiab
 IIABENV=$CONFDIR/iiab.env
@@ -240,10 +242,18 @@ echo -e " ██                                                                
 echo -e " ██  RUN 'sudo iiab' IF THIS INSTALL SCRIPT EVER FAILS, TO TRY TO CONTINUE!  ██"
 echo -e " ██                                                                          ██"
 echo -e " ██████████████████████████████████████████████████████████████████████████████"
+echo -e "\n"
+if [ $INTERACTIVE == 1 ]; then
+    echo -ne "\nHit [ENTER] to confirm you'll TRY TO RERUN 'sudo iiab' IF THERE IS A PROBLEM: "
+    read -t 5 ans < /dev/tty
+fi
+
 echo -e "\n\n'apt update' is checking for OS updates...\n"
 #echo -e "2019-07-11 TEMP WORKAROUND FOR RASPBIAN BUSTER'S testing->stable apt GLITCH...\nDetails @ https://github.com/iiab/iiab/issues/1856\n"
 #apt -y update || true    # Overrides 'set -e'
 #echo -e "\nNOW THE REAL 'apt update' WILL RUN...\n"
+
+# catch's ansible updates when apt runs
 $APT_PATH -qq update > /tmp/apt.stdout 2> /tmp/apt.stderr || true    # Overrides 'set -e'
 if [ $(wc -c < /tmp/apt.stderr) -gt 82 ]; then    # apt.stderr typically contains exactly 82 characters when there are no errors, no matter the primary locale, i.e. 3-line file "\nWARNING: apt does not have a stable CLI interface. Use with caution in scripts.\n\n" ...OR... in other cases more than 82, e.g. many lines of errors when apt is busy/locked/offline/etc
     echo -e "'apt update' FAILED. VERIFY YOU'RE ONLINE and resolve all errors below:\n"
@@ -265,9 +275,20 @@ elif grep -q 'apt list --upgradable' /tmp/apt.stdout; then    # apt.stdout typic
 fi
 cat /tmp/apt.stdout    # "All packages are up to date.\n"
 
-if [ $INTERACTIVE == 1 ]; then
-    echo -ne "\nHit [ENTER] to confirm you'll TRY TO RERUN 'sudo iiab' IF THERE IS A PROBLEM: "
-    read -t 5 ans < /dev/tty
+# add logic to force updates later
+# 2.9.13 -> 2.10.X might need the removal of /etc/ansible/ansible.cfg
+if [ $(command -v ansible-playbook) ]; then    # "command -v" is POSIX compliant; also catches built-in commands like "cd"
+    CURR_VER=`ansible --version | head -1 | awk '{print $2}'`    # To match iiab-install.  Was: CURR_VER=`ansible --version | head -n 1 | cut -f 2 -d " "`
+    echo -e "\n\nCURRENTLY INSTALLED ANSIBLE: $CURR_VER"
+    if version_gt $CURR_VER $GOOD_VER; then
+        echo -e "$CURR_VER is >= $GOOD_VER, skipping install!"
+    else
+        echo -e "(Re)Install Ansible..."
+        $BASEDIR/iiab/scripts/ansible
+    fi
+else
+    echo -e "Install Ansible..."
+    $BASEDIR/iiab/scripts/ansible
 fi
 
 
@@ -281,10 +302,7 @@ if [ -e /dev/mmcblk0p2 ]; then
 fi
 
 # I. Install Ansible + 2 IIAB repos
-echo -e "\n\nINSTALL ANSIBLE + CORE IIAB SOFTWARE + ADMIN CONSOLE / CONTENT PACK MENUS...\n"
-
-echo -e "Install Ansible..."
-$BASEDIR/iiab/scripts/ansible
+#echo -e "\n\nINSTALL ANSIBLE + CORE IIAB SOFTWARE + ADMIN CONSOLE / CONTENT PACK MENUS...\n"
 
 echo -e "\n┌──────────────────────────────────────────────────────────────────────────────┐"
 echo -e "│                                                                              │"
