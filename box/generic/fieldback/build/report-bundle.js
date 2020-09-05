@@ -21583,7 +21583,8 @@ function earlier(){
       var startDay = moment(pdStart.value);
       startDay.add(-1, "day");
       pdStart.value = startDay.format('YYYY/MM/DD'); 
-      //showGraph();
+      sql = hourly()  + daily_where();
+      showGraph();
       break;
    case 'day':
       var startDay = moment(pdStart.value);
@@ -21616,7 +21617,8 @@ function later(){
       var startDay = moment(pdStart.value);
       startDay = startDay.add(1, "day");
       pdStart.value = startDay.format('YYYY/MM/DD'); 
-      //showGraph();
+      sql = hourly()  + daily_where();
+      showGraph();
       break;
    case 'day':
       var startDay = moment(pdStart.value);
