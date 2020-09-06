@@ -21472,7 +21472,7 @@ pdStart.value = moment().format('YYYY/MM/DD');
 var sql = hourly()  + daily_where();
 var now = moment();
 var startDay;
-
+var displaying;
 
 ///////////   Button click action routines //////////////
 function xAxis(elem){
@@ -21520,6 +21520,24 @@ function xAxis(elem){
 }
 window.xAxis = xAxis;
 
+function chooseDisplaying(elem){
+  var clickedId = elem.id;
+  $( ".displayThis" ).removeClass('chosen');
+  $( '#'+ clickedId ).addClass('chosen');
+  displaying = clickedId;
+  switch (displaying){
+      case "device":
+         sql = site()  + daily_where() + device_groupby();
+         break;
+      case "usage":
+         sql = daily()  + daily_where() + daily_groupby();
+         break;
+  }
+    alert(sql);
+    showGraph();
+}
+window.chooseDisplaying = chooseDisplaying;
+
 function validate_inputs(){
    if ( moment( pdStart.value ).isValid() && 
         moment( pdEnd.value ).isValid() ){
@@ -21534,6 +21552,11 @@ function hourly(){
 
 function daily(){
    sql = 'SELECT sum(connected_time)/60 AS value1, sum(tx_bytes)/1000000 AS value2,datestr as xaxis, hour FROM connections WHERE '
+   return sql;
+}
+
+function site(){
+   sql = 'SELECT sum(connected_time)/60 AS value1, sum(tx_bytes)/1000000 AS value2,datestr, hour, l.host_num as xaxis FROM connections c,lookup l WHERE c.client_id = l.client_id AND '
    return sql;
 }
 
@@ -21560,6 +21583,11 @@ function daily_groupby(){
          break;
    }
    return sql;
+}
+
+function device_groupby(){
+   if ( displaying == "device" ) return ' GROUP By site';
+   return daily_groupby();
 }
 
 function redraw(){
@@ -21650,7 +21678,7 @@ $(document).ready(function () {
 });
 
 
-//////////////// Graph.js ///////////////////////////
+//////////////// Chart.js ///////////////////////////
 function showGraph(){
     $.post("select.php?sql=" + sql,function (data){
         if (data.length == 0){

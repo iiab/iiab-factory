@@ -29,10 +29,10 @@ BODY {
     <div id="buttonBox">
        <div id="x-axis">
             <label class="bttn">  Displaying:</label>
-            <button id="devices">Devices</button>
-            <button id="usage">Usage</button>
+            <button id="device" class="displayThis"  onclick="chooseDisplaying(this)">Devices</button>
+            <button id="usage" class="displayThis" onclick="chooseDisplaying(this)">Usage</button>
             <div>
-            <label class="bttn">Time Frame:</label>
+            <label class="bttn">Time Buckets:</label>
             <button id="month" class="chooseAxis" type="radio" name="xAxis" onclick="xAxis(this)">Months</button>
             </div>
             <div>
