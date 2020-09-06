@@ -21473,6 +21473,7 @@ var sql = hourly()  + daily_where();
 var now = moment();
 var startDay;
 var displaying;
+var barGraph = null;
 
 ///////////   Button click action routines //////////////
 function xAxis(elem){
@@ -21715,10 +21716,13 @@ function showGraph(){
                    }
                ]
            };
-
+           if ( barGraph != null ){
+                barGraph.clear();
+                barGraph.destroy();
+           }
            var graphTarget = $("#graphCanvas");
 
-           var barGraph = new Chart(graphTarget, {
+           barGraph = new Chart(graphTarget, {
                type: 'bar',
                data: chartdata,
                options: {
