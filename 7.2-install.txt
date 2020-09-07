@@ -47,6 +47,29 @@ export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
 BASE=/opt/iiab
 BRANCH=release-7.2
 ADMBRANCH=master
+OS=`grep ^ID= /etc/*elease|cut -d= -f2`
+OS=${OS//\"/}
+if [ -f /etc/rpi-issue ]; then
+    OS="raspbian"
+fi
+VERSION_ID=`grep VERSION_ID /etc/*elease | cut -d= -f2`
+VERSION_ID=${VERSION_ID//\"/}
+VERSION_ID=${VERSION_ID%%.*}
+OS_VER=$OS-$VERSION_ID
+
+not_supported(){
+    echo "Can't detect supported Distro"
+}
+
+case $OS_VER in
+"debian-10" | "ubuntu-20" | "linuxmint-20" | "raspbian-10")
+    ;;
+*)
+    not_supported
+    exit 1
+    ;;
+esac
+
 echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO $BASE ...\n"
 /usr/bin/apt -y install git nano whiptail
 mkdir -p $BASE
@@ -60,12 +83,14 @@ if [ -d iiab-factory ]; then
     git branch -D $BRANCH &> /dev/null || true
     git checkout -b $BRANCH
     cp $BASE/iiab-factory/iiab /usr/sbin/iiab
+    cp $BASE/iiab-factory/iiab-upgrade /usr/sbin/iiab-upgrade
 else
     echo -e "Cloning iiab-factory"
     git clone https://github.com/iiab/iiab-factory --depth 1
     cd iiab-factory
     git checkout -b $BRANCH
     cp $BASE/iiab-factory/iiab /usr/sbin/iiab
+    cp $BASE/iiab-factory/iiab-upgrade /usr/sbin/iiab-upgrade
 fi
 cd $BASE
 echo
