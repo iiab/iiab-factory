@@ -17,27 +17,27 @@ var now = moment();
 var startDay;
 var xAxisUnit = "hour";
 var displaying = 'usage';
-var sql = hourly()  + daily_where() + daily_groupby();
+var sql = select()  + daily_where() + daily_groupby();
 
 ///////////   Button click action routines for first row //////////////
 function chooseDisplaying(elem){
   var clickedId = elem.id;
   $( ".displayThis" ).removeClass('chosen');
   $( '#'+ clickedId ).addClass('chosen');
-  displaying = clickedId;
-  switch (displaying){
-      case "device":
-         if ( xAxisUnit == 'hour') {
-            $( ".chooseAxis" ).removeClass('chosen');
-            $( day ).addClass('chosen');
-         }
-         sql = client()  + daily_where() + daily_groupby();
-         break;
-      case "usage":
-         sql = daily()  + daily_where() + daily_groupby();
-         break;
-  }
-    //alert(sql);
+   if ( displaying != clickedId ){
+      // set time periond to week
+      startDay = moment(pdEnd.value);
+      startDay.add(-1, "week");
+      pdStart.value = startDay.format("YYYY/MM/DD");
+      $( ".chosenAxis" ).removeClass('chosen');
+      $( '#day' ).addClass('chosen');
+   }
+   if ( xAxisUnit == 'hour') {
+      $( ".chooseAxis" ).removeClass('chosen');
+      $( '#day' ).addClass('chosen');
+   }
+   displaying = clickedId;
+   sql = select()  + daily_where() + daily_groupby();
     showGraph();
 }
 window.chooseDisplaying = chooseDisplaying;
@@ -47,38 +47,32 @@ function xAxis(elem){
   $( ".chooseAxis" ).removeClass('chosen');
   $( '#'+ clickedId ).addClass('chosen');
   xAxisUnit = clickedId;
-
+  startDay = moment(pdEnd.value);
   switch( clickedId ){
      case "hour":
        xAxisUnit = "hour";
        pdEnd.value = moment().format('YYYY/MM/DD');
        pdStart.value = moment().format('YYYY/MM/DD');
-       sql = hourly()  + daily_where() + daily_groupby();
        break;
      case "day":
        xAxisUnit = "day";
-       startDay = moment(pdEnd.value);
        startDay.add(-1, "week");
        pdStart.value = startDay.format("YYYY/MM/DD");
-       sql = daily()  + daily_where() + daily_groupby();
        break;
      case "week":
        xAxisUnit = "week";
-       startDay = moment(pdEnd.value);
        startDay.add(-1, "month");
        pdStart.value = startDay.format("YYYY/MM/DD");
-       sql = daily()  + daily_where() + daily_groupby();
        break;
      case "month":
        xAxisUnit = "month";
-       startDay = moment(pdEnd.value);
        startDay.add(-1, "year");
        pdStart.value = startDay.format("YYYY/MM/DD");
-       sql = daily()  + daily_where() + daily_groupby();
        break;
      default:
        break;
   }
+  sql = select()  + daily_where() + daily_groupby();
   showGraph();
 }
 window.xAxis = xAxis;
@@ -90,25 +84,25 @@ function earlier(){
       var startDay = moment(pdStart.value);
       startDay.add(-1, "day");
       pdStart.value = startDay.format('YYYY/MM/DD'); 
-      sql = hourly()  + daily_where() + daily_groupby();
+      sql = select()  + daily_where() + daily_groupby();
       break;
    case 'day':
       var startDay = moment(pdStart.value);
       startDay.add(-1, "week");
       pdStart.value = startDay.format('YYYY/MM/DD'); 
-      sql = daily()  + daily_where() + daily_groupby();
+      sql = select()  + daily_where() + daily_groupby();
       break;
    case 'week':
       var startDay = moment(pdStart.value).add(-1,"month");
       startDay.add(-1, "month");
       pdStart.value = startDay.format('YYYY/MM/DD'); 
-      sql = daily()  + daily_where() + daily_groupby();
+      sql = select()  + daily_where() + daily_groupby();
       break;
    case 'month':
       var startDay = moment(pdStart.value).add(-1,"year");
       startDay.add(-1, "year");
       pdStart.value = startDay.format('YYYY/MM/DD'); 
-      sql = daily()  + daily_where() + daily_groupby();
+      sql = select()  + daily_where() + daily_groupby();
       break;
    default:
       alert('No match found for xAxisUnits = ' + xAxisUnit);
@@ -125,7 +119,7 @@ function later(){
       startDay = startDay.add(1, "day");
       if (startDay > moment()) return;
       pdStart.value = startDay.format('YYYY/MM/DD'); 
-      sql = hourly()  + daily_where() + daily_groupby();
+      sql = select()  + daily_where() + daily_groupby();
       break;
    case 'day':
       var startDay = moment(pdStart.value);
@@ -134,7 +128,7 @@ function later(){
       startDay = startDay.add(1, "week");
       if ( startDay >= temp ) return;
       pdStart.value = startDay.format('YYYY/MM/DD'); 
-      sql = daily()  + daily_where() + daily_groupby();
+      sql = select()  + daily_where() + daily_groupby();
       break;
    case 'week':
       var startDay = moment(pdStart.value).add(-1,"month");
@@ -143,7 +137,7 @@ function later(){
       if ( startDay > temp ) return;
       startDay = startDay.add(1, "month");
       pdStart.value = startDay.format('YYYY/MM/DD'); 
-      sql = daily()  + daily_where() + daily_groupby();
+      sql = select()  + daily_where() + daily_groupby();
       break;
    case 'month':
       var startDay = moment(pdStart.value).add(-1,"year");
@@ -153,7 +147,7 @@ function later(){
       startDay = startDay.add(1, "year");
       if (startDay > moment()) return;
       pdStart.value = startDay.format('YYYY/MM/DD'); 
-      sql = daily()  + daily_where() + daily_groupby();
+      sql = select()  + daily_where() + daily_groupby();
       break;
    default:
       alert('No match found for xAxisUnits = ' + xAxisUnit);
@@ -165,14 +159,22 @@ function later(){
 window.later = later;
 
 function redraw(){
+   if ( displaying == "device" ){
+      if ( xAxisUnit == 'hour') xAxisUnit='day';
+      sql = select()  + daily_where() + daily_groupby();
+      //alert(sql);
+      showGraph();
+      return;
+   }
    switch ( xAxisUnit ){
       case "hour":
          sql = hourly()  + daily_where() + daily_groupby();
          break;
       default:
-         sql = daily()  + daily_where() + daily_groupby();
+         sql = select()  + daily_where() + daily_groupby();
          break;
    }
+   //alert(sql);
    showGraph();
 }         
 
@@ -186,21 +188,18 @@ function validate_inputs(){
    } else return false;
 }
 
-function hourly(){
-   sql = 'SELECT sum(connected_time)/60 AS value1, sum(tx_bytes)/1000000 AS value2,hour as xaxis, hour FROM connections WHERE '
+////////////   Create SQL statements ///////////////////////////////
+function select(){
+   if ( displaying == "device" ) {
+      sql = 'SELECT sum(connected_time)/60 AS value1, sum(tx_bytes)/1000000 AS value2,datestr, hour, l.host_num as xaxis FROM connections as c,lookup as l WHERE c.client_id = l.client_id AND '
+   } else if ( xAxisUnit == "hour" ){
+      sql = 'SELECT sum(connected_time)/60 AS value1, sum(tx_bytes)/1000000 AS value2,hour as xaxis, hour FROM connections WHERE '
+   } else {
+      sql = 'SELECT sum(connected_time)/60 AS value1, sum(tx_bytes)/1000000 AS value2,datestr as xaxis, hour FROM connections WHERE '
+   }
    return sql;
 }
-
-function daily(){
-   sql = 'SELECT sum(connected_time)/60 AS value1, sum(tx_bytes)/1000000 AS value2,datestr as xaxis, hour FROM connections WHERE '
-   return sql;
-}
-
-function client(){
-   sql = 'SELECT sum(connected_time)/60 AS value1, sum(tx_bytes)/1000000 AS value2,datestr, hour, l.host_num as xaxis FROM connections as c,lookup as l WHERE c.client_id = l.client_id AND '
-   return sql;
-}
-
+      
 function daily_where(){
    if ( ! validate_inputs ){
       alert('Bad Date value');
@@ -236,6 +235,7 @@ $(document).ready(function () {
 
 //////////////// Chart.js ///////////////////////////
 function showGraph(){
+    //alert(sql);
     $.post("select.php?sql=" + sql,function (data){
         if (data.length == 0){
            alert("No data returned from sql: " + sql);
