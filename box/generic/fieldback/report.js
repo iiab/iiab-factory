@@ -129,20 +129,27 @@ function later(){
       break;
    case 'day':
       var startDay = moment(pdStart.value);
+      var temp = moment();
+      temp = temp.add(-1, "week");
       startDay = startDay.add(1, "week");
-      if (startDay > moment()) return;
+      if ( startDay >= temp ) return;
       pdStart.value = startDay.format('YYYY/MM/DD'); 
       sql = daily()  + daily_where() + daily_groupby();
       break;
    case 'week':
       var startDay = moment(pdStart.value).add(-1,"month");
+      var temp = moment();
+      temp = temp.add(-1, "month");
+      if ( startDay > temp ) return;
       startDay = startDay.add(1, "month");
-      if (startDay > moment()) return;
       pdStart.value = startDay.format('YYYY/MM/DD'); 
       sql = daily()  + daily_where() + daily_groupby();
       break;
    case 'month':
       var startDay = moment(pdStart.value).add(-1,"year");
+      var temp = moment();
+      temp = temp.add(-1, "year");
+      if ( startDay > temp ) return;
       startDay = startDay.add(1, "year");
       if (startDay > moment()) return;
       pdStart.value = startDay.format('YYYY/MM/DD'); 
@@ -160,10 +167,10 @@ window.later = later;
 function redraw(){
    switch ( xAxisUnit ){
       case "hour":
-         sql = hourly()  + daily_where();
+         sql = hourly()  + daily_where() + daily_groupby();
          break;
       default:
-         sql = daily()  + daily_where();
+         sql = daily()  + daily_where() + daily_groupby();
          break;
    }
    showGraph();
