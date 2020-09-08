@@ -21486,16 +21486,17 @@ function chooseDisplaying(elem){
       startDay = moment(pdEnd.value);
       startDay.add(-1, "week");
       pdStart.value = startDay.format("YYYY/MM/DD");
-      $( ".chosenAxis" ).removeClass('chosen');
-      $( '#day' ).addClass('chosen');
-   }
-   if ( xAxisUnit == 'hour') {
       $( ".chooseAxis" ).removeClass('chosen');
       $( '#day' ).addClass('chosen');
+      xAxisUnit = 'day';
+/*   if ( xAxisUnit == 'hour') {
+      $( ".chooseAxis" ).removeClass('chosen');
+      $( '#day' ).addClass('chosen');
+   */
    }
    displaying = clickedId;
    sql = select()  + daily_where() + daily_groupby();
-    showGraph();
+   showGraph();
 }
 window.chooseDisplaying = chooseDisplaying;
 
