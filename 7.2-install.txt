@@ -82,8 +82,8 @@ if [ -d iiab-factory ]; then
     git pull
     git branch -D $BRANCH &> /dev/null || true
     git checkout -b $BRANCH
-    cp $BASE/iiab-factory/iiab /usr/sbin/iiab
-    cp $BASE/iiab-factory/iiab-upgrade /usr/sbin/iiab-upgrade
+    cp --remove-destination $BASE/iiab-factory/iiab /usr/sbin/iiab
+    cp --remove-destination $BASE/iiab-factory/iiab-upgrade /usr/sbin/iiab-upgrade
 else
     echo -e "Cloning iiab-factory"
     git clone https://github.com/iiab/iiab-factory --depth 1
