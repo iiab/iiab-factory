@@ -1,6 +1,6 @@
 <?php
 
-$db = new SQLite3('/etc/iiab/clientinfo.sqlite');
+$db = new SQLite3('/opt/iiab/clientinfo.sqlite');
 
 $res = $db->query('SELECT * FROM connections');
 
