@@ -168,16 +168,16 @@ if check_user_pwd "iiab-admin" "g0adm1n"; then
     fi
 fi
 
-if [ -f $FLAGDIR/iiab-complete ]; then
-    echo -e "\n\nIIAB INSTALLATION (/usr/sbin/iiab) IS ALREADY COMPLETE -- per existence of:"
-    echo -e "$FLAGDIR/iiab-complete -- nothing to do.\n"
-    exit 0
-fi
-
 if [ $MASTER == 1 ]; then
     update_master
 fi
 check_revision
+
+if [ -f $FLAGDIR/iiab-complete ] && [ $UPDATE == 0 ]; then
+    echo -e "\n\nIIAB INSTALLATION (/usr/sbin/iiab) IS ALREADY COMPLETE -- per existence of:"
+    echo -e "$FLAGDIR/iiab-complete -- nothing to do.\n"
+    exit 0
+fi
 
 mkdir -p $FLAGDIR
 # E. Position & customize $CONFDIR/local_vars.yml
