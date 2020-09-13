@@ -318,8 +318,20 @@ cd $BASEDIR/iiab/
 if [ -f upgrade_roles ] && [ $UPDATE == 1 ]; then
     for REV in $(cat upgrade_roles | awk '{print $1}'); do
         if [ $REV -gt $OLDREV ]; then
+            echo "found REV $REV"
             force=$(grep $REV upgrade_roles | awk '{print $2}')
-            sed -i -e '/^$force/d' $CONFDIR/iiab_state.yml
+            echo "REV has $force"
+            if [ "$force" == "calibre-web" ]; then # role directory & installed marker differ
+                force=calibreweb
+            elif [ "$force" == "httpd" ]; then # role directory & installed marker differ
+                force=apache
+            elif [ "$force" == "osm-vector-maps" ]; then # role directory & installed marker differ
+                force=osm_vector_maps
+            else
+                echo "no role execptions found"
+            fi
+            echo -e "\nREV has $force - removing from iiab_state.yml"
+            sed -i "/^$force/d" $CONFDIR/iiab_state.yml
         fi
     done
     ./iiab-configure
