@@ -55,6 +55,7 @@ import threading
 # cat /var/lib/dhcp/dhclient.leases for leases
 
 usb_wifi_ifaces = {}
+our_wifi_macs = {}
 total_connections = 0
 monitor_iface = None
 start_time = None
@@ -124,6 +125,7 @@ async def monitor_dev(dev):
 def show_stat(stat_json):
     global total_connections
     global usb_wifi_ifaces
+    global our_wifi_macs
 
     clear_line = ESC+'[0K'
     curtime = time.time()
@@ -132,7 +134,6 @@ def show_stat(stat_json):
     if not verbose:
         print(ESC+'[0;0H') # cursor to top of screen
     server_mac_arr = json.loads(stat_json)
-    client_mac_arr = {}
     print(f'Time Started {time.ctime(start_time)}. Elapsed {elapsed}{clear_line}')
     print(f'Total Connections on Server: {len(server_mac_arr)}{clear_line}')
     print(clear_line)
@@ -151,8 +152,8 @@ def show_stat(stat_json):
     print(clear_line)
     print(f'These mac addresses seen on the server:{clear_line}')
     for mac in server_mac_arr:
-        if mac in client_mac_arr:
-            print (f'{mac} ( {client_mac_arr[mac]} ) connected to server{clear_line}')
+        if mac in our_wifi_macs:
+            print (f'{mac} ( {our_wifi_macs[mac]} ) connected to server{clear_line}')
         else:
             print(f'{mac}  on server is not ours{clear_line}')
     #print('Server has additional ' + str(len(mac_arr - total_connections)) + ' connections')
@@ -302,6 +303,7 @@ async def reset_wifi_conn(iface, force=False):
 
 async def find_wifi_dev(filter=WIFI_DEV_PREFIX, virt=VDEV_SUFFIX):
     global usb_wifi_ifaces
+    global our_wifi_macs
     usb_wifi_ifaces = {}
     compl_proc = await subproc_run('ip -j a')
     if compl_proc.returncode != 0:
@@ -315,6 +317,7 @@ async def find_wifi_dev(filter=WIFI_DEV_PREFIX, virt=VDEV_SUFFIX):
             usb_wifi_ifaces[wifi_dev] = {}
             usb_wifi_ifaces[wifi_dev]['status'] = item['operstate']
             usb_wifi_ifaces[wifi_dev]['mac'] = item['address']
+            our_wifi_macs[item['address']] = wifi_dev
             if len(item['addr_info']) > 0:
                 ip_addr = item['addr_info'][0]['local']
             else:
