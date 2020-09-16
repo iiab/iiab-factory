@@ -318,7 +318,7 @@ cd $BASEDIR/iiab/
 if [ -f upgrade_roles ] && [ $UPDATE == 1 ]; then
     for REV in $(cat upgrade_roles | awk '{print $1}'); do
         if [ $REV -gt $OLDREV ]; then
-            echo "found REV $REV"
+            echo "found REV $REV - OLDREV $OLDREV"
             force=$(grep $REV upgrade_roles | awk '{print $2}')
             echo "REV has $force"
             if [ "$force" == "calibre-web" ]; then # role directory & installed marker differ
