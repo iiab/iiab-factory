@@ -57,6 +57,7 @@ import threading
 usb_wifi_ifaces = {}
 our_wifi_macs = {}
 total_connections = 0
+failed_connections = []
 monitor_iface = None
 start_time = None
 
@@ -74,6 +75,7 @@ verbose = False
 
 async def main_async():
     global total_connections
+    global failed_connections
     global monitor_iface
 
     print('Starting')
@@ -84,9 +86,19 @@ async def main_async():
 
     print('Starting connections. Could take a little time.')
     for dev in usb_wifi_ifaces:
+        print(f'Attempting connection for {dev}')
+        rc = await connect_wifi(dev)
+        if rc:
+            total_connections += 1
+            print(f'Connection successful. Total Connections: {total_connections}')
+        else:
+            failed_connections.append(dev)
+
+    for dev in usb_wifi_ifaces: # now start using the connections
+        if dev in failed_connections:
+            continue
         if not monitor_iface: # pick first dev as monitor
             monitor_iface = dev
-            await connect_wifi(dev)
             usb_wifi_ifaces[dev]['task'] = asyncio.create_task(monitor_dev(dev))
         else:
             usb_wifi_ifaces[dev]['task'] = asyncio.create_task(one_dev(dev))
@@ -162,7 +174,7 @@ async def one_dev(dev):
     global total_connections
     global usb_wifi_ifaces
 
-    await connect_wifi(dev) # try to get a connection
+    # await connect_wifi(dev) # try to get a connection already done
     url = START_URL
     while run_flag:
         client_ip = usb_wifi_ifaces[dev].get('ip-addr', None)
