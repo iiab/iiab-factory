@@ -1,0 +1,6 @@
+#!/bin/sh
+cat >> /etc/hostapd/hostapd.conf << EOF
+ctrl_interface=/var/run/hostapd
+ctrl_interface_group=0
+EOF
+systemctl restart hostapd
