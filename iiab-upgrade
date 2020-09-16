@@ -3,9 +3,9 @@
 set -e                                   # Exit on error (avoids snowballing)
 export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
 SCRIPT=iiab-upgrade
-RELEASE=1
+RELEASE=2
 CURR_VER=""             # Ansible version you currently have installed
-GOOD_VER="2.9.13"       # preferred Ansible version
+GOOD_VER="2.10.1"       # preferred Ansible version
 BASEDIR=/opt/iiab
 CONFDIR=/etc/iiab
 IIABENV=$CONFDIR/iiab.env
@@ -276,15 +276,17 @@ elif grep -q 'apt list --upgradable' /tmp/apt.stdout; then    # apt.stdout typic
 fi
 cat /tmp/apt.stdout    # "All packages are up to date.\n"
 
-# add logic to force updates later
-# 2.9.13 -> 2.10.X might need the removal of /etc/ansible/ansible.cfg
+# think version_gt is choking on 2913 vs 2101 with the .'s removed but my 2.10.1 install skipped
+# ansible correctly when good_ver was 2.9.13. Changed back on the fly to 2.9.13 while live testing
+# and the install appears to not skip when 2.9.13 == 2.9.13 and we end up with the noted apt error.
 if [ $(command -v ansible-playbook) ]; then    # "command -v" is POSIX compliant; also catches built-in commands like "cd"
     CURR_VER=`ansible --version | head -1 | awk '{print $2}'`    # To match iiab-install.  Was: CURR_VER=`ansible --version | head -n 1 | cut -f 2 -d " "`
     echo -e "\n\nCURRENTLY INSTALLED ANSIBLE: $CURR_VER"
-    if version_gt $CURR_VER $GOOD_VER; then
+    if version_gt $CURR_VER $GOOD_VER || [ $CURR_VER == $GOOD_VER ]; then
         echo -e "$CURR_VER is >= $GOOD_VER, skipping install!"
     else
         echo -e "(Re)Install Ansible..."
+        $APT_PATH -y remove ansible
         $BASEDIR/iiab/scripts/ansible
     fi
 else
