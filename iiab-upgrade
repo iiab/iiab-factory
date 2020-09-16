@@ -225,8 +225,8 @@ else
 
     echo -en "\nEdit /etc/iiab/local_vars.yml to customize your Internet-in-a-Box? [Y/n] "
     ans="n"
-    if [ "$INTERACTIVE" == 1 ]; then
-        read -t 5 ans < /dev/tty
+    if [ $INTERACTIVE == 1 ]; then
+        read ans < /dev/tty
     fi
     if [ "$ans" == "y" ] || [ "$ans" == "Y" ]; then
         exit 0
@@ -246,7 +246,7 @@ echo -e " ███████████████████████�
 echo -e "\n"
 if [ $INTERACTIVE == 1 ]; then
     echo -ne "\nHit [ENTER] to confirm you'll TRY TO RERUN 'sudo iiab' IF THERE IS A PROBLEM: "
-    read -t 5 ans < /dev/tty
+    read ans < /dev/tty
 fi
 
 echo -e "\n\n'apt update' is checking for OS updates...\n"
@@ -443,7 +443,7 @@ if [ -f /etc/rpi-issue ] && version_gt $MIN_RPI_KERN $CURR_KERN; then
     echo -e "\033[31;5mPlease check with developers before running this command"
 #    if [ $INTERACTIVE == 1 ]; then
 #        echo -e "'enter' to continue"
-#        read -t 10 ans < /dev/tty
+#        read ans < /dev/tty
 #    fi
 fi
 
