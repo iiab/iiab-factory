@@ -257,11 +257,11 @@ fi
 
 # F. Mandate OS SECURITY/UPDATES if 'apt update' has any (IF SO REBOOT)
 # Educate implementer while waiting for 'apt update'
-echo -e "\n\n ██████████████████████████████████████████████████████████████████████████████"
-echo -e " ██                                                                          ██"
-echo -e " ██  RUN 'sudo iiab' IF THIS INSTALL SCRIPT EVER FAILS, TO TRY TO CONTINUE!  ██"
-echo -e " ██                                                                          ██"
-echo -e " ██████████████████████████████████████████████████████████████████████████████"
+echo -e "\n\n ██████████████████████████████████████████████████████████████████████████████████████"
+echo -e " ██                                                                                  ██"
+echo -e " ██  RUN 'sudo iiab-upgrade' IF THIS INSTALL SCRIPT EVER FAILS, TO TRY TO CONTINUE!  ██"
+echo -e " ██                                                                                  ██"
+echo -e " ██████████████████████████████████████████████████████████████████████████████████████"
 echo -e "\n"
 if [ $INTERACTIVE == 1 ]; then
     echo -ne "\nHit [ENTER] to confirm you'll TRY TO RERUN 'sudo iiab' IF THERE IS A PROBLEM: "
