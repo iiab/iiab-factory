@@ -35,6 +35,20 @@ if [ "$1" = "--reinstall" ]; then
     REINSTALL="--reinstall"
 fi
 
+# Verify that Raspbian is running a recent enough kernel.  As Raspbian
+# kernel 1333 has wifi issues https://github.com/iiab/iiab/issues/2497.
+check_kernel(){
+CURR_KERN=`uname -v | awk '{print $1}' | sed -e s'/#//'`
+echo "Found Kernel ""$CURR_KERN"
+if version_gt $MIN_RPI_KERN $CURR_KERN; then
+    echo -e "\033[31;5mWARNING: Kernel ""$MIN_RPI_KERN"" or higher required with Raspbian.\033[0m"
+    echo -e "\033[31;5mPLEASE RUN 'apt update' then 'apt install raspberrypi-kernel' then reboot.\033[0m"
+    echo -e "\033[31;5mTHEN recheck the kernel version with iiab-upgrade --kernel-check \033[0m"
+    echo -e "\033[31;5mTHEN IF NEC run 'rpi-update' to install a more recent kernel \033[0m"
+    echo -e "\033[31;5mPlease check with developers before running the above command"
+fi
+}
+
 # Subroutines for upgrade logic
 check_branch(){
     git -C $BASEDIR/iiab branch | grep \* | grep release-7 | wc -l
@@ -127,6 +141,11 @@ check_user_pwd() {
 }
 
 # start exec here
+if [ "$1" = "--kernel-check" ]; then
+    check_kernel
+    exit 0
+fi
+
 update_self
 
 if [ `check_branch` -gt 0 ]; then
@@ -434,21 +453,9 @@ echo -e "global community, learning from other initiatives in your region and be
 #echo -e "(over Wi-Fi anyway) until you later run 'iiab-hotspot-off'.  CAVEAT: these"
 #echo -e "two commands only work with Raspberry Pi as of 2019-09-30.\n"
 
-# Verify that Raspbian is running a recent enough kernel.  As Raspbian
-# kernel 1333 has wifi issues https://github.com/iiab/iiab/issues/2497.
-CURR_KERN=`uname -v | awk '{print $1}' | sed -e s'/#//'`
-echo "Found Kernel ""$CURR_KERN"
-if [ -f /etc/rpi-issue ] && version_gt $MIN_RPI_KERN $CURR_KERN; then
-    echo -e "\033[31;5mWARNING: Kernel ""$MIN_RPI_KERN"" or higher required with Raspbian.\033[0m"
-#    echo -e "\033[31;5mPLEASE RUN 'apt update' then 'apt install raspberrypi-kernel' then reboot.\033[0m"
-    echo -e "\033[31;5mTHEN IF NEC run 'rpi-update' to install a more recent kernel \033[0m"
-    echo -e "\033[31;5mPlease check with developers before running this command"
-#    if [ $INTERACTIVE == 1 ]; then
-#        echo -e "'enter' to continue"
-#        read ans < /dev/tty
-#    fi
+if [ -f /etc/rpi-issue ]; then
+    check_kernel
 fi
-
 # cleanup
 if [ -f $SELFUPDATE_SCRIPT ]; then
     rm $SELFUPDATE_SCRIPT
