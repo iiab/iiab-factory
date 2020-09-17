@@ -18,9 +18,9 @@ MASTER=1
 MIN_RPI_KERN=1336
 SELFUPDATE_SCRIPT="/tmp/.updateScript.sh"
 # scrape the command line
-if [ "$1" = "--non-interactive" ]; then
+if [ "$1" = "--interactive" ]; then
     shift 1
-    INTERACTIVE=0
+    INTERACTIVE=1
 fi
 
 if [ "$1" = "--upgrade" ]; then
