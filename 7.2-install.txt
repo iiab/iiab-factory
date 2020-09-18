@@ -1,31 +1,32 @@
 #!/bin/bash
+# Copied https://github.com/jvonau/iiab-factory/master/7.2-install.txt
+# Copied from: https://github.com/jvonau/iiab-factory/blob/jv-pi-gen/install.txt
 # Copied from: https://github.com/iiab/iiab-factory/blob/master/install.txt
-
 # To install Internet-in-a-Box (IIAB) 7.2 / pre-release onto Raspberry Pi OS,
 # Ubuntu 20.04 or Debian 10, run this 1-line installer:
 #
-#                 curl d.iiab.io/install.txt | sudo bash
-
-# 1. WARNING: NOOBS IS *NOT* SUPPORTED, as its partitioning is very different.
+# curl https://raw.githubusercontent.com/jvonau/iiab-factory/master/7.2-install.txt | sudo bash
+#
+# 1. WHEN YOU RUN 1-LINE INSTALLER FROM ABOVE
+#    YOU THEN NEED TO TYPE IN YOUR PASSWORD IF ON UBUNTU/DEBIAN/ETC (for sudo)
+#    ^^^ ^^^^ ^^^^ ^^ ^^^^ ^^ ^^^^ ^^^^^^^^
+#
+# 2. WARNING: NOOBS IS *NOT* SUPPORTED, as its partitioning is very different.
 #    On a Raspberry Pi, WE RECOMMEND YOU INSTALL THE LATEST RASPBERRY PI OS:
 #    https://www.raspberrypi.org/documentation/installation/installing-images/README.md
 #    To attempt IIAB 7.2 on another Linux see the full/manual instructions:
 #    https://github.com/iiab/iiab/wiki/IIAB-Installation#do-everything-from-scratch
 
-# 2. An Ethernet cable is HIGHLY RECOMMENDED during installation, as this is
+# 3. An Ethernet cable is HIGHLY RECOMMENDED during installation, as this is
 #    more reliable than Wi-Fi (and faster!)
 
-# 3. Run 'sudo raspi-config' on RPi, to set LOCALISATION OPTIONS
+# 4. Run 'sudo raspi-config' on RPi, to set LOCALISATION OPTIONS
 
-# 4. OPTIONAL: if you have slow/pricey Internet, pre-position KA Lite's
+# 5. OPTIONAL: if you have slow/pricey Internet, pre-position KA Lite's
 #    mandatory 0.9 GB English Pack (en.zip) within /tmp -- you can grab a copy
 #    from http://pantry.learningequality.org/downloads/ka-lite/0.17/content/contentpacks/en.zip
 
-# 5. WHEN YOU RUN 1-LINE INSTALLER 'curl d.iiab.io/install.txt | sudo bash'
-#    YOU THEN NEED TO TYPE IN YOUR PASSWORD IF ON UBUNTU/DEBIAN/ETC (for sudo)
-#    ^^^ ^^^^ ^^^^ ^^ ^^^^ ^^ ^^^^ ^^^^^^^^
-
-# 6. Follow on-screen instructions (TYPE 'sudo iiab' TO RESUME IF EVER NECESS!)
+# 6. Follow on-screen instructions (TYPE 'sudo iiab-upgrade' TO RESUME IF EVER NECESS!)
 
 # 7. About 1-2 hours later, it will announce that INTERNET-IN-A-BOX (IIAB)
 #    SOFTWARE INSTALL IS COMPLETE, prompting you to reboot...TO ADD CONTENT!
@@ -41,7 +42,6 @@
 # IIAB Development Team
 # http://FAQ.IIAB.IO
 
-# Copied from: https://github.com/jvonau/iiab-factory/blob/jv-pi-gen/install.txt
 set -e                                   # Exit on error (avoids snowballing)
 export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
 BASE=/opt/iiab
@@ -122,4 +122,4 @@ else
 fi
 
 # Run install script!
-/usr/sbin/iiab
+/usr/sbin/iiab-upgrade --interactive
