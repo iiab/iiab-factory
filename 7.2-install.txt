@@ -2,7 +2,7 @@
 # Copied from: https://github.com/iiab/iiab-factory/blob/master/install.txt
 
 # To install Internet-in-a-Box (IIAB) 7.2 / pre-release onto Raspberry Pi OS,
-# Ubuntu 20.04, Linux Mint 20 or Debian 10, run this 1-line installer:
+# Ubuntu 20.04 or Debian 10, run this 1-line installer:
 #
 #                 curl d.iiab.io/install.txt | sudo bash
 
@@ -13,10 +13,7 @@
 #    https://github.com/iiab/iiab/wiki/IIAB-Installation#do-everything-from-scratch
 
 # 2. An Ethernet cable is HIGHLY RECOMMENDED during installation, as this is
-#    more reliable than WiFi (and faster!)  WARNING: IF YOU CONNECT YOUR IIAB'S
-#    INTERNAL WIFI TO THE INTERNET OVER 5 GHz, YOU'LL PREVENT OLDER LAPTOPS/
-#    PHONES/TABLETS (WHICH REQUIRE 2.4 GHz) FROM CONNECTING TO YOUR IIAB'S
-#    INTERNAL HOTSPOT.  See: "wifi_up_down: True" in /etc/iiab/local_vars.yml
+#    more reliable than Wi-Fi (and faster!)
 
 # 3. Run 'sudo raspi-config' on RPi, to set LOCALISATION OPTIONS
 
@@ -49,8 +46,9 @@ set -e                                   # Exit on error (avoids snowballing)
 export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
 BASE=/opt/iiab
 BRANCH=release-7.2
+ADMBRANCH=master
 echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO $BASE ...\n"
-/usr/bin/apt -y install git nano
+/usr/bin/apt -y install git nano whiptail
 mkdir -p $BASE
 cd $BASE
 echo
@@ -72,11 +70,11 @@ fi
 cd $BASE
 echo
 if [ -d iiab ]; then
-    echo -e "REPO iiab EXISTS? Consider 'sudo iiab --upgrade'"
+    echo -e "REPO iiab EXISTS? Consider 'sudo iiab --upgrade'" #FIXME
 else
     cd iiab
     git clone https://github.com/iiab/iiab --depth 10 --branch master
-    git checkout -b $BRANCH
+    git checkout -b $BRANCH # this goes
 # post branching below
 #    git clone https://github.com/iiab/iiab --depth 10 --branch $BRANCH
 #    git checkout -b master
@@ -87,13 +85,15 @@ fi
 cd $BASE
 echo
 if [ -d iiab-admin-console ]; then
-    echo -e "REPO iiab-admin-console EXISTS? Consider 'sudo iiab --upgrade'"
+    echo -e "REPO iiab-admin-console EXISTS? Consider 'sudo iiab --upgrade'" #FIXME
 else
-    git clone https://github.com/iiab/iiab-admin-console --depth 1 --branch master
-    git checkout -b $BRANCH
+    git clone https://github.com/iiab/iiab-admin-console --depth 1 --branch ADMBRANCH
+    git checkout -b $BRANCH # this goes
+# post branching below
+#    git checkout -b master
 #    git config branch.master.remote origin
 #    git config branch.master.merge refs/heads/master
-#    git checkout v0.3.7
+#    git checkout $BRANCH
 fi
 
 # Run install script!
