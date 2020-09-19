@@ -77,15 +77,14 @@ function update_master(){
         cd iiab
         echo -e "\nUpdating iiab"
         git checkout master
-        git pull
-        NEWREV=$(grep iiab_revision vars/default_vars.yml | awk '{print $2}')
+        git pull -q
     fi
     cd $BASEDIR
     if [ -d iiab-admin-console ]; then
         echo -e "\nUpdating iiab-admin-console"
         cd iiab-admin-console
         git checkout master
-        git pull
+        git pull -q
     fi
 }
 
@@ -108,7 +107,7 @@ function update_self() {
         echo -e "\nUpdating iiab-factory"
         cd iiab-factory
         git checkout master
-        git pull
+        git pull -q
         NEW_VERSION=$(grep RELEASE $SCRIPT | awk -F = '{print $2}' | head -n 1)
         cp $SCRIPT /usr/sbin/$SCRIPT
         echo "Latest $SCRIPT now installed"
@@ -156,7 +155,7 @@ if [ `check_branch` -gt 0 ]; then
         echo "remaning on release-7.X branch updating"
         cd $BASEDIR/iiab
         MASTER=0
-        git pull
+        git pull -q
         NEWREV=$(grep iiab_revision vars/default_vars.yml | awk '{print $2}')
     fi
 fi

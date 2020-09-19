@@ -79,7 +79,8 @@ if [ -d iiab-factory ]; then
     echo -e "REPO iiab-factory EXISTS? -- updating master branch"
     cd iiab-factory
     git checkout master
-    git pull
+    git pull -q
+    echo -e "Creating branch $BRANCH"
     git branch -D $BRANCH &> /dev/null || true
     git checkout -b $BRANCH
     cp --remove-destination $BASE/iiab-factory/iiab /usr/sbin/iiab
@@ -88,6 +89,7 @@ else
     echo -e "Cloning iiab-factory"
     git clone https://github.com/iiab/iiab-factory --depth 1
     cd iiab-factory
+    echo -e "Creating branch $BRANCH"
     git checkout -b $BRANCH
     cp $BASE/iiab-factory/iiab /usr/sbin/iiab
     cp $BASE/iiab-factory/iiab-upgrade /usr/sbin/iiab-upgrade
@@ -95,30 +97,21 @@ fi
 cd $BASE
 echo
 if [ -d iiab ]; then
-    echo -e "REPO iiab EXISTS? Consider 'sudo iiab --upgrade'" #FIXME
+    echo -e "REPO iiab EXISTS?"
 else
     cd iiab
     git clone https://github.com/iiab/iiab --depth 10 --branch master
-    git checkout -b $BRANCH # this goes
-# post branching below
-#    git clone https://github.com/iiab/iiab --depth 10 --branch $BRANCH
-#    git checkout -b master
-#    git config branch.master.remote origin
-#    git config branch.master.merge refs/heads/master
-#    git checkout $BRANCH
+    echo -e "Creating branch $BRANCH"
+    git checkout -b $BRANCH
 fi
 cd $BASE
 echo
 if [ -d iiab-admin-console ]; then
-    echo -e "REPO iiab-admin-console EXISTS? Consider 'sudo iiab --upgrade'" #FIXME
+    echo -e "REPO iiab-admin-console EXISTS?"
 else
     git clone https://github.com/iiab/iiab-admin-console --depth 1 --branch ADMBRANCH
-    git checkout -b $BRANCH # this goes
-# post branching below
-#    git checkout -b master
-#    git config branch.master.remote origin
-#    git config branch.master.merge refs/heads/master
-#    git checkout $BRANCH
+    echo -e "Creating branch $BRANCH"
+    git checkout -b $BRANCH
 fi
 
 # Run install script!
