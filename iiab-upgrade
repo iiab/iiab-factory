@@ -18,6 +18,7 @@ UPDATE=0
 MASTER=1
 MIN_RPI_KERN=1336
 SELFUPDATE_SCRIPT="/tmp/.updateScript.sh"
+
 # scrape the command line
 if [ "$1" = "--interactive" ]; then
     shift 1
@@ -43,12 +44,23 @@ CURR_KERN=`uname -v | awk '{print $1}' | sed -e s'/#//'`
 echo "Found Kernel ""$CURR_KERN"
 if version_gt $MIN_RPI_KERN $CURR_KERN; then
     echo -e "\033[31;5mWARNING: Kernel ""$MIN_RPI_KERN"" or higher required with Raspbian.\033[0m"
-    echo -e "\033[31;5mPLEASE RUN 'apt update' then 'apt install raspberrypi-kernel' then reboot.\033[0m"
+    echo -e "\033[31;5mPLEASE RUN 'sudo apt update' then 'sudo apt install raspberrypi-kernel' then reboot.\033[0m"
     echo -e "\033[31;5mTHEN recheck the kernel version with iiab-upgrade --kernel-check \033[0m"
-    echo -e "\033[31;5mTHEN IF NEC run 'rpi-update' to install a more recent kernel \033[0m"
-    echo -e "\033[31;5mPlease check with developers before running the above command"
+    echo -e "\033[31;5mPlease check with developers before running the below command"
+    echo -e "\033[31;5mTHEN IF NEC run 'sudo rpi-update' to install a more recent kernel \033[0m"
 fi
 }
+
+if [ "$1" = "--kernel-check" ]; then
+    check_kernel
+    exit 0
+fi
+
+# Everything else needs to be run as root
+if [ $(id -u) -ne 0 ]; then
+    echo -e "$SCRIPT must be run as root. Try 'sudo $SCRIPT'\n"
+    exit 1
+fi
 
 # Subroutines for upgrade logic
 check_branch(){
@@ -104,7 +116,6 @@ function update_master(){
     fi
 }
 
-
 function check_revision(){
     if [ -f $IIABENV ]; then
         source $IIABENV
@@ -157,11 +168,6 @@ check_user_pwd() {
 }
 
 # start exec here
-if [ "$1" = "--kernel-check" ]; then
-    check_kernel
-    exit 0
-fi
-
 update_self
 
 if [ `check_branch` -gt 0 ]; then
@@ -343,11 +349,9 @@ fi
 
 echo -e "\n┌──────────────────────────────────────────────────────────────────────────────┐"
 echo -e "│                                                                              │"
-echo -e "│   NOW INSTALL IIAB SOFTWARE! If glitches arise (connectivity or otherwise)   │"
+echo -e "│   NOW UPGRADE IIAB SOFTWARE! If glitches arise (connectivity or otherwise)   │"
 echo -e "│                                                                              │"
-echo -e "│   PLEASE TRY TO CONTINUE BY RE-RUNNING PARENT SCRIPT 'sudo iiab' -- or run   │"
-echo -e "│                                                                              │"
-echo -e "│   child script ./iiab-install -- both avoid repeating any of the 9 stages.   │"
+echo -e "│       PLEASE TRY TO CONTINUE BY RE-RUNNING SCRIPT 'sudo iiab-upgrade'        │"
 echo -e "│                                                                              │"
 echo -e "└──────────────────────────────────────────────────────────────────────────────┘"
 cd $BASEDIR/iiab/

@@ -70,6 +70,13 @@ case $OS_VER in
     ;;
 esac
 
+# Everything else needs to be run as root
+if [ $(id -u) -ne 0 ]; then
+    echo -e "$SCRIPT must be run as root. Try 'sudo $SCRIPT'\n"
+    exit 1
+fi
+
+
 echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO $BASE ...\n"
 /usr/bin/apt -y install git nano whiptail
 mkdir -p $BASE
