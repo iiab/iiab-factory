@@ -3,13 +3,14 @@
 set -e                                   # Exit on error (avoids snowballing)
 export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
 SCRIPT=iiab-upgrade
-RELEASE=2
+RELEASE=1
 CURR_VER=""             # Ansible version you currently have installed
 GOOD_VER="2.10.1"       # preferred Ansible version
 BASEDIR=/opt/iiab
 CONFDIR=/etc/iiab
-IIABENV=$CONFDIR/iiab.env
 FLAGDIR=$CONFDIR/install-flags
+IIABENV=$CONFDIR/iiab.env
+IIABSTATE=$CONFDIR/iiab_state.yml
 APT_PATH=/usr/bin/apt    # Avoids problematic /usr/local/bin/apt on Linux Mint
 REINSTALL=""
 INTERACTIVE=0
@@ -71,6 +72,21 @@ function use_master(){
     fi
 }
 
+function upgrade_source(){
+    # assumes working dir is /opt/iiab/iiab just after the git pull
+    echo -e "\n checking upgrade source"
+    if [ -f upgrade_roles ]; then
+        NEWREV=$(grep iiab_revision vars/default_vars.yml | awk '{print $1}')
+        upg_path=""
+    else
+        echo " still not playing nice"
+        for REV in $(cat $BASEDIR/iiab-factory/upgrade_roles | awk '{print $1}'); do
+            NEWREV=$REV
+        done
+        upg_path=$BASEDIR/iiab-factory/
+    fi
+}
+
 function update_master(){
     cd $BASEDIR
     if [ -d iiab ]; then
@@ -93,6 +109,7 @@ function check_revision(){
     if [ -f $IIABENV ]; then
         source $IIABENV
         OLDREV=$IIAB_REVISION
+        upgrade_source
         if [ $NEWREV -gt $OLDREV ]; then
             echo -e "\nNEW IIAB Revison Found\n"
             UPDATE=1
@@ -156,7 +173,6 @@ if [ `check_branch` -gt 0 ]; then
         cd $BASEDIR/iiab
         MASTER=0
         git pull -q
-        NEWREV=$(grep iiab_revision vars/default_vars.yml | awk '{print $2}')
     fi
 fi
 
@@ -297,7 +313,10 @@ cat /tmp/apt.stdout    # "All packages are up to date.\n"
 # think version_gt is choking on 2913 vs 2101 with the .'s removed but my 2.10.1 install skipped
 # ansible correctly when good_ver was 2.9.13. Changed back on the fly to 2.9.13 while live testing
 # and the install appears to not skip when 2.9.13 == 2.9.13 and we end up with the noted apt error.
-if [ $(command -v ansible-playbook) ]; then    # "command -v" is POSIX compliant; also catches built-in commands like "cd"
+if ! [ $(command -v ansible-playbook) ]; then    # "command -v" is POSIX compliant; also catches built-in commands like "cd"
+    echo -e "Install Ansible..."
+    $BASEDIR/iiab/scripts/ansible
+else
     CURR_VER=`ansible --version | head -1 | awk '{print $2}'`    # To match iiab-install.  Was: CURR_VER=`ansible --version | head -n 1 | cut -f 2 -d " "`
     echo -e "\n\nCURRENTLY INSTALLED ANSIBLE: $CURR_VER"
     if version_gt $CURR_VER $GOOD_VER || [ $CURR_VER == $GOOD_VER ]; then
@@ -307,9 +326,6 @@ if [ $(command -v ansible-playbook) ]; then    # "command -v" is POSIX compliant
         $APT_PATH -y remove ansible
         $BASEDIR/iiab/scripts/ansible
     fi
-else
-    echo -e "Install Ansible..."
-    $BASEDIR/iiab/scripts/ansible
 fi
 
 
@@ -335,8 +351,8 @@ echo -e "│   child script ./iiab-install -- both avoid repeating any of the 9 
 echo -e "│                                                                              │"
 echo -e "└──────────────────────────────────────────────────────────────────────────────┘"
 cd $BASEDIR/iiab/
-if [ -f upgrade_roles ] && [ $UPDATE == 1 ]; then
-    for REV in $(cat upgrade_roles | awk '{print $1}'); do
+if [ $UPDATE == 1 ]; then
+    for REV in $(cat $upg_path/upgrade_roles | awk '{print $1}'); do
         if [ $REV -gt $OLDREV ]; then
             echo "found REV $REV - OLDREV $OLDREV"
             force=$(grep $REV upgrade_roles | awk '{print $2}')
@@ -348,13 +364,17 @@ if [ -f upgrade_roles ] && [ $UPDATE == 1 ]; then
             elif [ "$force" == "osm-vector-maps" ]; then # role directory & installed marker differ
                 force=osm_vector_maps
             else
-                echo "no role execptions found"
+                echo "no mismatch"
             fi
             echo -e "\nREV has $force - removing from iiab_state.yml"
-            sed -i "/^$force/d" $CONFDIR/iiab_state.yml
+            sed -i "/^$force/d" $IIABSTATE
         fi
     done
     ./iiab-configure
+    if ! [ -f upgrade_roles ]; then
+        echo "manually update $IIABENV with IIAB_REVISION while 2500 is sidelined"
+        sed -i "s/^IIAB_REVISION=.*/IIAB_REVISION=$NEWREV/" $IIABENV
+    fi
 else
     ./iiab-install $REINSTALL
 fi
