@@ -16,6 +16,8 @@ REINSTALL=""
 INTERACTIVE=0
 UPDATE=0
 MASTER=1
+TEST=jv
+IIABTEST=provision
 MIN_RPI_KERN=1336
 SELFUPDATE_SCRIPT="/tmp/.updateScript.sh"
 
@@ -106,6 +108,10 @@ function update_master(){
         echo -e "\nUpdating iiab"
         git checkout master
         git pull -q
+        if ! [ x$IIABTEST == "x" ]; then
+            git checkout -b $IIABTEST
+            git pull -q https://github.com/jvonau/iiab.git $IIABTEST
+        fi
     fi
     cd $BASEDIR
     if [ -d iiab-admin-console ]; then
