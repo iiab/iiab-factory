@@ -127,7 +127,7 @@ function check_revision(){
         source $IIABENV
         OLDREV=$IIAB_REVISION
         upgrade_source
-        if [ $NEWREV -gt $OLDREV ]; then
+        if [ $NEWREV -gt $OLDREV ] && [ $STAGE -eq 9 ]; then
             echo -e "\nNEW IIAB Revison Found\n"
             UPDATE=1
         fi
