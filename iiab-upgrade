@@ -188,26 +188,24 @@ if [ `check_branch` -gt 0 ]; then
     fi
 fi
 
-# B. Ask for password change if pi/raspberry default remains
-if check_user_pwd "pi" "raspberry"; then
-    if [ $INTERACTIVE == 1 ]; then
+if [ $INTERACTIVE == 1 ]; then
+    # B. Ask for password change if pi/raspberry default remains
+    if check_user_pwd "pi" "raspberry"; then
         PASSWORD=$(whiptail --passwordbox "
 Raspberry Pi's are COMPROMISED often if the default password is not changed!
 What password do you want for GNU/Linux user 'pi' ?
 press [Enter] for no change " 12 78 --title "password dialog" 3>&1 1>&2 2>&3)
         echo pi:$PASSWORD | chpasswd 2>&1 > /dev/null || true    # Overrides 'set -e'
     fi
-fi
 
-# C. Create user 'iiab-admin' as nec, with default password
-if ! id -u iiab-admin > /dev/null 2> /dev/null; then
-    useradd iiab-admin
-    echo iiab-admin:g0adm1n | chpasswd
-fi
+    # C. Create user 'iiab-admin' as nec, with default password
+    if ! id -u iiab-admin > /dev/null 2> /dev/null; then
+        useradd iiab-admin
+        echo iiab-admin:g0adm1n | chpasswd
+    fi
 
-# D. Ask for password change if iiab-admin/g0adm1n default remains
-if check_user_pwd "iiab-admin" "g0adm1n"; then
-    if [ $INTERACTIVE == 1 ]; then
+    if check_user_pwd "iiab-admin" "g0adm1n"; then
+    # D. Ask for password change if iiab-admin/g0adm1n default remains
         PASSWORD2=$(whiptail --passwordbox "
 User 'iiab-admin' retains default password 'g0adm1n' per http://FAQ.IIAB.IO
 This is for login to Internet-in-a-Box's Admin Console (http://box.lan/admin)
