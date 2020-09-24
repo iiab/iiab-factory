@@ -17,7 +17,7 @@ INTERACTIVE=0
 UPDATE=0
 MASTER=1
 TEST=jv
-IIABTEST=provision
+IIABTEST=iiab-ng-7.2
 MIN_RPI_KERN=1336
 SELFUPDATE_SCRIPT="/tmp/.updateScript.sh"
 
@@ -110,7 +110,7 @@ function update_master(){
         git pull -q
         if ! [ x$IIABTEST == "x" ]; then
             git checkout -b $IIABTEST
-            git pull -q https://github.com/jvonau/iiab.git $IIABTEST
+            git pull -q https://github.com/jvonau/IIAB-NG.git $IIABTEST
         fi
     fi
     cd $BASEDIR
