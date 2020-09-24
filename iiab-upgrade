@@ -440,7 +440,7 @@ fi
 # OLD WAY ABOVE - fails w/ sev ISPs per https://github.com/iiab/iiab/issues/871
 
 # K. Start BitTorrent downloads, e.g. if $CONFDIR/local_vars.yml requested any
-if (systemctl -q is-active transmission-daemon) then
+if [ $INTERACTIVE == 1 ] && (systemctl -q is-active transmission-daemon) then
     echo -e "\n\nSTARTING BITTORRENT DOWNLOAD(S) for KA Lite...Please Monitor: http://box:9091\n"
     transmission-remote -n Admin:changeme -t all --start
 fi
