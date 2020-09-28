@@ -18,6 +18,8 @@ This utility helps test how many such connections are allowed for a given config
   * ctrl_interface=/var/run/hostapd
   * ctrl_interface_group=0
 
+run ctl-hostapd to do this.
+
 * Run stat-serve.py from this directory
 
 ## Hardware

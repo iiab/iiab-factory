@@ -25,7 +25,7 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
 
     def get_wifi_stat(s):
         comp_proc = subprocess.run('./get_stat.sh', capture_output=True)
-        mac_arr = comp_proc.stdout.decode().split('\n')[:-1}]
+        mac_arr = comp_proc.stdout.decode().split('\n')[:-1]
         mac_arr_json = json.dumps(mac_arr)
         s.send_html(mac_arr_json, content_type="application/json")
 
