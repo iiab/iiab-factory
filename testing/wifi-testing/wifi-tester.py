@@ -17,6 +17,7 @@ import re
 import argparse
 import fnmatch
 from datetime import date
+import random
 
 import socket
 # import asyncio - I think asyncio is masking issues
@@ -65,7 +66,8 @@ CLONE_DEVS = False
 VDEV_SUFFIX = 'vdev'
 VMAC_BASE = '02:00:00:00:00:' # for local 2nd least significant bit of first octet must be 1 (2, 6, A, E)
 START_URL = '/home/index.html' # no protocol or host
-SLEEP_SECONDS = 1
+SLEEP_SECONDS = 5 # this was not better than 1 on two instances and was in fact worse
+# SLEEP_SECONDS = 1
 WIFI_DEV_PREFIX = 'wl'
 ESC='\033'
 
@@ -185,6 +187,7 @@ def one_dev(dev):
             usb_wifi_ifaces[dev]['access_cnt'] += 1
         else:
             connect_wifi(dev)
+        #time.sleep(random.uniform(.5 * SLEEP_SECONDS, 1.5 * SLEEP_SECONDS)) # makes no difference
         time.sleep(SLEEP_SECONDS)
 
 def get_html(client_ip, page_url, port=80, server_ip='172.18.96.1'):
