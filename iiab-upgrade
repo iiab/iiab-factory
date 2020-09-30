@@ -90,10 +90,11 @@ function upgrade_source(){
     # assumes working dir is /opt/iiab/iiab just after the git pull
     echo -e "\n checking upgrade source"
     if [ -f upgrade_roles ]; then
+        echo " IIAB playing nice"
         NEWREV=$(grep iiab_revision vars/default_vars.yml | awk '{print $1}')
         upg_path=""
     else
-        echo " still not playing nice"
+        echo " IIAB still not playing nice"
         for REV in $(cat $BASEDIR/iiab-factory/upgrade_roles | awk '{print $1}'); do
             NEWREV=$REV
         done
@@ -344,7 +345,7 @@ fi
 
 # G. If RPi, lower reserve disk space from ~5% to 1%
 #if [ -f /proc/device-tree/model ] && grep -qi raspberry /proc/device-tree/model; then
-if [ -e /dev/mmcblk0p2 ]; then
+if [ $INTERACTIVE == 1 ] && [ -e /dev/mmcblk0p2 ]; then
     echo -e "\n\nFound microSD card /dev/mmcblk0p2: Lower its reserve disk space from ~5% to 1%\n"
     tune2fs -m 1 /dev/mmcblk0p2
 fi
