@@ -72,20 +72,27 @@ fi
 
 # C. Create user 'iiab-admin' (or any other, some prefer 'pi') as nec, with default password
 IIAB_ADMIN_USER=iiab-admin
+tmp=$(grep '^iiab_admin_user:\s' /opt/iiab/iiab/vars/default_vars.yml 2> /dev/null | sed 's/^iiab_admin_user:\s\+\<//; s/#.*//; s/\s*$//')
+if [ "$tmp" != "" ]; then IIAB_ADMIN_USER=$tmp; fi
 tmp=$(grep '^iiab_admin_user:\s' /etc/iiab/local_vars.yml 2> /dev/null | sed 's/^iiab_admin_user:\s\+\<//; s/#.*//; s/\s*$//')
 if [ "$tmp" != "" ]; then IIAB_ADMIN_USER=$tmp; fi
 #[ $tmp ] && IIAB_ADMIN_USER=$tmp  # SAME AS ABOVE
 
+IIAB_ADMIN_PUBLISHED_PWD=g0adm1n
+tmp=$(grep '^iiab_admin_published_pwd:\s' /opt/iiab/iiab/vars/default_vars.yml 2> /dev/null | sed 's/^iiab_admin_published_pwd:\s\+\<//; s/#.*//; s/\s*$//')
+if [ "$tmp" != "" ]; then IIAB_ADMIN_PUBLISHED_PWD=$tmp; fi
+#[ $tmp ] && IIAB_ADMIN_PUBLISHED_PWD=$tmp  # SAME AS ABOVE
+
 if ! grep -q '^iiab_admin_user_install:\s\+[fF]alse\b' /etc/iiab/local_vars.yml 2> /dev/null ; then
     if ! id -u "$IIAB_ADMIN_USER" > /dev/null 2> /dev/null; then
         useradd "$IIAB_ADMIN_USER"
-        echo "$IIAB_ADMIN_USER":g0adm1n | chpasswd
+        echo "$IIAB_ADMIN_USER":"$IIAB_ADMIN_PUBLISHED_PWD" | chpasswd
     fi
 fi
 
 # D. If 'iiab-admin' (or equivalent) use the default password, prompt for change
-if check_user_pwd "$IIAB_ADMIN_USER" "g0adm1n" ; then
-    echo -e "\n\nUser '$IIAB_ADMIN_USER' retains default password 'g0adm1n' per http://FAQ.IIAB.IO\n"
+if check_user_pwd "$IIAB_ADMIN_USER" "$IIAB_ADMIN_PUBLISHED_PWD" ; then
+    echo -e "\n\nUser '$IIAB_ADMIN_USER' retains default password '$IIAB_ADMIN_PUBLISHED_PWD' per http://FAQ.IIAB.IO\n"
 
     echo -e "This is for login to Internet-in-a-Box's Admin Console (http://box.lan/admin)"
     echo -e "Technical Details: https://github.com/iiab/iiab/blob/master/roles/iiab-admin\n"
