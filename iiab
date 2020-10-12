@@ -49,7 +49,7 @@ export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
 BASEDIR=/opt/iiab
 CONFDIR=/etc/iiab
 FLAGDIR=$CONFDIR/install-flags
-APT_PATH=/usr/bin    # Avoids problematic /usr/local/bin/apt on Linux Mint
+APTPATH=/usr/bin    # Avoids problematic /usr/local/bin/apt on Linux Mint
 
 # A. Subroutine for B. and D.  Returns true (0) if username ($1) exists with password ($2)
 check_user_pwd() {
@@ -72,9 +72,9 @@ fi
 
 # C. Create user 'iiab-admin' (or any other, some prefer 'pi') as nec, with default password
 IIAB_ADMIN_USER=iiab-admin
-TMP=$(grep '^iiab_admin_user:\s' /etc/iiab/local_vars.yml 2> /dev/null | sed 's/^iiab_admin_user:\s\+\<//; s/#.*//; s/\s*$//')
-if [ "$TMP" != "" ]; then IIAB_ADMIN_USER=$TMP; fi
-#[ $TMP ] && IIAB_ADMIN_USER=$TMP  # SAME AS ABOVE
+tmp=$(grep '^iiab_admin_user:\s' /etc/iiab/local_vars.yml 2> /dev/null | sed 's/^iiab_admin_user:\s\+\<//; s/#.*//; s/\s*$//')
+if [ "$tmp" != "" ]; then IIAB_ADMIN_USER=$tmp; fi
+#[ $tmp ] && IIAB_ADMIN_USER=$tmp  # SAME AS ABOVE
 
 if ! grep -q '^iiab_admin_user_install:\s\+[fF]alse\b' /etc/iiab/local_vars.yml 2> /dev/null ; then
     if ! id -u "$IIAB_ADMIN_USER" > /dev/null 2> /dev/null; then
@@ -165,7 +165,7 @@ echo -e "\n\n'apt update' is checking for OS updates...\n"
 #echo -e "2019-07-11 TEMP WORKAROUND FOR RASPBIAN BUSTER'S testing->stable apt GLITCH...\nDetails @ https://github.com/iiab/iiab/issues/1856\n"
 #apt -y update || true    # Overrides 'set -e'
 #echo -e "\nNOW THE REAL 'apt update' WILL RUN...\n"
-$APT_PATH/apt -qq update > /tmp/apt.stdout 2> /tmp/apt.stderr || true    # Overrides 'set -e'
+$APTPATH/apt -qq update > /tmp/apt.stdout 2> /tmp/apt.stderr || true    # Overrides 'set -e'
 if [ $(wc -c < /tmp/apt.stderr) -gt 82 ]; then    # apt.stderr typically contains exactly 82 characters when there are no errors, no matter the primary locale, i.e. 3-line file "\nWARNING: apt does not have a stable CLI interface. Use with caution in scripts.\n\n" ...OR... in other cases more than 82, e.g. many lines of errors when apt is busy/locked/offline/etc
     echo -e "'apt update' FAILED. VERIFY YOU'RE ONLINE and resolve all errors below:\n"
     cat /tmp/apt.stderr
@@ -177,7 +177,7 @@ elif grep -q 'apt list --upgradable' /tmp/apt.stdout; then    # apt.stdout typic
     echo -n "Hit [ENTER] to confirm you'll RUN 'sudo iiab' AFTER IT REBOOTS: "
     read ans < /dev/tty
     echo
-    $APT_PATH/apt -y dist-upgrade
+    $APTPATH/apt -y dist-upgrade
     reboot
     exit 0    # Nec to avoid both output lines below (that confuse implementers!)
 fi
@@ -197,7 +197,7 @@ fi
 
 # H. Clone 3 IIAB repos
 echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO $BASEDIR ...\n"
-$APT_PATH/apt -y install git
+$APTPATH/apt -y install git
 mkdir -p $BASEDIR
 cd $BASEDIR
 echo
