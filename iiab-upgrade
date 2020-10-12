@@ -390,13 +390,24 @@ else
 fi
 
 echo -e "Install Admin Console... (also runs iiab-get-kiwix-cat to d/l Kiwix catalog, and installs Dynamic Menuing for /library/www/html/home/index.html)\n"
-if [ ! -f $FLAGDIR/iiab-admin-console-complete ] || [ $UPDATE == 1 ]; then
-    cd $BASEDIR/iiab-admin-console
-    ./install
-    touch $FLAGDIR/iiab-admin-console-complete
+if ! grep -q '^admin_console_install:\s\+[fF]alse\b' /etc/iiab/local_vars.yml ; then
+    if [ ! -f $FLAGDIR/iiab-admin-console-complete ] || [ $UPDATE == 1 ]; then
+        cd $BASEDIR/iiab-admin-console
+        ./install
+        touch $FLAGDIR/iiab-admin-console-complete
+    else
+        echo -e "ADMIN CONSOLE INSTALLATION IS ALREADY COMPLETE -- per existence of:"
+        echo -e "$FLAGDIR/iiab-admin-console-complete\n"
+    fi
+    if grep -q '^admin_console_enabled: False' /etc/iiab/local_vars.yml ; then
+        echo -e "'admin_console_enabled: False' is in /etc/iiab/local_vars.yml"
+        echo -e "...so let's try to DISABLE & STOP Admin Console's iiab-cmdsrv.service"
+        systemctl disable iiab-cmdsrv
+        systemctl stop iiab-cmdsrv
+    fi
 else
-    echo -e "ADMIN CONSOLE INSTALLATION IS ALREADY COMPLETE -- per existence of:"
-    echo -e "$FLAGDIR/iiab-admin-console-complete\n"
+    echo -e "LET'S NOT TRY TO INSTALL ADMIN CONSOLE -- because:"
+    echo -e "'admin_console_install: False' is in /etc/iiab/local_vars.yml\n"
 fi
 
 # J. KA Lite prep
@@ -414,7 +425,7 @@ if [ -d /library/ka-lite ]; then
         echo -e "$FLAGDIR/kalite-zone-complete\n"
     fi
 
-    echo -e "\nInstall KA Lite's mandatory 0.9 GB English Pack... (en.zip)\n"
+    echo -e "\nInstall KA Lite's mandatory 0.9 GB English Pack... en.zip\n"
     if [ ! -f $FLAGDIR/kalite-en.zip-complete ]; then
         #echo -e 'Now retrieving it...\n'
         cd /tmp
@@ -442,7 +453,7 @@ fi
 # OLD WAY ABOVE - fails w/ sev ISPs per https://github.com/iiab/iiab/issues/871
 
 # K. Start BitTorrent downloads, e.g. if $CONFDIR/local_vars.yml requested any
-if [ $INTERACTIVE == 1 ] && (systemctl -q is-active transmission-daemon) then
+if [ $INTERACTIVE == 1 ] && (systemctl -q is-active transmission-daemon); then
     echo -e "\n\nSTARTING BITTORRENT DOWNLOAD(S) for KA Lite...Please Monitor: http://box:9091\n"
     transmission-remote -n Admin:changeme -t all --start
 fi
