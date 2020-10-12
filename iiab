@@ -180,11 +180,11 @@ read ans < /dev/tty
 
 ######################### INTERACTIVE STUFF IS ABOVE #########################
 
-# G. If RPi, lower reserve disk space from ~5% to 1%
+# G. If RPi, lower reserve disk space from ~5% to 2%
 #if [ -f /proc/device-tree/model ] && grep -qi raspberry /proc/device-tree/model; then
 if [ -e /dev/mmcblk0p2 ]; then
-    echo -e "\n\nFound microSD card /dev/mmcblk0p2: Lower its reserve disk space from ~5% to 1%\n"
-    tune2fs -m 1 /dev/mmcblk0p2
+    echo -e "\n\nFound microSD card /dev/mmcblk0p2: Lower its reserve disk space from ~5% to 2%\n"
+    tune2fs -m 2 /dev/mmcblk0p2
 fi
 
 # H. Clone 3 IIAB repos
@@ -230,14 +230,33 @@ echo -e "└──────────────────────�
 cd $BASEDIR/iiab/
 ./iiab-install $@
 
-echo -e "Install Admin Console... (also runs iiab-get-kiwix-cat to d/l Kiwix catalog, and installs Dynamic Menuing for /library/www/html/home/index.html)\n"
-if [ ! -f $FLAGDIR/iiab-admin-console-complete ]; then
+if [ -f $FLAGDIR/iiab-admin-console-complete ]; then
+    echo -e "ADMIN CONSOLE INSTALLATION IS ALREADY COMPLETE -- per existence of:"
+    echo -e "$FLAGDIR/iiab-admin-console-complete\n"
+elif grep -q '^admin_console_install: False' /etc/iiab/local_vars.yml ; then
+    echo -e "LET'S NOT TRY TO INSTALL ADMIN CONSOLE -- because:"
+    echo -e "'admin_console_install: False' is in /etc/iiab/local_vars.yml\n"
+else
+    echo -e "Install Admin Console... (also runs iiab-get-kiwix-cat to d/l Kiwix catalog,"
+    echo -e "and installs Dynamic Menuing for /library/www/html/home/index.html)\n"
+
     cd $BASEDIR/iiab-admin-console
     ./install
     touch $FLAGDIR/iiab-admin-console-complete
+fi
+
+if grep -q '^admin_console_enabled: False' /etc/iiab/local_vars.yml ; then
+    echo -e "'admin_console_enabled: False' is in /etc/iiab/local_vars.yml"
+    echo -e "...so let's try to DISABLE & STOP Admin Console's iiab-cmdsrv.service\n"
+
+    systemctl disable iiab-cmdsrv || true    # Overrides 'set -e'
+    systemctl stop iiab-cmdsrv || true    # Overrides 'set -e'
 else
-    echo -e "ADMIN CONSOLE INSTALLATION IS ALREADY COMPLETE -- per existence of:"
-    echo -e "$FLAGDIR/iiab-admin-console-complete\n"
+    echo -e "'admin_console_enabled: False' isn't in /etc/iiab/local_vars.yml"
+    echo -e "...so let's try to ENABLE & START Admin Console's iiab-cmdsrv.service\n"
+
+    systemctl enable iiab-cmdsrv || true    # Overrides 'set -e'
+    systemctl start iiab-cmdsrv || true    # Overrides 'set -e'
 fi
 
 # J. KA Lite prep

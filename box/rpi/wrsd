@@ -22,6 +22,13 @@ else
    SDCARD=$2
 fi
 
+RESIZE=0
+mkdir -p /mnt/sdcard
+
+BOOTPART=$SDCARD"1"
+FSPART=$SDCARD"2"
+echo "boot part is $BOOTPART fs part is $FSPART"
+
 df
 echo "WARNING writing to $SDCARD"
 echo "Are you sure? "
@@ -30,9 +37,33 @@ echo    # (optional) move to a new line
 
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
-    echo "writing to $SDCARD"
-    umount /media/usb*
+    echo "Writing to $SDCARD"
+    umount $BOOTPART $FSPART
     dd if=$IMG of=$SDCARD bs=4M status=progress
-    umount /media/usb*
+
+    sleep 5 # wait for card to be read
+    partprobe $SDCARD
+
+    umount $BOOTPART $FSPART
+    mount  $FSPART /mnt/sdcard
+    if [ -f /mnt/sdcard/.resize-rootfs ]; then
+        RESIZE=1
+        rm /mnt/sdcard/.resize-rootfs
+    fi
+    umount /mnt/sdcard
+
+    if [ $RESIZE -eq "1" ]; then
+        echo "Resizing $SDCARD"
+        umount $BOOTPART $FSPART
+
+        growpart $SDCARD 2
+        sleep 5 # wait for card to be read
+        partprobe $SDCARD
+
+        umount $BOOTPART $FSPART
+        e2fsck -f $FSPART
+        resize2fs $FSPART
+    fi
+    umount $BOOTPART $FSPART
     df
 fi
