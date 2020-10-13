@@ -70,7 +70,7 @@ if check_user_pwd "pi" "raspberry" ; then
     echo pi:"$ans" | chpasswd || true    # Overrides 'set -e'
 fi
 
-# C. Create user 'iiab-admin' (or any other, some prefer 'pi') as nec, with default password
+# C. Create user 'iiab-admin' (or any other, some prefer 'pi' or 'ubuntu') as nec, with default password
 IIAB_ADMIN_USER=iiab-admin
 tmp=$(grep '^iiab_admin_user:\s' /opt/iiab/iiab/vars/default_vars.yml 2> /dev/null | sed 's/^iiab_admin_user:\s\+\<//; s/#.*//; s/\s*$//')
 if [ "$tmp" != "" ]; then IIAB_ADMIN_USER=$tmp; fi
