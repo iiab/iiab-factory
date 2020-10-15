@@ -169,7 +169,8 @@ function redraw(){
    }
    switch ( xAxisUnit ){
       case "hour":
-         sql = hourly()  + daily_where() + daily_groupby();
+         //sql = hourly()  + daily_where() + daily_groupby();
+         sql = select()  + daily_where() + daily_groupby();
          break;
       default:
          sql = select()  + daily_where() + daily_groupby();

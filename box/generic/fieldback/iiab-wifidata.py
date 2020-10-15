@@ -268,13 +268,16 @@ def host_number(client_id):
 def create_connection_history():
    db.c.execute("CREATE TABLE if not exists connections (id INTEGER PRIMARY KEY,"\
                 "host_num TEXT, client_id TEXT, start_time_stamp TEXT,"\
+                "period_start_time_stamp TEXT, period_start_tx_bytes INTEGER,"\
+                "period_start_rx_bytes INTEGER,"\
                 "tx_bytes INTEGER, rx_bytes INTEGER,connected_time TEXT,"\
-                "connected_str TEXT,hour INTEGER,minute INTEGER,"\
+                "connected_str TEXT,period_hour INTEGER, hour INTEGER,"\
+                "minute INTEGER, "\
                 "datestr TEXT,month INTEGER,day INTEGER,dow INTEGER,week INTEGER,"\
                 "doy INTEGER,datetime TEXT,year INTEGER,site TEXT"\
                 ")")
    db.c.execute("CREATE UNIQUE INDEX IF NOT EXISTS client_id on connections "\
-                "(client_id,start_time_stamp)")
+                "(client_id,datestr,period_hour)")
    db.c.execute("CREATE TABLE if not exists lookup (id INTEGER PRIMARY KEY,"\
                 "host_num INTEGER, client_id TEXT,name TEXT)")
    db.c.execute("CREATE UNIQUE INDEX IF NOT EXISTS  lookup_index ON lookup "\
@@ -285,19 +288,27 @@ def hash_id(id):
    m.update(id.encode('utf-8'))
    return m.hexdigest()
 
-def update_connections(client_id,start_time_stamp,tx_bytes,rx_bytes,connected_time):
+def update_connections(client_id,ymd, period_hour,tx_bytes,rx_bytes,connected_time):
    # look for a record with this id, and a start time within a second
-   sql = 'select id,start_time_stamp from connections '\
-         'where client_id = ? and start_time_stamp between ? and ? '
-   db.c.execute(sql,(client_id,start_time_stamp-1,start_time_stamp+1,))
+   sql = 'select id,period_hour, datestr, period_start_time_stamp, '\
+            'period_start_rx_bytes,period_start_tx_bytes from connections '\
+         'where client_id = ? and datestr = ? and period_hour = ?'
+   db.c.execute(sql,(client_id,ymd,period_hour,))
    row = db.c.fetchone()
-   if row != None:
-      start_time_stamp = row[1]
-   
+   if row == None:
+      period_start_time_stamp = tools.tstamp_now()
+      period_start_rx_bytes = rx_bytes
+      period_start_tx_bytes = tx_bytes
+   else:
+      period_start_time_stamp = row['period_start_time_stamp']
+      rx_bytes = int(rx_bytes) - row['period_start_rx_bytes']
+      tx_bytes = int(tx_bytes) - row['period_start_tx_bytes']
+      period_start_tx_bytes = row['period_start_tx_bytes']
+      period_start_rx_bytes = row['period_start_rx_bytes']
    host_num = host_number(client_id)
-   datetime_object = tools.get_datetime_object(start_time_stamp)
+   datetime_object = tools.get_datetime_object(tools.tstamp_now())
    datetime = tools.format_datetime(datetime_object)
-   datestr = tools.ts2date(int(start_time_stamp))
+   datestr = tools.ymd(datetime_object)
    month = datetime_object.month
    day = datetime_object.day
    year = datetime_object.year
@@ -309,14 +320,16 @@ def update_connections(client_id,start_time_stamp,tx_bytes,rx_bytes,connected_ti
    dow = datetime_object.weekday()
    doy = int(datetime_object.strftime('%j'))
    days, hours, minutes = tools.dhm_from_seconds(int(connected_time))
+   start_time_stamp = int(tools.tstamp_now()) - int( connected_time)
    connected_str = "%s:%s:%s:"%(days,hours,minutes,)
-   print(host_num,client_id,start_time_stamp,tx_bytes,rx_bytes,connected_time,
+   print(host_num,client_id,ymd,period_hour,tx_bytes,rx_bytes,connected_time,
                datestr,month,day,dow,doy,week,datetime,year,site,)
    sql = "insert or replace into connections (host_num,client_id,start_time_stamp,tx_bytes,"\
-         "rx_bytes,connected_time,connected_str,hour,minute,datestr,month,day,dow,doy,week,datetime,year,site) "\
-         "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+         "rx_bytes,connected_time,connected_str,hour,minute,datestr,month,day,dow,doy,week,datetime,year,site,period_hour,period_start_time_stamp, "\
+         "period_start_rx_bytes,period_start_tx_bytes) "\
+         "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
    db.c.execute(sql,(host_num,client_id,start_time_stamp,tx_bytes,rx_bytes,connected_time,connected_str,
-               hour,minute,datestr,month,day,dow,doy,week,datetime,year,site,))
+               hour,minute,datestr,month,day,dow,doy,week,datetime,year,site,period_hour,period_start_time_stamp, period_start_rx_bytes,period_start_tx_bytes))
 
 
 ###########################################################
@@ -348,5 +361,9 @@ if __name__ == "__main__":
                connected_time = line.split('=')[1]
                # calculate the start time for this connection
                start_time_stamp = int(tools.tstamp_now()) - int( connected_time)
+               mydate = datetime.datetime.fromtimestamp(tools.tstamp_now())
+               print(mydate.hour)
+               period_hour = mydate.hour
+               ymd = tools.ymd(mydate)
                # this seems to be last item of interest for this client
-               update_connections(client_id, start_time_stamp, tx_bytes, rx_bytes, connected_time)
+               update_connections(client_id, ymd, period_hour, tx_bytes, rx_bytes, connected_time)
