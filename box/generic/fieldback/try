@@ -1,0 +1,19 @@
+#!/bin/bash -xe
+# compile the javascript for this page and copy for execution in html server tree"
+
+packer=/opt/iiab/maps/osm-source/pages/webpack/
+dest=/library/www/html/gh
+
+cp -fp ./webpack.config.js $packer 
+cp -fp ./report.js  $packer
+cp -fp ./index.html  $packer
+
+cd $packer
+
+npm run build
+:
+cd /opt/iiab/iiab-factory/box/generic/fieldback/
+rsync -a assets $dest
+rsync ./*.php  $dest
+rsync ./usage.css  $dest
+rsync ./build/*   $dest
