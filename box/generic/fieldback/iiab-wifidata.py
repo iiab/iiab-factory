@@ -5,7 +5,7 @@
 
 import os
 import sys
-import mysql.connector as mariadb
+#import mysql.connector as mariadb
 import sqlite3
 import datetime
 import time
@@ -319,11 +319,12 @@ def update_connections(client_id,ymd, period_hour,tx_bytes,rx_bytes,connected_ti
    site = get_uuid()
    dow = datetime_object.weekday()
    doy = int(datetime_object.strftime('%j'))
+   connected_time = tools.tstamp_now() - float(period_start_time_stamp)
    days, hours, minutes = tools.dhm_from_seconds(int(connected_time))
    start_time_stamp = int(tools.tstamp_now()) - int( connected_time)
    connected_str = "%s:%s:%s:"%(days,hours,minutes,)
-   print(host_num,client_id,ymd,period_hour,tx_bytes,rx_bytes,connected_time,
-               datestr,month,day,dow,doy,week,datetime,year,site,)
+   #print(host_num,client_id,ymd,period_hour,tx_bytes,rx_bytes,connected_time,
+   #            datestr,month,day,dow,doy,week,datetime,year,site,)
    sql = "insert or replace into connections (host_num,client_id,start_time_stamp,tx_bytes,"\
          "rx_bytes,connected_time,connected_str,hour,minute,datestr,month,day,dow,doy,week,datetime,year,site,period_hour,period_start_time_stamp, "\
          "period_start_rx_bytes,period_start_tx_bytes) "\
@@ -362,7 +363,7 @@ if __name__ == "__main__":
                # calculate the start time for this connection
                start_time_stamp = int(tools.tstamp_now()) - int( connected_time)
                mydate = datetime.datetime.fromtimestamp(tools.tstamp_now())
-               print(mydate.hour)
+               #print(mydate.hour)
                period_hour = mydate.hour
                ymd = tools.ymd(mydate)
                # this seems to be last item of interest for this client
