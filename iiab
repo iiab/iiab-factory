@@ -51,6 +51,8 @@ CONFDIR=/etc/iiab
 FLAGDIR=$CONFDIR/install-flags
 APTPATH=/usr/bin    # Avoids problematic /usr/local/bin/apt on Linux Mint
 
+[ $(id -un) = root ] || { echo "Please run 'sudo iiab'" ; exit 1 ; }
+
 # A. Subroutine for B. and D.  Returns true (0) if username ($1) exists with password ($2)
 command -v grep &> /dev/null || $APTPATH/apt -y install grep    # 3 MORE BELOW!
 check_user_pwd() {
