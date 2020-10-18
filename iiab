@@ -52,6 +52,7 @@ FLAGDIR=$CONFDIR/install-flags
 APTPATH=/usr/bin    # Avoids problematic /usr/local/bin/apt on Linux Mint
 
 # A. Subroutine for B. and D.  Returns true (0) if username ($1) exists with password ($2)
+$APTPATH/apt -y install grep    # MORE BELOW (wget, nano, git) so no UX delay
 check_user_pwd() {
     # $meth (hashing method) is typically '6' which implies 5000 rounds
     # of SHA-512 per /etc/login.defs -> /etc/pam.d/common-password
@@ -110,6 +111,7 @@ if [ -f $FLAGDIR/iiab-complete ]; then
 fi
 
 # E. Position & customize $CONFDIR/local_vars.yml
+$APTPATH/apt -y install wget nano    # MORE ABOVE & BELOW so no UX delay
 cd $CONFDIR
 if [ -f local_vars.yml ]; then
 
@@ -204,7 +206,7 @@ fi
 
 # H. Clone 3 IIAB repos
 echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO $BASEDIR ...\n"
-$APTPATH/apt -y install git
+$APTPATH/apt -y install git    # MORE ABOVE (grep, wget, nano) so no UX delay
 mkdir -p $BASEDIR
 cd $BASEDIR
 echo
