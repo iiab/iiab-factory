@@ -48,16 +48,7 @@ set -e                                   # Exit on error (avoids snowballing)
 export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
 FLAGDIR=/etc/iiab/install-flags
 APTPATH=/usr/bin    # Avoids problematic /usr/local/bin/apt on Linux Mint
-
-[ $(id -un) = root ] || { echo "Please run 'sudo iiab'" ; exit 1 ; }
-
-mkdir -p $FLAGDIR    # Whih also creates /etc/iiab
-# Save CLI params (PR #s) for section I. so 'sudo iiab' continues after reboots
-[ $# != 0 ] && printf '%s\n' "$@" >> /etc/iiab/pr-queue
-
-# A. Subroutine for B. and D.  Returns true (0) if username ($1) exists with password ($2)
-command -v grep &> /dev/null ||
-    $APTPATH/apt -y install grep    # AVOID UX CLUTTER+DELAYS: 4 MORE BELOW!
+# Subroutine for B. and D. Returns true (0) if username ($1) exists with password ($2)
 check_user_pwd() {
     # $meth (hashing method) is typically '6' which implies 5000 rounds
     # of SHA-512 per /etc/login.defs -> /etc/pam.d/common-password
@@ -67,8 +58,86 @@ check_user_pwd() {
     [ $(python3 -c "import crypt; print(crypt.crypt('$2', '\$$meth\$$salt'))") == "\$$meth\$$salt\$$hash" ]
 }
 
+[ $(id -un) = root ] || { echo "Please run 'sudo iiab'" ; exit 1 ; }
+
+if [ -f $FLAGDIR/iiab-complete ]; then
+    echo -e "\n\nIIAB INSTALLATION (/usr/sbin/iiab) IS ALREADY COMPLETE -- per existence of:"
+    echo -e "$FLAGDIR/iiab-complete -- nothing to do.\n"
+    exit 0
+else
+    mkdir -p $FLAGDIR
+fi
+
+# A. Position & customize /etc/iiab/local_vars.yml
+local_vars_src_file=local_vars_big.yml    # Testing default, for section I. (PR's can change local_vars.yml templates)
+if [ -f /etc/iiab/local_vars.yml ]; then
+    # FUTURE: Test if their local_vars.yml is sufficiently version-compatible !
+
+    echo -e "\n\n  EXISTING /etc/iiab/local_vars.yml is being used to install Internet-in-a-Box\n"
+
+    echo -e "   🚂 🚃 🚄 🚅 🚆 🚇 🚈 🚉 🚊 🚋 🚌 🚍 🚎 🚏 🚐 🚑 🚒 🚚 🚛 🚜 🚞 🚟 🚠 🚡 🚲\n"
+
+    echo -e "                     Google 'local_vars.yml' to learn more!"
+else
+    echo -e "\n\nInstalling Internet-in-a-Box requires /etc/iiab/local_vars.yml\n"
+
+    echo -e "Do you want (1) 🚵 MIN-sized (2) 🚢🚣 MEDIUM-sized or (3) 🚂🚃🚃 BIG-sized?"
+    echo -e "Or (m) for 🚑 MEDICAL?       YOU NEED 2 GB RAM OR HIGHER, IF YOU CHOOSE (3)\n"
+
+    echo -e 'See "What can I do with E-books and Internet-in-a-Box?" and "What services'
+    echo -e '(IIAB apps) are suggested during installation?" within http://FAQ.IIAB.IO\n'
+
+    echo -e "WARNING: This Can Take More Than An Hour, depending on Internet speed, CPU,"
+    echo -e "temperature, and the speed of your microSD card.\n"
+
+    echo -n "Please type 1, 2, 3 or m then press [ENTER]: "
+    read local_vars_size < /dev/tty
+
+    # Should really ask first and update the cache but whatever
+    echo -n "Installing dependencies"
+    command -v wget &> /dev/null ||
+        $APTPATH/apt -y install wget   # AVOID UX CLUTTER+DELAYS: 4 MORE BELOW!
+
+    case $local_vars_size in
+        0)
+            echo "Selected no local_vars file" # undocumented for now
+            ;;
+        1)
+            local_vars_src_file=local_vars_min.yml
+            ;;
+        3)
+            local_vars_src_file=local_vars_big.yml
+            ;;
+        m)
+            local_vars_src_file=local_vars_medical.yml
+            ;;
+        *)
+            local_vars_src_file=local_vars_medium.yml
+            ;;
+    esac
+    if [ -d /opt/iiab/iiab/vars ]; then
+        cp /opt/iiab/iiab/vars/$local_vars_src_file /etc/iiab/local_vars.yml
+    else
+        wget -O /etc/iiab/local_vars.yml https://github.com/iiab/iiab/raw/master/vars/$local_vars_src_file
+    fi
+    command -v nano &> /dev/null ||
+        $APTPATH/apt -y install nano  # AS ABOVE (wget)
+    command -v grep &> /dev/null ||
+        $APTPATH/apt -y install grep  # BELOW (git, jq)
+
+    echo -en "\nSupply or edit $CONFDIR/local_vars.yml to customize your Internet-in-a-Box? [Y/n] "
+    read ans < /dev/tty
+    if [ "$ans" != "n" ] && [ "$ans" != "N" ]; then
+        echo -e "\n1) PLEASE RUN: sudo nano $CONFDIR/local_vars.yml\n"
+        echo -e "\n1) OR Copy your pre-edited local_vars.yml to $CONFDIR/local_vars.yml\n"
+
+        echo -e "2) After you're done editing, RUN 'sudo iiab' TO CONTINUE!\n"
+        exit 0
+    fi
+fi
+
 # B. Ask for password change if pi/raspberry default remains
-if check_user_pwd "pi" "raspberry"; then
+if check_user_pwd "pi" "raspberry" ; then
     echo -e "\n\nRaspberry Pi's are COMPROMISED often if the default password is not changed!\n"
 
     echo -n "What password do you want for GNU/Linux user 'pi' ? "
@@ -97,7 +166,7 @@ if ! grep -q '^iiab_admin_user_install:\s\+[fF]alse\b' /etc/iiab/local_vars.yml 
 fi
 
 # D. If 'iiab-admin' (or equivalent) use the default password, prompt for change
-if check_user_pwd "$IIAB_ADMIN_USER" "$IIAB_ADMIN_PUBLISHED_PWD"; then
+if check_user_pwd "$IIAB_ADMIN_USER" "$IIAB_ADMIN_PUBLISHED_PWD" ; then
     echo -e "\n\nUser '$IIAB_ADMIN_USER' retains default password '$IIAB_ADMIN_PUBLISHED_PWD' per http://FAQ.IIAB.IO\n"
 
     echo -e "This is for login to Internet-in-a-Box's Admin Console (http://box.lan/admin)"
@@ -108,71 +177,7 @@ if check_user_pwd "$IIAB_ADMIN_USER" "$IIAB_ADMIN_PUBLISHED_PWD"; then
     echo "$IIAB_ADMIN_USER":"$ans" | chpasswd || true    # Overrides 'set -e'
 fi
 
-if [ -f $FLAGDIR/iiab-complete ]; then
-    echo -e "\n\nIIAB INSTALLATION (/usr/sbin/iiab) IS ALREADY COMPLETE -- per existence of:"
-    echo -e "$FLAGDIR/iiab-complete -- nothing to do.\n"
-    exit 0
-fi
-
-# E. Position & customize /etc/iiab/local_vars.yml
-command -v wget &> /dev/null ||
-    $APTPATH/apt -y install wget  # AS ABOVE (grep)
-command -v nano &> /dev/null ||
-    $APTPATH/apt -y install nano  # BELOW (git, jq)
-local_vars_src_file=local_vars_big.yml    # Testing default, for section I. (PR's can change local_vars.yml templates)
-if [ -f /etc/iiab/local_vars.yml ]; then
-
-    # FUTURE: Test if their local_vars.yml is sufficiently version-compatible !
-
-    echo -e "\n\n  EXISTING /etc/iiab/local_vars.yml is being used to install Internet-in-a-Box\n"
-
-    echo -e "   🚂 🚃 🚄 🚅 🚆 🚇 🚈 🚉 🚊 🚋 🚌 🚍 🚎 🚏 🚐 🚑 🚒 🚚 🚛 🚜 🚞 🚟 🚠 🚡 🚲\n"
-
-    echo -e "                     Google 'local_vars.yml' to learn more!"
-else
-    echo -e "\n\nInstalling Internet-in-a-Box requires /etc/iiab/local_vars.yml\n"
-
-    echo -e "Do you want (1) 🚵 MIN-sized (2) 🚢🚣 MEDIUM-sized or (3) 🚂🚃🚃 BIG-sized?"
-    echo -e "Or (m) for 🚑 MEDICAL?       YOU NEED 2 GB RAM OR HIGHER, IF YOU CHOOSE (3)\n"
-
-    echo -e 'See "What can I do with E-books and Internet-in-a-Box?" and "What services'
-    echo -e '(IIAB apps) are suggested during installation?" within http://FAQ.IIAB.IO\n'
-
-    echo -e "WARNING: This Can Take More Than An Hour, depending on Internet speed, CPU,"
-    echo -e "temperature, and the speed of your microSD card.\n"
-
-    echo -n "Please type 1, 2, 3 or m then press [ENTER]: "
-    read local_vars_size < /dev/tty
-    echo
-    case $local_vars_size in
-        1)
-            local_vars_src_file=local_vars_min.yml
-            ;;
-        3)
-            local_vars_src_file=local_vars_big.yml
-            ;;
-        m)
-            local_vars_src_file=local_vars_medical.yml
-            ;;
-        *)
-            local_vars_src_file=local_vars_medium.yml
-            ;;
-    esac
-    if [ -d /opt/iiab/iiab/vars ]; then
-        cp /opt/iiab/iiab/vars/$local_vars_src_file /etc/iiab/local_vars.yml
-    else
-        wget -O /etc/iiab/local_vars.yml https://github.com/iiab/iiab/raw/master/vars/$local_vars_src_file
-    fi
-
-    echo -en "\nEdit /etc/iiab/local_vars.yml to customize your Internet-in-a-Box? [Y/n] "
-    read ans < /dev/tty
-    if [ "$ans" != "n" ] && [ "$ans" != "N" ]; then
-        echo -e "\n1) PLEASE RUN: sudo nano /etc/iiab/local_vars.yml\n"
-
-        echo -e "2) After you're done editing, RUN 'sudo iiab' TO CONTINUE!\n"
-        exit 0
-    fi
-fi
+# E. Moved to A with dependencies installed there.
 
 # F. Mandate OS SECURITY/UPDATES if 'apt update' has any (IF SO REBOOT)
 # Educate implementer while waiting for 'apt update'
