@@ -48,6 +48,7 @@ set -e                                   # Exit on error (avoids snowballing)
 export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
 FLAGDIR=/etc/iiab/install-flags
 APTPATH=/usr/bin    # Avoids problematic /usr/local/bin/apt on Linux Mint
+
 # Subroutine for B. and D. Returns true (0) if username ($1) exists with password ($2)
 check_user_pwd() {
     # $meth (hashing method) is typically '6' which implies 5000 rounds
@@ -56,6 +57,14 @@ check_user_pwd() {
     salt=$(grep "^$1:" /etc/shadow | cut -d: -f2 | cut -d$ -f3)
     hash=$(grep "^$1:" /etc/shadow | cut -d: -f2 | cut -d$ -f4)
     [ $(python3 -c "import crypt; print(crypt.crypt('$2', '\$$meth\$$salt'))") == "\$$meth\$$salt\$$hash" ]
+}
+
+exit_for_custom_vars() {
+    echo -e "\\n1) PLEASE RUN: sudo nano $CONFDIR/local_vars.yml"
+    echo -e "OR"
+    echo -e "2) Copy your pre-edited local_vars.yml to $CONFDIR/local_vars.yml"
+    echo -e "\\nAfter you're done editing, RUN 'sudo iiab' TO CONTINUE!\\n"
+    exit 0
 }
 
 [ $(id -un) = root ] || { echo "Please run 'sudo iiab'" ; exit 1 ; }
@@ -79,34 +88,42 @@ if [ -f /etc/iiab/local_vars.yml ]; then
 
     echo -e "                     Google 'local_vars.yml' to learn more!"
 else
-    echo -e "\n\nInstalling Internet-in-a-Box requires /etc/iiab/local_vars.yml\n"
-
-    echo -e "Do you want (1) 🚵 MIN-sized (2) 🚢🚣 MEDIUM-sized or (3) 🚂🚃🚃 BIG-sized?"
-    echo -e "Or (m) for 🚑 MEDICAL?       YOU NEED 2 GB RAM OR HIGHER, IF YOU CHOOSE (3)\n"
-
     echo -e 'See "What can I do with E-books and Internet-in-a-Box?" and "What services'
     echo -e '(IIAB apps) are suggested during installation?" within http://FAQ.IIAB.IO\n'
 
     echo -e "WARNING: This Can Take More Than An Hour, depending on Internet speed, CPU,"
     echo -e "temperature, and the speed of your microSD card.\n"
 
-    echo -n "Please type 1, 2, 3 or m then press [ENTER]: "
+    echo -e "\n\nInstalling Internet-in-a-Box requires $CONFDIR/local_vars.yml\n"
+
+    echo -e "Do you want (1) 🚵 MIN-sized (2) 🚢🚣 MEDIUM-sized or (3) 🚂🚃🚃 BIG-sized?"
+    echo -e "Or (m) for 🚑 MEDICAL?       YOU NEED 2 GB RAM OR HIGHER, IF YOU CHOOSE (3)\n"
+
+    echo -e "To exit without any changes please type e then press [ENTER]"
+    echo -e "Exit to supply a pre-edited local_vars.yml type 0 then press [ENTER]"
+    echo -n "Please type 1, 2, 3 or m for your selection then press [ENTER]: "
+
     read local_vars_size < /dev/tty
 
     # Should really ask first and update the cache but whatever
-    echo -n "Installing dependencies"
+    echo -e "Installing dependencies"
     command -v wget &> /dev/null ||
         $APTPATH/apt -y install wget   # AVOID UX CLUTTER+DELAYS: 4 MORE BELOW!
 
     case $local_vars_size in
         0)
-            echo "Selected no local_vars file" # undocumented for now
+            echo -e "\\nSelected no local_vars file" # undocumented for now
+            exit_for_custom_vars
             ;;
         1)
             local_vars_src_file=local_vars_min.yml
             ;;
         3)
             local_vars_src_file=local_vars_big.yml
+            ;;
+        e)
+            echo -e "\\nSelected exit" # undocumented for now
+            exit 0
             ;;
         m)
             local_vars_src_file=local_vars_medical.yml
@@ -125,14 +142,10 @@ else
     command -v grep &> /dev/null ||
         $APTPATH/apt -y install grep  # BELOW (git, jq)
 
-    echo -en "\nSupply or edit $CONFDIR/local_vars.yml to customize your Internet-in-a-Box? [Y/n] "
+    echo -en "\nEdit $CONFDIR/local_vars.yml to customize your Internet-in-a-Box? [Y/n] "
     read ans < /dev/tty
     if [ "$ans" != "n" ] && [ "$ans" != "N" ]; then
-        echo -e "\n1) PLEASE RUN: sudo nano $CONFDIR/local_vars.yml\n"
-        echo -e "\n1) OR Copy your pre-edited local_vars.yml to $CONFDIR/local_vars.yml\n"
-
-        echo -e "2) After you're done editing, RUN 'sudo iiab' TO CONTINUE!\n"
-        exit 0
+        exit_for_custom_vars
     fi
 fi
 
@@ -146,6 +159,7 @@ if check_user_pwd "pi" "raspberry" ; then
 fi
 
 # C. Create user 'iiab-admin' (or any other, some prefer 'pi' or 'ubuntu') as nec, with default password
+command -v grep &> /dev/null || $APTPATH/apt -y install grep
 IIAB_ADMIN_USER=iiab-admin
 tmp=$(grep '^iiab_admin_user:\s' /opt/iiab/iiab/vars/default_vars.yml 2> /dev/null | sed 's/^iiab_admin_user:\s\+\<//; s/#.*//; s/\s*$//')
 if [ "$tmp" != "" ]; then IIAB_ADMIN_USER=$tmp; fi
