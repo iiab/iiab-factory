@@ -94,13 +94,13 @@ else
     echo -e "WARNING: This Can Take More Than An Hour, depending on Internet speed, CPU,"
     echo -e "temperature, and the speed of your microSD card.\n"
 
-    echo -e "\n\nInstalling Internet-in-a-Box requires $CONFDIR/local_vars.yml\n"
+    echo -e "To exit without any changes please type e then press [ENTER]\\n"
+
+    echo -e "Installing Internet-in-a-Box requires $CONFDIR/local_vars.yml"
+    echo -e "Exit to supply a pre-edited local_vars.yml type 0 then press [ENTER]\\n"
 
     echo -e "Do you want (1) 🚵 MIN-sized (2) 🚢🚣 MEDIUM-sized or (3) 🚂🚃🚃 BIG-sized?"
     echo -e "Or (m) for 🚑 MEDICAL?       YOU NEED 2 GB RAM OR HIGHER, IF YOU CHOOSE (3)\n"
-
-    echo -e "To exit without any changes please type e then press [ENTER]"
-    echo -e "Exit to supply a pre-edited local_vars.yml type 0 then press [ENTER]"
     echo -n "Please type 1, 2, 3 or m for your selection then press [ENTER]: "
 
     read local_vars_size < /dev/tty
