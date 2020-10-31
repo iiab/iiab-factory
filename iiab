@@ -51,7 +51,10 @@ CONFDIR=/etc/iiab
 FLAGDIR=$CONFDIR/install-flags
 APTPATH=/usr/bin    # Avoids problematic /usr/local/bin/apt on Linux Mint
 
+[ $(id -un) = root ] || { echo "Please run 'sudo iiab'" ; exit 1 ; }
+
 # A. Subroutine for B. and D.  Returns true (0) if username ($1) exists with password ($2)
+command -v grep &> /dev/null || $APTPATH/apt -y install grep    # 3 MORE BELOW!
 check_user_pwd() {
     # $meth (hashing method) is typically '6' which implies 5000 rounds
     # of SHA-512 per /etc/login.defs -> /etc/pam.d/common-password
@@ -110,6 +113,8 @@ if [ -f $FLAGDIR/iiab-complete ]; then
 fi
 
 # E. Position & customize $CONFDIR/local_vars.yml
+command -v wget &> /dev/null || $APTPATH/apt -y install wget  # AS ABOVE (grep)
+command -v nano &> /dev/null || $APTPATH/apt -y install nano  # AND BELOW (git)
 cd $CONFDIR
 if [ -f local_vars.yml ]; then
 
@@ -204,7 +209,7 @@ fi
 
 # H. Clone 3 IIAB repos
 echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO $BASEDIR ...\n"
-$APTPATH/apt -y install git
+$APTPATH/apt -y install git # grep, wget, nano ABOVE -- AVOID UX CLUTTER+DELAYS
 mkdir -p $BASEDIR
 cd $BASEDIR
 echo
