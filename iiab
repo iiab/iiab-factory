@@ -178,7 +178,7 @@ echo -e "\n\n'apt update' is checking for OS updates...\n"
 #apt -y update || true    # Overrides 'set -e'
 #echo -e "\nNOW THE REAL 'apt update' WILL RUN...\n"
 $APTPATH/apt -qq update > /tmp/apt.stdout 2> /tmp/apt.stderr || true    # Overrides 'set -e'
-if [ $(wc -c < /tmp/apt.stderr) -gt 82 ]; then    # apt.stderr typically contains exactly 82 characters when there are no errors, no matter the primary locale, i.e. 3-line file "\nWARNING: apt does not have a stable CLI interface. Use with caution in scripts.\n\n" ...OR... in other cases more than 82, e.g. many lines of errors when apt is busy/locked/offline/etc
+if (( $(wc -c < /tmp/apt.stderr) > 82 )); then    # apt.stderr typically contains exactly 82 characters when there are no errors, no matter the primary locale, i.e. 3-line file "\nWARNING: apt does not have a stable CLI interface. Use with caution in scripts.\n\n" ...OR... in other cases more than 82, e.g. many lines of errors when apt is busy/locked/offline/etc
     echo -e "'apt update' FAILED. VERIFY YOU'RE ONLINE and resolve all errors below:\n"
     cat /tmp/apt.stderr
     exit 1
@@ -200,7 +200,7 @@ read ans < /dev/tty
 
 ######################### INTERACTIVE STUFF IS ABOVE #########################
 
-# G. If RPi, lower reserve disk space from ~5% to 2%
+# G. If microSD, lower reserve disk space from ~5% to 2%
 #if [ -f /proc/device-tree/model ] && grep -qi raspberry /proc/device-tree/model; then
 if [ -e /dev/mmcblk0p2 ]; then
     echo -e "\n\nFound microSD card /dev/mmcblk0p2: Lower its reserve disk space from ~5% to 2%\n"
@@ -209,7 +209,7 @@ fi
 
 # H. Clone 3 IIAB repos
 echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO $BASEDIR ...\n"
-$APTPATH/apt -y install git # grep, wget, nano ABOVE -- AVOID UX CLUTTER+DELAYS
+command -v git &> /dev/null || $APTPATH/apt -y install git    # AVOID UX CLUTTER+DELAYS
 mkdir -p $BASEDIR
 cd $BASEDIR
 echo
@@ -233,7 +233,7 @@ fi
 
 # I. Install optional PR's from iiab/iiab & iiab/iiab-admin-console
 echo -e "\n\nInstall any requested PR's e.g. 'sudo iiab 361 2604 2607'\n"
-$APTPATH/apt -y install jq    # UX delay is serious: try sed/awk instead?
+command -v jq &> /dev/null || $APTPATH/apt -y install jq    # UX delay is serious: try sed/awk instead?
 for pr in $*
 do
     if (( pr >= 1561 )); then    # iiab/iiab's lowest PR as of October 2020
@@ -356,7 +356,7 @@ fi
 # OLD WAY ABOVE - fails w/ sev ISPs per https://github.com/iiab/iiab/issues/871
 
 # L. Start BitTorrent downloads, e.g. if $CONFDIR/local_vars.yml requested any
-if (systemctl -q is-active transmission-daemon) then
+if systemctl -q is-active transmission-daemon; then
     echo -e "\n\nSTARTING BITTORRENT DOWNLOAD(S) for KA Lite...Please Monitor: http://box:9091\n"
     transmission-remote -n Admin:changeme -t all --start
 fi
