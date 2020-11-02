@@ -261,7 +261,7 @@ do
 
     echo -e "\nPR #$pr: cd /opt/iiab/$repo"
     cd /opt/iiab/$repo
-    #git checkout -b POTLUCK master    # If a branch norm is desired in future?
+    #git checkout -b POTLUCK master || true    # If test branch name/norm in future...for both repos?
     echo -e "git pull https://github.com/$account/$repo $branch"    # Or $repo.git
     git pull https://github.com/$account/$repo $branch || { echo -e "\ngit exit/error code: $?\n"; exit 1; }
     echo "$pr $(date '+%F %T %Z')" >> /etc/iiab/pr-list    # For iiab-diagnostics
