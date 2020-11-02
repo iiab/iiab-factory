@@ -237,9 +237,14 @@ fi
 # I. Install optional PR's from iiab/iiab & iiab/iiab-admin-console
 echo -e "\n\nINSTALL ANY REQUESTED PR's e.g. 'sudo iiab 361 2604 2607'"
 command -v jq &> /dev/null || $APTPATH/apt -y install jq # sed to avoid delays?
-cp /opt/iiab/iiab/vars/$local_vars_src_file /tmp
-git config --global user.email "you@example.com"    # For spot-testing only!
+if [ $# != 0 ]; then    # Stub email for 'git pull' if one isn't already set
+   git config --get user.email 1> /dev/null ||
+       git config --global user.email "you@example.com"
+   echo -e "\nYour git email is set to: $(git config --get user.email)"
+   echo -e 'Change this by running: sudo git config --global user.email "you@example.com"'
+fi
 
+cp /opt/iiab/iiab/vars/$local_vars_src_file /tmp
 for pr in $*
 do
     if (( pr >= 1561 )); then    # iiab/iiab's lowest PR as of October 2020
@@ -271,7 +276,8 @@ do
     cd /opt/iiab/$repo
     #git checkout -b POTLUCK master || true    # If test branch name/norm in future...for both repos?
     echo -e "git pull --no-edit https://github.com/$account/$repo $branch"    # Or $repo.git
-    git pull --no-edit https://github.com/$account/$repo $branch || { echo -e "\ngit exit/error code: $?\n"; exit 1; }
+    git pull --no-edit https://github.com/$account/$repo $branch ||
+        { echo -e "\ngit exit/error code: $?\n"; exit 1; }
 
     echo "$pr $(date '+%F %T %Z')" >> /etc/iiab/pr-list    # For iiab-diagnostics
 done
