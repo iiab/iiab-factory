@@ -51,6 +51,9 @@ APTPATH=/usr/bin    # Avoids problematic /usr/local/bin/apt on Linux Mint
 
 [ $(id -un) = root ] || { echo "Please run 'sudo iiab'" ; exit 1 ; }
 
+mkdir -p $FLAGDIR    # Whih also creates /etc/iiab
+[ $# != 0 ] && printf '%s\n' "$@" >> /etc/iiab/pr-queue   # Save for section I.
+
 # A. Subroutine for B. and D.  Returns true (0) if username ($1) exists with password ($2)
 command -v grep &> /dev/null ||
     $APTPATH/apt -y install grep    # AVOID UX CLUTTER+DELAYS: 4 MORE BELOW!
@@ -104,7 +107,6 @@ if check_user_pwd "$IIAB_ADMIN_USER" "$IIAB_ADMIN_PUBLISHED_PWD"; then
     echo "$IIAB_ADMIN_USER":"$ans" | chpasswd || true    # Overrides 'set -e'
 fi
 
-mkdir -p $FLAGDIR
 if [ -f $FLAGDIR/iiab-complete ]; then
     echo -e "\n\nIIAB INSTALLATION (/usr/sbin/iiab) IS ALREADY COMPLETE -- per existence of:"
     echo -e "$FLAGDIR/iiab-complete -- nothing to do.\n"
@@ -238,8 +240,10 @@ else
     git clone https://github.com/iiab/iiab-factory
 fi
 
-# I. Install optional PR's from iiab/iiab & iiab/iiab-admin-console
-echo -e "\n\nINSTALL ANY REQUESTED PR's e.g. 'sudo iiab 361 2604 2607'"
+# I. Install optional PR's
+echo -e "\n\nINSTALL PR's FROM iiab/iiab OR iiab/iiab-admin-console -- USAGE EXAMPLES:\n"
+echo -e "   sudo iiab 361 2604 2607"
+echo -e "   curl d.iiab.io/install.txt | sudo bash -s 361 2604 2607"
 command -v jq &> /dev/null ||
     $APTPATH/apt -y install jq    # sed to avoid delays?
 if [ $# != 0 ]; then    # Stub email for 'git pull' if one isn't already set
@@ -250,8 +254,20 @@ if [ $# != 0 ]; then    # Stub email for 'git pull' if one isn't already set
 fi
 
 cp /opt/iiab/iiab/vars/$local_vars_src_file /tmp
-for pr in "$@"
+# Similar to 'for pr in "$@"' but survives reboots:
+while [ -s /etc/iiab/pr-queue ]    # Test that file exists and is non-empty
 do
+    pr=$(head -1 /etc/iiab/pr-queue)    # Try the next PR, from top of queue
+    if ! [[ "$pr" =~ ^[1-9][0-9]*$ ]]; then
+        echo -e "\n\e[1mInvalid PR number:\e[0m $pr\n"
+        echo -n "Delete it from top of /etc/iiab/pr-queue and continue? [Y/n] "
+        read ans < /dev/tty
+        [ "$ans" = "n" ] || [ "$and" = "N" ] &&
+            exit 1
+        sed -i '1d' /etc/iiab/pr-queue    # Delete 1st line
+        continue
+    fi
+
     if (( pr >= 1561 )); then    # iiab/iiab's lowest PR as of October 2020
         repo=iiab
     else
@@ -261,18 +277,23 @@ do
     http_code=$(curl -sH "Accept: application/vnd.github.v3" https://api.github.com/repos/iiab/$repo/pulls/$pr -w "%{http_code}" -o /tmp/iiab-pr.json)
     if [ "$http_code" != 200 ] ; then
         echo -e "\n\e[41mCOULD NOT FIND PR #$pr (https://github.com/iiab/$repo/pull/$pr)\e[0m\n"
-        echo -e "\e[41mHTTP ERROR: $http_code\e[0m\e[1m\n"
+        echo -en "\e[41mHTTP ERROR: $http_code\e[0m\e[1m "
         [ "$http_code" = 403 ] &&
-            echo -e "403 errors can happen if you request 60+ PR's in one hour:\n"
+            echo -en "(DID YOU REQUEST 60+ PR's IN ONE HOUR?)"
+        [ "$http_code" = 404 ] &&
+            echo -en "(IS #$pr AN ISSUE, RATHER THAN A PR?)"
+        echo -e "\n"
 
         cat /tmp/iiab-pr.json    # GitHub sometimes includes an English explanation of the error, and URL, e.g. https://developer.github.com/v3/#rate-limiting
         echo
         curl -IsH "Accept: application/vnd.github.v3" https://api.github.com/repos/iiab/$repo/pulls/$pr    # HTTP headers typically reveal a lot more!
 
-        echo -e "\e[7mTry Pull Requests (NUMBERS) from iiab/iiab or iiab/iiab-admin-console e.g.:\e[0m\n"
-        echo -e "   sudo iiab 361 2604 2607"
-        echo -e "   curl d.iiab.io/install.txt | sudo bash -s 361 2604 2607\n"
-        exit 1
+        echo -n "Delete it from top of /etc/iiab/pr-queue and continue? [Y/n] "
+        read ans < /dev/tty
+        [ "$ans" = "n" ] || [ "$and" = "N" ] &&
+            exit 1
+        sed -i '1d' /etc/iiab/pr-queue    # Delete 1st line
+        continue
     fi
 
     account=$(jq -r '.head.label' /tmp/iiab-pr.json | cut -d: -f1)
@@ -282,9 +303,17 @@ do
     cd /opt/iiab/$repo
     #git checkout -b POTLUCK master || true    # If test branch name/norm in future...for both repos?
     echo -e "git pull --no-edit https://github.com/$account/$repo $branch"    # Or $repo.git
-    git pull --no-edit https://github.com/$account/$repo $branch ||
-        { echo -e "\ngit exit/error code: $?\n"; exit 1; }
+    git pull --no-edit https://github.com/$account/$repo $branch || {
+        echo -e "\n\e[1mgit exit/error code:\e[0m $?\n"    # if hides err code
+        echo -n "Delete it from top of /etc/iiab/pr-queue and continue? [Y/n] "
+        read ans < /dev/tty
+        [ "$ans" = "n" ] || [ "$and" = "N" ] &&
+            exit 1
+        sed -i '1d' /etc/iiab/pr-queue    # Delete 1st line
+        continue
+    }
 
+    sed -i '1d' /etc/iiab/pr-queue    # Delete 1st line
     echo "$pr $(date '+%F %T %Z')" >> /etc/iiab/pr-list    # For iiab-diagnostics
 done
 
