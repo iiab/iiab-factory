@@ -65,7 +65,7 @@ check_user_pwd() {
 }
 
 # B. Ask for password change if pi/raspberry default remains
-if check_user_pwd "pi" "raspberry" ; then
+if check_user_pwd "pi" "raspberry"; then
     echo -e "\n\nRaspberry Pi's are COMPROMISED often if the default password is not changed!\n"
 
     echo -n "What password do you want for GNU/Linux user 'pi' ? "
@@ -94,7 +94,7 @@ if ! grep -q '^iiab_admin_user_install:\s\+[fF]alse\b' /etc/iiab/local_vars.yml 
 fi
 
 # D. If 'iiab-admin' (or equivalent) use the default password, prompt for change
-if check_user_pwd "$IIAB_ADMIN_USER" "$IIAB_ADMIN_PUBLISHED_PWD" ; then
+if check_user_pwd "$IIAB_ADMIN_USER" "$IIAB_ADMIN_PUBLISHED_PWD"; then
     echo -e "\n\nUser '$IIAB_ADMIN_USER' retains default password '$IIAB_ADMIN_PUBLISHED_PWD' per http://FAQ.IIAB.IO\n"
 
     echo -e "This is for login to Internet-in-a-Box's Admin Console (http://box.lan/admin)"
@@ -115,8 +115,8 @@ fi
 # E. Position & customize $CONFDIR/local_vars.yml
 command -v wget &> /dev/null || $APTPATH/apt -y install wget  # AS ABOVE (grep)
 command -v nano &> /dev/null || $APTPATH/apt -y install nano  # AND BELOW (git)
-cd $CONFDIR
-if [ -f local_vars.yml ]; then
+local_vars_src_file=local_vars_big.yml    # Testing default, for section I. (PR's can change local_vars.yml templates)
+if [ -f /etc/iiab/local_vars.yml ]; then
 
     # FUTURE: Test if their local_vars.yml is sufficiently version-compatible !
 
@@ -142,23 +142,28 @@ else
     echo
     case $local_vars_size in
         1)
-            wget -O local_vars.yml https://github.com/iiab/iiab/raw/master/vars/local_vars_min.yml
+            local_vars_src_file=local_vars_min.yml
             ;;
         3)
-            wget -O local_vars.yml https://github.com/iiab/iiab/raw/master/vars/local_vars_big.yml
+            local_vars_src_file=local_vars_big.yml
             ;;
         m)
-            wget -O local_vars.yml https://github.com/iiab/iiab/raw/master/vars/local_vars_medical.yml
+            local_vars_src_file=local_vars_medical.yml
             ;;
         *)
-            wget -O local_vars.yml https://github.com/iiab/iiab/raw/master/vars/local_vars_medium.yml
+            local_vars_src_file=local_vars_medium.yml
             ;;
     esac
+    if [ -d /opt/iiab/iiab/vars ]; then
+        cp /opt/iiab/iiab/vars/$local_vars_src_file /etc/iiab/local_vars.yml
+    else
+        wget -O /etc/iiab/local_vars.yml https://github.com/iiab/iiab/raw/master/vars/$local_vars_src_file
+    fi
 
-    echo -en "\nEdit $CONFDIR/local_vars.yml to customize your Internet-in-a-Box? [Y/n] "
+    echo -en "\nEdit /etc/iiab/local_vars.yml to customize your Internet-in-a-Box? [Y/n] "
     read ans < /dev/tty
     if [ "$ans" != "n" ] && [ "$ans" != "N" ]; then
-        echo -e "\n1) PLEASE RUN: sudo nano $CONFDIR/local_vars.yml\n"
+        echo -e "\n1) PLEASE RUN: sudo nano /etc/iiab/local_vars.yml\n"
 
         echo -e "2) After you're done editing, RUN 'sudo iiab' TO CONTINUE!\n"
         exit 0
@@ -198,7 +203,7 @@ cat /tmp/apt.stdout    # "All packages are up to date.\n"
 echo -ne "\nHit [ENTER] to confirm you'll TRY TO RERUN 'sudo iiab' IF THERE IS A PROBLEM: "
 read ans < /dev/tty
 
-######################### INTERACTIVE STUFF IS ABOVE #########################
+####################### MAIN INTERACTIVE STUFF IS ABOVE #######################
 
 # G. If microSD, lower reserve disk space from ~5% to 2%
 #if [ -f /proc/device-tree/model ] && grep -qi raspberry /proc/device-tree/model; then
@@ -234,6 +239,7 @@ fi
 # I. Install optional PR's from iiab/iiab & iiab/iiab-admin-console
 echo -e "\n\nInstall any requested PR's e.g. 'sudo iiab 361 2604 2607'\n"
 command -v jq &> /dev/null || $APTPATH/apt -y install jq    # UX delay is serious: try sed/awk instead?
+cp /opt/iiab/iiab/vars/$local_vars_src_file /tmp
 for pr in $*
 do
     if (( pr >= 1561 )); then    # iiab/iiab's lowest PR as of October 2020
@@ -266,6 +272,20 @@ do
     git pull https://github.com/$account/$repo $branch || { echo -e "\ngit exit/error code: $?\n"; exit 1; }
     echo "$pr $(date '+%F %T %Z')" >> /etc/iiab/pr-list    # For iiab-diagnostics
 done
+if ! cmp -s /tmp/$local_vars_src_file /opt/iiab/iiab/vars/$local_vars_src_file; then
+    mv /etc/iiab/local_vars.yml /etc/iiab/local_vars.yml.old
+    cp /opt/iiab/iiab/vars/$local_vars_src_file /etc/iiab/local_vars.yml
+    echo -e "\nWARNING: /opt/iiab/iiab/vars/$local_vars_src_file HAS CHANGED.\n"
+    echo -e "YOUR /etc/iiab/local_vars.yml WAS MOVED TO local_vars.yml.old\n"
+    echo -n "Edit NEW /etc/iiab/local_vars.yml to customize Internet-in-a-Box? [Y/n] "
+    read ans < /dev/tty
+    if [ "$ans" != "n" ] && [ "$ans" != "N" ]; then
+        echo -e "\n1) PLEASE RUN: sudo nano /etc/iiab/local_vars.yml\n"
+
+        echo -e "2) After you're done editing, RUN 'sudo iiab' TO CONTINUE!\n"
+        exit 0
+    fi
+fi
 
 # J. Install Ansible + 2 IIAB repos
 echo -e "\n\nINSTALL ANSIBLE + CORE IIAB SOFTWARE + ADMIN CONSOLE / CONTENT PACK MENUS...\n"
