@@ -46,9 +46,7 @@
 
 set -e                                   # Exit on error (avoids snowballing)
 export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
-BASEDIR=/opt/iiab
-CONFDIR=/etc/iiab
-FLAGDIR=$CONFDIR/install-flags
+FLAGDIR=/etc/iiab/install-flags
 APTPATH=/usr/bin    # Avoids problematic /usr/local/bin/apt on Linux Mint
 
 [ $(id -un) = root ] || { echo "Please run 'sudo iiab'" ; exit 1 ; }
@@ -112,7 +110,7 @@ if [ -f $FLAGDIR/iiab-complete ]; then
     exit 0
 fi
 
-# E. Position & customize $CONFDIR/local_vars.yml
+# E. Position & customize /etc/iiab/local_vars.yml
 command -v wget &> /dev/null || $APTPATH/apt -y install wget  # AS ABOVE (grep)
 command -v nano &> /dev/null || $APTPATH/apt -y install nano  # AND BELOW (git)
 local_vars_src_file=local_vars_big.yml    # Testing default, for section I. (PR's can change local_vars.yml templates)
@@ -120,13 +118,13 @@ if [ -f /etc/iiab/local_vars.yml ]; then
 
     # FUTURE: Test if their local_vars.yml is sufficiently version-compatible !
 
-    echo -e "\n\n  EXISTING $CONFDIR/local_vars.yml is being used to install Internet-in-a-Box\n"
+    echo -e "\n\n  EXISTING /etc/iiab/local_vars.yml is being used to install Internet-in-a-Box\n"
 
     echo -e "   🚂 🚃 🚄 🚅 🚆 🚇 🚈 🚉 🚊 🚋 🚌 🚍 🚎 🚏 🚐 🚑 🚒 🚚 🚛 🚜 🚞 🚟 🚠 🚡 🚲\n"
 
     echo -e "                     Google 'local_vars.yml' to learn more!"
 else
-    echo -e "\n\nInstalling Internet-in-a-Box requires $CONFDIR/local_vars.yml\n"
+    echo -e "\n\nInstalling Internet-in-a-Box requires /etc/iiab/local_vars.yml\n"
 
     echo -e "Do you want (1) 🚵 MIN-sized (2) 🚢🚣 MEDIUM-sized or (3) 🚂🚃🚃 BIG-sized?"
     echo -e "Or (m) for 🚑 MEDICAL?       YOU NEED 2 GB RAM OR HIGHER, IF YOU CHOOSE (3)\n"
@@ -213,33 +211,34 @@ if [ -e /dev/mmcblk0p2 ]; then
 fi
 
 # H. Clone 3 IIAB repos
-echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO $BASEDIR ...\n"
+echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO /opt/iiab ..."
 command -v git &> /dev/null || $APTPATH/apt -y install git    # AVOID UX CLUTTER+DELAYS
-mkdir -p $BASEDIR
-cd $BASEDIR
+mkdir -p /opt/iiab
+cd /opt/iiab
 echo
 if [ -d iiab ]; then
     echo -e "REPO EXISTS? Consider 'cd /opt/iiab/iiab; git pull'"
 else
-    git clone https://github.com/iiab/iiab --depth 1
+    git clone https://github.com/iiab/iiab
 fi
 echo
 if [ -d iiab-admin-console ]; then
     echo -e "REPO EXISTS? Consider 'cd /opt/iiab/iiab-admin-console; git pull'"
 else
-    git clone https://github.com/iiab/iiab-admin-console --depth 1
+    git clone https://github.com/iiab/iiab-admin-console
 fi
 echo
 if [ -d iiab-factory ]; then
     echo -e "REPO EXISTS? Consider 'cd /opt/iiab/iiab-factory; git pull'"
 else
-    git clone https://github.com/iiab/iiab-factory --depth 1
+    git clone https://github.com/iiab/iiab-factory
 fi
 
 # I. Install optional PR's from iiab/iiab & iiab/iiab-admin-console
-echo -e "\n\nInstall any requested PR's e.g. 'sudo iiab 361 2604 2607'\n"
+echo -e "\n\nINSTALL ANY REQUESTED PR's e.g. 'sudo iiab 361 2604 2607'"
 command -v jq &> /dev/null || $APTPATH/apt -y install jq    # UX delay is serious: try sed/awk instead?
 cp /opt/iiab/iiab/vars/$local_vars_src_file /tmp
+git config --global user.email "you@example.com"    # For spot-testing only!
 for pr in $*
 do
     if (( pr >= 1561 )); then    # iiab/iiab's lowest PR as of October 2020
@@ -268,20 +267,20 @@ do
     echo -e "\nPR #$pr: cd /opt/iiab/$repo"
     cd /opt/iiab/$repo
     #git checkout -b POTLUCK master || true    # If test branch name/norm in future...for both repos?
-    echo -e "git pull https://github.com/$account/$repo $branch"    # Or $repo.git
-    git pull https://github.com/$account/$repo $branch || { echo -e "\ngit exit/error code: $?\n"; exit 1; }
+    echo -e "git pull --no-edit https://github.com/$account/$repo $branch"    # Or $repo.git
+    git pull --no-edit https://github.com/$account/$repo $branch || { echo -e "\ngit exit/error code: $?\n"; exit 1; }
+
     echo "$pr $(date '+%F %T %Z')" >> /etc/iiab/pr-list    # For iiab-diagnostics
 done
 if ! cmp -s /tmp/$local_vars_src_file /opt/iiab/iiab/vars/$local_vars_src_file; then
     mv /etc/iiab/local_vars.yml /etc/iiab/local_vars.yml.old
     cp /opt/iiab/iiab/vars/$local_vars_src_file /etc/iiab/local_vars.yml
-    echo -e "\nWARNING: /opt/iiab/iiab/vars/$local_vars_src_file HAS CHANGED.\n"
-    echo -e "YOUR /etc/iiab/local_vars.yml WAS MOVED TO local_vars.yml.old\n"
-    echo -n "Edit NEW /etc/iiab/local_vars.yml to customize Internet-in-a-Box? [Y/n] "
+    echo -e "\n\e[1mWARNING: /opt/iiab/iiab/vars/$local_vars_src_file HAS CHANGED!\n"
+    echo -e "YOUR /etc/iiab/local_vars.yml WAS MOVED TO /etc/iiab/local_vars.yml.old\e[0m\n"
+    echo -n "Edit the NEW /etc/iiab/local_vars.yml to customize Internet-in-a-Box? [Y/n] "
     read ans < /dev/tty
     if [ "$ans" != "n" ] && [ "$ans" != "N" ]; then
         echo -e "\n1) PLEASE RUN: sudo nano /etc/iiab/local_vars.yml\n"
-
         echo -e "2) After you're done editing, RUN 'sudo iiab' TO CONTINUE!\n"
         exit 0
     fi
@@ -291,7 +290,7 @@ fi
 echo -e "\n\nINSTALL ANSIBLE + CORE IIAB SOFTWARE + ADMIN CONSOLE / CONTENT PACK MENUS...\n"
 
 echo -e "Install Ansible..."
-cd $BASEDIR/iiab/scripts/
+cd /opt/iiab/iiab/scripts/
 ./ansible
 
 echo -e "\n┌──────────────────────────────────────────────────────────────────────────────┐"
@@ -303,7 +302,7 @@ echo -e "│                                                                    
 echo -e "│   child script ./iiab-install -- both avoid repeating any of the 9 stages.   │"
 echo -e "│                                                                              │"
 echo -e "└──────────────────────────────────────────────────────────────────────────────┘"
-cd $BASEDIR/iiab/
+cd /opt/iiab/iiab/
 ./iiab-install $@
 
 if [ -f $FLAGDIR/iiab-admin-console-complete ]; then
@@ -316,7 +315,7 @@ else
     echo -e "Install Admin Console... (also runs iiab-get-kiwix-cat to d/l Kiwix catalog,"
     echo -e "and installs Dynamic Menuing for /library/www/html/home/index.html)\n"
 
-    cd $BASEDIR/iiab-admin-console
+    cd /opt/iiab/iiab-admin-console
     ./install
     touch $FLAGDIR/iiab-admin-console-complete
 fi
@@ -375,7 +374,7 @@ fi
 # kalite manage retrievecontentpack download en
 # OLD WAY ABOVE - fails w/ sev ISPs per https://github.com/iiab/iiab/issues/871
 
-# L. Start BitTorrent downloads, e.g. if $CONFDIR/local_vars.yml requested any
+# L. Start BitTorrent downloads, e.g. if /etc/iiab/local_vars.yml requested any
 if systemctl -q is-active transmission-daemon; then
     echo -e "\n\nSTARTING BITTORRENT DOWNLOAD(S) for KA Lite...Please Monitor: http://box:9091\n"
     transmission-remote -n Admin:changeme -t all --start
