@@ -52,7 +52,7 @@ APTPATH=/usr/bin    # Avoids problematic /usr/local/bin/apt on Linux Mint
 [ $(id -un) = root ] || { echo "Please run 'sudo iiab'" ; exit 1 ; }
 
 # A. Subroutine for B. and D.  Returns true (0) if username ($1) exists with password ($2)
-command -v grep &> /dev/null || $APTPATH/apt -y install grep    # 3 MORE BELOW!
+command -v grep &> /dev/null || $APTPATH/apt -y install grep    # 4 MORE BELOW!
 check_user_pwd() {
     # $meth (hashing method) is typically '6' which implies 5000 rounds
     # of SHA-512 per /etc/login.defs -> /etc/pam.d/common-password
@@ -112,7 +112,7 @@ fi
 
 # E. Position & customize /etc/iiab/local_vars.yml
 command -v wget &> /dev/null || $APTPATH/apt -y install wget  # AS ABOVE (grep)
-command -v nano &> /dev/null || $APTPATH/apt -y install nano  # AND BELOW (git)
+command -v nano &> /dev/null || $APTPATH/apt -y install nano  # BELOW (git, jq)
 local_vars_src_file=local_vars_big.yml    # Testing default, for section I. (PR's can change local_vars.yml templates)
 if [ -f /etc/iiab/local_vars.yml ]; then
 
@@ -212,7 +212,7 @@ fi
 
 # H. Clone 3 IIAB repos
 echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO /opt/iiab ..."
-command -v git &> /dev/null || $APTPATH/apt -y install git    # AVOID UX CLUTTER+DELAYS
+command -v git &> /dev/null || $APTPATH/apt -y install git    # AVOID UX DELAYS
 mkdir -p /opt/iiab
 cd /opt/iiab
 echo
@@ -236,7 +236,7 @@ fi
 
 # I. Install optional PR's from iiab/iiab & iiab/iiab-admin-console
 echo -e "\n\nINSTALL ANY REQUESTED PR's e.g. 'sudo iiab 361 2604 2607'"
-command -v jq &> /dev/null || $APTPATH/apt -y install jq    # UX delay is serious: try sed/awk instead?
+command -v jq &> /dev/null || $APTPATH/apt -y install jq # sed to avoid delays?
 cp /opt/iiab/iiab/vars/$local_vars_src_file /tmp
 git config --global user.email "you@example.com"    # For spot-testing only!
 for pr in $*
