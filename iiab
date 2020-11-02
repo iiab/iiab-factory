@@ -314,7 +314,7 @@ do
     }
 
     sed -i '1d' /etc/iiab/pr-queue    # Delete 1st line
-    echo "$pr $(date '+%F %T %Z')" >> /etc/iiab/pr-list    # For iiab-diagnostics
+    echo "$pr $(date '+%F %T %Z')" >> /etc/iiab/pr-list-pulled    # For iiab-diagnostics
 done
 
 if ! cmp -s /tmp/$local_vars_src_file /opt/iiab/iiab/vars/$local_vars_src_file; then
