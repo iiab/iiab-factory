@@ -48,7 +48,7 @@ set -e                                   # Exit on error (avoids snowballing)
 export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
 
 # Save script to /usr/sbin/iiab (easy resume/continue mnemonic 'sudo iiab')
-mv /usr/sbin/iiab /usr/sbin/iiab.old || true    # Overrides 'set -e'
+mv /usr/sbin/iiab /usr/sbin/iiab.old 2> /dev/null || true    # Overrides 'set -e'
 curl https://raw.githubusercontent.com/iiab/iiab-factory/master/iiab > /usr/sbin/iiab
 chmod 0744 /usr/sbin/iiab
 
