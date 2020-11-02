@@ -239,6 +239,7 @@ echo -e "\n\nINSTALL ANY REQUESTED PR's e.g. 'sudo iiab 361 2604 2607'"
 command -v jq &> /dev/null || $APTPATH/apt -y install jq # sed to avoid delays?
 cp /opt/iiab/iiab/vars/$local_vars_src_file /tmp
 git config --global user.email "you@example.com"    # For spot-testing only!
+
 for pr in $*
 do
     if (( pr >= 1561 )); then    # iiab/iiab's lowest PR as of October 2020
@@ -252,9 +253,11 @@ do
         echo -e "\n\e[41mCOULD NOT FIND PR #$pr (https://github.com/iiab/$repo/pull/$pr)\e[0m\n"
         echo -e "\e[41mHTTP ERROR: $http_code\e[0m\e[1m\n"
         [ "$http_code" = 403 ] && echo -e "403 errors can happen if you request 60+ PR's in one hour:\n"
+
         cat /tmp/iiab-pr.json    # GitHub sometimes includes an English explanation of the error, and URL, e.g. https://developer.github.com/v3/#rate-limiting
         echo
         curl -IsH "Accept: application/vnd.github.v3" https://api.github.com/repos/iiab/$repo/pulls/$pr    # HTTP headers typically reveal a lot more!
+
         echo -e "\e[7mTry Pull Requests (NUMBERS) from iiab/iiab or iiab/iiab-admin-console e.g.:\e[0m\n"
         echo -e "   sudo iiab 361 2604 2607"
         echo -e "   curl d.iiab.io/install.txt | sudo bash -s 361 2604 2607\n"
@@ -272,9 +275,11 @@ do
 
     echo "$pr $(date '+%F %T %Z')" >> /etc/iiab/pr-list    # For iiab-diagnostics
 done
+
 if ! cmp -s /tmp/$local_vars_src_file /opt/iiab/iiab/vars/$local_vars_src_file; then
     mv /etc/iiab/local_vars.yml /etc/iiab/local_vars.yml.old
     cp /opt/iiab/iiab/vars/$local_vars_src_file /etc/iiab/local_vars.yml
+
     echo -e "\n\e[1mWARNING: /opt/iiab/iiab/vars/$local_vars_src_file HAS CHANGED!\n"
     echo -e "YOUR /etc/iiab/local_vars.yml WAS MOVED TO /etc/iiab/local_vars.yml.old\e[0m\n"
     echo -n "Edit the NEW /etc/iiab/local_vars.yml to customize Internet-in-a-Box? [Y/n] "
