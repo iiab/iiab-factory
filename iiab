@@ -250,7 +250,7 @@ if [ $# != 0 ]; then    # Stub email for 'git pull' if one isn't already set
 fi
 
 cp /opt/iiab/iiab/vars/$local_vars_src_file /tmp
-for pr in $*
+for pr in "$@"
 do
     if (( pr >= 1561 )); then    # iiab/iiab's lowest PR as of October 2020
         repo=iiab
@@ -320,7 +320,7 @@ echo -e "│   child script ./iiab-install -- both avoid repeating any of the 9 
 echo -e "│                                                                              │"
 echo -e "└──────────────────────────────────────────────────────────────────────────────┘"
 cd /opt/iiab/iiab/
-./iiab-install $@
+./iiab-install    # "$@"
 
 if [ -f $FLAGDIR/iiab-admin-console-complete ]; then
     echo -e "ADMIN CONSOLE INSTALLATION IS ALREADY COMPLETE -- per existence of:"
