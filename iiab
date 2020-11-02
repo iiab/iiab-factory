@@ -52,7 +52,8 @@ APTPATH=/usr/bin    # Avoids problematic /usr/local/bin/apt on Linux Mint
 [ $(id -un) = root ] || { echo "Please run 'sudo iiab'" ; exit 1 ; }
 
 # A. Subroutine for B. and D.  Returns true (0) if username ($1) exists with password ($2)
-command -v grep &> /dev/null || $APTPATH/apt -y install grep    # 4 MORE BELOW!
+command -v grep &> /dev/null ||
+    $APTPATH/apt -y install grep    # AVOID UX CLUTTER+DELAYS: 4 MORE BELOW!
 check_user_pwd() {
     # $meth (hashing method) is typically '6' which implies 5000 rounds
     # of SHA-512 per /etc/login.defs -> /etc/pam.d/common-password
@@ -111,8 +112,10 @@ if [ -f $FLAGDIR/iiab-complete ]; then
 fi
 
 # E. Position & customize /etc/iiab/local_vars.yml
-command -v wget &> /dev/null || $APTPATH/apt -y install wget  # AS ABOVE (grep)
-command -v nano &> /dev/null || $APTPATH/apt -y install nano  # BELOW (git, jq)
+command -v wget &> /dev/null ||
+    $APTPATH/apt -y install wget  # AS ABOVE (grep)
+command -v nano &> /dev/null ||
+    $APTPATH/apt -y install nano  # BELOW (git, jq)
 local_vars_src_file=local_vars_big.yml    # Testing default, for section I. (PR's can change local_vars.yml templates)
 if [ -f /etc/iiab/local_vars.yml ]; then
 
@@ -212,7 +215,8 @@ fi
 
 # H. Clone 3 IIAB repos
 echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO /opt/iiab ..."
-command -v git &> /dev/null || $APTPATH/apt -y install git    # AVOID UX DELAYS
+command -v git &> /dev/null ||
+    $APTPATH/apt -y install git    # AVOID UX CLUTTER+DELAYS
 mkdir -p /opt/iiab
 cd /opt/iiab
 echo
@@ -236,7 +240,8 @@ fi
 
 # I. Install optional PR's from iiab/iiab & iiab/iiab-admin-console
 echo -e "\n\nINSTALL ANY REQUESTED PR's e.g. 'sudo iiab 361 2604 2607'"
-command -v jq &> /dev/null || $APTPATH/apt -y install jq # sed to avoid delays?
+command -v jq &> /dev/null ||
+    $APTPATH/apt -y install jq    # sed to avoid delays?
 if [ $# != 0 ]; then    # Stub email for 'git pull' if one isn't already set
    git config --get user.email 1> /dev/null ||
        git config --global user.email "you@example.com"
@@ -257,7 +262,8 @@ do
     if [ "$http_code" != 200 ] ; then
         echo -e "\n\e[41mCOULD NOT FIND PR #$pr (https://github.com/iiab/$repo/pull/$pr)\e[0m\n"
         echo -e "\e[41mHTTP ERROR: $http_code\e[0m\e[1m\n"
-        [ "$http_code" = 403 ] && echo -e "403 errors can happen if you request 60+ PR's in one hour:\n"
+        [ "$http_code" = 403 ] &&
+            echo -e "403 errors can happen if you request 60+ PR's in one hour:\n"
 
         cat /tmp/iiab-pr.json    # GitHub sometimes includes an English explanation of the error, and URL, e.g. https://developer.github.com/v3/#rate-limiting
         echo
