@@ -16,3 +16,6 @@
 7 gitea #2554
 8 phpMyAdmin #2568
 9 sugarizer #2569
+10 www_base #2581 #2583 for osm
+11 nodejs  #2606 Node.js 12.x -> 14.x
+12 udev #2607 drop udev-restart handle via iiab-upgrade script

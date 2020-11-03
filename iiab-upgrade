@@ -382,6 +382,14 @@ if [ $UPDATE == 1 ]; then
             sed -i "/^$force/d" $IIABSTATE
         fi
     done
+
+    if [ $OLDREV -lt 10 ]; then
+        ./runrole www_base
+    fi
+
+    if [ -f /etc/systemd/system/udev-reload ]; then
+        systemctl disable udev-reload
+    fi
     ./iiab-configure
     if ! [ -f upgrade_roles ]; then
         echo "manually update $IIABENV with IIAB_REVISION while 2500 is sidelined"
