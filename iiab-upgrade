@@ -3,7 +3,7 @@
 set -e                                   # Exit on error (avoids snowballing)
 export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
 SCRIPT=iiab-upgrade
-RELEASE=1
+RELEASE=3
 CURR_VER=""             # Ansible version you currently have installed
 GOOD_VER="2.10.1"       # Trigger point for anisble forced reinstall
 BASEDIR=/opt/iiab
@@ -17,7 +17,8 @@ INTERACTIVE=0
 UPDATE=0
 MASTER=1
 TEST=jv
-IIABTEST=iiab-ng-7.2
+#IIABTEST=iiab-ng-7.2
+IIABTEST=""
 MIN_RPI_KERN=1336
 SELFUPDATE_SCRIPT="/tmp/.updateScript.sh"
 
@@ -364,24 +365,26 @@ echo -e "│                                                                    
 echo -e "└──────────────────────────────────────────────────────────────────────────────┘"
 cd $BASEDIR/iiab/
 if [ $UPDATE == 1 ]; then
-    for REV in $(cat $upg_path/upgrade_roles | awk '{print $1}'); do
-        if [ $REV -gt $OLDREV ]; then
-            echo "found REV $REV - OLDREV $OLDREV"
-            force=$(grep $REV upgrade_roles | awk '{print $2}')
-            echo "REV has $force"
+    echo "upg_path is $upg_path"
+    echo "OLDREV is $OLDREV"
+    input="$upg_path/upgrade_roles"
+    while IFS= read -r REV
+    do
+        echo "REV is $REV"
+        if [ $(echo $REV | awk '{print $1}') -gt $OLDREV ]; then
+            echo "found REV $REV"
+            force=$(echo $REV | awk '{print $2}')
             if [ "$force" == "calibre-web" ]; then # role directory & installed marker differ
                 force=calibreweb
             elif [ "$force" == "httpd" ]; then # role directory & installed marker differ
                 force=apache
             elif [ "$force" == "osm-vector-maps" ]; then # role directory & installed marker differ
                 force=osm_vector_maps
-            else
-                echo "no mismatch"
             fi
-            echo -e "\nREV has $force - removing from iiab_state.yml"
+            echo -e "REV has $force - removing from iiab_state.yml\\n"
             sed -i "/^$force/d" $IIABSTATE
         fi
-    done
+    done < "$input"
 
     if [ $OLDREV -lt 10 ]; then
         ./runrole www_base
