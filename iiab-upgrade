@@ -3,7 +3,7 @@
 set -e                                   # Exit on error (avoids snowballing)
 export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
 SCRIPT=iiab-upgrade
-RELEASE=3
+RELEASE=4
 CURR_VER=""             # Ansible version you currently have installed
 GOOD_VER="2.10.1"       # Trigger point for anisble forced reinstall
 BASEDIR=/opt/iiab
@@ -131,7 +131,7 @@ function check_revision(){
         OLDREV=$IIAB_REVISION
         upgrade_source
         if [ $NEWREV -gt $OLDREV ] && [ $STAGE -eq 9 ]; then
-            echo -e "\nNEW IIAB Revison Found\n"
+            echo -e "\nNEW IIAB Revison $NEWREV Found\n"
             UPDATE=1
         fi
     fi
