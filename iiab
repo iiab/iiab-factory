@@ -51,7 +51,7 @@ APTPATH=/usr/bin    # Avoids problematic /usr/local/bin/apt on Linux Mint
 
 [ $(id -un) = root ] || { echo "Please run 'sudo iiab'" ; exit 1 ; }
 
-mkdir -p $FLAGDIR    # Whih also creates /etc/iiab
+mkdir -p $FLAGDIR    # Which also creates /etc/iiab
 # Save CLI params (PR #s) for section I. so 'sudo iiab' continues after reboots
 [ $# != 0 ] && printf '%s\n' "$@" >> /etc/iiab/pr-queue
 
