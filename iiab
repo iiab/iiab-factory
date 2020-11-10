@@ -49,7 +49,6 @@ export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
 FLAGDIR=/etc/iiab/install-flags
 APTPATH=/usr/bin    # Avoids problematic /usr/local/bin/apt on Linux Mint
 
-# Subroutine for B. and D. Returns true (0) if username ($1) exists with password ($2)
 check_user_pwd() {
     # $meth (hashing method) is typically '6' which implies 5000 rounds
     # of SHA-512 per /etc/login.defs -> /etc/pam.d/common-password
@@ -76,6 +75,9 @@ if [ -f $FLAGDIR/iiab-complete ]; then
 else
     mkdir -p $FLAGDIR
 fi
+
+# Save CLI params (PR #s) for section I. so 'sudo iiab' continues after reboots
+[ $# != 0 ] && printf '%s\n' "$@" >> /etc/iiab/pr-queue
 
 # A. Position & customize /etc/iiab/local_vars.yml
 local_vars_src_file=local_vars_big.yml    # Testing default, for section I. (PR's can change local_vars.yml templates)
@@ -282,7 +284,7 @@ do
         echo -e "\n\e[1mInvalid PR number:\e[0m $pr\n"
         echo -n "Delete it from top of /etc/iiab/pr-queue and continue? [Y/n] "
         read ans < /dev/tty
-        [ "$ans" = "n" ] || [ "$and" = "N" ] &&
+        [ "$ans" = "n" ] || [ "$ans" = "N" ] &&
             exit 1
         sed -i '1d' /etc/iiab/pr-queue    # Delete 1st line
         continue
@@ -310,7 +312,7 @@ do
 
         echo -n "Delete it from top of /etc/iiab/pr-queue and continue? [Y/n] "
         read ans < /dev/tty
-        [ "$ans" = "n" ] || [ "$and" = "N" ] &&
+        [ "$ans" = "n" ] || [ "$ans" = "N" ] &&
             exit 1
         sed -i '1d' /etc/iiab/pr-queue    # Delete 1st line
         continue
@@ -327,7 +329,7 @@ do
         echo -e "\n\e[1mgit exit/error code:\e[0m $?\n"    # if hides err code
         echo -n "Delete it from top of /etc/iiab/pr-queue and continue? [Y/n] "
         read ans < /dev/tty
-        [ "$ans" = "n" ] || [ "$and" = "N" ] &&
+        [ "$ans" = "n" ] || [ "$ans" = "N" ] &&
             exit 1
         sed -i '1d' /etc/iiab/pr-queue    # Delete 1st line
         continue
