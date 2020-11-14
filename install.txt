@@ -48,9 +48,11 @@ set -e                                   # Exit on error (avoids snowballing)
 export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
 
 # Save script to /usr/sbin/iiab (easy resume/continue mnemonic 'sudo iiab')
-mv /usr/sbin/iiab /usr/sbin/iiab.old || true    # Overrides 'set -e'
+mv /usr/sbin/iiab /usr/sbin/iiab.old 2> /dev/null || true    # Overrides 'set -e'
 curl https://raw.githubusercontent.com/iiab/iiab-factory/master/iiab > /usr/sbin/iiab
 chmod 0744 /usr/sbin/iiab
 
 # Run install script!
-/usr/sbin/iiab
+/usr/sbin/iiab "$@" # Pass on all CLI params (PR #s) for easy community testing
+# allowing for e.g.: curl d.iiab.io/install.txt | sudo bash -s 361 2604 2607
+# As explained in /usr/sbin/iiab Lines 244-319 ("I. Install optional PR's").
