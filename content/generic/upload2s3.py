@@ -122,6 +122,7 @@ with open("%s/upload.list"%WORKING_DIR,"r") as fp:
         #print(metadata)
         if len(metadata) != 0:
             print('file %s is already uploaded'%line)
+            print(str(metadata))
         else:
             print('%s is missing from bucket'%line)
             local_md = {}
