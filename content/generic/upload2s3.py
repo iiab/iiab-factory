@@ -79,7 +79,8 @@ def upload_file_to_s3(fname,meta,folder=''):
         folder += '/'
     try:
         client.upload_file(fname,'iiab',folder + fname,
-            ExtraArgs={'Metadata': meta},
+            ExtraArgs={'Metadata': meta,
+                       'ACL': 'public-read'},
             Callback=ProgressPercentage(fname))
     except Exception as e:
         print(e)
