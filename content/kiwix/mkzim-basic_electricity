@@ -1,0 +1,8 @@
+zimwriterfs --welcome=index.html --favicon=favicon.png --language="eng" \
+   --title="Basic Electricity"\
+   --description="Direct and Alternating Current, Measurements, Safety"  \
+   --creator="Tony R. Kuphaldt"  \
+   --publisher="Internet in a Box" \
+   --withFullTextIndex \
+   --tags="Learning Materials;_category:high_shcool;_pictures:yes;_videos:no;_details:yes;_ftindex:yes" \
+ /library/www/html/basic_electricity/en/ /root/new_zims/basic_elecricity_en_all_min_2020-11.zim
