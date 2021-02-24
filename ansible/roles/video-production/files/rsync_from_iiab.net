@@ -1,0 +1,4 @@
+#!/bin/bash -x
+# get any changed video metadata from the demo spot
+
+rsync -rpv  root@iiab.net:/library/www/html/info/videos/* /library/www/html/info/videos/

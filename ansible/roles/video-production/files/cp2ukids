@@ -1,0 +1,7 @@
+#!/bin/bash -x
+# copy the zipped videos to unleashkids.org
+if [ $# -eq 0 ];then
+   echo -e "\nPlease pass the name of the zip file as the first parameter."
+   exit 1
+fi
+scp $1 ghunt@unleashkids.org:/var/www/d.iiab.io/content/videos/
