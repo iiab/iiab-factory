@@ -6,12 +6,12 @@ DOCROOT=/library/www/html
 
 # Must supply ZIM
 if [ $# -eq 0 ];then
-   echo "Pleaes supply ZIM filename in CWD or absolute path"
+   echo "Please supply ZIM filename in CWD or absolute path"
    exit 1
 fi
 
 # see if supplied filename works
-if [ -f $1 ];then
+if [ ! -f $1 ];then
    echo Could not open $1. Quitting . . .
    exit 1
 fi
@@ -24,20 +24,20 @@ if [ -d $DOCROOT/zimtest ];then
    fi
 fi
 
+# Delete the previous contents of zimtest
+rm -rf $DOCROOT/zimtest
 # Make directory
 mkdir -p $DOCROOT/zimtest
-echo "This de-namespace file reminds your that this folder will be overwritten? > $DOCROOT/zimtest/de-namespace
+echo "This de-namespace file reminds you that this folder will be overwritten?" > $DOCROOT/zimtest/de-namespace
 
 zimdump dump --dir=$DOCROOT/zimtest $1
 
-# stop for now and look around
-exit 0
 
-root=$(pwd)
+cd $DOCROOT/zimtest
 # put all of the images back in their original places
 cd I
 mv * ..
-cd $root
+cd $DOCROOT/zimtest
 if [ -d I ];then
    rmdir I
 fi
@@ -46,7 +46,7 @@ fi
 cd A
 cp -rp * ..
 
-ch $root
+cd $DOCROOT/zimtest
 if [ -d A ];then
    rm -rf A
 fi
