@@ -32,27 +32,27 @@ echo "This de-namespace file reminds you that this folder will be overwritten?" 
 
 zimdump dump --dir=$DOCROOT/zimtest $1
 
+# stop here to look around at the clean dumped format
+exit 0
 
-cd $DOCROOT/zimtest
 # put all of the images back in their original places
-cd I
-mv * ..
-cd $DOCROOT/zimtest
+mv $DOCROOT/zimtest/I/* $DOCROOT/zimtest/
 if [ -d I ];then
    rmdir I
 fi
 
 # Clip off the A namespace for html
-cd A
-cp -rp * ..
+cp -rp $DOCROOT/zimtest/A/* $DOCROOT/zimtest/
+cp -rp $DOCROOT/zimtest/-/* $DOCROOT/zimtest/
 
-cd $DOCROOT/zimtest
-if [ -d A ];then
-   rm -rf A
+if [ -d $DOCROOT/zimtest/A ];then
+   rm -rf $DOCROOT/zimtest/A
 fi
 
+cd $DOCROOT/zimtest
 for f in $(find .|grep html); do
    sed -i -e's|../../I/|../|' $f
+   sed -i -e's|../../-/|../|' $f
    sed -i -e's|../I/|./|' $f
 done
 
