@@ -33,7 +33,7 @@ echo "This de-namespace file reminds you that this folder will be overwritten?" 
 zimdump dump --dir=$DOCROOT/zimtest $1
 
 # stop here to look around at the clean dumped format
-exit 0
+# exit 0
 
 # put all of the images back in their original places
 mv $DOCROOT/zimtest/I/* $DOCROOT/zimtest/
@@ -55,4 +55,7 @@ for f in $(find .|grep html); do
    sed -i -e's|../../-/|../|' $f
    sed -i -e's|../I/|./|' $f
 done
-
+for f in $(find $DOCROOT/zimtest -type f -maxdepth 1 );do
+   sed -i -e's|../-/|./|' $f
+   sed -i -e's|../I/|./|' $f
+done
