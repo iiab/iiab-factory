@@ -5,8 +5,8 @@
 DOCROOT=/library/www/html
 
 # Must supply ZIM
-if [ $# -eq 0 ];then
-   echo "Please supply ZIM filename in CWD or absolute path"
+if [ $# -lt 2 ];then
+   echo "Please supply absolute path of ZIM filename and the project name"
    exit 1
 fi
 
@@ -24,10 +24,17 @@ if [ -d $DOCROOT/zimtest ];then
    fi
 fi
 
+# for use in jupyter notebook, do not overwrite any tree contents
+contents=$(ls $DOCROOT/zimtest/$2/tree|wc -l)
+if [ $contents -ne 0 ];then
+    echo "The $DOCROOT/zimtest/$2/tree is not empty. Delete if you want to repeat this step."
+    exit 0
+fi
+
 # Delete the previous contents of zimtest
-rm -rf $DOCROOT/zimtest
+rm -rf $DOCROOT/zimtest/$2/tree
 # Make directory
-mkdir -p $DOCROOT/zimtest
+mkdir -p $DOCROOT/zimtest/$2/tree
 echo "This de-namespace file reminds you that this folder will be overwritten?" > $DOCROOT/zimtest/de-namespace
 
 zimdump dump --dir=$DOCROOT/zimtest $1
