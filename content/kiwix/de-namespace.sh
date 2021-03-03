@@ -1,8 +1,5 @@
-#!/bin/bash -x
-# dump param #1 (zim in CWD or absolute path) to DOCROOT,and de-namespace
-
-# GLOBALS
-DOCROOT=/library/www/html
+#!/bin/bash -x -e
+# dump param #1 (zim in CWD or absolute path) to work area,and de-namespace
 
 # Must supply ZIM
 if [ $# -lt 2 ];then
@@ -16,53 +13,45 @@ if [ ! -f $1 ];then
    exit 1
 fi
 
-# We will take DOCROOT/zimtest if it is not used
-if [ -d $DOCROOT/zimtest ];then
-   if [ ! -f $DOCROOT/zimtest/de-namespace ];then
-      echo "$DOCROOT/zimtest exists but is not ours. Please delete or move"
-      exit 1
-   fi
-fi
-
 # for use in jupyter notebook, do not overwrite any tree contents
-contents=$(ls $DOCROOT/zimtest/$2/tree|wc -l)
+contents=$(ls $HOME/zimtest/$2/tree|wc -l)
 if [ $contents -ne 0 ];then
-    echo "The $DOCROOT/zimtest/$2/tree is not empty. Delete if you want to repeat this step."
+    echo "The $HOME/zimtest/$2/tree is not empty. Delete if you want to repeat this step."
     exit 0
 fi
 
 # Delete the previous contents of zimtest
-rm -rf $DOCROOT/zimtest/$2/tree
+rm -rf $HOME/zimtest/$2/tree
 # Make directory
-mkdir -p $DOCROOT/zimtest/$2/tree
-echo "This de-namespace file reminds you that this folder will be overwritten?" > $DOCROOT/zimtest/de-namespace
+mkdir -p $HOME/zimtest/$2/tree
+echo "This de-namespace file reminds you that this folder will be overwritten?" > $HOME/zimtest/$2/tree/de-namespace
 
-zimdump dump --dir=$DOCROOT/zimtest $1
+zimdump dump --dir=$HOME/zimtest/$2/tree $1
 
 # stop here to look around at the clean dumped format
 # exit 0
 
 # put all of the images back in their original places
-mv $DOCROOT/zimtest/I/* $DOCROOT/zimtest/
+mv $HOME/zimtest/$2/tree/I/* $HOME/zimtest/$2/tree
 if [ -d I ];then
    rmdir I
 fi
 
 # Clip off the A namespace for html
-cp -rp $DOCROOT/zimtest/A/* $DOCROOT/zimtest/
-cp -rp $DOCROOT/zimtest/-/* $DOCROOT/zimtest/
+cp -rp $HOME/zimtest/$2/tree/A/* $HOME/zimtest/$2/tree
+cp -rp $HOME/zimtest/$2/tree/-/* $HOME/zimtest/$2/tree
 
-if [ -d $DOCROOT/zimtest/A ];then
-   rm -rf $DOCROOT/zimtest/A
+if [ -d $HOME/zimtest/$2/tree/A ];then
+   rm -rf $HOME/zimtest/$2/tree/A
 fi
 
-cd $DOCROOT/zimtest
+cd $HOME/zimtest/$2/tree
 for f in $(find .|grep html); do
    sed -i -e's|../../I/|../|' $f
    sed -i -e's|../../-/|../|' $f
    sed -i -e's|../I/|./|' $f
 done
-for f in $(find $DOCROOT/zimtest -type f -maxdepth 1 );do
+for f in $(find $HOME/zimtest/$2/tree -maxdepth 1 -type f );do
    sed -i -e's|../-/|./|' $f
    sed -i -e's|../I/|./|' $f
 done
