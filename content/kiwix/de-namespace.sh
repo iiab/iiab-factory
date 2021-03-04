@@ -1,5 +1,6 @@
-#!/bin/bash -x -e
+#!/bin/bash -x 
 # dump param #1 (zim in CWD or absolute path) to work area,and de-namespace
+set -e
 
 # Must supply ZIM
 if [ $# -lt 2 ];then
