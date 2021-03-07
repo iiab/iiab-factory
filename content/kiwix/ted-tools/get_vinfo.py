@@ -16,6 +16,7 @@ class Zim_tools(object):
         return minfo.to_data()
 
     def select_info(self,path):
+        global data
         if path[0] != "/":
             path = os.path.join(self.ted_root,path)
         data = self.mediainfo_dict(path)
@@ -32,12 +33,15 @@ class Zim_tools(object):
                 rtn['a_channels'] = track['channel_s']
             if track['kind_of_stream'] == 'Video':
                 rtn['v_stream'] = track['stream_size']
+                rtn['v_format'] = track['other_format'][0]
                 rtn['v_rate'] = track['bit_rate']
                 rtn['v_frame_rate'] = track['frame_rate']
         return rtn
         
 if __name__ == "__main__":
-    ted_path = '/library/www/html/zimtest/'
+    data = {}
+    ted_path = '/library/www/html/zimtest/teded/tree'
     zt = Zim_tools(ted_path)
     relative_path = 'videos/ZZZ6QB5TSfk/video.webm'
     pprint(zt.select_info(relative_path))
+    pprint(data)
