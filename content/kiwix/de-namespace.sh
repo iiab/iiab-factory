@@ -30,7 +30,8 @@ echo "This de-namespace file reminds you that this folder will be overwritten?" 
 zimdump dump --dir=$HOME/zimtest/$2/tree $1
 
 # stop here to look around at the clean dumped format
-# exit 0
+# It looks like just living with the namespace layout imposed by zim spec might be a better strategy
+exit 0
 
 # put all of the images back in their original places
 mv $HOME/zimtest/$2/tree/I/* $HOME/zimtest/$2/tree
