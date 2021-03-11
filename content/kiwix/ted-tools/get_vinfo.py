@@ -37,7 +37,7 @@ class Zim_tools(object):
         return rtn
         
 if __name__ == "__main__":
-    ted_path = '/library/www/html/zimtest/'
+    ted_path = '/library/www/html/zimtest/teded/tree'
     zt = Zim_tools(ted_path)
     relative_path = 'videos/ZZZ6QB5TSfk/video.webm'
     pprint(zt.select_info(relative_path))
