@@ -25,11 +25,12 @@ apt install -y pkgconf
 
 cd $PREFIX/libzim
 meson . build
-ninja -C build install
+ninja -C build
 if [ $? -ne 0 ];then
    echo Build of libzim failed. Quitting . . .
    exit 1
 fi
+ninja -C build install
 
 cd $PREFIX/zim-tools
 meson . build
