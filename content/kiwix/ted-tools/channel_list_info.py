@@ -14,7 +14,7 @@ if not os.path.isfile(sys.argv[1]):
     print('%s file not found'%sys.argv[1])
     sys.exit(1)
 
-api_key = 'AIzaSyBWvv2Hnhak_VufcnIV2Xs9NVLEtk-wzoo'
+api_key = os.environ['API_KEY']
 
 def main():
     os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
