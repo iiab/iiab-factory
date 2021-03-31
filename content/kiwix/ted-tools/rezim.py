@@ -15,12 +15,14 @@ with open(CACHE_DIR + '/pass_baton.json','r') as fp:
 OUTPUT_DIR = baton['OUTPUT_DIR']
 PROJECT_NAME = baton['PROJECT_NAME']
 NEW_ZIM_DIR = baton['NEW_ZIM_DIR']
-pprint.pprint(baton)
     
 
 period = datetime.datetime.now().strftime("%Y-%m")
 fname = f"{PROJECT_NAME}_{period}"
+pprint.pprint(baton)
+print('fname:%s'%fname)
 #logger.info("building ZIM file")
+#sys.exit(1)
 
 os.chdir(OUTPUT_DIR)
 make_zim_file(
