@@ -31,7 +31,7 @@ zimdump dump --dir=$HOME/zimtest/$2/tree $1
 
 # stop here to look around at the clean dumped format
 # It looks like just living with the namespace layout imposed by zim spec might be a better strategy
-exit 0
+#exit 0
 
 # put all of the images back in their original places
 mv $HOME/zimtest/$2/tree/I/* $HOME/zimtest/$2/tree
@@ -48,12 +48,13 @@ if [ -d $HOME/zimtest/$2/tree/A ];then
 fi
 
 cd $HOME/zimtest/$2/tree
-for f in $(find .|grep html); do
-   sed -i -e's|../../I/|../|' $f
-   sed -i -e's|../../-/|../|' $f
-   sed -i -e's|../I/|./|' $f
+for f in $(find .|grep -e html -e css); do
+   sed -i -e's|../../../I/||g' $f
+   sed -i -e's|../../I/||g' $f
+   sed -i -e's|../I/||g' $f
+   sed -i -e's|../../-/||g' $f
+   sed -i -e's|../A/||g' $f
 done
 for f in $(find $HOME/zimtest/$2/tree -maxdepth 1 -type f );do
-   sed -i -e's|../-/|./|' $f
-   sed -i -e's|../I/|./|' $f
+   sed -i -e's|../-/||g' $f
 done
