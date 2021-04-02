@@ -1,0 +1,20 @@
+
+- name: Make the directories to hold youtube virtual environment
+  file:
+    state: directory
+    path: '{{ item }}'
+  with_items:
+     - '{{ youtube_venv }}'
+
+- name: Use pip to install into a virtual environment
+  pip:
+    name:
+       - pip
+       - wheel
+       - youtube2zim
+       - youtube-dl
+       - pandas
+    virtualenv: "{{ youtube_venv }}"    # /opt/iiab/youtube_venv
+    virtualenv_site_packages: no
+    virtualenv_command: /usr/bin/virtualenv
+    virtualenv_python: python3
