@@ -9,11 +9,17 @@
 - name: Use pip to install into a virtual environment
   pip:
     name:
-       - pip
-       - wheel
-       - youtube2zim
-       - youtube-dl
-       - pandas
+      - python-slugify==3.0.3
+      # youtube-dl should be updated as frequently as possible
+      - youtube_dl
+      - python-dateutil==2.8.0
+      - jinja2==2.10.1
+      - zimscraperlib>=1.3.5,<1.4
+      - requests>=2.23,<=2.24
+      - kiwixstorage>=0.2,<1.0
+      - pif==0.8.2
+      - youtube2zim
+      - pandas
     virtualenv: "{{ youtube_venv }}"    # /opt/iiab/youtube_venv
     virtualenv_site_packages: no
     virtualenv_command: /usr/bin/virtualenv

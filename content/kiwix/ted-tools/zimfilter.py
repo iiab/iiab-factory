@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # coding: utf-8
 
 # ## Modifying ZIM Files
@@ -89,7 +89,7 @@ PROJECT_DIR = PREFIX + '/' + PROJECT_NAME + '/tree'
 OUTPUT_DIR = PREFIX + '/' + PROJECT_NAME + '/output_tree'
 SOURCE_DIR = PREFIX + '/' + PROJECT_NAME + '/zim-src'
 NEW_ZIM_DIR = PREFIX + '/' + PROJECT_NAME + '/new-zim'
-dir_list = ['output_tree','tree','working/video_json','zim-src','new-zim']
+dir_list = ['output_tree','tree','../youtube/cache/video_json','zim-src','new-zim']
 for f in dir_list: 
     if not os.path.isdir(PREFIX + '/' + PROJECT_NAME +'/' + f):
        os.makedirs(PREFIX + '/' + PROJECT_NAME +'/' + f)
@@ -116,7 +116,7 @@ print('This is the PREFIX:%s'%PREFIX)
 
 
 # First we need to get a current copy of the script
-cmd = '/usr/bin/cp %s/content/kiwix/de-namespace.sh %s'%(cfg.FACTORY_REPO,PREFIX)
+cmd = '/bin/cp %s/content/kiwix/de-namespace.sh %s'%(cfg.FACTORY_REPO,PREFIX)
 subprocess.run(cmd,shell=True)
 
 
@@ -127,7 +127,7 @@ subprocess.run(cmd,shell=True)
 #  Despite the name, removing namespaces seems unnecessary, and more complex
 # It will return without doing anything if the "tree' is not empty
 print('Using zimdump to expand the zim file to %s'%PROJECT_DIR)
-progname = HOME + '/zimtest/de-namespace.sh'
+progname = PREFIX + '/de-namespace.sh'
 cmd = "%s %s %s"%(progname,ZIM_PATH,PROJECT_NAME)
 print('command:%s'%cmd)
 subprocess.run(cmd,shell=True)
@@ -492,7 +492,7 @@ wanted_ids
 # There are essential files that are needed in the zim
 needed = ['/favicon.jpg','/home.html','/profile.jpg']
 for f in needed:
-    cmd = '/usr/bin/cp %s %s'%(PROJECT_DIR + '/' + f,OUTPUT_DIR)
+    cmd = '/bin/cp %s %s'%(PROJECT_DIR  + f,OUTPUT_DIR)
     subprocess.run(cmd,shell=True)
 
 
