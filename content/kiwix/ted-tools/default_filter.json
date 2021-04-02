@@ -1,0 +1,6 @@
+{"PREFIX":"/home/ghunt/zimtest",
+  "PROJECT_NAME":"teded",
+  "SOURCE_URL":"https://download.kiwix.org/zim/ted/teded_en_all_2021-01.zim",
+  "FACTORY_REPO":"/opt/iiab/iiab-factory",
+  "TARGET_SIZE":10000000000
+}
