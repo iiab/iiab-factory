@@ -15,39 +15,39 @@ if [ ! -f $1 ];then
 fi
 
 # for use in jupyter notebook, do not overwrite any tree contents
-contents=$(ls $HOME/zimtest/$2/tree|wc -l)
+contents=$(ls $HOME/zims/$2/tree|wc -l)
 if [ $contents -ne 0 ];then
-    echo "The $HOME/zimtest/$2/tree is not empty. Delete if you want to repeat this step."
+    echo "The $HOME/zims/$2/tree is not empty. Delete if you want to repeat this step."
     exit 0
 fi
 
-# Delete the previous contents of zimtest
-rm -rf $HOME/zimtest/$2/tree
+# Delete the previous contents of zims
+rm -rf $HOME/zims/$2/tree
 # Make directory
-mkdir -p $HOME/zimtest/$2/tree
-echo "This de-namespace file reminds you that this folder will be overwritten?" > $HOME/zimtest/$2/tree/de-namespace
+mkdir -p $HOME/zims/$2/tree
+echo "This de-namespace file reminds you that this folder will be overwritten?" > $HOME/zims/$2/tree/de-namespace
 
-zimdump dump --dir=$HOME/zimtest/$2/tree $1
+zimdump dump --dir=$HOME/zims/$2/tree $1
 
 # stop here to look around at the clean dumped format
 # It looks like just living with the namespace layout imposed by zim spec might be a better strategy
 #exit 0
 
 # put all of the images back in their original places
-mv $HOME/zimtest/$2/tree/I/* $HOME/zimtest/$2/tree
+mv $HOME/zims/$2/tree/I/* $HOME/zims/$2/tree
 if [ -d I ];then
    rmdir I
 fi
 
 # Clip off the A namespace for html
-cp -rp $HOME/zimtest/$2/tree/A/* $HOME/zimtest/$2/tree
-cp -rp $HOME/zimtest/$2/tree/-/* $HOME/zimtest/$2/tree
+cp -rp $HOME/zims/$2/tree/A/* $HOME/zims/$2/tree
+cp -rp $HOME/zims/$2/tree/-/* $HOME/zims/$2/tree
 
-if [ -d $HOME/zimtest/$2/tree/A ];then
-   rm -rf $HOME/zimtest/$2/tree/A
+if [ -d $HOME/zims/$2/tree/A ];then
+   rm -rf $HOME/zims/$2/tree/A
 fi
 
-cd $HOME/zimtest/$2/tree
+cd $HOME/zims/$2/tree
 for f in $(find .|grep -e html -e css); do
    sed -i -e's|../../../I/||g' $f
    sed -i -e's|../../I/||g' $f
@@ -55,6 +55,6 @@ for f in $(find .|grep -e html -e css); do
    sed -i -e's|../../-/||g' $f
    sed -i -e's|../A/||g' $f
 done
-for f in $(find $HOME/zimtest/$2/tree -maxdepth 1 -type f );do
+for f in $(find $HOME/zims/$2/tree -maxdepth 1 -type f );do
    sed -i -e's|../-/||g' $f
 done
