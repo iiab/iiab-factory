@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
+# Get video parameters from the video file itself
 
 import os,sys
 from pprint import pprint
