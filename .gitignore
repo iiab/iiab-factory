@@ -1,2 +1,3 @@
 ansible/*.log
 *~
+content/kiwix/zim-filter/current_project
