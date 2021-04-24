@@ -1,0 +1,3 @@
+#!/bin/bash -x
+source /opt/iiab/jupyterhub/bin/activate
+jupyter lab --no-browser --port=8889 --allow-root
