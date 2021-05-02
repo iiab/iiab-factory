@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import sys, yaml, os.path, argparse, sqlite3
 
 kalite_dbase_dir = "/library/ka-lite/database/"
@@ -13,7 +13,7 @@ lang = args.lang.lower()
 sqlite_file = kalite_dbase_dir + "/content_khan_" + lang + ".sqlite"
 
 if not os.path.isfile(sqlite_file):
-    print "Database " + sqlite_file + " not found."
+    print("Database " + sqlite_file + " not found.")
     sys.exit(1)
 
 conn = sqlite3.connect(sqlite_file)
@@ -21,7 +21,7 @@ c = conn.cursor()
 c.execute("select path from item where kind = 'Video' and youtube_id = ?", (args.id,))
 all_rows = c.fetchall()
 for i in all_rows:
-    print i[0]
+    print(i[0])
 
 conn.close()
 
