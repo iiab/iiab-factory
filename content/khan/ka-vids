@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # List youtube video ids by topic or list sub topics
 
 import sys, yaml, os, stat, shutil, argparse, sqlite3
@@ -28,17 +28,17 @@ sqlite_file = kalite_dbase_dir + "/content_khan_" + lang + ".sqlite"
 topic = args.topic_path
 
 if not os.path.isfile(sqlite_file):
-    print "Database " + sqlite_file + " not found."
+    print("Database " + sqlite_file + " not found.")
     sys.exit(1)
 
 if args.copy and args.move:
-    print "Can not both --copy and --move."
+    print("Can not both --copy and --move.")
     sys.exit(1)
 
 force = args.force
 if args.force and args.move:
     force = False
-    print "Ignoring --force for --move."
+    print("Ignoring --force for --move.")
 
 src_dir = args.copy
 if args.copy:
@@ -48,7 +48,7 @@ if args.move:
     src_dir = args.move
 
 if src_dir and not os.path.isdir(src_dir):
-    print "Source directory " + src_dir + " not found."
+    print("Source directory " + src_dir + " not found.")
     sys.exit(1)
 
 if args.dest:
@@ -61,7 +61,7 @@ if args.sub:
     c.execute("select path from item where kind = 'Topic' and parent_id = (select pk from item where path = ?) order by sort_order", (topic,))
     all_rows = c.fetchall()
     for i in all_rows:
-        print i[0]
+        print(i[0])
 
 else:
     topic = topic + '%'
@@ -78,19 +78,19 @@ else:
                     if os.path.isfile(src):
                         if args.copy:
                             shutil.copy2(src, dest_dir)
-                            print "copying " + src + " to " + dest_dir
+                            print("copying " + src + " to " + dest_dir)
                         else:
                             shutil.move(src, dest_dir)
-                            print "moving " + src + " to " + dest_dir
+                            print("moving " + src + " to " + dest_dir)
                     else:
-                        print "source " + src + " not found - skipping"
+                        print("source " + src + " not found - skipping")
                 else:
-                    print f + " destination already exists - skipping"
+                    print(f + " destination already exists - skipping")
         else:
             if args.path:
-                print i[0], i[1]
+                print(i[0], i[1])
             else:
-                print i[0]
+                print(i[0])
 
 conn.close()
 sys.exit(0)
