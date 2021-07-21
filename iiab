@@ -109,7 +109,7 @@ if check_user_pwd "$IIAB_ADMIN_USER" "$IIAB_ADMIN_PUBLISHED_PWD"; then
 fi
 
 if [ -f $FLAGDIR/iiab-complete ]; then
-    echo -e "\n\nIIAB INSTALLATION (/usr/sbin/iiab) IS ALREADY COMPLETE -- per existence of:"
+    echo -e "\n\nIIAB INSTALLATION (/usr/bin/iiab) IS ALREADY COMPLETE -- per existence of:"
     echo -e "$FLAGDIR/iiab-complete -- nothing to do.\n"
     exit 0
 fi
