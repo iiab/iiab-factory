@@ -91,7 +91,7 @@ if [ "$tmp" != "" ]; then IIAB_ADMIN_PUBLISHED_PWD=$tmp; fi
 
 if ! grep -q '^iiab_admin_user_install:\s\+[fF]alse\b' /etc/iiab/local_vars.yml 2> /dev/null ; then
     if ! id -u "$IIAB_ADMIN_USER" > /dev/null 2> /dev/null; then
-        useradd "$IIAB_ADMIN_USER"
+        /usr/sbin/useradd "$IIAB_ADMIN_USER"
         echo "$IIAB_ADMIN_USER":"$IIAB_ADMIN_PUBLISHED_PWD" | chpasswd
     fi
 fi
