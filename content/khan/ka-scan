@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # Scan KA Lite content for mismatches between databases and actual files
 
 import sys, yaml, os.path, argparse, sqlite3
@@ -31,7 +31,7 @@ for f in video_files:
     if ".mp4" in f:
         v = f.split(".mp4")[0]
         if v not in video_ids:
-            print str(v) + " not found"
+            print(str(v) + " not found")
             not_found += 1
             src = kalite_content_dir + f
             dst = rename_dir + f
@@ -45,7 +45,7 @@ for f in video_files:
         else:
             found += 1
 
-print str(found) + " found."
-print str(not_found) + " not found."
+print(str(found) + " found.")
+print(str(not_found) + " not found.")
 
 sys.exit(0)

@@ -1,0 +1,5 @@
+#!/bin/bash -x
+# create the videos zip file
+
+YMD=$(date +%y%m%d)
+zip -r /library/www/html/info/videos_${YMD}.zip /library/www/html/info/videos/*

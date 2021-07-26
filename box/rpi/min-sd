@@ -10,6 +10,7 @@
 # This is calculated by using resize2fs to shrink, then adding the space
 # occupied by previous partitions
 # Assumes root is last partition
+# There is a similar project at https://github.com/Drewsif/PiShrink
 
 if [ $# -eq 0 ]; then
    echo "Usage: $0 filename (no .img), optional rootfs device (like /dev/sdg3), optional image directory (like /curation/images), otherwise CWD"

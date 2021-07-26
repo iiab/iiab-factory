@@ -15,37 +15,37 @@
     {
       "name": "Raspberry Pi OS (32-bit)",
       "description": "A port of Debian with the Raspberry Pi Desktop (Recommended)",
-      "icon": "http://downloads.raspberrypi.org/raspios_armhf/Raspberry_Pi_OS_(32-bit).png",
-      "url": "http://downloads.raspberrypi.org/raspios_armhf/images/raspios_armhf-2020-05-28/2020-05-27-raspios-buster-armhf.zip",
-      "extract_size": 3829399552,
-      "extract_sha256": "0d4a8fd5886b25d1218d9439ed3d6ad402ce7062f906fae349666a00c6c43f8a",
-      "image_download_size": 1181855929,
-      "release_date": "2020-05-27"
+      "icon": "https://downloads.raspberrypi.org/raspios_armhf/Raspberry_Pi_OS_(32-bit).png",
+      "url": "https://downloads.raspberrypi.org/raspios_armhf/images/raspios_armhf-2020-12-04/2020-12-02-raspios-buster-armhf.zip",
+      "extract_size": 3972005888,
+      "extract_sha256": "96c17bc56af3f9c3863425d26b7b62b328f7a3d3a6150f94cb593924cfa2ec78",
+      "image_download_size": 1233848100,
+      "release_date": "2020-12-02"
     },
     {
       "name": "Raspberry Pi OS (other)",
       "description": "Other Raspberry Pi OS based images",
-      "icon": "http://downloads.raspberrypi.org/raspios_armhf/Raspberry_Pi_OS_(32-bit).png",
+      "icon": "https://downloads.raspberrypi.org/raspios_armhf/Raspberry_Pi_OS_(32-bit).png",
       "subitems": [
         {
           "name": "Raspberry Pi OS Lite (32-bit)",
           "description": "A port of Debian with no desktop environment",
-          "icon": "http://downloads.raspberrypi.org/raspios_lite_armhf/Raspberry_Pi_OS_Lite_(32-bit).png",
-          "url": "http://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2020-05-28/2020-05-27-raspios-buster-lite-armhf.zip",
-          "extract_size": 1853882368,
-          "extract_sha256": "3fe88721668543899fc8de9168bed798bdaa795b5a403f0332d7731b0afbaaa3",
-          "image_download_size": 452715448,
-          "release_date": "2020-05-27"
+          "icon": "https://downloads.raspberrypi.org/raspios_lite_armhf/Raspberry_Pi_OS_Lite_(32-bit).png",
+          "url": "https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2020-12-04/2020-12-02-raspios-buster-armhf-lite.zip",
+          "extract_size": 1858076672,
+          "extract_sha256": "fc71e5f93ed5a4f1e9856f0011f6b18b1c4bbafb95f1637ea95c2a85b5de1eda",
+          "image_download_size": 459032481,
+          "release_date": "2020-12-02"
         },
         {
           "name": "Raspberry Pi OS Full (32-bit)",
           "description": "A port of Debian with desktop and recommended applications",
-          "icon": "http://downloads.raspberrypi.org/raspios_full_armhf/Raspberry_Pi_OS_Full_(32-bit).png",
-          "url": "http://downloads.raspberrypi.org/raspios_full_armhf/images/raspios_full_armhf-2020-05-28/2020-05-27-raspios-buster-full-armhf.zip",
-          "extract_size": 7365197824,
-          "extract_sha256": "a461c8108fab8b885b71d5e2c621866e05ff300e848c1ec2a6fa9c9cb8dd63e2",
-          "image_download_size": 2645200349,
-          "release_date": "2020-05-27"
+          "icon": "https://downloads.raspberrypi.org/raspios_full_armhf/Raspberry_Pi_OS_Full_(32-bit).png",
+          "url": "https://downloads.raspberrypi.org/raspios_full_armhf/images/raspios_full_armhf-2020-12-04/2020-12-02-raspios-buster-armhf-full.zip",
+          "extract_size": 8787066880,
+          "extract_sha256": "4b4dbce6ebf10671d4e9c2a2279ec9c69f9525f02fee8c52795388ed2088c265",
+          "image_download_size": 3092088753,
+          "release_date": "2020-12-02"
         }
       ]
     },
@@ -57,9 +57,33 @@
     },
     {
       "name": "Ubuntu",
-      "description": "Choose from Ubuntu Core and Server images",
+      "description": "Choose from Ubuntu Desktop, Server, and Core images",
       "icon": "https://assets.ubuntu.com/v1/85a9de76-ubuntu-icon.svg",
       "subitems_url": "https://changelogs.ubuntu.com/raspi/os_list_imagingutility_ubuntu.json"
+    },
+    {
+      "name": "RetroPie",
+      "description": "Turn your Raspberry Pi into a retro-gaming machine",
+      "icon": "https://retropie.org.uk/retropie-logo-40x40.png",
+      "subitems_url": "https://retropie.org.uk/os_list_imagingutility.json"
+    },
+    {
+      "name": "Recalbox",
+      "description": "The retro-gaming OS supporting 100+ gaming systems!",
+      "icon": "https://upgrade.recalbox.com/latest/rpi-imager/recalbox.png",
+      "subitems_url": "https://upgrade.recalbox.com/latest/rpi-imager/os_list_imagingutility_recalbox.json"
+    },
+    {
+      "name": "RISC OS Pi",
+      "description": "A fast and easily customised operating system for ARM devices",
+      "icon": "http://packages.riscosopen.org/rpi_imager/RISC_OS.png",
+      "subitems_url": "http://packages.riscosopen.org/rpi_imager/os_list_imagingutility.json"
+    },
+    {
+      "name": "TLXOS",
+      "description": "30-day trial of ThinLinX's Debian-based thin client for Raspberry Pi",
+      "icon": "http://rpi.thinlinx.com/NOOBS/TLX_RPi/TLXOS.png",
+      "subitems_url": "http://rpi.thinlinx.com/rpi-imager/rpi-imager.json"
     },
     {
       "name": "Misc utility images",
@@ -69,12 +93,12 @@
         {
           "name": "Raspberry Pi 4 EEPROM boot recovery",
           "description": "Use this only if advised to do so",
-          "icon": "https://downloads.raspberrypi.org/raspios_armhf/Raspbian.png",
-          "url": "https://github.com/raspberrypi/rpi-eeprom/releases/download/v2020.04.16-137ad/rpi-boot-eeprom-recovery-2020-04-16-vl805-000137ad.zip",
+          "icon": "https://downloads.raspberrypi.org/raspios_armhf/Raspberry_Pi_OS_(32-bit).png",
+          "url": "https://github.com/raspberrypi/rpi-eeprom/releases/download/v2020.09.03-138a1/rpi-boot-eeprom-recovery-2020-09-03-vl805-000138a1.zip",
           "contains_multiple_files": true,
-          "extract_size": 712338,
-          "image_download_size": 278380,
-          "release_date": "2020-04-23"
+          "extract_size": 722892,
+          "image_download_size": 298096,
+          "release_date": "2020-09-14"
         }
       ]
     }

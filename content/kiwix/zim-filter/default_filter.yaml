@@ -1,0 +1,8 @@
+---
+# This file is used as a template which is copied to a project tree
+
+PREFIX: ''        # The default PREFIX will be $HOME/zims
+PROJECT_NAME: ''  # The initial value for "current_project" in this directory
+SOURCE_URL: ''    # Easiest is to use admin-console to download src
+FACTORY_REPO: /opt/iiab/iiab-factory
+TARGET_SIZE: 10000000000
