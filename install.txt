@@ -62,7 +62,7 @@ not_supported(){
 }
 
 case $OS_VER in
-"debian-10" | "ubuntu-20" | "linuxmint-20" | "raspbian-10")
+"debian-10" | "debian-11" | "linuxmint-20" | "raspbian-10" | "raspbian-11" | "ubuntu-20" | "ubuntu-21")
     ;;
 *)
     not_supported
