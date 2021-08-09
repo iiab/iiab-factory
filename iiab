@@ -145,6 +145,9 @@ else
     read local_vars_size < /dev/tty
     echo
     case $local_vars_size in
+        0)
+            local_vars_src_file=local_vars_unittest.yml
+            ;;
         1)
             local_vars_src_file=local_vars_min.yml
             ;;
