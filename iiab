@@ -337,12 +337,6 @@ if ! cmp -s /tmp/$local_vars_src_file /opt/iiab/iiab/vars/$local_vars_src_file; 
 fi
 
 # J. Install Ansible + 2 IIAB repos
-echo -e "\n\nINSTALL ANSIBLE + CORE IIAB SOFTWARE + ADMIN CONSOLE / CONTENT PACK MENUS...\n"
-
-echo -e "Install Ansible..."
-cd /opt/iiab/iiab/scripts/
-./ansible
-
 echo -e "\n┌──────────────────────────────────────────────────────────────────────────────┐"
 echo -e "│                                                                              │"
 echo -e "│   NOW INSTALL IIAB SOFTWARE! If glitches arise (connectivity or otherwise)   │"
@@ -352,6 +346,17 @@ echo -e "│                                                                    
 echo -e "│   child script ./iiab-install -- both avoid repeating any of the 9 stages.   │"
 echo -e "│                                                                              │"
 echo -e "└──────────────────────────────────────────────────────────────────────────────┘"
+if [ -f $FLAGDIR/iiab-ansible-complete ]; then
+    echo -e "Ansible already installed by IIAB - skipping..."
+    echo -e "Consider 'sudo /opt/iiab/iiab/scripts/ansible'"
+else
+    echo -e "\n\nINSTALL ANSIBLE + CORE IIAB SOFTWARE + ADMIN CONSOLE / CONTENT PACK MENUS...\n"
+
+    echo -e "Installing Ansible..."
+    /opt/iiab/iiab/scripts/ansible
+    touch $FLAGDIR/iiab-ansible-complete
+fi
+
 cd /opt/iiab/iiab/
 ./iiab-install    # "$@"
 
