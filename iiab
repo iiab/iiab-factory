@@ -202,22 +202,20 @@ echo -e " ██  RUN 'sudo iiab' IF THIS INSTALL SCRIPT EVER FAILS, TO TRY TO C
 echo -e " ██                                                                          ██"
 echo -e " ██████████████████████████████████████████████████████████████████████████████"
 
-echo -e "\n\n'apt update' is checking for OS updates...\n"
-#echo -e "2019-07-11 TEMP WORKAROUND FOR RASPBIAN BUSTER'S testing->stable apt GLITCH...\nDetails @ https://github.com/iiab/iiab/issues/1856\n"
-#apt -y update || true    # Overrides 'set -e'
-#echo -e "\nNOW THE REAL 'apt update' WILL RUN...\n"
-$APTPATH/apt -qq update > /tmp/apt.stdout 2> /tmp/apt.stderr || true    # Overrides 'set -e'
-if (( $(wc -c < /tmp/apt.stderr) > 82 )); then    # apt.stderr typically contains exactly 82 characters when there are no errors, no matter the primary locale, i.e. 3-line file "\nWARNING: apt does not have a stable CLI interface. Use with caution in scripts.\n\n" ...OR... in other cases more than 82, e.g. many lines of errors when apt is busy/locked/offline/etc
-    echo -e "'apt update' FAILED. VERIFY YOU'RE ONLINE and resolve all errors below:\n"
-    cat /tmp/apt.stderr
-    exit 1
-elif grep -q 'apt list --upgradable' /tmp/apt.stdout; then    # apt.stdout typically contains {"All packages are up to date.\n" [even if primary locale is French & Hindi!], "Todos los paquetes están actualizados.\n", "所有软件包均为最新。\n"} ...OR... {"5 packages can be upgraded. Run 'apt list --upgradable' to see them.\n" [even if primary locale is French & Hindi!], "Se puede actualizar 1 paquete. Ejecute «apt list --upgradable» para verlo.\n", "有 1 个软件包可以升级。请执行 ‘apt list --upgradable’ 来查看它们。\n"}
-    cat /tmp/apt.stdout
-    if $($MFABT); then
-        echo -e "\nYour OS will now be upgraded...this takes time.\n"
-        $APTPATH/apt -y dist-upgrade
-    else
+if ! $($MFABT); then
+    echo -e "\n\n'apt update' is checking for OS updates...\n"
+    #echo -e "2019-07-11 TEMP WORKAROUND FOR RASPBIAN BUSTER'S testing->stable apt GLITCH...\nDetails @ https://github.com/iiab/iiab/issues/1856\n"
+    #apt -y update || true    # Overrides 'set -e'
+    #echo -e "\nNOW THE REAL 'apt update' WILL RUN...\n"
+    $APTPATH/apt -qq update > /tmp/apt.stdout 2> /tmp/apt.stderr || true    # Overrides 'set -e'
+    if (( $(wc -c < /tmp/apt.stderr) > 82 )); then    # apt.stderr typically contains exactly 82 characters when there are no errors, no matter the primary locale, i.e. 3-line file "\nWARNING: apt does not have a stable CLI interface. Use with caution in scripts.\n\n" ...OR... in other cases more than 82, e.g. many lines of errors when apt is busy/locked/offline/etc
+        echo -e "'apt update' FAILED. VERIFY YOU'RE ONLINE and resolve all errors below:\n"
+        cat /tmp/apt.stderr
+        exit 1
+    elif grep -q 'apt list --upgradable' /tmp/apt.stdout; then    # apt.stdout typically contains {"All packages are up to date.\n" [even if primary locale is French & Hindi!], "Todos los paquetes están actualizados.\n", "所有软件包均为最新。\n"} ...OR... {"5 packages can be upgraded. Run 'apt list --upgradable' to see them.\n" [even if primary locale is French & Hindi!], "Se puede actualizar 1 paquete. Ejecute «apt list --upgradable» para verlo.\n", "有 1 个软件包可以升级。请执行 ‘apt list --upgradable’ 来查看它们。\n"}
+        cat /tmp/apt.stdout
         echo -e "\nYour OS will now be upgraded...this takes time. THEN IT WILL AUTO-REBOOT.\n"
+
         echo -n "Hit [ENTER] to confirm you'll RUN 'sudo iiab' AFTER IT REBOOTS: "
         read ans < /dev/tty
         echo
@@ -225,10 +223,8 @@ elif grep -q 'apt list --upgradable' /tmp/apt.stdout; then    # apt.stdout typic
         reboot
         exit 0    # Nec to avoid both output lines below (that confuse implementers!)
     fi
-fi
-cat /tmp/apt.stdout    # "All packages are up to date.\n"
+    cat /tmp/apt.stdout    # "All packages are up to date.\n"
 
-if ! $($MFABT); then
     echo -ne "\nHit [ENTER] to confirm you'll TRY TO RERUN 'sudo iiab' IF THERE IS A PROBLEM: "
     read ans < /dev/tty
 fi
@@ -361,6 +357,19 @@ if ! cmp -s /tmp/$local_vars_src_file /opt/iiab/iiab/vars/$local_vars_src_file; 
 fi
 
 # J. Install Ansible + 2 IIAB repos
+echo -e "\n\nINSTALL ANSIBLE + CORE IIAB SOFTWARE + ADMIN CONSOLE / CONTENT PACK MENUS...\n"
+
+if [ -f $FLAGDIR/iiab-ansible-complete ]; then
+    echo -e "ANSIBLE INSTALLATION IS ALREADY COMPLETE -- per existence of:"
+    echo -e "$FLAGDIR/iiab-ansible-complete\n"
+
+    echo -e "To upgrade Ansible, you can run: sudo /opt/iiab/iiab/scripts/ansible\n\n"
+else
+    echo -e "Install Ansible..."
+    /opt/iiab/iiab/scripts/ansible
+    touch $FLAGDIR/iiab-ansible-complete
+fi
+
 echo -e "\n┌──────────────────────────────────────────────────────────────────────────────┐"
 echo -e "│                                                                              │"
 echo -e "│   NOW INSTALL IIAB SOFTWARE! If glitches arise (connectivity or otherwise)   │"
@@ -370,16 +379,6 @@ echo -e "│                                                                    
 echo -e "│   child script ./iiab-install -- both avoid repeating any of the 9 stages.   │"
 echo -e "│                                                                              │"
 echo -e "└──────────────────────────────────────────────────────────────────────────────┘"
-if [ -f $FLAGDIR/iiab-ansible-complete ]; then
-    echo -e "Ansible already installed by IIAB - skipping..."
-    echo -e "Consider 'sudo /opt/iiab/iiab/scripts/ansible'"
-else
-    echo -e "\n\nINSTALL ANSIBLE + CORE IIAB SOFTWARE + ADMIN CONSOLE / CONTENT PACK MENUS...\n"
-
-    echo -e "Installing Ansible..."
-    /opt/iiab/iiab/scripts/ansible
-    touch $FLAGDIR/iiab-ansible-complete
-fi
 
 cd /opt/iiab/iiab/
 ./iiab-install    # "$@"
