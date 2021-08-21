@@ -62,7 +62,7 @@ if [[ $1 == "--mfabt" ]]; then
 fi
 
 # Save CLI params (PR #s) for section I. so 'sudo iiab' continues after reboots
-if [ $# -eq 0 ]; then
+if [ $# -ne 0 ]; then
     printf '%s\n' "$@" >> /etc/iiab/pr-queue
 fi
 
@@ -81,12 +81,14 @@ check_user_pwd() {
 }
 
 # B. Ask for password change if pi/raspberry default remains
-if check_user_pwd "pi" "raspberry"; then
+if ! $($MFABT); then
+    if check_user_pwd "pi" "raspberry"; then
     echo -e "\n\nRaspberry Pi's are COMPROMISED often if the default password is not changed!\n"
 
     echo -n "What password do you want for GNU/Linux user 'pi' ? "
     read ans < /dev/tty    # Whines but doesn't change password if [Enter]
     echo pi:"$ans" | chpasswd || true    # Overrides 'set -e'
+    fi
 fi
 
 # C. Create user 'iiab-admin' (or any other, some prefer 'pi' or 'ubuntu') as nec, with default password
@@ -110,15 +112,17 @@ if ! grep -q '^iiab_admin_user_install:\s\+[fF]alse\b' /etc/iiab/local_vars.yml 
 fi
 
 # D. If 'iiab-admin' (or equivalent) use the default password, prompt for change
-if check_user_pwd "$IIAB_ADMIN_USER" "$IIAB_ADMIN_PUBLISHED_PWD"; then
-    echo -e "\n\nUser '$IIAB_ADMIN_USER' retains default password '$IIAB_ADMIN_PUBLISHED_PWD' per http://FAQ.IIAB.IO\n"
+if ! $($MFABT); then
+    if check_user_pwd "$IIAB_ADMIN_USER" "$IIAB_ADMIN_PUBLISHED_PWD"; then
+        echo -e "\n\nUser '$IIAB_ADMIN_USER' retains default password '$IIAB_ADMIN_PUBLISHED_PWD' per http://FAQ.IIAB.IO\n"
 
-    echo -e "This is for login to Internet-in-a-Box's Admin Console (http://box.lan/admin)"
-    echo -e "Technical Details: https://github.com/iiab/iiab/blob/master/roles/iiab-admin\n"
+        echo -e "This is for login to Internet-in-a-Box's Admin Console (http://box.lan/admin)"
+        echo -e "Technical Details: https://github.com/iiab/iiab/blob/master/roles/iiab-admin\n"
 
-    echo -n "What password do you want for GNU/Linux user '$IIAB_ADMIN_USER' ? "
-    read ans < /dev/tty    # Whines but doesn't change password if [Enter]
-    echo "$IIAB_ADMIN_USER":"$ans" | chpasswd || true    # Overrides 'set -e'
+        echo -n "What password do you want for GNU/Linux user '$IIAB_ADMIN_USER' ? "
+        read ans < /dev/tty    # Whines but doesn't change password if [Enter]
+        echo "$IIAB_ADMIN_USER":"$ans" | chpasswd || true    # Overrides 'set -e'
+    fi
 fi
 
 if [ -f $FLAGDIR/iiab-complete ]; then
@@ -330,8 +334,9 @@ do
         echo -e "\n\e[1mgit exit/error code:\e[0m $?\n"    # if hides err code
         echo -n "Delete it from top of /etc/iiab/pr-queue and continue? [Y/n] "
         read ans < /dev/tty
-        [[ $ans" == "n" || $ans == "N" ]] &&
+        if [[ $ans == "n" || $ans == "N" ]]; then
             exit 1
+        fi
         sed -i '1d' /etc/iiab/pr-queue    # Delete 1st line
         continue
     }
