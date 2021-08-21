@@ -48,6 +48,7 @@ set -e                                   # Exit on error (avoids snowballing)
 export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
 FLAGDIR=/etc/iiab/install-flags
 APTPATH=/usr/bin    # Avoids problematic /usr/local/bin/apt on Linux Mint
+TEST=false
 MFABT=false         # No time to read the book?  "Move Fast and Break Things:
 # How Facebook, Google, and Amazon Cornered Culture and Undermined Democracy"
 
@@ -56,7 +57,11 @@ if [[ $(id -un) != "root" ]]; then
      exit 1
 fi
 
-if [[ $1 == "--mfabt" ]]; then
+if [[ $1 == "--test" ]]; then
+    TEST=true
+    shift
+elif [[ $1 == "--mfabt" ]]; then
+    TEST=true
     MFABT=true
     shift
 fi
@@ -81,7 +86,7 @@ check_user_pwd() {
 }
 
 # B. Ask for password change if pi/raspberry default remains
-if ! $($MFABT); then
+if ! $($TEST); then
     if check_user_pwd "pi" "raspberry"; then
     echo -e "\n\nRaspberry Pi's are COMPROMISED often if the default password is not changed!\n"
 
@@ -112,7 +117,7 @@ if ! grep -q '^iiab_admin_user_install:\s\+[fF]alse\b' /etc/iiab/local_vars.yml 
 fi
 
 # D. If 'iiab-admin' (or equivalent) use the default password, prompt for change
-if ! $($MFABT); then
+if ! $($TEST); then
     if check_user_pwd "$IIAB_ADMIN_USER" "$IIAB_ADMIN_PUBLISHED_PWD"; then
         echo -e "\n\nUser '$IIAB_ADMIN_USER' retains default password '$IIAB_ADMIN_PUBLISHED_PWD' per http://FAQ.IIAB.IO\n"
 
@@ -214,19 +219,23 @@ if ! $($MFABT); then
         exit 1
     elif grep -q 'apt list --upgradable' /tmp/apt.stdout; then    # apt.stdout typically contains {"All packages are up to date.\n" [even if primary locale is French & Hindi!], "Todos los paquetes están actualizados.\n", "所有软件包均为最新。\n"} ...OR... {"5 packages can be upgraded. Run 'apt list --upgradable' to see them.\n" [even if primary locale is French & Hindi!], "Se puede actualizar 1 paquete. Ejecute «apt list --upgradable» para verlo.\n", "有 1 个软件包可以升级。请执行 ‘apt list --upgradable’ 来查看它们。\n"}
         cat /tmp/apt.stdout
-        echo -e "\nYour OS will now be upgraded...this takes time. THEN IT WILL AUTO-REBOOT.\n"
+        if ! $($TEST); then
+            echo -e "\nYour OS will now be upgraded...this takes time. THEN IT WILL AUTO-REBOOT.\n"
 
-        echo -n "Hit [ENTER] to confirm you'll RUN 'sudo iiab' AFTER IT REBOOTS: "
-        read ans < /dev/tty
-        echo
+            echo -n "Hit [ENTER] to confirm you'll RUN 'sudo iiab' AFTER IT REBOOTS: "
+            read ans < /dev/tty
+            echo
+        fi
         $APTPATH/apt -y dist-upgrade
         reboot
         exit 0    # Nec to avoid both output lines below (that confuse implementers!)
     fi
     cat /tmp/apt.stdout    # "All packages are up to date.\n"
 
-    echo -ne "\nHit [ENTER] to confirm you'll TRY TO RERUN 'sudo iiab' IF THERE IS A PROBLEM: "
-    read ans < /dev/tty
+    if ! $($TEST); then
+        echo -ne "\nHit [ENTER] to confirm you'll TRY TO RERUN 'sudo iiab' IF THERE IS A PROBLEM: "
+        read ans < /dev/tty
+    fi
 fi
 
 ####################### MAIN INTERACTIVE STUFF IS ABOVE #######################
