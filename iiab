@@ -48,18 +48,25 @@ set -e                                   # Exit on error (avoids snowballing)
 export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
 FLAGDIR=/etc/iiab/install-flags
 APTPATH=/usr/bin    # Avoids problematic /usr/local/bin/apt on Linux Mint
-EXPRESS=0
+MFABT=false         # No time to read the book?  "Move Fast and Break Things:
+# How Facebook, Google, and Amazon Cornered Culture and Undermined Democracy"
 
-if [ "$1" == "--express" ]; then
-    EXPRESS=1
+if [[ $(id -un) != "root" ]]; then
+     echo "Please run 'sudo iiab'"
+     exit 1
+fi
+
+if [[ $1 == "--mfabt" ]]; then
+    MFABT=true
     shift
 fi
 
-[ $(id -un) = root ] || { echo "Please run 'sudo iiab'" ; exit 1 ; }
+# Save CLI params (PR #s) for section I. so 'sudo iiab' continues after reboots
+if [ $# -eq 0 ]; then
+    printf '%s\n' "$@" >> /etc/iiab/pr-queue
+fi
 
 mkdir -p $FLAGDIR    # Which also creates /etc/iiab
-# Save CLI params (PR #s) for section I. so 'sudo iiab' continues after reboots
-[ $# != 0 ] && printf '%s\n' "$@" >> /etc/iiab/pr-queue
 
 # A. Subroutine for B. and D.  Returns true (0) if username ($1) exists with password ($2)
 command -v grep &> /dev/null ||
@@ -70,7 +77,7 @@ check_user_pwd() {
     meth=$(grep "^$1:" /etc/shadow | cut -d: -f2 | cut -d$ -f2)
     salt=$(grep "^$1:" /etc/shadow | cut -d: -f2 | cut -d$ -f3)
     hash=$(grep "^$1:" /etc/shadow | cut -d: -f2 | cut -d$ -f4)
-    [ $(python3 -c "import crypt; print(crypt.crypt('$2', '\$$meth\$$salt'))") == "\$$meth\$$salt\$$hash" ]
+    [[ $(python3 -c "import crypt; print(crypt.crypt('$2', '\$$meth\$$salt'))") == "\$$meth\$$salt\$$hash" ]]
 }
 
 # B. Ask for password change if pi/raspberry default remains
@@ -85,14 +92,14 @@ fi
 # C. Create user 'iiab-admin' (or any other, some prefer 'pi' or 'ubuntu') as nec, with default password
 IIAB_ADMIN_USER=iiab-admin
 tmp=$(grep '^iiab_admin_user:\s' /opt/iiab/iiab/vars/default_vars.yml 2> /dev/null | sed 's/^iiab_admin_user:\s\+\<//; s/#.*//; s/\s*$//')
-if [ "$tmp" != "" ]; then IIAB_ADMIN_USER=$tmp; fi
+if [[ $tmp != "" ]]; then IIAB_ADMIN_USER=$tmp; fi
 tmp=$(grep '^iiab_admin_user:\s' /etc/iiab/local_vars.yml 2> /dev/null | sed 's/^iiab_admin_user:\s\+\<//; s/#.*//; s/\s*$//')
-if [ "$tmp" != "" ]; then IIAB_ADMIN_USER=$tmp; fi
+if [[ $tmp != "" ]]; then IIAB_ADMIN_USER=$tmp; fi
 #[ $tmp ] && IIAB_ADMIN_USER=$tmp  # SAME AS ABOVE
 
 IIAB_ADMIN_PUBLISHED_PWD=g0adm1n
 tmp=$(grep '^iiab_admin_published_pwd:\s' /opt/iiab/iiab/vars/default_vars.yml 2> /dev/null | sed 's/^iiab_admin_published_pwd:\s\+\<//; s/#.*//; s/\s*$//')
-if [ "$tmp" != "" ]; then IIAB_ADMIN_PUBLISHED_PWD=$tmp; fi
+if [[ $tmp != "" ]]; then IIAB_ADMIN_PUBLISHED_PWD=$tmp; fi
 #[ $tmp ] && IIAB_ADMIN_PUBLISHED_PWD=$tmp  # SAME AS ABOVE
 
 if ! grep -q '^iiab_admin_user_install:\s\+[fF]alse\b' /etc/iiab/local_vars.yml 2> /dev/null ; then
@@ -175,7 +182,7 @@ else
 
     echo -en "\nEdit /etc/iiab/local_vars.yml to customize your Internet-in-a-Box? [Y/n] "
     read ans < /dev/tty
-    if [ "$ans" != "n" ] && [ "$ans" != "N" ]; then
+    if [[ $ans != "n" && $ans != "N" ]]; then
         echo -e "\n1) PLEASE RUN: sudo nano /etc/iiab/local_vars.yml\n"
 
         echo -e "2) After you're done editing, RUN 'sudo iiab' TO CONTINUE!\n"
@@ -202,21 +209,22 @@ if (( $(wc -c < /tmp/apt.stderr) > 82 )); then    # apt.stderr typically contain
     exit 1
 elif grep -q 'apt list --upgradable' /tmp/apt.stdout; then    # apt.stdout typically contains {"All packages are up to date.\n" [even if primary locale is French & Hindi!], "Todos los paquetes están actualizados.\n", "所有软件包均为最新。\n"} ...OR... {"5 packages can be upgraded. Run 'apt list --upgradable' to see them.\n" [even if primary locale is French & Hindi!], "Se puede actualizar 1 paquete. Ejecute «apt list --upgradable» para verlo.\n", "有 1 个软件包可以升级。请执行 ‘apt list --upgradable’ 来查看它们。\n"}
     cat /tmp/apt.stdout
-    echo -e "\nYour OS will now be upgraded...this takes time. THEN IT WILL AUTO-REBOOT.\n"
-    if [ $EXPRESS == 0 ]; then
+    if $($MFABT); then
+        echo -e "\nYour OS will now be upgraded...this takes time.\n"
+        $APTPATH/apt -y dist-upgrade
+    else
+        echo -e "\nYour OS will now be upgraded...this takes time. THEN IT WILL AUTO-REBOOT.\n"
         echo -n "Hit [ENTER] to confirm you'll RUN 'sudo iiab' AFTER IT REBOOTS: "
         read ans < /dev/tty
         echo
         $APTPATH/apt -y dist-upgrade
         reboot
         exit 0    # Nec to avoid both output lines below (that confuse implementers!)
-    else
-        $APTPATH/apt -y dist-upgrade
     fi
 fi
 cat /tmp/apt.stdout    # "All packages are up to date.\n"
 
-if [ $EXPRESS == 0 ]; then
+if ! $($MFABT); then
     echo -ne "\nHit [ENTER] to confirm you'll TRY TO RERUN 'sudo iiab' IF THERE IS A PROBLEM: "
     read ans < /dev/tty
 fi
@@ -277,7 +285,7 @@ do
         echo -e "\n\e[1mInvalid PR number:\e[0m $pr\n"
         echo -n "Delete it from top of /etc/iiab/pr-queue and continue? [Y/n] "
         read ans < /dev/tty
-        [ "$ans" = "n" ] || [ "$ans" = "N" ] &&
+        [[ $ans == "n" || $ans == "N" ]] &&
             exit 1
         sed -i '1d' /etc/iiab/pr-queue    # Delete 1st line
         continue
@@ -290,12 +298,12 @@ do
     fi
 
     http_code=$(curl -sH "Accept: application/vnd.github.v3" https://api.github.com/repos/iiab/$repo/pulls/$pr -w "%{http_code}" -o /tmp/iiab-pr.json)
-    if [ "$http_code" != 200 ] ; then
+    if [[ $http_code != "200" ]] ; then
         echo -e "\n\e[41mCOULD NOT FIND PR #$pr (https://github.com/iiab/$repo/pull/$pr)\e[0m\n"
         echo -en "\e[41mHTTP ERROR: $http_code\e[0m\e[1m "
-        [ "$http_code" = 403 ] &&
+        [[ $http_code == "403" ]] &&
             echo -en "(DID YOU REQUEST 60+ PR's IN ONE HOUR?)"
-        [ "$http_code" = 404 ] &&
+        [[ $http_code == "404" ]] &&
             echo -en "(IS #$pr AN ISSUE, RATHER THAN A PR?)"
         echo -e "\n"
 
@@ -305,7 +313,7 @@ do
 
         echo -n "Delete it from top of /etc/iiab/pr-queue and continue? [Y/n] "
         read ans < /dev/tty
-        [ "$ans" = "n" ] || [ "$ans" = "N" ] &&
+        [[ $ans == "n" || $ans == "N" ]] &&
             exit 1
         sed -i '1d' /etc/iiab/pr-queue    # Delete 1st line
         continue
@@ -322,7 +330,7 @@ do
         echo -e "\n\e[1mgit exit/error code:\e[0m $?\n"    # if hides err code
         echo -n "Delete it from top of /etc/iiab/pr-queue and continue? [Y/n] "
         read ans < /dev/tty
-        [ "$ans" = "n" ] || [ "$ans" = "N" ] &&
+        [[ $ans" == "n" || $ans == "N" ]] &&
             exit 1
         sed -i '1d' /etc/iiab/pr-queue    # Delete 1st line
         continue
@@ -340,7 +348,7 @@ if ! cmp -s /tmp/$local_vars_src_file /opt/iiab/iiab/vars/$local_vars_src_file; 
     echo -e "YOUR /etc/iiab/local_vars.yml WAS MOVED TO /etc/iiab/local_vars.yml.old\e[0m\n"
     echo -n "Edit the NEW /etc/iiab/local_vars.yml to customize Internet-in-a-Box? [Y/n] "
     read ans < /dev/tty
-    if [ "$ans" != "n" ] && [ "$ans" != "N" ]; then
+    if [[ $ans != "n" && $ans != "N" ]]; then
         echo -e "\n1) PLEASE RUN: sudo nano /etc/iiab/local_vars.yml\n"
         echo -e "2) After you're done editing, RUN 'sudo iiab' TO CONTINUE!\n"
         exit 0
