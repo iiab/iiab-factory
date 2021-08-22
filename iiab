@@ -467,6 +467,11 @@ fi
 
 touch $FLAGDIR/iiab-complete
 
+if ! [[ $(ls -la /sys/class/net/*/phy80211 | awk -F / '{print $5}' | wc ) == 0 ]]; then
+    cd /opt/iiab/iiab
+    ./iiab-network
+fi
+
 # M. Educate Implementers prior to rebooting!
 echo -e "\n\n         ┌───────────────────────────────────────────────────────────┐"
 echo -e "         │                                                           │"
