@@ -98,27 +98,39 @@ if check_user_pwd "pi" "raspberry"; then
     echo pi:"$ans" | chpasswd || true    # Overrides 'set -e'
 fi
 
-# C. Create user 'iiab-admin' (or any other, some prefer 'pi' or 'ubuntu') as nec, with default password
-IIAB_ADMIN_USER=iiab-admin
-tmp=$(grep '^iiab_admin_user:\s' /opt/iiab/iiab/vars/default_vars.yml 2> /dev/null | sed 's/^iiab_admin_user:\s\+\<//; s/#.*//; s/\s*$//')
-if [[ $tmp != "" ]]; then IIAB_ADMIN_USER=$tmp; fi
-tmp=$(grep '^iiab_admin_user:\s' /etc/iiab/local_vars.yml 2> /dev/null | sed 's/^iiab_admin_user:\s\+\<//; s/#.*//; s/\s*$//')
-if [[ $tmp != "" ]]; then IIAB_ADMIN_USER=$tmp; fi
-#[ $tmp ] && IIAB_ADMIN_USER=$tmp  # SAME AS ABOVE
+# C. Create user 'iiab-admin' (or any other, some prefer 'pi' or 'ubuntu') as
+# nec, with the default password.  If customizing this is important to you,
+# please pre-position /etc/iiab/local_vars.yml specifying the 3 vars below.
 
-IIAB_ADMIN_PUBLISHED_PWD=g0adm1n
-tmp=$(grep '^iiab_admin_published_pwd:\s' /opt/iiab/iiab/vars/default_vars.yml 2> /dev/null | sed 's/^iiab_admin_published_pwd:\s\+\<//; s/#.*//; s/\s*$//')
-if [[ $tmp != "" ]]; then IIAB_ADMIN_PUBLISHED_PWD=$tmp; fi
-#[ $tmp ] && IIAB_ADMIN_PUBLISHED_PWD=$tmp  # SAME AS ABOVE
+# 2021-08-28: bash scripts using default_vars.yml &/or local_vars.yml
+# https://github.com/iiab/iiab-factory/blob/master/iiab
+# https://github.com/iiab/iiab/blob/master/roles/firmware/templates/iiab-check-firmware#L13
+# https://github.com/iiab/iiab/blob/master/roles/network/templates/gateway/iiab-gen-iptables#L48-L52
+# https://github.com/iiab/maps/blob/master/osm-source/pages/viewer/scripts/iiab-install-map-region#L25-L34
+# https://github.com/iiab/iiab/blob/master/roles/openvpn/templates/iiab-support READS AND WRITES, INCL NON-BOOLEAN
 
-if ! grep -q '^iiab_admin_user_install:\s\+[fF]alse\b' /etc/iiab/local_vars.yml 2> /dev/null ; then
-    if ! id -u "$IIAB_ADMIN_USER" > /dev/null 2> /dev/null; then
+iiab_var_value() {    # Also used in Section J.
+    v1=$(grep "^$1:\s" /opt/iiab/iiab/vars/default_vars.yml 2> /dev/null | tail -1 | sed "s/^$1:\s\+//; s/#.*//; s/\s*$//; s/^\(['\"]\)\(.*\)\1$/\2/")
+    v2=$(grep "^$1:\s" /etc/iiab/local_vars.yml 2> /dev/null | tail -1 | sed "s/^$1:\s\+//; s/#.*//; s/\s*$//; s/^\(['\"]\)\(.*\)\1$/\2/")
+    [[ $v2 != "" ]] && echo $v2 || echo $v1    # [ "$v2" ] ALSO WORKS
+}
+
+IIAB_ADMIN_USER=$(iiab_var_value iiab_admin_user)
+[[ $IIAB_ADMIN_USER == "" ]] &&
+    IIAB_ADMIN_USER="iiab-admin"
+
+IIAB_ADMIN_PUBLISHED_PWD=$(iiab_var_value iiab_admin_published_pwd)
+[[ $IIAB_ADMIN_PUBLISHED_PWD == "" ]] &&
+    IIAB_ADMIN_PUBLISHED_PWD="g0adm1n"
+
+if ! [[ $(iiab_var_value iiab_admin_user_install) =~ ^[fF]alse$ ]]; then
+    if ! id -u "$IIAB_ADMIN_USER" &> /dev/null; then
         /usr/sbin/useradd "$IIAB_ADMIN_USER"
         echo "$IIAB_ADMIN_USER":"$IIAB_ADMIN_PUBLISHED_PWD" | chpasswd
     fi
 fi
 
-# D. If 'iiab-admin' (or equivalent) use the default password, prompt for change
+# D. If 'iiab-admin' (or equivalent) use default password, prompt for change
 if check_user_pwd "$IIAB_ADMIN_USER" "$IIAB_ADMIN_PUBLISHED_PWD"; then
     echo -e "\n\n\e[41mDANGER: User 'iiab-admin' has public password 'g0adm1n' per http://FAQ.IIAB.IO\e[0m\n"
 
@@ -211,10 +223,10 @@ echo -e " ███████████████████████�
 
 if ! $($MFABT); then
     echo -e "\n\n'apt update' is checking for OS updates, \e[1mwhich may force a reboot...\e[0m\n"
-    #echo -e "2019-07-11 TEMP WORKAROUND FOR RASPBIAN BUSTER'S testing->stable apt GLITCH...\nDetails @ https://github.com/iiab/iiab/issues/1856\n"
-    #apt -y update || true    # Overrides 'set -e'
-    #echo -e "\nNOW THE REAL 'apt update' WILL RUN...\n"
-    $APTPATH/apt -qq update > /tmp/apt.stdout 2> /tmp/apt.stderr || true    # Overrides 'set -e'
+    # echo -e "2019-07-11 TEMP WORKAROUND FOR RASPBIAN BUSTER'S testing->stable apt GLITCH...\nDetails @ https://github.com/iiab/iiab/issues/1856\n"
+    # apt -y update || true    # Overrides 'set -e'
+    # echo -e "\nNOW THE REAL 'apt update' WILL RUN...\n"
+    $ APTPATH/apt -qq update > /tmp/apt.stdout 2> /tmp/apt.stderr || true    # Overrides 'set -e'
     if (( $(wc -c < /tmp/apt.stderr) > 82 )); then    # apt.stderr typically contains exactly 82 characters when there are no errors, no matter the primary locale, i.e. 3-line file "\nWARNING: apt does not have a stable CLI interface. Use with caution in scripts.\n\n" ...OR... in other cases more than 82, e.g. many lines of errors when apt is busy/locked/offline/etc
         echo -e "'apt update' FAILED. VERIFY YOU'RE ONLINE and resolve all errors below:\n"
         cat /tmp/apt.stderr
@@ -243,7 +255,7 @@ fi
 ####################### MAIN INTERACTIVE STUFF IS ABOVE #######################
 
 # G. If microSD, lower reserve disk space from ~5% to 2%
-#if [ -f /proc/device-tree/model ] && grep -qi raspberry /proc/device-tree/model; then
+# if [ -f /proc/device-tree/model ] && grep -qi raspberry /proc/device-tree/model; then
 if [ -e /dev/mmcblk0p2 ]; then
     echo -e "\n\nFound microSD card /dev/mmcblk0p2: Lower its reserve disk space from ~5% to 2%\n"
     tune2fs -m 2 /dev/mmcblk0p2
@@ -397,9 +409,9 @@ cd /opt/iiab/iiab/
 if [ -f $FLAGDIR/iiab-admin-console-complete ]; then
     echo -e "ADMIN CONSOLE INSTALLATION IS ALREADY COMPLETE -- per existence of:"
     echo -e "$FLAGDIR/iiab-admin-console-complete\n"
-elif grep -q '^admin_console_install:\s\+[fF]alse\b' /etc/iiab/local_vars.yml ; then
+elif [[ $(iiab_var_value admin_console_install) =~ ^[fF]alse$ ]]; then
     echo -e "LET'S NOT TRY TO INSTALL ADMIN CONSOLE -- because:"
-    echo -e "'admin_console_install: False' is in /etc/iiab/local_vars.yml\n"
+    echo -e "'admin_console_install: False' is likely in /etc/iiab/local_vars.yml\n"
 else
     echo -e "Install Admin Console... (also runs iiab-get-kiwix-cat to d/l Kiwix catalog,"
     echo -e "and installs Dynamic Menuing for /library/www/html/home/index.html)\n"
@@ -409,8 +421,8 @@ else
     touch $FLAGDIR/iiab-admin-console-complete
 fi
 
-if grep -q '^admin_console_enabled:\s\+[fF]alse\b' /etc/iiab/local_vars.yml ; then
-    echo -e "'admin_console_enabled: False' is in /etc/iiab/local_vars.yml"
+if [[ $(iiab_var_value admin_console_enabled) =~ ^[fF]alse$ ]]; then
+    echo -e "'admin_console_enabled: False' is likely in /etc/iiab/local_vars.yml"
     echo -e "...so let's try to DISABLE & STOP Admin Console's iiab-cmdsrv.service\n"
 
     systemctl disable iiab-cmdsrv || true    # Overrides 'set -e'
