@@ -66,7 +66,7 @@ elif [[ $1 == "-F" || $1 == "--risky" ]]; then
     shift
 fi
 
-# Save CLI params (PR #s) for section J. so 'sudo iiab' continues after reboots
+# Save CLI params (PR #s) for Section J. so 'sudo iiab' continues after reboots
 if [ $# -ne 0 ]; then
     printf '%s\n' "$@" >> /etc/iiab/pr-queue
 fi
@@ -158,7 +158,7 @@ command -v wget &> /dev/null ||
     $APTPATH/apt -y install wget  # AS ABOVE (grep)
 command -v nano &> /dev/null ||
     $APTPATH/apt -y install nano  # BELOW (git, jq)
-local_vars_src_file=local_vars_big.yml    # Testing default, for section J. (PR's can change local_vars.yml templates)
+local_vars_src_file=local_vars_big.yml    # Testing default, for Section J. (PR's can change local_vars.yml templates)
 if [ -f /etc/iiab/local_vars.yml ]; then
 
     # FUTURE: Test if their local_vars.yml is sufficiently version-compatible !
