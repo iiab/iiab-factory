@@ -91,7 +91,7 @@ check_user_pwd() {
 
 # B. Ask for password change if pi/raspberry default remains
 if check_user_pwd "pi" "raspberry"; then
-    echo -e "\n\n\e[41mRaspberry Pi's are COMPROMISED often if the default password is not changed!\e[0m\n"
+    echo -e "\n\n\e[41;1mRaspberry Pi's are COMPROMISED often if the default password is not changed!\e[0m\n"
 
     echo -n "What password do you want for GNU/Linux user 'pi' ? "
     read ans < /dev/tty    # Whines but doesn't change password if [Enter]
@@ -132,7 +132,7 @@ fi
 
 # D. If 'iiab-admin' (or equivalent) use default password, prompt for change
 if check_user_pwd "$IIAB_ADMIN_USER" "$IIAB_ADMIN_PUBLISHED_PWD"; then
-    echo -e "\n\n\e[41mDANGER: User 'iiab-admin' has public password 'g0adm1n' per http://FAQ.IIAB.IO\e[0m\n"
+    echo -e "\n\n\e[41;1mDANGER: User 'iiab-admin' has public password 'g0adm1n' per http://FAQ.IIAB.IO\e[0m\n"
 
     echo -e "This is for login to Internet-in-a-Box's Admin Console (http://box.lan/admin)"
     echo -e "Technical Details: https://github.com/iiab/iiab/blob/master/roles/iiab-admin"
@@ -322,8 +322,8 @@ do
 
     http_code=$(curl -sH "Accept: application/vnd.github.v3" https://api.github.com/repos/iiab/$repo/pulls/$pr -w "%{http_code}" -o /tmp/iiab-pr.json)
     if [[ $http_code != "200" ]] ; then
-        echo -e "\n\e[41mCOULD NOT FIND PR #$pr (https://github.com/iiab/$repo/pull/$pr)\e[0m\n"
-        echo -en "\e[41mHTTP ERROR: $http_code\e[0m\e[1m "
+        echo -e "\n\e[41;1mCOULD NOT FIND PR #$pr (https://github.com/iiab/$repo/pull/$pr)\e[0m\n"
+        echo -en "\e[41;1mHTTP ERROR: $http_code\e[0m\e[1m "
         [[ $http_code == "403" ]] &&
             echo -en "(DID YOU REQUEST 60+ PR's IN ONE HOUR?)"
         [[ $http_code == "404" ]] &&
