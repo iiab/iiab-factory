@@ -4,7 +4,7 @@
 # To install Internet-in-a-Box (IIAB) 7.2 / pre-release onto Raspberry Pi OS,
 # Ubuntu 20.04+, Linux Mint 20 or Debian 11, run this 1-line installer:
 #
-#                 curl d.iiab.io/install.txt | sudo bash
+#                   curl d.iiab.io/fast.txt | sudo bash
 
 # 1. WARNING: NOOBS IS *NOT* SUPPORTED, as its partitioning is very different.
 #    On a Raspberry Pi, WE RECOMMEND YOU INSTALL THE LATEST RASPBERRY PI OS:
