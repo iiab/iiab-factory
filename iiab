@@ -89,7 +89,7 @@ check_user_pwd() {
     # [[ $(python3 -c "import crypt; print(crypt.crypt('$2', '\$$meth\$$salt'))") == "\$$meth\$$salt\$$hash" ]]
 }
 
-# B. Subroutine for D. and K.  Returns any IIAB variable value -- please read:
+# B. Subroutine for Sections D. and K.  Returns any IIAB variable value -- SEE:
 # http://FAQ.IIAB.IO#What_is_local_vars.yml_and_how_do_I_customize_it.3F
 
 # 2021-08-28: bash scripts using default_vars.yml &/or local_vars.yml
