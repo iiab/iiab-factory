@@ -66,12 +66,12 @@ elif [[ $1 == "-F" || $1 == "--risky" ]]; then
     shift
 fi
 
+mkdir -p $FLAGDIR    # Which also creates /etc/iiab for the step just below
+
 # Save CLI params (PR #s) for Section J. so 'sudo iiab' continues after reboots
 if [ $# -ne 0 ]; then
     printf '%s\n' "$@" >> /etc/iiab/pr-queue
 fi
-
-mkdir -p $FLAGDIR    # Which also creates /etc/iiab
 
 # A. Subroutine for C. and E.  Returns true (0) if username ($1) exists with password ($2)
 command -v grep &> /dev/null ||
