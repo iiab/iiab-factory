@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copied from: https://github.com/iiab/iiab-factory/blob/master/install.txt
+# Copied from: https://github.com/iiab/iiab-factory/blob/master/risky.txt
 
 # To install Internet-in-a-Box (IIAB) 7.2 / pre-release onto Raspberry Pi OS,
 # Ubuntu 20.04+, Linux Mint 20 or Debian 11, run this 1-line installer:
