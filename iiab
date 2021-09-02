@@ -246,8 +246,9 @@ if ! $($MFABT); then
             echo
         fi
         $APTPATH/apt -y dist-upgrade
+    else
+        cat /tmp/apt.stdout    # "All packages are up to date.\n"
     fi
-    cat /tmp/apt.stdout    # "All packages are up to date.\n"
 fi
 
 # Is a reboot needed?  We repeat this check after reboot too -- as a failsafe
@@ -255,6 +256,7 @@ fi
 # updating the kernel AT ANYTIME -- also many weeks could have passed.  (#2975)
 command -v needrestart &> /dev/null ||
     $APTPATH/apt -y install needrestart    # AVOID UX CLUTTER+DELAYS
+echo
 if ! needrestart -b | grep -q '^NEEDRESTART-KSTA: 1$'; then
     reboot
     exit 0    # Nec to avoid bogus continuation & misleading output below
