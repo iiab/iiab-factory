@@ -75,7 +75,9 @@ fi
 
 # A. Subroutine for C. and E.  Returns true (0) if username ($1) exists with password ($2)
 command -v grep &> /dev/null ||
-    $APTPATH/apt -y install grep    # AVOID UX CLUTTER+DELAYS: 4 MORE BELOW!
+    $APTPATH/apt -y install grep    # AVOID UX CLUTTER+DELAYS: 6 MORE BELOW
+command -v perl &> /dev/null ||
+    $APTPATH/apt -y install perl    # AVOID UX CLUTTER+DELAYS: 5 MORE BELOW
 check_user_pwd() {
     # 2021-08-28: New OS's use 'yescrypt' so use Perl instead of Python (#2949)
     # This also helps avoid parsing the (NEW) 4th sub-field in $y$j9T$SALT$HASH
@@ -155,9 +157,9 @@ fi
 
 # F. Position & customize /etc/iiab/local_vars.yml
 command -v wget &> /dev/null ||
-    $APTPATH/apt -y install wget  # AS ABOVE (grep)
+    $APTPATH/apt -y install wget  # AS ABOVE (grep, perl)
 command -v nano &> /dev/null ||
-    $APTPATH/apt -y install nano  # BELOW (git, jq)
+    $APTPATH/apt -y install nano  # BELOW (needrestart, git, jq)
 local_vars_src_file=local_vars_big.yml    # Testing default, for Section J. (PR's can change local_vars.yml templates)
 if [ -f /etc/iiab/local_vars.yml ]; then
 
@@ -216,7 +218,7 @@ else
     fi
 fi
 
-# G. Mandate OS SECURITY/UPDATES if 'apt update' has any (IF SO REBOOT)
+# G. Mandate OS SECURITY/UPDATES if 'apt update' has any (THEN REBOOT, AS NEC)
 # Educate implementer while waiting for 'apt update'
 echo -e "\n\n ██████████████████████████████████████████████████████████████████████████████"
 echo -e " ██                                                                          ██"
@@ -244,15 +246,23 @@ if ! $($MFABT); then
             echo
         fi
         $APTPATH/apt -y dist-upgrade
-        reboot
-        exit 0    # Nec to avoid both output lines below (that confuse implementers!)
     fi
     cat /tmp/apt.stdout    # "All packages are up to date.\n"
+fi
 
-    if ! $($FAST); then
-        echo -ne "\nHit [ENTER] to confirm you'll TRY TO RERUN 'sudo iiab' IF THERE IS A PROBLEM: "
-        read ans < /dev/tty
-    fi
+# Is a reboot needed?  We repeat this check after reboot too -- as a failsafe
+# against users (or apt above, or unattended-upgrades) spontaneously AGAIN apt
+# updating the kernel AT ANYTIME -- also many weeks could have passed.  (#2975)
+command -v needrestart &> /dev/null ||
+    $APTPATH/apt -y install needrestart    # AVOID UX CLUTTER+DELAYS
+if ! needrestart -b | grep -q '^NEEDRESTART-KSTA: 1$'; then
+    reboot
+    exit 0    # Nec to avoid bogus continuation & misleading output below
+fi
+
+if ! $($FAST); then
+    echo -ne "\nHit [ENTER] to confirm you'll TRY TO RERUN 'sudo iiab' IF THERE IS A PROBLEM: "
+    read ans < /dev/tty
 fi
 
 ####################### MAIN INTERACTIVE STUFF IS ABOVE #######################
