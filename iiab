@@ -75,7 +75,9 @@ fi
 
 # A. Subroutine for C. and E.  Returns true (0) if username ($1) exists with password ($2)
 command -v grep &> /dev/null ||
-    $APTPATH/apt -y install grep    # AVOID UX CLUTTER+DELAYS: 4 MORE BELOW!
+    $APTPATH/apt -y install grep    # AVOID UX CLUTTER+DELAYS: 5 MORE BELOW
+command -v perl &> /dev/null ||
+    $APTPATH/apt -y install perl    # AVOID UX CLUTTER+DELAYS: 4 MORE BELOW
 check_user_pwd() {
     # 2021-08-28: New OS's use 'yescrypt' so use Perl instead of Python (#2949)
     # This also helps avoid parsing the (NEW) 4th sub-field in $y$j9T$SALT$HASH
@@ -155,9 +157,9 @@ fi
 
 # F. Position & customize /etc/iiab/local_vars.yml
 command -v wget &> /dev/null ||
-    $APTPATH/apt -y install wget  # AS ABOVE (grep)
+    $APTPATH/apt -y install wget    # AS ABOVE (grep, perl)
 command -v nano &> /dev/null ||
-    $APTPATH/apt -y install nano  # BELOW (git, jq)
+    $APTPATH/apt -y install nano    # AS BELOW (git, jq)
 local_vars_src_file=local_vars_big.yml    # Testing default, for Section J. (PR's can change local_vars.yml templates)
 if [ -f /etc/iiab/local_vars.yml ]; then
 
@@ -216,7 +218,7 @@ else
     fi
 fi
 
-# G. Mandate OS SECURITY/UPDATES if 'apt update' has any (IF SO REBOOT)
+# G. Mandate OS SECURITY/UPDATES if 'apt update' has any (THEN REBOOT, AS NEC)
 # Educate implementer while waiting for 'apt update'
 echo -e "\n\n ██████████████████████████████████████████████████████████████████████████████"
 echo -e " ██                                                                          ██"
@@ -235,24 +237,34 @@ if ! $($MFABT); then
         cat /tmp/apt.stderr
         exit 1
     elif grep -q 'apt list --upgradable' /tmp/apt.stdout; then    # apt.stdout typically contains {"All packages are up to date.\n" [even if primary locale is French & Hindi!], "Todos los paquetes están actualizados.\n", "所有软件包均为最新。\n"} ...OR... {"5 packages can be upgraded. Run 'apt list --upgradable' to see them.\n" [even if primary locale is French & Hindi!], "Se puede actualizar 1 paquete. Ejecute «apt list --upgradable» para verlo.\n", "有 1 个软件包可以升级。请执行 ‘apt list --upgradable’ 来查看它们。\n"}
-        cat /tmp/apt.stdout
+        cat /tmp/apt.stdout    # e.g. "5 packages can be upgraded. Run 'apt list --upgradable' to see them.\n"
         if ! $($FAST); then
-            echo -e "\nYour OS will now be upgraded...this takes time. THEN IT WILL AUTO-REBOOT.\n"
+            echo -e "\nYour OS will now be upgraded...this takes time. THEN IT WILL REBOOT (IF NEC!)\n"
 
             echo -n "Hit [ENTER] to confirm you'll RUN 'sudo iiab' AFTER IT REBOOTS: "
             read ans < /dev/tty
             echo
         fi
         $APTPATH/apt -y dist-upgrade
-        reboot
-        exit 0    # Nec to avoid both output lines below (that confuse implementers!)
+    else
+        cat /tmp/apt.stdout    # "All packages are up to date.\n"
+        if ! $($FAST); then
+            echo -ne "\nHit [ENTER] to confirm you'll TRY TO RERUN 'sudo iiab' IF THERE IS A PROBLEM: "
+            read ans < /dev/tty
+        fi
     fi
-    cat /tmp/apt.stdout    # "All packages are up to date.\n"
+fi
 
-    if ! $($FAST); then
-        echo -ne "\nHit [ENTER] to confirm you'll TRY TO RERUN 'sudo iiab' IF THERE IS A PROBLEM: "
-        read ans < /dev/tty
-    fi
+# 2021-09-03 #2975: Is a reboot needed? We check after reboot too, safeguarding
+# against users (or apt above, or unattended-upgrades) spontaneously AGAIN apt
+# updating /boot e.g. kernel AT ANYTIME -- also many weeks could have passed.
+bootupTime=$(($(date +%s) - $(cut -d. -f1 /proc/uptime)))    # Seconds since...
+bootDirLastModFile=$(date +%s -r /boot/$(ls -t /boot | head -1))   # 1970-01-01
+# Works w/o RTC (real-time clock, i.e. battery) because:
+# Both 'apt' installs to /boot and IIAB installs require Internet (e.g. NTP).
+if (( bootupTime < bootDirLastModFile )); then
+    reboot
+    exit 0    # Nec to avoid bogus continuation & misleading output below
 fi
 
 ####################### MAIN INTERACTIVE STUFF IS ABOVE #######################
