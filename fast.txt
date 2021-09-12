@@ -30,7 +30,7 @@
 
 # 6. Follow on-screen instructions (TYPE 'sudo iiab' TO RESUME IF EVER NECESS!)
 
-# 7. About 1-2 hours later, it will announce that INTERNET-IN-A-BOX (IIAB)
+# 7. Within about 1-2 hours, it will announce that INTERNET-IN-A-BOX (IIAB)
 #    SOFTWARE INSTALL IS COMPLETE, prompting you to reboot...TO ADD CONTENT!
 
 # Thanks   For   Building   Your   Own   Library   To   Serve   One   &   All
