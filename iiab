@@ -182,7 +182,7 @@ else
     echo -e "WARNING: This Can Take More Than An Hour, depending on Internet speed, CPU,"
     echo -e "temperature, and the speed of your microSD card.\n"
 
-    echo -n "Please type 1, 2, 3 or m then press [ENTER]: "
+    echo -n "Please type 0, 1, 2, 3 or m then press [ENTER]: "
     read local_vars_size < /dev/tty
     echo
     case $local_vars_size in
