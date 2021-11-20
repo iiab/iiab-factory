@@ -160,7 +160,7 @@ command -v wget &> /dev/null ||
     $APTPATH/apt -y install wget    # AS ABOVE (grep, perl)
 command -v nano &> /dev/null ||
     $APTPATH/apt -y install nano    # AS BELOW (git, jq)
-local_vars_src_file=local_vars_big.yml    # Testing default, for Section J. (PR's can change local_vars.yml templates)
+local_vars_src_file=local_vars_large.yml    # Testing default, for Section J. (PR's can change local_vars.yml templates)
 if [ -f /etc/iiab/local_vars.yml ]; then
 
     # FUTURE: Test if their local_vars.yml is sufficiently version-compatible !
@@ -173,8 +173,8 @@ if [ -f /etc/iiab/local_vars.yml ]; then
 else
     echo -e "\n\nInstalling Internet-in-a-Box requires /etc/iiab/local_vars.yml\n"
 
-    echo -e "Do you want (1) 🚵 MIN-sized (2) 🚢🚣 MEDIUM-sized or (3) 🚂🚃🚃 BIG-sized?"
-    echo -e "Or (m) for 🚑 MEDICAL?       YOU NEED 2 GB RAM OR HIGHER, IF YOU CHOOSE (3)\n"
+    echo -e "PLEASE PICK (1) 🚵 SMALL (2) 🚢🚣 MEDIUM or (3) 🚂🚃🚃 LARGE (NEEDS 2+ GB RAM)."
+    echo -e "Or try (0) for bare-bones unit-testing.  Or (m) for 🚑 MEDICAL.\n"
 
     echo -e 'See "What can I do with E-books and Internet-in-a-Box?" and "What services'
     echo -e '(IIAB apps) are suggested during installation?" within http://FAQ.IIAB.IO\n'
@@ -190,10 +190,10 @@ else
             local_vars_src_file=local_vars_unittest.yml
             ;;
         1)
-            local_vars_src_file=local_vars_min.yml
+            local_vars_src_file=local_vars_small.yml
             ;;
         3)
-            local_vars_src_file=local_vars_big.yml
+            local_vars_src_file=local_vars_large.yml
             ;;
         m)
             local_vars_src_file=local_vars_medical.yml
