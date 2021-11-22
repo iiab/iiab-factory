@@ -358,13 +358,14 @@ do
     fi
 
     account=$(jq -r '.head.label' /tmp/iiab-pr.json | cut -d: -f1)
+    repo2=$(jq -r '.head.repo.name' /tmp/iiab-pr.json)    # 2021-11-22: For PR's created from oddly named forks (instead of "iiab" or "iiab-admin-console" !)
     branch=$(jq -r '.head.label' /tmp/iiab-pr.json | cut -d: -f2)
 
     echo -e "\nPR #$pr: cd /opt/iiab/$repo"
     cd /opt/iiab/$repo
     #git checkout -b POTLUCK master || true    # If test branch name/norm in future...for both repos?
-    echo -e "git pull --no-edit https://github.com/$account/$repo $branch"    # Or $repo.git
-    git pull --no-edit https://github.com/$account/$repo $branch || {
+    echo -e "git pull --no-edit https://github.com/$account/$repo2 $branch"    # Or $repo2.git
+    git pull --no-edit https://github.com/$account/$repo2 $branch || {
         echo -e "\n\e[1mgit exit/error code:\e[0m $?\n"    # if hides err code
         echo -n "Delete it from top of /etc/iiab/pr-queue and continue? [Y/n] "
         read ans < /dev/tty
