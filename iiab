@@ -176,8 +176,8 @@ else
     echo -e "PLEASE PICK (1) 🚵 SMALL (2) 🚢🚣 MEDIUM or (3) 🚂🚃🚃 LARGE (NEEDS 2+ GB RAM)."
     echo -e "Or try (m) for 🚑 MEDICAL.\n"
 
-    echo -e 'See "What services (IIAB apps) are suggested during installation?" and "What'
-    echo -e 'can I do with E-books and Internet-in-a-Box?" within http://FAQ.IIAB.IO\n'
+    echo -e 'See "What services (IIAB apps) are suggested during installation?" and' 
+    echo -e '"What can I do with E-books and Internet-in-a-Box?" in http://FAQ.IIAB.IO\n'
 
     echo -e "WARNING: This Can Take More Than An Hour, depending on Internet speed, CPU,"
     echo -e "temperature, and the speed of your microSD card.\n"
