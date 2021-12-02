@@ -12,25 +12,25 @@
 # Assumes root is last partition
 
 if [ $# -eq 0 ]; then
-   echo "Usage: $0 filename (no .img), optional rootfs device (like /dev/sdg), optional image directory (like /curation/images), otherwise CWD"
-   exit 1
+    echo "Usage: $0 name (no .img), optional rootfs device (like /dev/sdg), optional image directory (like /curation/images), otherwise CWD"
+    exit 1
 fi
 
 # get the current settings
 source factory-settings
 
 if [ -z $2 ]; then
-   PARTITION=/dev/sdg2
+    PARTITION=/dev/sdg2
 else
-   PARTITION=$2
+    PARTITION=$2
 fi
 
 # create a standard filename <product>-<version>-yymmdd-$1-<git hash>.img
 # fetch the git hash
 mount $PARTITION /mnt/sdcard
 if [ ! -d /mnt/sdcard/opt/iiab/iiab ]; then
-  echo "Device is not IIAB root partition. Exiting."
-  exit 1
+    echo "Device is not IIAB root partition. Exiting."
+    exit 1
 fi
 
 pushd /mnt/sdcard/opt/iiab/iiab
@@ -41,15 +41,15 @@ umount $PARTITION
 
 FILENAME=$(printf "%s-%s-%s-%s-%s.img" $PRODUCT $VERSION $YMD $1 $HASH)
 
-if [ ! -b $PARTITION ];then
-   echo "Device $PARTITION not found".
-   exit 1
+if [ ! -b $PARTITION ]; then
+    echo "Device $PARTITION not found."
+    exit 1
 fi
 
 if [ -z $3 ]; then
-   IMAGE_DIR=$PWD
+    IMAGE_DIR=$PWD
 else
-   IMAGE_DIR=$3
+    IMAGE_DIR=$3
 fi
 
 mkdir -p $IMAGE_DIR
@@ -59,13 +59,13 @@ umount $PARTITION
 umount /media/usb*
 
 DEVICE=${PARTITION:0:-1}
-PART_DIGIT=${PARTITION: (-1)}
+#PART_DIGIT=${PARTITION: (-1)}
 
 umount $PARTITION
 e2fsck -fy $PARTITION
 
 # recalc last sector and read that many sectors from card
-last_sector=`parted -s $DEVICE unit s print |tail -2 |head -1| awk '{print $3}'`
+last_sector=`parted -s $DEVICE unit s print | tail -2 | head -1 | awk '{print $3}'`
 last=${last_sector:0:-1}
 last=$(( last / 8  )) # integer division
 last=$(( last + 1  )) # round up

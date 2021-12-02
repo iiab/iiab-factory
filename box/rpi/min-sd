@@ -13,30 +13,28 @@
 # There is a similar project at https://github.com/Drewsif/PiShrink
 
 if [ $# -eq 0 ]; then
-   echo "Usage: $0 filename (no .img), optional rootfs device (like /dev/sdg3), optional image directory (like /curation/images), otherwise CWD"
-   exit 1
+    echo "Usage: $0 name (no .img), optional rootfs device (like /dev/sdg3), optional image directory (like /curation/images), otherwise CWD"
+    exit 1
 fi
 
-# get the current settings
+# Set 2 vars used below, e.g. PRODUCT=iiab and VERSION=7.2preview1
 source factory-settings
 
-FILENAME=$1.img
-
 if [ -z $2 ]; then
-   PARTITION=/dev/sdg2
+    PARTITION=/dev/sdg2
 else
-   PARTITION=$2
+    PARTITION=$2
 fi
 
-if [ ! -b $PARTITION ];then
-   echo "Device $PARTITION not found".
-   exit 1
+if [ ! -b $PARTITION ]; then
+    echo "Device $PARTITION not found."
+    exit 1
 fi
 
 if [ -z $3 ]; then
-   IMAGE_DIR=$PWD
+    IMAGE_DIR=$PWD
 else
-   IMAGE_DIR=$3
+    IMAGE_DIR=$3
 fi
 
 mkdir -p $IMAGE_DIR
@@ -52,8 +50,8 @@ umount /media/usb*
 mount $PARTITION /mnt/sdcard
 
 if [ ! -d /mnt/sdcard/opt/iiab/iiab ]; then
-  echo "Device is not IIAB root partition. Exiting."
-  exit 1
+    echo "Device is not IIAB root partition. Exiting."
+    exit 1
 fi
 
 touch /mnt/sdcard/.resize-rootfs
@@ -79,15 +77,15 @@ rm -f /mnt/sdcard/library/www/html/local_content/USB*
 rm -f /mnt/sdcard/usb*
 
 # sanitize wpa_supplicant.conf but preserve country code
-COUNTRY_CODE_LINE=`cat /mnt/sdcard/etc/wpa_supplicant/wpa_supplicant.conf | grep  country=`
+COUNTRY_CODE_LINE=`cat /mnt/sdcard/etc/wpa_supplicant/wpa_supplicant.conf | grep country=`
 cat <<EOF > /mnt/sdcard/etc/wpa_supplicant/wpa_supplicant.conf
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 update_config=1
 EOF
 echo $COUNTRY_CODE_LINE >> /mnt/sdcard/etc/wpa_supplicant/wpa_supplicant.conf
 
-echo $FILENAME > /mnt/sdcard/etc/iiab/openvpn_handle
-truncate --size 0 /mnt/sdcard/opt/admin/cmdsrv/cmdsrv.0.2.db
+#echo $FILENAME > /mnt/sdcard/etc/iiab/openvpn_handle
+truncate --size 0 /mnt/sdcard/opt/admin/cmdsrv/cmdsrv.*.db
 
 umount /mnt/sdcard
 
@@ -96,7 +94,7 @@ umount /mnt/sdcard
 DEVICE=${PARTITION:0:-1}
 PART_DIGIT=${PARTITION: (-1)}
 
-PART_START_SECTOR=`parted -sm  $DEVICE unit s print|cut -d: -f1,2|grep $PART_DIGIT:|cut -d: -f2`
+PART_START_SECTOR=`parted -sm $DEVICE unit s print | cut -d: -f1,2 | grep $PART_DIGIT: | cut -d: -f2`
 root_start=${PART_START_SECTOR:0:-1}
 
 # total prior sectors is 1 less than start of this one
@@ -113,7 +111,7 @@ umount $PARTITION
 e2fsck -fy $PARTITION
 
 # fetch the new size of ROOT PARTITION
-blocks4k=`e2fsck -n $PARTITION 2>/dev/null|grep blocks|cut -f5 -d" "|cut -d/ -f2`
+blocks4k=`e2fsck -n $PARTITION 2>/dev/null | grep blocks | cut -f5 -d" " | cut -d/ -f2`
 
 root_end=$(( (blocks4k * 8) + prior_sectors ))
 
@@ -128,8 +126,8 @@ parted -s $DEVICE unit s mkpart primary ext4 $root_start $root_end
 
 umount $PARTITION
 
-# set the percentage reserved by OS to 1 percent
-tune2fs -m 1 $PARTITION
+# set the percentage reserved by OS to 2 percent
+tune2fs -m 2 $PARTITION
 
 # try to repair any errors
 e2fsck -fy $PARTITION
@@ -139,6 +137,6 @@ e2fsck -fy $PARTITION
 
 
 # recalc last sector and read that many sectors from card
-last_sector=`parted -s $DEVICE unit s print |tail -2 |head -1| awk '{print $3}'`
+last_sector=`parted -s $DEVICE unit s print | tail -2 | head -1 | awk '{print $3}'`
 last=${last_sector:0:-1}
 echo "last sector: $last"
