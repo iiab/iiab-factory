@@ -17,7 +17,7 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
-# Set 2 vars used below, e.g. PRODUCT=iiab and VERSION=7.2preview1
+# Set 2 vars used below, e.g. PRODUCT=iiab and VERSION=7.2preview2
 source factory-settings
 
 if [ -z $2 ]; then
