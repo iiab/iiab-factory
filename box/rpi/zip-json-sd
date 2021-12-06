@@ -22,8 +22,8 @@ cat > $FILENAME.json << EOF
         {
             "name": "$FILENAME",
             "description": "$FILENAME",
-            "icon": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/rpi-imager/iiab40.png",
-            "url": "${URL_PREFIX}$FILENAME",
+            "icon": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/iiab40.png",
+            "url": "${URL_PREFIX}$FILENAME.zip",
             "extract_size": $(stat --format=%s $FILENAME),
             "extract_sha256": "$(sha256sum $FILENAME | cut -d " " -f 1)",
             "image_download_size": $(stat --format=%s $FILENAME.zip),
