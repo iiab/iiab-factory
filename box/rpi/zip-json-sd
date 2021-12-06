@@ -1,0 +1,32 @@
+#!/bin/bash -x
+# Zip image file and create a DRAFT .json snippet for Raspberry Pi Imager.
+
+# parameter 1 - input file name
+# parameter 2 - URL prefix where it will be published e.g. https://download.iiab.io/7.2/
+
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <input-filename.img> <URL-prefix-where-it-will-be-published>"
+    exit 1
+fi
+
+FILENAME=$1
+URL_PREFIX=$2
+
+zip $FILENAME.zip $FILENAME
+#md5sum $FILENAME.zip > $FILENAME.zip.md5.txt
+#sha256sum $FILENAME > $FILENAME.sha256.txt
+
+cat > $FILENAME.json << EOF
+{
+    "os_list": [
+        {
+            "name": "$FILENAME",
+            "description": "$FILENAME",
+            "icon": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/iiab40.png",
+            "url": "${URL_PREFIX}$FILENAME.zip",
+            "extract_size": $(stat --format=%s $FILENAME),
+            "extract_sha256": "$(sha256sum $FILENAME | cut -d " " -f 1)",
+            "image_download_size": $(stat --format=%s $FILENAME.zip),
+            "release_date": "$(date +%Y-%m-%d)"
+        },
+EOF
