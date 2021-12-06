@@ -7,6 +7,11 @@
 # INSPIRED BY @tim-moody's zip-sd & meta-sd
 # AND @georgejhunt's iiab-imager/top_level.py
 
+# EXPLANATION:
+# https://github.com/iiab/iiab/wiki/Raspberry-Pi-Images:-Summary
+# https://downloads.raspberrypi.org/os_list_imagingutility.json [Last modified 2021-05-28]
+# https://downloads.raspberrypi.org/os_list_imagingutility_v2.json [Last modified 2021-12-02]
+
 if [ $# -ne 2 ]; then
     echo "Usage: $0 <input-filename.img> <URL-prefix-where-it-will-be-published>"
     exit 1
