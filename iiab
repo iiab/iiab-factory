@@ -50,6 +50,7 @@ FLAGDIR=/etc/iiab/install-flags
 APTPATH=/usr/bin    # Avoids problematic /usr/local/bin/apt on Linux Mint
 FAST=false     # YOUR OWN RISK: Fewer security & user education prompts.
 MFABT=false    # No time to read the book?  "Move Fast and Break Things:
+MIN_RPI_KERN=1440
 # How Facebook, Google, and Amazon Cornered Culture and Undermined Democracy"
 
 if [[ $(id -un) != "root" ]]; then
@@ -106,6 +107,11 @@ iiab_var_value() {
     v2=$(grep "^$1:\s" /etc/iiab/local_vars.yml 2> /dev/null | tail -1 | sed "s/^$1:\s\+//; s/#.*//; s/\s*$//; s/^\(['\"]\)\(.*\)\1$/\2/")
     [[ $v2 != "" ]] && echo $v2 || echo $v1    # [ "$v2" ] ALSO WORKS
 }
+
+# Subroutine compares software version numbers.  Generates rare false positives
+# like "1.0 > 1" and "2.4.0 > 2.4".  Avoid risks by structuring conditionals w/
+# a consistent # of decimal points e.g. "if version_gt w.x.y.z a.b.c.d; then"
+version_gt() { [ "$(printf '%s\n' "$@" | sort -V | head -1)" != "$1" ]; }
 
 # C. Ask for password change if pi/raspberry default remains
 if check_user_pwd "pi" "raspberry"; then
@@ -265,6 +271,16 @@ bootDirLastModFile=$(date +%s -r "/boot/$(ls -t /boot | head -1)") # 1970-01-01
 if (( bootupTime < bootDirLastModFile )); then
     reboot
     exit 0    # Nec to avoid bogus continuation & misleading output below
+fi
+
+CURR_KERN=`uname -v | awk '{print $1}' | sed -e s'/#//'`
+if [ -f /etc/rpi-issue ] && version_gt $MIN_RPI_KERN $CURR_KERN; then
+    echo -e "Found Kernel ""$CURR_KERN"
+    echo -e "\nWARNING: Kernel ""$MIN_RPI_KERN"" or higher required with Raspbian."
+    echo -e "PLEASE RUN 'apt update','apt upgrade','reboot' then login and 'sudo iiab'"
+    echo -e "Hit [enter] to exit"
+    read ans < /dev/tty
+    exit 0
 fi
 
 ####################### MAIN INTERACTIVE STUFF IS ABOVE #######################
