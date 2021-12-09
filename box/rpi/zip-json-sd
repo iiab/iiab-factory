@@ -1,8 +1,8 @@
 #!/bin/bash -x
 # Zip up image file and create a DRAFT .json snippet for Raspberry Pi Imager.
 
-# parameter 1 - input file name
-# parameter 2 - URL prefix where it will be published e.g. https://download.iiab.io/7.2/
+# parameter 1 - input filename e.g. iiab-7.2-raspios-11-lite-SMALL.img
+# parameter 2 - URL prefix where its .zip will be published e.g. https://download.iiab.io/7.2/
 
 # INSPIRED BY @tim-moody's zip-sd & meta-sd
 # AND @georgejhunt's iiab-imager/top_level.py
@@ -13,7 +13,7 @@
 # https://downloads.raspberrypi.org/os_list_imagingutility_v2.json [Last modified 2021-12-02]
 
 if [ $# -ne 2 ]; then
-    echo "Usage: $0 <input-filename.img> <URL-prefix-where-it-will-be-published>"
+    echo "Usage: $0 <input-filename.img> <URL-prefix-where-its-.zip-will-be-published>"
     exit 1
 fi
 
@@ -24,6 +24,7 @@ zip $FILENAME.zip $FILENAME
 #md5sum $FILENAME.zip > $FILENAME.zip.md5.txt
 #sha256sum $FILENAME > $FILENAME.sha256.txt
 
+# https://en.wikipedia.org/wiki/Here_document
 cat > $FILENAME.json << EOF
 {
     "os_list": [
