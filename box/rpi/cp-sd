@@ -15,6 +15,8 @@
 # occupied by previous partitions.
 # Assumes root is last partition.
 # There is a similar project at https://github.com/Drewsif/PiShrink
+# All these techniques greatly help with:
+# http://FAQ.IIAB.IO#How_do_I_back_up,_shrink_&_copy_IIAB_microSD_cards
 
 if [ $# -eq 0 ]; then
     echo "Usage: $0 name (no .img), optional rootfs device (like /dev/sdg), optional image directory (like /curation/images) otherwise CWD"
