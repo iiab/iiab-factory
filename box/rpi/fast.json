@@ -1,30 +1,30 @@
 {
     "os_list": [
         {
-            "name": "iiab-7.2preview2-211206-raspios-11-desktop-MEDIUM-gf7d94968.img",
-            "description": "iiab-7.2preview2-211206-raspios-11-desktop-MEDIUM-gf7d94968.img",
+            "name": "IIAB 7.2PV2 ∙ MEDIUM ∙ 32-bit RasPiOS Desktop",
+            "description": "iiab-7.2preview2-211206-MEDIUM-raspios-11-desktop-gf7d94968.img",
             "icon": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/iiab40.png",
-            "url": "https://download.iiab.io/7.2/iiab-7.2preview2-211206-raspios-11-desktop-MEDIUM-gf7d94968.img.zip",
+            "url": "https://download.iiab.io/7.2/iiab-7.2preview2-211206-MEDIUM-raspios-11-desktop-gf7d94968.img.zip",
             "extract_size": 12525416448,
             "extract_sha256": "e30d0d577583a747a562f680a75a2162781eb9e4f2241036bc592088edabd48b",
             "image_download_size": 3662147400,
             "release_date": "2021-12-06"
         },
         {
-            "name": "iiab-7.2preview2-211206-raspios-11-lite-SMALL-gf7d94968.img",
-            "description": "iiab-7.2preview2-211206-raspios-11-lite-SMALL-gf7d94968.img",
+            "name": "IIAB 7.2PV2 ∙ SMALL ∙ 32-bit RasPiOS Lite",
+            "description": "iiab-7.2preview2-211206-SMALL-raspios-11-lite-gf7d94968.img",
             "icon": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/iiab40.png",
-            "url": "https://download.iiab.io/7.2/iiab-7.2preview2-211206-raspios-11-lite-SMALL-gf7d94968.img.zip",
+            "url": "https://download.iiab.io/7.2/iiab-7.2preview2-211206-SMALL-raspios-11-lite-gf7d94968.img.zip",
             "extract_size": 8271257600,
             "extract_sha256": "c2940ad5443021a88214cb319ea9ad982ef5b68e7608c10e7a136f85dd5bcc09",
             "image_download_size": 1984679047,
             "release_date": "2021-12-06"
         },
         {
-            "name": "iiab-7.2preview2-211206-raspios-11-lite-MEDICAL-gf7d94968.img",
-            "description": "iiab-7.2preview2-211206-raspios-11-lite-MEDICAL-gf7d94968.img",
+            "name": "IIAB 7.2PV2 ∙ MEDICAL ∙ 32-bit RasPiOS Lite",
+            "description": "iiab-7.2preview2-211206-MEDICAL-raspios-11-lite-gf7d94968.img",
             "icon": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/iiab40.png",
-            "url": "https://download.iiab.io/7.2/iiab-7.2preview2-211206-raspios-11-lite-MEDICAL-gf7d94968.img.zip",
+            "url": "https://download.iiab.io/7.2/iiab-7.2preview2-211206-MEDICAL-raspios-11-lite-gf7d94968.img.zip",
             "extract_size": 5483786240,
             "extract_sha256": "c772c463a485ca1acf36d08542c9c2116b2ffdd4a568bcbe312922d036e3fe64",
             "image_download_size": 1264064638,
