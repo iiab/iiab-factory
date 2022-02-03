@@ -5,7 +5,7 @@
 # (3) zip-json-sd zips up the image and drafts a .json snippet for rpi-imager
 
 # parameter 1 - name the image e.g. SMALL-raspios-11-lite
-# parameter 2 - optional root device partition to be shrunk, otherwise /dev/sdb2
+# parameter 2 - optional root device partition to be shrunk, otherwise /dev/sdg2
 # parameter 3 - optional image directory, otherwise CWD
 
 # Automatically determine a size for the output disk image
@@ -18,10 +18,10 @@
 
 # SEE ALSO: howto-mkimg.txt and howto-ia-upl.txt
 # All these techniques greatly help with:
-# http://FAQ.IIAB.IO#How_do_I_back_up,_shrink_&_copy_IIAB_microSD_cards
+# http://FAQ.IIAB.IO#How_do_I_back_up,_shrink_&_copy_IIAB_microSD_cards?
 
 if [ $# -eq 0 ]; then
-    echo "Usage: $0 name (no .img), optional rootfs device partition (like /dev/sdg2), optional image directory (like /curation/images) otherwise CWD"
+    echo "Usage: $0 name (no .img), optional rootfs device partition (like /dev/sdb2), optional image directory (like /curation/images) otherwise CWD"
     exit 1
 fi
 
@@ -29,7 +29,7 @@ fi
 source factory-settings
 
 if [ -z $2 ]; then
-    PARTITION=/dev/sdb2
+    PARTITION=/dev/sdg2
 else
     PARTITION=$2
 fi
