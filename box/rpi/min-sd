@@ -62,7 +62,7 @@ if [ ! -d /mnt/sdcard/opt/iiab/iiab ]; then
     exit 1
 fi
 
-touch /mnt/sdcard/.resize-rootfs
+touch /mnt/sdcard/.expand-rootfs
 
 # create id for image
 pushd /mnt/sdcard/opt/iiab/iiab

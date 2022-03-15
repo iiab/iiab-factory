@@ -35,6 +35,6 @@ rm -f /etc/sysconfig/network
 rm -rf /home/.devkey.html
 rm -f /root/.netrc
 # the following will probably alread be done in minimize script
-touch /.resize-rootfs
+touch /.expand-rootfs
 
 

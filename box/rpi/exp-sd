@@ -4,9 +4,9 @@
 # parameter 1 - optional root device partition otherwise /dev/sdc
 
 if [ -z $1 ]; then
-   SDCARD=/dev/sdc
+    SDCARD=/dev/sdc
 else
-   SDCARD=$1
+    SDCARD=$1
 fi
 
 df
@@ -15,25 +15,24 @@ echo "Are you sure? "
 read -p "Press y to continue or any other key to stop. " -n 1 -r
 echo    # (optional) move to a new line
 
-if [[ $REPLY =~ ^[Yy]$ ]]
-then
-  echo "writing to $SDCARD"
-  SDCARD2=${SDCARD}2
-  echo $SDCARD2
-  umount $SDCARD2
-  mount $SDCARD2 /mnt/sdcard  
-  if [ -f /mnt/sdcard/.resize-rootfs ];then\
-    rm /mnt/sdcard/.resize-rootfs
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    echo "writing to $SDCARD"
+    SDCARD2=${SDCARD}2
+    echo $SDCARD2
     umount $SDCARD2
-    echo "Starting resizing"
-    parted -s $SDCARD resizepart 2 100%
-    umount $SDCARD2
-    echo "Starting e2fsck"
-    e2fsck -f $SDCARD2
-     echo "Starting resize2fs"
-    resize2fs $SDCARD2
-    df
-  fi
+    mount $SDCARD2 /mnt/sdcard
+    if [ -f /mnt/sdcard/.expand-rootfs ]; then
+        rm /mnt/sdcard/.expand-rootfs
+        umount $SDCARD2
+        echo "Starting resizing"
+        parted -s $SDCARD resizepart 2 100%
+        umount $SDCARD2
+        echo "Starting e2fsck"
+        e2fsck -f $SDCARD2
+        echo "Starting resize2fs"
+        resize2fs $SDCARD2
+        df
+    fi
 fi
 umount ${SDCARD}1
 umount $SDCARD2
