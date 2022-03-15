@@ -35,8 +35,7 @@ echo "Are you sure? "
 read -p "Press y to continue or any other key to stop. " -n 1 -r
 echo    # (optional) move to a new line
 
-if [[ $REPLY =~ ^[Yy]$ ]]
-then
+if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo "Writing to $SDCARD"
     umount $BOOTPART $FSPART
     dd if=$IMG of=$SDCARD bs=4M status=progress
@@ -46,9 +45,9 @@ then
 
     umount $BOOTPART $FSPART
     mount  $FSPART /mnt/sdcard
-    if [ -f /mnt/sdcard/.resize-rootfs ]; then
+    if [ -f /mnt/sdcard/.expand-rootfs ]; then
         RESIZE=1
-        rm /mnt/sdcard/.resize-rootfs
+        rm /mnt/sdcard/.expand-rootfs
     fi
     umount /mnt/sdcard
 
