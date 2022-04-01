@@ -81,7 +81,7 @@ rm -f /mnt/sdcard/library/awstats/*
 rm -f /mnt/sdcard/var/log/apache2/*
 rm -f /mnt/sdcard/var/log/nginx/*
 rm -f /mnt/sdcard/etc/iiab/uuid
-rm -f /mnt/sdcard/etc/remoteit/config.json
+rm -f /mnt/sdcard/etc/remoteit/config.json*
 rm -f /mnt/sdcard/library/www/html/local_content/USB*
 rm -f /mnt/sdcard/usb*
 
