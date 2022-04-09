@@ -155,7 +155,32 @@ if [ -f $FLAGDIR/iiab-complete ]; then
     exit 0
 fi
 
-# F. Position & customize /etc/iiab/local_vars.yml
+# F. Clone 3 IIAB repos
+echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO /opt/iiab ..."
+command -v git &> /dev/null ||
+    $APTPATH/apt -y install git    # AVOID UX CLUTTER+DELAYS
+mkdir -p /opt/iiab
+cd /opt/iiab
+echo
+if [ -d iiab ]; then
+    echo -e "REPO EXISTS? Consider 'cd /opt/iiab/iiab; git pull'"
+else
+    git clone https://github.com/iiab/iiab
+fi
+echo
+if [ -d iiab-admin-console ]; then
+    echo -e "REPO EXISTS? Consider 'cd /opt/iiab/iiab-admin-console; git pull'"
+else
+    git clone https://github.com/iiab/iiab-admin-console
+fi
+echo
+if [ -d iiab-factory ]; then
+    echo -e "REPO EXISTS? Consider 'cd /opt/iiab/iiab-factory; git pull'"
+else
+    git clone https://github.com/iiab/iiab-factory
+fi
+
+# G. Position & customize /etc/iiab/local_vars.yml
 command -v wget &> /dev/null ||
     $APTPATH/apt -y install wget    # AS ABOVE (grep, perl)
 command -v nano &> /dev/null ||
@@ -218,7 +243,7 @@ else
     fi
 fi
 
-# G. Mandate OS SECURITY/UPDATES if 'apt update' has any (THEN REBOOT, AS NEC)
+# H. Mandate OS SECURITY/UPDATES if 'apt update' has any (THEN REBOOT, AS NEC)
 # Educate implementer while waiting for 'apt update'
 echo -e "\n\n ██████████████████████████████████████████████████████████████████████████████"
 echo -e " ██                                                                          ██"
@@ -269,36 +294,11 @@ fi
 
 ####################### MAIN INTERACTIVE STUFF IS ABOVE #######################
 
-# H. If microSD, lower reserve disk space from ~5% to 2%
+# I. If microSD, lower reserve disk space from ~5% to 2%
 # if [ -f /proc/device-tree/model ] && grep -qi raspberry /proc/device-tree/model; then
 if [ -e /dev/mmcblk0p2 ]; then
     echo -e "\n\nFound microSD card /dev/mmcblk0p2: Lower its reserve disk space from ~5% to 2%\n"
     tune2fs -m 2 /dev/mmcblk0p2
-fi
-
-# I. Clone 3 IIAB repos
-echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO /opt/iiab ..."
-command -v git &> /dev/null ||
-    $APTPATH/apt -y install git    # AVOID UX CLUTTER+DELAYS
-mkdir -p /opt/iiab
-cd /opt/iiab
-echo
-if [ -d iiab ]; then
-    echo -e "REPO EXISTS? Consider 'cd /opt/iiab/iiab; git pull'"
-else
-    git clone https://github.com/iiab/iiab
-fi
-echo
-if [ -d iiab-admin-console ]; then
-    echo -e "REPO EXISTS? Consider 'cd /opt/iiab/iiab-admin-console; git pull'"
-else
-    git clone https://github.com/iiab/iiab-admin-console
-fi
-echo
-if [ -d iiab-factory ]; then
-    echo -e "REPO EXISTS? Consider 'cd /opt/iiab/iiab-factory; git pull'"
-else
-    git clone https://github.com/iiab/iiab-factory
 fi
 
 # J. Install optional PR's
