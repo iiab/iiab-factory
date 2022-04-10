@@ -193,7 +193,7 @@ fi
 # Developers however may want to clone first, and then set local_vars.yml
 if $($MFABT); then
     command -v git &> /dev/null ||
-        apt update
+        $APTPATH/apt update
     clone-repos;
 fi
 
