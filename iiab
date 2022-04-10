@@ -98,7 +98,7 @@ check_user_pwd() {
 }
 
 # B. Subroutine for Sections E. and M.  Returns any IIAB variable value -- SEE:
-# http://FAQ.IIAB.IO#What_is_local_vars.yml_and_how_do_I_customize_it.3F
+# https://wiki.iiab.io/go/FAQ#What_is_local_vars.yml_and_how_do_I_customize_it.3F
 
 # 2021-08-28: bash scripts using default_vars.yml &/or local_vars.yml
 # https://github.com/iiab/iiab-factory/blob/master/iiab
