@@ -192,8 +192,10 @@ fi
 # G. Everyday users want installs bureaucracy-free w/o delay.
 # Developers however may want to clone first, and then set local_vars.yml
 if $($MFABT); then
-    command -v git &> /dev/null ||
+    if command -v git &> /dev/null; then
+        echo
         $APTPATH/apt update    # -q is equivalent, and -qq is too quiet!
+    fi
     clone-repos;
 fi
 
