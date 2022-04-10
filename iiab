@@ -59,16 +59,14 @@ if [[ $(id -un) != "root" ]]; then
      exit 1
 fi
 
-if [[ $1 == "-f" || $1 == "--fast" ]]; then    # curl iiab.io/fast.txt | sudo bash
+if [[ $1 == "-f" || $1 == "--fast" ]]; then
+    # FOR IMPLEMENTERS: 'curl iiab.io/fast.txt | sudo bash' AND 'sudo iiab -f'
     FAST=true
     shift
-elif [[ $1 == "-F" || $1 == "--risky" ]]; then
+elif [[ $1 == "-r" || $1 == "--risky" ]]; then
+    # FOR DEVELOPERS: 'curl iiab.io/risky.txt | sudo bash' AND 'sudo iiab -r'
     FAST=true
     MFABT=true
-    shift
-elif [[ $1 == "-c" || $1 == "--clonefirst" ]]; then    # curl iiab.io/install.txt | sudo bash -s -c
-    FAST=true
-    CLONEFIRST=true
     shift
 fi
 
@@ -190,7 +188,7 @@ fi
 
 # G. Everyday users want installs bureaucracy-free w/o delay.
 # Developers however may want to clone first, and then set local_vars.yml
-if $($CLONEFIRST); then
+if $($MFABT); then
     clone-repos;
 fi
 
@@ -319,7 +317,7 @@ fi
 
 # K. Everyday users want installs bureaucracy-free w/o delay.
 # Developers however may want to clone first, and then set local_vars.yml
-if ! $($CLONEFIRST); then
+if ! $($MFABT); then
     clone-repos;
 fi
 
