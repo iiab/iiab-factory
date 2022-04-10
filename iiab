@@ -51,8 +51,11 @@ APTPATH=/usr/bin    # Avoids problematic /usr/local/bin/apt on Linux Mint
 FAST=false     # YOUR OWN RISK: Fewer security & user education prompts.
 MFABT=false    # No time to read the book?  "Move Fast and Break Things:
 # How Facebook, Google, and Amazon Cornered Culture and Undermined Democracy"
-CLONEFIRST=false    # Everyday users want installs bureaucracy-free w/o delay.
-# Developers however may want to clone first, and then set local_vars.yml
+# This option is for DEVELOPERS (syntax ~16 lines below) who also want to
+# (1) Avoid apt updates and (2) Clone first & then later set local_vars.yml
+# IN CONTRAST: newcomers, testers and implementers want installs fully
+# bureaucracy-free without delay, i.e. crisp top-line instructions unclouded
+# by git "techno-gibberish" they do not understand, before they let it rip!
 
 if [[ $(id -un) != "root" ]]; then
      echo "Please run 'sudo iiab'"
