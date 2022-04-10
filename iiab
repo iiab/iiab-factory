@@ -229,7 +229,7 @@ else
 
     echo -n "Please type 1, 2, 3 or m: "
     read -n 1 -r local_vars_size < /dev/tty
-    echo
+    echo; echo
     case $local_vars_size in
         0)
             local_vars_src_file=local_vars_unittest.yml
@@ -289,7 +289,7 @@ if ! $($MFABT); then
 
             echo -n "Hit any key to confirm you'll RUN 'sudo iiab' AFTER IT REBOOTS: "
             read -n 1 -r ans < /dev/tty
-            echo
+            echo; echo
         fi
         $APTPATH/apt -y dist-upgrade
     else
