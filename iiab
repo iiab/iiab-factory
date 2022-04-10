@@ -51,6 +51,8 @@ APTPATH=/usr/bin    # Avoids problematic /usr/local/bin/apt on Linux Mint
 FAST=false     # YOUR OWN RISK: Fewer security & user education prompts.
 MFABT=false    # No time to read the book?  "Move Fast and Break Things:
 # How Facebook, Google, and Amazon Cornered Culture and Undermined Democracy"
+CLONEFIRST=false    # Everyday users want installs bureaucracy-free w/o delay.
+# Developers however may want to clone first, and then set local_vars.yml
 
 if [[ $(id -un) != "root" ]]; then
      echo "Please run 'sudo iiab'"
@@ -64,6 +66,10 @@ elif [[ $1 == "-F" || $1 == "--risky" ]]; then
     FAST=true
     MFABT=true
     shift
+elif [[ $1 == "-c" || $1 == "--clonefirst" ]]; then
+    FAST=true
+    CLONEFIRST=true
+    shift
 fi
 
 mkdir -p $FLAGDIR    # Which also creates /etc/iiab for the step just below
@@ -73,7 +79,7 @@ if [ $# -ne 0 ]; then
     printf '%s\n' "$@" >> /etc/iiab/pr-queue
 fi
 
-# A. Subroutine for C. and E.  Returns true (0) if username ($1) exists with password ($2)
+# A. Subroutine for D. and F.  Returns true (0) if username ($1) exists with password ($2)
 command -v grep &> /dev/null ||
     $APTPATH/apt -y install grep    # AVOID UX CLUTTER+DELAYS: 5 MORE BELOW
 command -v perl &> /dev/null ||
@@ -91,7 +97,7 @@ check_user_pwd() {
     # [[ $(python3 -c "import crypt; print(crypt.crypt('$2', '\$$meth\$$salt'))") == "\$$meth\$$salt\$$hash" ]]
 }
 
-# B. Subroutine for Sections D. and K.  Returns any IIAB variable value -- SEE:
+# B. Subroutine for Sections E. and M.  Returns any IIAB variable value -- SEE:
 # http://FAQ.IIAB.IO#What_is_local_vars.yml_and_how_do_I_customize_it.3F
 
 # 2021-08-28: bash scripts using default_vars.yml &/or local_vars.yml
@@ -107,7 +113,34 @@ iiab_var_value() {
     [[ $v2 != "" ]] && echo $v2 || echo $v1    # [ "$v2" ] ALSO WORKS
 }
 
-# C. Ask for password change if pi/raspberry default remains
+# C. Subroutine for G. and K.  Clone 3 IIAB repos
+clone-repos() {
+    echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO /opt/iiab ..."
+    command -v git &> /dev/null ||
+        $APTPATH/apt -y install git    # AVOID UX CLUTTER+DELAYS
+    mkdir -p /opt/iiab
+    cd /opt/iiab
+    echo
+    if [ -d iiab ]; then
+        echo -e "REPO EXISTS? Consider 'cd /opt/iiab/iiab; git pull'"
+    else
+        git clone https://github.com/iiab/iiab
+    fi
+    echo
+    if [ -d iiab-admin-console ]; then
+        echo -e "REPO EXISTS? Consider 'cd /opt/iiab/iiab-admin-console; git pull'"
+    else
+        git clone https://github.com/iiab/iiab-admin-console
+    fi
+    echo
+    if [ -d iiab-factory ]; then
+        echo -e "REPO EXISTS? Consider 'cd /opt/iiab/iiab-factory; git pull'"
+    else
+        git clone https://github.com/iiab/iiab-factory
+    fi
+}
+
+# D. Ask for password change if pi/raspberry default remains
 if check_user_pwd "pi" "raspberry"; then
     echo -e "\n\n\e[41;1mRaspberry Pi's are COMPROMISED often if the default password is not changed!\e[0m\n"
 
@@ -116,7 +149,7 @@ if check_user_pwd "pi" "raspberry"; then
     echo pi:"$ans" | chpasswd || true    # Overrides 'set -e'
 fi
 
-# D. Create user 'iiab-admin' (or any other, some prefer 'pi' or 'ubuntu') as
+# E. Create user 'iiab-admin' (or any other, some prefer 'pi' or 'ubuntu') as
 # nec, with the default password.  If customizing this is important to you,
 # please pre-position /etc/iiab/local_vars.yml specifying the 3 vars below.
 
@@ -135,7 +168,7 @@ if ! [[ $(iiab_var_value iiab_admin_user_install) =~ ^[fF]alse$ ]]; then
     fi
 fi
 
-# E. If 'iiab-admin' (or equivalent) use default password, prompt for change
+# F. If 'iiab-admin' (or equivalent) use default password, prompt for change
 if check_user_pwd "$IIAB_ADMIN_USER" "$IIAB_ADMIN_PUBLISHED_PWD"; then
     echo -e "\n\n\e[41;1mDANGER: User 'iiab-admin' has public password 'g0adm1n' per http://FAQ.IIAB.IO\e[0m\n"
 
@@ -155,7 +188,13 @@ if [ -f $FLAGDIR/iiab-complete ]; then
     exit 0
 fi
 
-# F. Position & customize /etc/iiab/local_vars.yml
+# G. Everyday users want installs bureaucracy-free w/o delay.
+# Developers however may want to clone first, and then set local_vars.yml
+if $($CLONEFIRST); then
+    clone-repos;
+fi
+
+# H. Position & customize /etc/iiab/local_vars.yml
 command -v wget &> /dev/null ||
     $APTPATH/apt -y install wget    # AS ABOVE (grep, perl)
 command -v nano &> /dev/null ||
@@ -218,7 +257,7 @@ else
     fi
 fi
 
-# G. Mandate OS SECURITY/UPDATES if 'apt update' has any (THEN REBOOT, AS NEC)
+# I. Mandate OS SECURITY/UPDATES if 'apt update' has any (THEN REBOOT, AS NEC)
 # Educate implementer while waiting for 'apt update'
 echo -e "\n\n ██████████████████████████████████████████████████████████████████████████████"
 echo -e " ██                                                                          ██"
@@ -269,39 +308,20 @@ fi
 
 ####################### MAIN INTERACTIVE STUFF IS ABOVE #######################
 
-# H. If microSD, lower reserve disk space from ~5% to 2%
+# J. If microSD, lower reserve disk space from ~5% to 2%
 # if [ -f /proc/device-tree/model ] && grep -qi raspberry /proc/device-tree/model; then
 if [ -e /dev/mmcblk0p2 ]; then
     echo -e "\n\nFound microSD card /dev/mmcblk0p2: Lower its reserve disk space from ~5% to 2%\n"
     tune2fs -m 2 /dev/mmcblk0p2
 fi
 
-# I. Clone 3 IIAB repos
-echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO /opt/iiab ..."
-command -v git &> /dev/null ||
-    $APTPATH/apt -y install git    # AVOID UX CLUTTER+DELAYS
-mkdir -p /opt/iiab
-cd /opt/iiab
-echo
-if [ -d iiab ]; then
-    echo -e "REPO EXISTS? Consider 'cd /opt/iiab/iiab; git pull'"
-else
-    git clone https://github.com/iiab/iiab
-fi
-echo
-if [ -d iiab-admin-console ]; then
-    echo -e "REPO EXISTS? Consider 'cd /opt/iiab/iiab-admin-console; git pull'"
-else
-    git clone https://github.com/iiab/iiab-admin-console
-fi
-echo
-if [ -d iiab-factory ]; then
-    echo -e "REPO EXISTS? Consider 'cd /opt/iiab/iiab-factory; git pull'"
-else
-    git clone https://github.com/iiab/iiab-factory
+# K. Everyday users want installs bureaucracy-free w/o delay.
+# Developers however may want to clone first, and then set local_vars.yml
+if ! $($CLONEFIRST); then
+    clone-repos;
 fi
 
-# J. Install optional PR's
+# L. Install optional PR's
 echo -e "\n\nINSTALL PR's FROM iiab/iiab OR iiab/iiab-admin-console -- USAGE EXAMPLES:\n"
 echo -e "   sudo iiab 361 2604 2607"
 echo -e "   curl d.iiab.io/install.txt | sudo bash -s 361 2604 2607\n"
@@ -395,7 +415,7 @@ if ! cmp -s /tmp/$local_vars_src_file /opt/iiab/iiab/vars/$local_vars_src_file; 
     fi
 fi
 
-# K. Install Ansible + 2 IIAB repos
+# M. Install Ansible + 2 IIAB repos
 echo -e "\n\nINSTALL ANSIBLE + CORE IIAB SOFTWARE + ADMIN CONSOLE / CONTENT PACK MENUS...\n"
 
 if [ -f $FLAGDIR/iiab-ansible-complete ]; then
@@ -451,7 +471,7 @@ else
     systemctl start iiab-cmdsrv || true    # Overrides 'set -e'
 fi
 
-# L. KA Lite prep
+# N. KA Lite prep
 if [ -d /library/ka-lite ]; then
     echo -e "\n\nKA LITE REQUIRES 2 THINGS...\n"
 
@@ -491,7 +511,7 @@ fi
 # kalite manage retrievecontentpack download en
 # OLD WAY ABOVE - fails w/ sev ISPs per https://github.com/iiab/iiab/issues/871
 
-# M. Start BitTorrent downloads, e.g. if /etc/iiab/local_vars.yml requested any
+# O. Start BitTorrent downloads, e.g. if /etc/iiab/local_vars.yml requested any
 if systemctl -q is-active transmission-daemon; then
     echo -e "\n\nSTARTING BITTORRENT DOWNLOAD(S) for KA Lite...Please Monitor: http://box:9091\n"
     transmission-remote -n Admin:changeme -t all --start
@@ -499,7 +519,7 @@ fi
 
 touch $FLAGDIR/iiab-complete
 
-# N. Educate Implementers prior to rebooting!
+# P. Educate Implementers prior to rebooting!
 echo -e "\n\n         ┌───────────────────────────────────────────────────────────┐"
 echo -e "         │                                                           │"
 echo -e "         │   INTERNET-IN-A-BOX (IIAB) SOFTWARE INSTALL IS COMPLETE   │"
