@@ -59,14 +59,14 @@ if [[ $(id -un) != "root" ]]; then
      exit 1
 fi
 
-if [[ $1 == "-f" || $1 == "--fast" ]]; then
+if [[ $1 == "-f" || $1 == "--fast" ]]; then    # curl iiab.io/fast.txt | sudo bash
     FAST=true
     shift
 elif [[ $1 == "-F" || $1 == "--risky" ]]; then
     FAST=true
     MFABT=true
     shift
-elif [[ $1 == "-c" || $1 == "--clonefirst" ]]; then
+elif [[ $1 == "-c" || $1 == "--clonefirst" ]]; then    # curl iiab.io/install.txt | sudo bash -s -c
     FAST=true
     CLONEFIRST=true
     shift
