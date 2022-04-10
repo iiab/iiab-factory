@@ -221,8 +221,8 @@ else
     echo -e "WARNING: This Can Take More Than An Hour, depending on Internet speed, CPU,"
     echo -e "temperature, and the speed of your microSD card.\n"
 
-    echo -n "Please type 1, 2, 3 or m then press [ENTER]: "
-    read local_vars_size < /dev/tty
+    echo -n "Please type 1, 2, 3 or m: "
+    read -n 1 -r local_vars_size < /dev/tty
     echo
     case $local_vars_size in
         0)
@@ -248,7 +248,7 @@ else
     fi
 
     echo -en "\nEdit /etc/iiab/local_vars.yml to customize your Internet-in-a-Box? [Y/n] "
-    read ans < /dev/tty
+    read -n 1 -r ans < /dev/tty
     if [[ $ans != "n" && $ans != "N" ]]; then
         echo -e "\n1) PLEASE RUN: sudo nano /etc/iiab/local_vars.yml\n"
 
@@ -281,7 +281,7 @@ if ! $($MFABT); then
             echo -e "\nYour OS will now be upgraded...this takes time. THEN IT WILL REBOOT (IF NEC!)\n"
 
             echo -n "Hit [ENTER] to confirm you'll RUN 'sudo iiab' AFTER IT REBOOTS: "
-            read ans < /dev/tty
+            read -n 1 -r ans < /dev/tty
             echo
         fi
         $APTPATH/apt -y dist-upgrade
@@ -289,7 +289,7 @@ if ! $($MFABT); then
         cat /tmp/apt.stdout    # "All packages are up to date.\n"
         if ! $($FAST); then
             echo -ne "\nHit [ENTER] to confirm you'll TRY TO RERUN 'sudo iiab' IF THERE IS A PROBLEM: "
-            read ans < /dev/tty
+            read -n 1 -r ans < /dev/tty
         fi
     fi
 fi
@@ -342,7 +342,7 @@ do
     if ! [[ "$pr" =~ ^[1-9][0-9]*$ ]]; then
         echo -e "\n\e[1mInvalid PR number:\e[0m $pr\n"
         echo -n "Delete it from top of /etc/iiab/pr-queue and continue? [Y/n] "
-        read ans < /dev/tty
+        read -n 1 -r ans < /dev/tty
         [[ $ans == "n" || $ans == "N" ]] &&
             exit 1
         sed -i '1d' /etc/iiab/pr-queue    # Delete 1st line
@@ -370,7 +370,7 @@ do
         curl -IsH "Accept: application/vnd.github.v3" https://api.github.com/repos/iiab/$repo/pulls/$pr    # HTTP headers typically reveal a lot more!
 
         echo -n "Delete it from top of /etc/iiab/pr-queue and continue? [Y/n] "
-        read ans < /dev/tty
+        read -n 1 -r ans < /dev/tty
         [[ $ans == "n" || $ans == "N" ]] &&
             exit 1
         sed -i '1d' /etc/iiab/pr-queue    # Delete 1st line
@@ -388,7 +388,7 @@ do
     git pull --no-edit https://github.com/$account/$repo2 $branch || {
         echo -e "\n\e[1mgit exit/error code:\e[0m $?\n"    # if hides err code
         echo -n "Delete it from top of /etc/iiab/pr-queue and continue? [Y/n] "
-        read ans < /dev/tty
+        read -n 1 -r ans < /dev/tty
         if [[ $ans == "n" || $ans == "N" ]]; then
             exit 1
         fi
@@ -407,7 +407,7 @@ if ! cmp -s /tmp/$local_vars_src_file /opt/iiab/iiab/vars/$local_vars_src_file; 
     echo -e "\n\e[1mWARNING: /opt/iiab/iiab/vars/$local_vars_src_file HAS CHANGED!\n"
     echo -e "YOUR /etc/iiab/local_vars.yml WAS MOVED TO /etc/iiab/local_vars.yml.old\e[0m\n"
     echo -n "Edit the NEW /etc/iiab/local_vars.yml to customize Internet-in-a-Box? [Y/n] "
-    read ans < /dev/tty
+    read -n 1 -r ans < /dev/tty
     if [[ $ans != "n" && $ans != "N" ]]; then
         echo -e "\n1) PLEASE RUN: sudo nano /etc/iiab/local_vars.yml\n"
         echo -e "2) After you're done editing, RUN 'sudo iiab' TO CONTINUE!\n"
