@@ -249,6 +249,7 @@ else
 
     echo -en "\nEdit /etc/iiab/local_vars.yml to customize your Internet-in-a-Box? [Y/n] "
     read -n 1 -r ans < /dev/tty
+    echo
     if [[ $ans != "n" && $ans != "N" ]]; then
         echo -e "\n1) PLEASE RUN: sudo nano /etc/iiab/local_vars.yml\n"
 
@@ -280,7 +281,7 @@ if ! $($MFABT); then
         if ! $($FAST); then
             echo -e "\nYour OS will now be upgraded...this takes time. THEN IT WILL REBOOT (IF NEC!)\n"
 
-            echo -n "Hit [ENTER] to confirm you'll RUN 'sudo iiab' AFTER IT REBOOTS: "
+            echo -n "Hit any key to confirm you'll RUN 'sudo iiab' AFTER IT REBOOTS: "
             read -n 1 -r ans < /dev/tty
             echo
         fi
@@ -288,8 +289,9 @@ if ! $($MFABT); then
     else
         cat /tmp/apt.stdout    # "All packages are up to date.\n"
         if ! $($FAST); then
-            echo -ne "\nHit [ENTER] to confirm you'll TRY TO RERUN 'sudo iiab' IF THERE IS A PROBLEM: "
+            echo -ne "\nHit any key to confirm you'll TRY TO RERUN 'sudo iiab' IF THERE IS A PROBLEM: "
             read -n 1 -r ans < /dev/tty
+            echo
         fi
     fi
 fi
@@ -343,6 +345,7 @@ do
         echo -e "\n\e[1mInvalid PR number:\e[0m $pr\n"
         echo -n "Delete it from top of /etc/iiab/pr-queue and continue? [Y/n] "
         read -n 1 -r ans < /dev/tty
+        echo
         [[ $ans == "n" || $ans == "N" ]] &&
             exit 1
         sed -i '1d' /etc/iiab/pr-queue    # Delete 1st line
@@ -371,6 +374,7 @@ do
 
         echo -n "Delete it from top of /etc/iiab/pr-queue and continue? [Y/n] "
         read -n 1 -r ans < /dev/tty
+        echo
         [[ $ans == "n" || $ans == "N" ]] &&
             exit 1
         sed -i '1d' /etc/iiab/pr-queue    # Delete 1st line
@@ -389,6 +393,7 @@ do
         echo -e "\n\e[1mgit exit/error code:\e[0m $?\n"    # if hides err code
         echo -n "Delete it from top of /etc/iiab/pr-queue and continue? [Y/n] "
         read -n 1 -r ans < /dev/tty
+        echo
         if [[ $ans == "n" || $ans == "N" ]]; then
             exit 1
         fi
@@ -408,6 +413,7 @@ if ! cmp -s /tmp/$local_vars_src_file /opt/iiab/iiab/vars/$local_vars_src_file; 
     echo -e "YOUR /etc/iiab/local_vars.yml WAS MOVED TO /etc/iiab/local_vars.yml.old\e[0m\n"
     echo -n "Edit the NEW /etc/iiab/local_vars.yml to customize Internet-in-a-Box? [Y/n] "
     read -n 1 -r ans < /dev/tty
+    echo
     if [[ $ans != "n" && $ans != "N" ]]; then
         echo -e "\n1) PLEASE RUN: sudo nano /etc/iiab/local_vars.yml\n"
         echo -e "2) After you're done editing, RUN 'sudo iiab' TO CONTINUE!\n"
@@ -535,9 +541,11 @@ echo -e "your usual network.  Or try http://localhost from your IIAB itself!\n"
 
 echo -e "(1C) IF ALL 5 ABOVE DON'T WORK, ask the person who set up the network/router"
 echo -e "in your building for the IP address of your IIAB, so you can browse to it"
-echo -e "using (something like) http://192.168.0.100\n"
+echo -e "using (something like) http://192.168.0.100 -- FOR NOW, IP ADDRESS(ES) ARE:\n"
 
-echo -e '(2) ADD CONTENT using http://box.lan/admin (changing "box.lan" to be as above!)'
+hostname -I
+
+echo -e '\n(2) ADD CONTENT using http://box.lan/admin (changing "box.lan" to be as above!)'
 echo -e 'PLEASE READ "What are the default passwords?" and "How do I customize my'
 echo -e 'Internet-in-a-Box home page?" at http://FAQ.IIAB.IO\n'
 
