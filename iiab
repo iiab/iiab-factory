@@ -547,11 +547,11 @@ echo -e "your usual network.  Or try http://localhost from your IIAB itself!\n"
 
 echo -e "(1C) IF ALL 5 ABOVE DON'T WORK, ask the person who set up the network/router"
 echo -e "in your building for the IP address of your IIAB, so you can browse to it"
-echo -e "using (something like) http://192.168.0.100 -- FOR NOW, IP ADDRESS(ES) ARE:\n"
+echo -e "using (something like) http://192.168.0.100 -- FOR NOW, IP ADDRESS(ES) ARE:\n\e[1m"
 
 hostname -I
 
-echo -e '\n(2) ADD CONTENT using http://box.lan/admin (changing "box.lan" to be as above!)'
+echo -e '\e[0m\n(2) ADD CONTENT using http://box.lan/admin (changing "box.lan" to be as above!)'
 echo -e 'PLEASE READ "What are the default passwords?" and "How do I customize my'
 echo -e 'Internet-in-a-Box home page?" at http://FAQ.IIAB.IO\n'
 
