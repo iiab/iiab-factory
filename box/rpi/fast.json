@@ -1,34 +1,34 @@
 {
     "os_list": [
         {
-            "name": "IIAB 8.0b2 ∙ MEDIUM ∙ 64-bit RasPiOS Desktop",
-            "description": "iiab-8.0beta2-220412-MEDIUM-raspios64-desktop-g5a2c5d0d.img",
+            "name": "IIAB 8.0pv1 ∙ MEDIUM ∙ 64-bit RasPiOS Desktop",
+            "description": "iiab-8.0preview1-220505-MEDIUM-raspios64-desktop-g17960e2b.img",
             "icon": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/iiab40.png",
-            "url": "https://download.iiab.io/8.0/iiab-8.0beta2-220412-MEDIUM-raspios64-desktop-g5a2c5d0d.img.zip",
-            "extract_size": 12611465216,
-            "extract_sha256": "3887f11a475a021038e43a0922051987a85eb1233e5a4bc585b190d4bbdee7ad",
-            "image_download_size": 3849997682,
-            "release_date": "2022-04-12"
+            "url": "https://download.iiab.io/8.0/iiab-8.0preview1-220505-MEDIUM-raspios64-desktop-g17960e2b.img.zip",
+            "extract_size": 12515340288,
+            "extract_sha256": "e56ae1f33a6564da4c97e7dcd5048e9418cfdc079c4ff856e33c6d4eae7c32d1",
+            "image_download_size": 4054581605,
+            "release_date": "2022-05-05"
         },
         {
-            "name": "IIAB 8.0b2 ∙ SMALL ∙ 64-bit RasPiOS Lite",
-            "description": "iiab-8.0beta2-220412-SMALL-raspios64-lite-g5a2c5d0d.img",
+            "name": "IIAB 8.0pv1 ∙ SMALL ∙ 64-bit RasPiOS Lite",
+            "description": "iiab-8.0preview1-220505-SMALL-raspios64-lite-g17960e2b.img",
             "icon": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/iiab40.png",
-            "url": "https://download.iiab.io/8.0/iiab-8.0beta2-220412-SMALL-raspios64-lite-g5a2c5d0d.img.zip",
-            "extract_size": 7587942400,
-            "extract_sha256": "c24f164f24383a6a98c885c2f9c23106399f4fe13ef612efa8b803b62a546fec",
-            "image_download_size": 1644967302,
-            "release_date": "2022-04-12"
+            "url": "https://download.iiab.io/8.0/iiab-8.0preview1-220505-SMALL-raspios64-lite-g17960e2b.img.zip",
+            "extract_size": 7613583360,
+            "extract_sha256": "9c8c85a33a8bc2fc070a53a902dad5ad3b090a67761642efb1a86de234d07fbb",
+            "image_download_size": 1622471193,
+            "release_date": "2022-05-05"
         },
         {
-            "name": "IIAB 8.0b2 ∙ MEDICAL ∙ 32-bit RasPiOS Lite",
-            "description": "iiab-8.0beta2-220412-MEDICAL-raspios32-lite-g5a2c5d0d.img",
+            "name": "IIAB 8.0pv1 ∙ MEDICAL ∙ 32-bit RasPiOS Lite",
+            "description": "iiab-8.0preview1-220505-MEDICAL-raspios32-lite-g17960e2b.img",
             "icon": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/iiab40.png",
-            "url": "https://download.iiab.io/8.0/iiab-8.0beta2-220412-MEDICAL-raspios32-lite-g5a2c5d0d.img.zip",
-            "extract_size": 5479923712,
-            "extract_sha256": "527ac97a539173ff66b2f90ded5e636886672bde4ec4d3bec93ae77b4fcb9585",
-            "image_download_size": 1752301815,
-            "release_date": "2022-04-12"
+            "url": "https://download.iiab.io/8.0/iiab-8.0preview1-220505-MEDICAL-raspios32-lite-g17960e2b.img.zip",
+            "extract_size": 5625638912,
+            "extract_sha256": "df4f827f960e045304dc6aa7cc8322e1cffd2fc2bd5faa6cd7dee6d664a1e296",
+            "image_download_size": 1370757194,
+            "release_date": "2022-05-05"
         }
     ]
 }
