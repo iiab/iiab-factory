@@ -337,7 +337,7 @@ command -v jq &> /dev/null ||
     $APTPATH/apt -y install jq    # sed better, to avoid delays?
 if [ -s /etc/iiab/pr-queue ]; then    # Set an email address for 'git pull' if one isn't yet set
    git config --get user.email 1> /dev/null ||
-       git config --global user.email "you@example.com"
+       git config user.email "you@example.com"
    echo -e "\nYour git email is set to: $(git config --get user.email)"
    echo -e 'Change this by running: sudo git config --global user.email "you@example.com"'
 fi
@@ -394,8 +394,8 @@ do
     echo -e "\nPR #$pr: cd /opt/iiab/$repo"
     cd /opt/iiab/$repo
     #git checkout -b POTLUCK master || true    # If test branch name/norm in future...for both repos?
-    echo -e "git pull --no-edit https://github.com/$account/$repo2 $branch"    # Or $repo2.git
-    git pull --no-edit https://github.com/$account/$repo2 $branch || {
+    echo -e "git pull --no-edit --no-rebase https://github.com/$account/$repo2 $branch"    # Or $repo2.git
+    git pull --no-edit --no-rebase https://github.com/$account/$repo2 $branch || {
         echo -e "\n\e[1mgit exit/error code:\e[0m $?\n"    # if hides err code
         echo -n "Delete it from top of /etc/iiab/pr-queue and continue? [Y/n] "
         read -n 1 -r ans < /dev/tty
