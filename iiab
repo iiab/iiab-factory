@@ -337,7 +337,7 @@ command -v jq &> /dev/null ||
     $APTPATH/apt -y install jq    # sed better, to avoid delays?
 if [ -s /etc/iiab/pr-queue ]; then    # Set an email address for 'git pull' if one isn't yet set
    git config --get user.email 1> /dev/null ||
-       git config user.email "you@example.com"
+       git config --global user.email "you@example.com"
    echo -e "\nYour git email is set to: $(git config --get user.email)"
    echo -e 'Change this by running: sudo git config --global user.email "you@example.com"'
 fi
