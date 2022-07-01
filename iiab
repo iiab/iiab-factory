@@ -337,8 +337,8 @@ command -v jq &> /dev/null ||
     $APTPATH/apt -y install jq    # sed better, to avoid delays?
 if [ -s /etc/iiab/pr-queue ]; then    # Set an email address for 'git pull' if one isn't yet set
    git config --get user.email 1> /dev/null ||
-       git config --global user.email "you@example.com"
-   echo -e "\nYour git email is set to: $(git config --get user.email)"
+       git config --global user.email "albert@einstein.edu"
+   echo -e "\nYour git email is set to: \e[1m$(git config --get user.email)\e[0m"
    echo -e 'Change this by running: sudo git config --global user.email "you@example.com"'
 fi
 
@@ -394,6 +394,17 @@ do
     echo -e "\nPR #$pr: cd /opt/iiab/$repo"
     cd /opt/iiab/$repo
     #git checkout -b POTLUCK master || true    # If test branch name/norm in future...for both repos?
+    local_branch_old=$(git branch --show-current)
+    if [[ $local_branch_old == "master" || $local_branch_old == "main" ]]; then
+        #local_branch_new=$pr       # e.g. "2604"
+        local_branch_new=$branch    # e.g. "huge-speedup"
+    else
+        #local_branch_new="$local_branch_old-$pr"        # e.g. "2604-2607-3173"
+        local_branch_new="$local_branch_old--$branch"    # e.g. "huge-speedup--qa--docs"
+    fi
+    echo -e "git checkout -b \e[1m$local_branch_new\e[0m"
+    git checkout -b $local_branch_new
+
     echo -e "git pull --no-edit --no-rebase https://github.com/$account/$repo2 $branch"    # Or $repo2.git
     git pull --no-edit --no-rebase https://github.com/$account/$repo2 $branch || {
         echo -e "\n\e[1mgit exit/error code:\e[0m $?\n"    # if hides err code
