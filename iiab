@@ -4,7 +4,7 @@
 # To install Internet-in-a-Box (IIAB) 8.0 / pre-release onto Raspberry Pi OS,
 # Ubuntu 20.04+, Linux Mint 20 or Debian 11+, run this 1-line installer:
 #
-#                 curl d.iiab.io/install.txt | sudo bash
+#                  curl iiab.io/install.txt | sudo bash
 
 # 1. WARNING: NOOBS IS *NOT* SUPPORTED, as its partitioning is very different.
 #    On a Raspberry Pi, WE RECOMMEND YOU INSTALL THE LATEST RASPBERRY PI OS:
@@ -24,7 +24,7 @@
 #    mandatory 0.9 GB English Pack (en.zip) within /tmp -- you can grab a copy
 #    from http://pantry.learningequality.org/downloads/ka-lite/0.17/content/contentpacks/en.zip
 
-# 5. WHEN YOU RUN 1-LINE INSTALLER 'curl d.iiab.io/install.txt | sudo bash'
+# 5. WHEN YOU RUN 1-LINE INSTALLER 'curl iiab.io/install.txt | sudo bash'
 #    YOU THEN NEED TO TYPE IN YOUR PASSWORD IF ON UBUNTU/DEBIAN/ETC (for sudo)
 #    ^^^ ^^^^ ^^^^ ^^ ^^^^ ^^ ^^^^ ^^^^^^^^
 
@@ -44,30 +44,33 @@
 # IIAB Dev Team
 # http://FAQ.IIAB.IO
 
+
 set -e                                   # Exit on error (avoids snowballing)
 export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
+
 FLAGDIR=/etc/iiab/install-flags
 APTPATH=/usr/bin    # Avoids problematic /usr/local/bin/apt on Linux Mint
-FAST=false     # YOUR OWN RISK: Fewer security & user education prompts.
-MFABT=false    # No time to read the book?  "Move Fast and Break Things:
+
+FAST=false    # YOUR OWN RISK: Fewer security & user education prompts.
+MFABT=false   # As above BUT bypasses editing of local_vars.yml + apt updates.
+# When you have no time to read the MFABT book: "Move Fast and Break Things:
 # How Facebook, Google, and Amazon Cornered Culture and Undermined Democracy"
-# This option is for DEVELOPERS (syntax ~16 lines below) who also want to
-# (1) Avoid OS apt updates and (2) Clone first & then later set local_vars.yml
-# IN CONTRAST: newcomers, testers and implementers want installs fully
-# bureaucracy-free without delay, i.e. crisp top-line instructions unclouded by
-# 'apt update' + 'apt -y install git' + 3 git clones -- before they let it rip!
+
+REPO_BOUNDARY=1561    # iiab/iiab's lowest PR as of October 2020
+pr_changes_local_vars=false
+clones_and_pulls_done=false
 
 if [[ $(id -un) != "root" ]]; then
-     echo "Please run 'sudo iiab'"
-     exit 1
+    echo "Please run 'sudo iiab'"
+    exit 1
 fi
 
 if [[ $1 == "-f" || $1 == "--fast" ]]; then
-    # FOR TESTERS: 'curl iiab.io/fast.txt | sudo bash' AND 'sudo iiab -f'
+    # EXAMPLE: 'curl iiab.io/fast.txt | sudo bash [-s 361 2604 2607]' AND 'sudo iiab -f' TO CONTINUE
     FAST=true
     shift
 elif [[ $1 == "-r" || $1 == "--risky" ]]; then
-    # FOR DEVELOPERS: 'curl iiab.io/risky.txt | sudo bash' AND 'sudo iiab -r'
+    # EXAMPLE: 'curl iiab.io/risky.txt | sudo bash [-s 361 2604 2607]' AND 'sudo iiab -r' TO CONTINUE
     FAST=true
     MFABT=true
     shift
@@ -80,7 +83,8 @@ if [ $# -ne 0 ]; then
     printf '%s\n' "$@" >> /etc/iiab/pr-queue
 fi
 
-# A. Subroutine for D. and F.  Returns true (0) if username ($1) exists with password ($2)
+
+# 1. Subroutine for B.  Returns true (0) if username ($1) exists with password ($2)
 command -v grep &> /dev/null ||
     $APTPATH/apt -y install grep    # AVOID UX CLUTTER+DELAYS: 5 MORE BELOW
 command -v perl &> /dev/null ||
@@ -90,23 +94,19 @@ check_user_pwd() {
     # This also helps avoid parsing the (NEW) 4th sub-field in $y$j9T$SALT$HASH
     field2=$(grep "^$1:" /etc/shadow | cut -d: -f2)
     [[ $(perl -e "print crypt('$2', '$field2')") == $field2 ]]
-    # # $meth (hashing method) is typically '6' which implies 5000 rounds
-    # # of SHA-512 per /etc/login.defs -> /etc/pam.d/common-password
-    # meth=$(grep "^$1:" /etc/shadow | cut -d: -f2 | cut -d$ -f2)
-    # salt=$(grep "^$1:" /etc/shadow | cut -d: -f2 | cut -d$ -f3)
-    # hash=$(grep "^$1:" /etc/shadow | cut -d: -f2 | cut -d$ -f4)
-    # [[ $(python3 -c "import crypt; print(crypt.crypt('$2', '\$$meth\$$salt'))") == "\$$meth\$$salt\$$hash" ]]
 }
 
-# B. Subroutine for Sections E. and M.  Returns any IIAB variable value -- SEE:
+# 2. Subroutine for Sections A. and G.  Returns any IIAB variable value -- SEE:
 # https://wiki.iiab.io/go/FAQ#What_is_local_vars.yml_and_how_do_I_customize_it.3F
 
 # 2021-08-28: bash scripts using default_vars.yml &/or local_vars.yml
-# https://github.com/iiab/iiab-factory/blob/master/iiab
-# https://github.com/iiab/iiab/blob/master/roles/firmware/templates/iiab-check-firmware#L13
-# https://github.com/iiab/iiab/blob/master/roles/network/templates/gateway/iiab-gen-iptables#L48-L52
-# https://github.com/iiab/maps/blob/master/osm-source/pages/viewer/scripts/iiab-install-map-region#L25-L34
-# https://github.com/iiab/iiab/blob/master/roles/openvpn/templates/iiab-support READS AND WRITES, INCL NON-BOOLEAN
+# https://github.com/iiab/iiab-factory/blob/master/iiab#L119
+# https://github.com/iiab/iiab/blob/master/scripts/iiab-apps-to-be-installed#L5
+# https://github.com/iiab/iiab/blob/master/roles/remoteit/templates/iiab-remoteit#L8
+# https://github.com/iiab/iiab/blob/master/roles/firmware/templates/iiab-check-firmware#L10
+# https://github.com/iiab/iiab/blob/master/roles/network/templates/gateway/iiab-gen-iptables#L48
+# https://github.com/iiab/maps/blob/master/osm-source/pages/viewer/scripts/iiab-install-map-region#L23-L39
+# https://github.com/iiab/iiab/blob/master/roles/openvpn/templates/iiab-support READS+WRITES TO local_vars.yml (INCL NON-BOOLEAN)
 
 iiab_var_value() {
     v1=$(grep "^$1:\s" /opt/iiab/iiab/vars/default_vars.yml 2> /dev/null | tail -1 | sed "s/^$1:\s\+//; s/#.*//; s/\s*$//; s/^\(['\"]\)\(.*\)\1$/\2/")
@@ -114,16 +114,11 @@ iiab_var_value() {
     [[ $v2 != "" ]] && echo $v2 || echo $v1    # [ "$v2" ] ALSO WORKS
 }
 
-# C. Subroutine for G. and K.  Clone 3 IIAB repos
-clone-repos() {                               # PREREQ: 'apt update'
+# 3. Subroutine for C. and F.  Clone 3 IIAB repos
+clone-repos() {                        # PREREQ: 'apt update'
     echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO /opt/iiab ..."
-    if ! command -v git &> /dev/null; then    # AVOID UX CLUTTER+DELAYS
-        if $($MFABT); then
-            echo
-            $APTPATH/apt update               # -q useless; -qq too quiet
-        fi
-        $APTPATH/apt -y install git
-    fi
+    command -v git &> /dev/null ||
+        $APTPATH/apt -y install git    # AVOID UX CLUTTER+DELAYS: 3 MORE BELOW
     mkdir -p /opt/iiab
     cd /opt/iiab
     echo
@@ -146,16 +141,118 @@ clone-repos() {                               # PREREQ: 'apt update'
     fi
 }
 
-# D. Ask for password change if pi/raspberry default remains
-if check_user_pwd "pi" "raspberry"; then
-    echo -e "\n\n\e[41;1mRaspberry Pi's are COMPROMISED often if the default password is not changed!\e[0m\n"
+# 4. Subroutine for C. and F.  Install optional PR's
+pull-prs() {
+    echo -e "\n\nINSTALL PR's FROM iiab/iiab OR iiab/iiab-admin-console -- USAGE EXAMPLES:\n"
+    echo -e "   sudo iiab 361 2604 2607"
+    echo -e "   curl iiab.io/install.txt | sudo bash -s 361 2604 2607\n"
+    if [ -s /etc/iiab/pr-queue ]; then    # Set an email address for 'git pull' if one isn't yet set
+        git config --get user.email 1> /dev/null ||
+            git config --global user.email "albert@einstein.edu"
+        echo -e "\nYour git email is set to: \e[1m$(git config --get user.email)\e[0m"
+        echo -e 'Change this by running: sudo git config --global user.email "you@example.com"'
 
-    echo -n "What password do you want for GNU/Linux user 'pi' ? "
-    read ans < /dev/tty    # Whines but doesn't change password if [Enter]
-    echo pi:"$ans" | chpasswd || true    # Overrides 'set -e'
-fi
+        command -v jq &> /dev/null || {
+            echo
+            $APTPATH/apt -y install jq    # Or grep/sed to avoid 3+ sec delay
+        }
+    fi
 
-# E. Create user 'iiab-admin' (or any other, some prefer 'pi' or 'ubuntu') as
+    # Similar to 'for pr in "$@"' but survives reboots:
+    while [ -s /etc/iiab/pr-queue ]; do    # Test that file exists & is non-empty
+        pr=$(head -1 /etc/iiab/pr-queue)    # Try the next PR, from top of queue
+        if ! [[ "$pr" =~ ^[1-9][0-9]*$ ]]; then
+            echo -e "\n\e[1mInvalid PR number:\e[0m $pr\n"
+            echo -n "Delete it from top of /etc/iiab/pr-queue and continue? [Y/n] "
+            read -n 1 -r ans < /dev/tty
+            echo
+            [[ $ans == "n" || $ans == "N" ]] &&    # [[ $ans =~ ^[nN]$ ]]
+                exit 1
+            sed -i '1d' /etc/iiab/pr-queue    # Delete 1st line
+            continue
+        fi
+
+        if (( pr >= REPO_BOUNDARY )); then
+            repo=iiab
+        else
+            repo=iiab-admin-console
+        fi
+
+        http_code=$(curl -sH "Accept: application/vnd.github.v3" https://api.github.com/repos/iiab/$repo/pulls/$pr -w "%{http_code}" -o /tmp/iiab-pr.json)
+        if [[ $http_code != "200" ]]; then
+            echo -e "\n\e[41;1mCOULD NOT FIND PR #$pr (https://github.com/iiab/$repo/pull/$pr)\e[0m\n"
+            echo -en "\e[41;1mHTTP ERROR: $http_code\e[0m\e[1m "
+            [[ $http_code == "403" ]] &&
+                echo -en "(DID YOU REQUEST 60+ PR's IN ONE HOUR?)"
+            [[ $http_code == "404" ]] &&
+                echo -en "(IS #$pr AN ISSUE, RATHER THAN A PR?)"
+            echo -e "\n"
+
+            cat /tmp/iiab-pr.json    # GitHub sometimes includes an English explanation of the error, and URL, e.g. https://developer.github.com/v3/#rate-limiting
+            echo
+            curl -IsH "Accept: application/vnd.github.v3" https://api.github.com/repos/iiab/$repo/pulls/$pr    # HTTP headers typically reveal a lot more!
+
+            echo -n "Delete it from top of /etc/iiab/pr-queue and continue? [Y/n] "
+            read -n 1 -r ans < /dev/tty
+            echo
+            [[ $ans == "n" || $ans == "N" ]] &&    # [[ $ans =~ ^[nN]$ ]]
+                exit 1
+            sed -i '1d' /etc/iiab/pr-queue    # Delete 1st line
+            continue
+        fi
+
+        account=$(jq -r '.head.label' /tmp/iiab-pr.json | cut -d: -f1)
+        repo2=$(jq -r '.head.repo.name' /tmp/iiab-pr.json)    # 2021-11-22: For PR's created from oddly named forks (instead of "iiab" or "iiab-admin-console" !)
+        branch=$(jq -r '.head.label' /tmp/iiab-pr.json | cut -d: -f2)
+
+        echo -e "\nPR #$pr: cd /opt/iiab/$repo"
+        cd /opt/iiab/$repo
+        #git checkout -b POTLUCK master || true    # If test branch name/norm in future...for both repos?
+        local_branch_old=$(git branch --show-current)
+        if [[ $local_branch_old == "master" || $local_branch_old == "main" ]]; then
+            #local_branch_new=$pr                 # e.g. "2604"
+            if [[ $branch == "master" || $branch == "main" ]]; then
+                local_branch_new="$pr-$branch"    # e.g. "2604-main"
+            else
+                local_branch_new=$branch          # e.g. "huge-speedup"
+            fi
+        else
+            #local_branch_new="$local_branch_old-$pr"        # e.g. "2604-2607-3173"
+            local_branch_new="$local_branch_old--$branch"    # e.g. "huge-speedup--qa--docs"
+        fi
+        echo -e "git checkout -b \e[1m$local_branch_new\e[0m"
+        git checkout -b $local_branch_new    # FAILS IF (1) branch name's also master/main (2) branch name > 250 chars (branch names > 244 chars cannot be pushed)
+
+        echo -e "git pull --no-edit --no-rebase https://github.com/$account/$repo2 $branch"    # Or $repo2.git
+        git pull --no-edit --no-rebase https://github.com/$account/$repo2 $branch || {
+            echo -e "\n\e[1mgit exit/error code:\e[0m $?\n"    # if hides err code
+            echo -n "Delete it from top of /etc/iiab/pr-queue and continue? [Y/n] "
+            read -n 1 -r ans < /dev/tty
+            echo
+            if [[ $ans == "n" || $ans == "N" ]]; then    # [[ $ans =~ ^[nN]$ ]]
+                exit 1
+            fi
+            sed -i '1d' /etc/iiab/pr-queue    # Delete 1st line
+            continue
+        }
+
+        sed -i '1d' /etc/iiab/pr-queue    # Delete 1st line
+        echo "$pr $(date '+%F %T %Z')" >> /etc/iiab/pr-list-pulled    # For iiab-diagnostics
+    done
+}
+
+
+# # Ask for password change if pi/raspberry default remains
+# if check_user_pwd "pi" "raspberry"; then
+#     echo -e "\n\n\e[41;1mRaspberry Pi's are COMPROMISED often if the default password is not changed!\e[0m\n"
+#
+#     echo -n "What password do you want for GNU/Linux user 'pi' ? "
+#     read ans < /dev/tty    # Whines but doesn't change password if [Enter]
+#     echo pi:"$ans" | chpasswd || true    # Overrides 'set -e'
+# fi
+
+
+# A. Create user 'iiab-admin' (or any other, some prefer 'pi' or 'ubuntu') as
 # nec, with the default password.  If customizing this is important to you,
 # please pre-position /etc/iiab/local_vars.yml specifying the 3 vars below.
 
@@ -174,7 +271,7 @@ if ! [[ $(iiab_var_value iiab_admin_user_install) =~ ^[fF]alse$ ]]; then
     fi
 fi
 
-# F. If 'iiab-admin' (or equivalent) use default password, prompt for change
+# B. If 'iiab-admin' (or equivalent) use default password, prompt for change
 if check_user_pwd "$IIAB_ADMIN_USER" "$IIAB_ADMIN_PUBLISHED_PWD"; then
     echo -e "\n\n\e[41;1mDANGER: User '$IIAB_ADMIN_USER' has public password '$IIAB_ADMIN_PUBLISHED_PWD' per http://FAQ.IIAB.IO\e[0m\n"
 
@@ -194,21 +291,14 @@ if [ -f $FLAGDIR/iiab-complete ]; then
     exit 0
 fi
 
-# G. Everyday users want installs bureaucracy-free w/o delay.
-# Developers however may want to clone first, and then set local_vars.yml
-if $($MFABT); then
-    clone-repos;
-fi
-
-# H. Position & customize /etc/iiab/local_vars.yml
+# C. Position & customize /etc/iiab/local_vars.yml
 command -v wget &> /dev/null ||
-    $APTPATH/apt -y install wget    # AS ABOVE (grep, perl)
+    $APTPATH/apt -y install wget    # AVOID UX CLUTTER+DELAYS: 4 MORE ABOVE
 command -v nano &> /dev/null ||
-    $APTPATH/apt -y install nano    # AS BELOW (git, jq)
-local_vars_src_file=local_vars_large.yml    # Testing default, for Section J. (PR's can change local_vars.yml templates)
+    $APTPATH/apt -y install nano    # AVOID UX CLUTTER+DELAYS: 5 MORE ABOVE
 if [ -f /etc/iiab/local_vars.yml ]; then
 
-    # FUTURE: Test if their local_vars.yml is sufficiently version-compatible !
+    # FUTURE: Test if their local_vars.yml is sufficiently version-compatible ?
 
     echo -e "\n\n  EXISTING /etc/iiab/local_vars.yml is being used to install Internet-in-a-Box\n"
 
@@ -243,28 +333,73 @@ else
         m)
             local_vars_src_file=local_vars_medical.yml
             ;;
+        n)
+            local_vars_src_file=local_vars_none.yml
+            ;;
         *)
             local_vars_src_file=local_vars_medium.yml
             ;;
     esac
-    if [ -d /opt/iiab/iiab/vars ]; then
+
+    # Quick pre-scan for any PR(s) that change user-specified local_vars.yml
+    if [ -s /etc/iiab/pr-queue ]; then    # Test that file exists & is non-empty
+        while read pr; do
+            if (( pr < REPO_BOUNDARY )); then
+                continue
+            fi
+
+            # https://docs.github.com/en/rest/pulls/pulls#list-pull-requests-files
+            http_code=$(curl -sH "Accept: application/vnd.github.v3" https://api.github.com/repos/iiab/iiab/pulls/$pr/files -w "%{http_code}" -o /tmp/iiab-pr-files.json)
+            if [[ $http_code == "200" ]]; then
+                #jq -r '.[].filename' /tmp/iiab-pr-files.json > /tmp/iiab-pr-filelist
+                #if grep -q "^vars/$local_vars_src_file$" /tmp/iiab-pr-filelist; then
+                # Defer jq install til later for smooth UX: (grep works w/o apt delays!)
+                if grep -q '^\s*"filename": "vars/'$local_vars_src_file'",$' /tmp/iiab-pr-files.json; then
+                    pr_changes_local_vars=true
+                    break
+                fi
+            fi
+        done < /etc/iiab/pr-queue
+    fi
+
+    if $($pr_changes_local_vars); then
+        echo -e "\n  \e[44;1m                                                                           \e[0m"
+        echo -e "  \e[44;1m              At least one PR will change your local_vars.yml              \e[0m"
+        echo -e "  \e[44;1m                                                                           \e[0m"
+        echo -e "  \e[44;1m                   SO LET'S CLONE & PULL FIRST (1-2 min)                   \e[0m"
+        echo -e "  \e[44;1m                                                                           \e[0m\n\n"
+        $APTPATH/apt update    # -q useless; -qq too quiet (an option if optimizing later nec)
+        clone-repos
+        pull-prs
+        clones_and_pulls_done=true
+    elif [ -s /etc/iiab/pr-queue ]; then    # Test that file exists & is non-empty
+        echo -e "\n\e[1m                    PR's will not change your local_vars.yml\e[0m"
+        echo
+        echo -e "\e[1m          So it's safe to edit local_vars.yml BEFORE cloning & pulling\e[0m\n\n"
+    fi
+
+    # Copy or download local_vars.yml + edit it optionally
+    if [ -f /opt/iiab/iiab/vars/$local_vars_src_file ]; then
         cp /opt/iiab/iiab/vars/$local_vars_src_file /etc/iiab/local_vars.yml
+        echo
     else
         wget -O /etc/iiab/local_vars.yml https://github.com/iiab/iiab/raw/master/vars/$local_vars_src_file
     fi
 
-    echo -en "\nEdit /etc/iiab/local_vars.yml to customize your Internet-in-a-Box? [Y/n] "
-    read -n 1 -r ans < /dev/tty
-    echo
-    if [[ $ans != "n" && $ans != "N" ]]; then
-        echo -e "\n1) PLEASE RUN: sudo nano /etc/iiab/local_vars.yml\n"
+    if ! $($MFABT); then
+        echo -en "\nEdit /etc/iiab/local_vars.yml to customize your Internet-in-a-Box? [Y/n] "
+        read -n 1 -r ans < /dev/tty
+        echo
+        if [[ $ans != "n" && $ans != "N" ]]; then    # ! [[ $ans =~ ^[nN]$ ]]
+            echo -e "\n1) PLEASE RUN: sudo nano /etc/iiab/local_vars.yml\n"
 
-        echo -e "2) After you're done editing, RUN 'sudo iiab' TO CONTINUE!\n"
-        exit 0
+            echo -e "2) After you're done editing, RUN 'sudo iiab' TO CONTINUE!\n"
+            exit 0
+        fi
     fi
 fi
 
-# I. Mandate OS SECURITY/UPDATES if 'apt update' has any (THEN REBOOT, AS NEC)
+# D. Mandate OS SECURITY/UPDATES if 'apt update' has any (THEN REBOOT, AS NEC)
 # Educate implementer while waiting for 'apt update'
 echo -e "\n\n ██████████████████████████████████████████████████████████████████████████████"
 echo -e " ██                                                                          ██"
@@ -314,131 +449,24 @@ if (( bootupTime < bootDirLastModFile )); then
     exit 0    # Nec to avoid bogus continuation & misleading output below
 fi
 
-####################### MAIN INTERACTIVE STUFF IS ABOVE #######################
+##############################################################################
+################### MAIN INTERACTIVE STUFF (ABOVE) DONE!!! ###################
+##############################################################################
 
-# J. If microSD, lower reserve disk space from ~5% to 2%
+# E. If microSD, lower reserve disk space from ~5% to 2%
 # if [ -f /proc/device-tree/model ] && grep -qi raspberry /proc/device-tree/model; then
 if [ -e /dev/mmcblk0p2 ]; then
     echo -e "\n\nFound microSD card /dev/mmcblk0p2: Lower its reserve disk space from ~5% to 2%\n"
     tune2fs -m 2 /dev/mmcblk0p2
 fi
 
-# K. Everyday users want installs bureaucracy-free w/o delay.
-# Developers however may want to clone first, and then set local_vars.yml
-if ! $($MFABT); then
-    clone-repos;
+# F. For a smoother + tighter UX in above interactive portion
+if ! $($clones_and_pulls_done); then
+    clone-repos
+    pull-prs
 fi
 
-# L. Install optional PR's
-echo -e "\n\nINSTALL PR's FROM iiab/iiab OR iiab/iiab-admin-console -- USAGE EXAMPLES:\n"
-echo -e "   sudo iiab 361 2604 2607"
-echo -e "   curl d.iiab.io/install.txt | sudo bash -s 361 2604 2607\n"
-command -v jq &> /dev/null ||
-    $APTPATH/apt -y install jq    # sed better, to avoid delays?
-if [ -s /etc/iiab/pr-queue ]; then    # Set an email address for 'git pull' if one isn't yet set
-   git config --get user.email 1> /dev/null ||
-       git config --global user.email "albert@einstein.edu"
-   echo -e "\nYour git email is set to: \e[1m$(git config --get user.email)\e[0m"
-   echo -e 'Change this by running: sudo git config --global user.email "you@example.com"'
-fi
-
-cp /opt/iiab/iiab/vars/$local_vars_src_file /tmp
-# Similar to 'for pr in "$@"' but survives reboots:
-while [ -s /etc/iiab/pr-queue ]    # Test that file exists and is non-empty
-do
-    pr=$(head -1 /etc/iiab/pr-queue)    # Try the next PR, from top of queue
-    if ! [[ "$pr" =~ ^[1-9][0-9]*$ ]]; then
-        echo -e "\n\e[1mInvalid PR number:\e[0m $pr\n"
-        echo -n "Delete it from top of /etc/iiab/pr-queue and continue? [Y/n] "
-        read -n 1 -r ans < /dev/tty
-        echo
-        [[ $ans == "n" || $ans == "N" ]] &&
-            exit 1
-        sed -i '1d' /etc/iiab/pr-queue    # Delete 1st line
-        continue
-    fi
-
-    if (( pr >= 1561 )); then    # iiab/iiab's lowest PR as of October 2020
-        repo=iiab
-    else
-        repo=iiab-admin-console
-    fi
-
-    http_code=$(curl -sH "Accept: application/vnd.github.v3" https://api.github.com/repos/iiab/$repo/pulls/$pr -w "%{http_code}" -o /tmp/iiab-pr.json)
-    if [[ $http_code != "200" ]] ; then
-        echo -e "\n\e[41;1mCOULD NOT FIND PR #$pr (https://github.com/iiab/$repo/pull/$pr)\e[0m\n"
-        echo -en "\e[41;1mHTTP ERROR: $http_code\e[0m\e[1m "
-        [[ $http_code == "403" ]] &&
-            echo -en "(DID YOU REQUEST 60+ PR's IN ONE HOUR?)"
-        [[ $http_code == "404" ]] &&
-            echo -en "(IS #$pr AN ISSUE, RATHER THAN A PR?)"
-        echo -e "\n"
-
-        cat /tmp/iiab-pr.json    # GitHub sometimes includes an English explanation of the error, and URL, e.g. https://developer.github.com/v3/#rate-limiting
-        echo
-        curl -IsH "Accept: application/vnd.github.v3" https://api.github.com/repos/iiab/$repo/pulls/$pr    # HTTP headers typically reveal a lot more!
-
-        echo -n "Delete it from top of /etc/iiab/pr-queue and continue? [Y/n] "
-        read -n 1 -r ans < /dev/tty
-        echo
-        [[ $ans == "n" || $ans == "N" ]] &&
-            exit 1
-        sed -i '1d' /etc/iiab/pr-queue    # Delete 1st line
-        continue
-    fi
-
-    account=$(jq -r '.head.label' /tmp/iiab-pr.json | cut -d: -f1)
-    repo2=$(jq -r '.head.repo.name' /tmp/iiab-pr.json)    # 2021-11-22: For PR's created from oddly named forks (instead of "iiab" or "iiab-admin-console" !)
-    branch=$(jq -r '.head.label' /tmp/iiab-pr.json | cut -d: -f2)
-
-    echo -e "\nPR #$pr: cd /opt/iiab/$repo"
-    cd /opt/iiab/$repo
-    #git checkout -b POTLUCK master || true    # If test branch name/norm in future...for both repos?
-    local_branch_old=$(git branch --show-current)
-    if [[ $local_branch_old == "master" || $local_branch_old == "main" ]]; then
-        #local_branch_new=$pr       # e.g. "2604"
-        local_branch_new=$branch    # e.g. "huge-speedup"
-    else
-        #local_branch_new="$local_branch_old-$pr"        # e.g. "2604-2607-3173"
-        local_branch_new="$local_branch_old--$branch"    # e.g. "huge-speedup--qa--docs"
-    fi
-    echo -e "git checkout -b \e[1m$local_branch_new\e[0m"
-    git checkout -b $local_branch_new
-
-    echo -e "git pull --no-edit --no-rebase https://github.com/$account/$repo2 $branch"    # Or $repo2.git
-    git pull --no-edit --no-rebase https://github.com/$account/$repo2 $branch || {
-        echo -e "\n\e[1mgit exit/error code:\e[0m $?\n"    # if hides err code
-        echo -n "Delete it from top of /etc/iiab/pr-queue and continue? [Y/n] "
-        read -n 1 -r ans < /dev/tty
-        echo
-        if [[ $ans == "n" || $ans == "N" ]]; then
-            exit 1
-        fi
-        sed -i '1d' /etc/iiab/pr-queue    # Delete 1st line
-        continue
-    }
-
-    sed -i '1d' /etc/iiab/pr-queue    # Delete 1st line
-    echo "$pr $(date '+%F %T %Z')" >> /etc/iiab/pr-list-pulled    # For iiab-diagnostics
-done
-
-if ! cmp -s /tmp/$local_vars_src_file /opt/iiab/iiab/vars/$local_vars_src_file; then
-    mv /etc/iiab/local_vars.yml /etc/iiab/local_vars.yml.old
-    cp /opt/iiab/iiab/vars/$local_vars_src_file /etc/iiab/local_vars.yml
-
-    echo -e "\n\e[1mWARNING: /opt/iiab/iiab/vars/$local_vars_src_file HAS CHANGED!\n"
-    echo -e "YOUR /etc/iiab/local_vars.yml WAS MOVED TO /etc/iiab/local_vars.yml.old\e[0m\n"
-    echo -n "Edit the NEW /etc/iiab/local_vars.yml to customize Internet-in-a-Box? [Y/n] "
-    read -n 1 -r ans < /dev/tty
-    echo
-    if [[ $ans != "n" && $ans != "N" ]]; then
-        echo -e "\n1) PLEASE RUN: sudo nano /etc/iiab/local_vars.yml\n"
-        echo -e "2) After you're done editing, RUN 'sudo iiab' TO CONTINUE!\n"
-        exit 0
-    fi
-fi
-
-# M. Install Ansible + 2 IIAB repos
+# G. Install Ansible + 2 IIAB repos
 echo -e "\n\nINSTALL ANSIBLE + CORE IIAB SOFTWARE + ADMIN CONSOLE / CONTENT PACK MENUS...\n"
 
 if [ -f $FLAGDIR/iiab-ansible-complete ]; then
@@ -494,7 +522,7 @@ else
     systemctl start iiab-cmdsrv || true    # Overrides 'set -e'
 fi
 
-# N. KA Lite prep
+# H. KA Lite prep
 if [ -d /library/ka-lite ]; then
     echo -e "\n\nKA LITE REQUIRES 2 THINGS...\n"
 
@@ -534,7 +562,7 @@ fi
 # kalite manage retrievecontentpack download en
 # OLD WAY ABOVE - fails w/ sev ISPs per https://github.com/iiab/iiab/issues/871
 
-# O. Start BitTorrent downloads, e.g. if /etc/iiab/local_vars.yml requested any
+# I. Start BitTorrent downloads, e.g. if /etc/iiab/local_vars.yml requested any
 if systemctl -q is-active transmission-daemon; then
     echo -e "\n\nSTARTING BITTORRENT DOWNLOAD(S) for KA Lite...Please Monitor: http://box:9091\n"
     transmission-remote -n Admin:changeme -t all --start
@@ -542,7 +570,7 @@ fi
 
 touch $FLAGDIR/iiab-complete
 
-# P. Educate Implementers prior to rebooting!
+# J. Educate Implementers prior to rebooting!
 echo -e "\n\n         ┌───────────────────────────────────────────────────────────┐"
 echo -e "         │                                                           │"
 echo -e "         │   INTERNET-IN-A-BOX (IIAB) SOFTWARE INSTALL IS COMPLETE   │"
