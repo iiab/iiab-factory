@@ -56,6 +56,7 @@ MFABT=false    # As above AND ALSO also bypasses apt updates -- when you have
 # no time to read the MFABT book: "Move Fast and Break Things: How Facebook,
 # Google, and Amazon Cornered Culture and Undermined Democracy"
 
+REPO_BOUNDARY=1561    # iiab/iiab's lowest PR as of October 2020
 pr_changes_local_vars=false
 clones_and_pulls_done=false
 
@@ -171,7 +172,7 @@ pull-prs() {
             continue
         fi
 
-        if (( pr >= 1561 )); then    # iiab/iiab's lowest PR as of October 2020
+        if (( pr >= REPO_BOUNDARY )); then
             repo=iiab
         else
             repo=iiab-admin-console
@@ -343,7 +344,7 @@ else
     # Quick pre-scan for any PR(s) that change user-specified local_vars.yml
     if [ -s /etc/iiab/pr-queue ]; then    # Test that file exists & is non-empty
         while read pr; do
-            if (( pr < 1561 )); then    # iiab/iiab's lowest PR as of October 2020
+            if (( pr < REPO_BOUNDARY )); then    # iiab/iiab's lowest PR as of October 2020
                 continue
             fi
 
