@@ -52,9 +52,9 @@ FLAGDIR=/etc/iiab/install-flags
 APTPATH=/usr/bin    # Avoids problematic /usr/local/bin/apt on Linux Mint
 
 FAST=false    # YOUR OWN RISK: Fewer security & user education prompts.
-MFABT=false    # As above AND ALSO also bypasses apt updates -- when you have
-# no time to read the MFABT book: "Move Fast and Break Things: How Facebook,
-# Google, and Amazon Cornered Culture and Undermined Democracy"
+MFABT=false   # As above BUT bypasses editing of local_vars.yml + apt updates.
+# When you have no time to read the MFABT book: "Move Fast and Break Things:
+# How Facebook, Google, and Amazon Cornered Culture and Undermined Democracy"
 
 REPO_BOUNDARY=1561    # iiab/iiab's lowest PR as of October 2020
 pr_changes_local_vars=false
@@ -366,7 +366,7 @@ else
         echo -e "\n  \e[44;1m                                                                           \e[0m"
         echo -e "  \e[44;1m              At least one PR will change your local_vars.yml              \e[0m"
         echo -e "  \e[44;1m                                                                           \e[0m"
-        echo -e "  \e[44;1m                        SO LET'S CLONE & PULL FIRST                        \e[0m"
+        echo -e "  \e[44;1m                SO LET'S CLONE & PULL FIRST (around ~2 min)                \e[0m"
         echo -e "  \e[44;1m                                                                           \e[0m\n\n"
         $APTPATH/apt update    # -q useless; -qq too quiet (an option if optimizing later nec)
         clone-repos
@@ -386,14 +386,16 @@ else
         wget -O /etc/iiab/local_vars.yml https://github.com/iiab/iiab/raw/master/vars/$local_vars_src_file
     fi
 
-    echo -en "\nEdit /etc/iiab/local_vars.yml to customize your Internet-in-a-Box? [Y/n] "
-    read -n 1 -r ans < /dev/tty
-    echo
-    if [[ $ans != "n" && $ans != "N" ]]; then    # ! [[ $ans =~ ^[nN]$ ]]
-        echo -e "\n1) PLEASE RUN: sudo nano /etc/iiab/local_vars.yml\n"
+    if ! $($MFABT); then
+        echo -en "\nEdit /etc/iiab/local_vars.yml to customize your Internet-in-a-Box? [Y/n] "
+        read -n 1 -r ans < /dev/tty
+        echo
+        if [[ $ans != "n" && $ans != "N" ]]; then    # ! [[ $ans =~ ^[nN]$ ]]
+            echo -e "\n1) PLEASE RUN: sudo nano /etc/iiab/local_vars.yml\n"
 
-        echo -e "2) After you're done editing, RUN 'sudo iiab' TO CONTINUE!\n"
-        exit 0
+            echo -e "2) After you're done editing, RUN 'sudo iiab' TO CONTINUE!\n"
+            exit 0
+        fi
     fi
 fi
 
