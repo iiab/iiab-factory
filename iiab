@@ -69,7 +69,7 @@ if [[ $1 == "-f" || $1 == "--fast" ]]; then
     FAST=true
     shift
 elif [[ $1 == "-r" || $1 == "--risky" ]]; then
-    # EXAMPLE: 'curl iiab.io/risky.txt | sudo bash [-s 361 2604 2607]' AND 'sudo iiab -f' TO CONTINUE
+    # EXAMPLE: 'curl iiab.io/risky.txt | sudo bash [-s 361 2604 2607]' AND 'sudo iiab -r' TO CONTINUE
     FAST=true
     MFABT=true
     shift
