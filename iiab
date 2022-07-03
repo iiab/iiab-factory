@@ -244,7 +244,7 @@ pull-prs() {
 # # Ask for password change if pi/raspberry default remains
 # if check_user_pwd "pi" "raspberry"; then
 #     echo -e "\n\n\e[41;1mRaspberry Pi's are COMPROMISED often if the default password is not changed!\e[0m\n"
-
+#
 #     echo -n "What password do you want for GNU/Linux user 'pi' ? "
 #     read ans < /dev/tty    # Whines but doesn't change password if [Enter]
 #     echo pi:"$ans" | chpasswd || true    # Overrides 'set -e'
