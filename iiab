@@ -366,7 +366,7 @@ else
         echo -e "\n  \e[44;1m                                                                           \e[0m"
         echo -e "  \e[44;1m              At least one PR will change your local_vars.yml              \e[0m"
         echo -e "  \e[44;1m                                                                           \e[0m"
-        echo -e "  \e[44;1m                SO LET'S CLONE & PULL FIRST (around ~2 min)                \e[0m"
+        echo -e "  \e[44;1m                   SO LET'S CLONE & PULL FIRST (1-2 min)                   \e[0m"
         echo -e "  \e[44;1m                                                                           \e[0m\n\n"
         $APTPATH/apt update    # -q useless; -qq too quiet (an option if optimizing later nec)
         clone-repos
