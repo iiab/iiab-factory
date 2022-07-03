@@ -344,7 +344,7 @@ else
     # Quick pre-scan for any PR(s) that change user-specified local_vars.yml
     if [ -s /etc/iiab/pr-queue ]; then    # Test that file exists & is non-empty
         while read pr; do
-            if (( pr < REPO_BOUNDARY )); then    # iiab/iiab's lowest PR as of October 2020
+            if (( pr < REPO_BOUNDARY )); then
                 continue
             fi
 
