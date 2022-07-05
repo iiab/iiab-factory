@@ -22,7 +22,7 @@
 
 # 4. OPTIONAL: if you have slow/pricey Internet, pre-position KA Lite's
 #    mandatory 0.9 GB English Pack (en.zip) within /tmp -- you can grab a copy
-#    from http://pantry.learningequality.org/downloads/ka-lite/0.17/content/contentpacks/en.zip
+#    from https://pantry.learningequality.org/downloads/ka-lite/0.17/content/contentpacks/en.zip
 
 # 5. WHEN YOU RUN 1-LINE INSTALLER 'curl iiab.io/risky.txt | sudo bash'
 #    YOU THEN NEED TO TYPE IN YOUR PASSWORD IF ON UBUNTU/DEBIAN/ETC (for sudo)
