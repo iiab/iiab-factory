@@ -201,9 +201,12 @@ pull-prs() {
             continue
         fi
 
+        title=$(jq -r '.body' /tmp/iiab-pr.json)
         account=$(jq -r '.head.label' /tmp/iiab-pr.json | cut -d: -f1)
         repo2=$(jq -r '.head.repo.name' /tmp/iiab-pr.json)    # 2021-11-22: For PR's created from oddly named forks (instead of "iiab" or "iiab-admin-console" !)
         branch=$(jq -r '.head.label' /tmp/iiab-pr.json | cut -d: -f2)
+        commit_8chars=$(jq -r '.head.sha' /tmp/iiab-pr.json | cut -c1-8)
+        files_changed=$(jq -r '.changed_files' /tmp/iiab-pr.json)
 
         echo -e "\nPR #$pr: cd /opt/iiab/$repo"
         cd /opt/iiab/$repo
@@ -237,7 +240,7 @@ pull-prs() {
         }
 
         sed -i '1d' /etc/iiab/pr-queue    # Delete 1st line
-        echo "$pr $(date '+%F %T %Z')" >> /etc/iiab/pr-list-pulled    # For iiab-diagnostics
+        echo "$(date '+%F %T %Z') #$pr $files_changed $commit_8chars https://github.com/$account/$repo2 $branch \"$title\"" >> /etc/iiab/pr-list-pulled    # For iiab-diagnostics
     done
 }
 
