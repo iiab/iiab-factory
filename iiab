@@ -226,7 +226,7 @@ pull-prs() {
         echo -e "git checkout -b \e[1m$local_branch_new\e[0m"
         git checkout -b $local_branch_new    # FAILS IF (1) branch name's also master/main (2) branch name > 250 chars (branch names > 244 chars cannot be pushed)
 
-        echo -e "git pull --no-edit --no-rebase https://github.com/$account/$repo2 $branch"    # Or $repo2.git
+        echo -e "git pull --no-edit --no-rebase --set-upstream https://github.com/$account/$repo2 $branch"    # Or $repo2.git
         git pull --no-edit --no-rebase https://github.com/$account/$repo2 $branch || {
             echo -e "\n\e[1mgit exit/error code:\e[0m $?\n"    # if hides err code
             echo -n "Delete it from top of /etc/iiab/pr-queue and continue? [Y/n] "
