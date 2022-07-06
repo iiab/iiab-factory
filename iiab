@@ -201,7 +201,7 @@ pull-prs() {
             continue
         fi
 
-        title=$(jq -r '.body' /tmp/iiab-pr.json)
+        title=$(jq -r '.title' /tmp/iiab-pr.json)
         account=$(jq -r '.head.label' /tmp/iiab-pr.json | cut -d: -f1)
         repo2=$(jq -r '.head.repo.name' /tmp/iiab-pr.json)    # 2021-11-22: For PR's created from oddly named forks (instead of "iiab" or "iiab-admin-console" !)
         branch=$(jq -r '.head.label' /tmp/iiab-pr.json | cut -d: -f2)
