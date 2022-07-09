@@ -185,7 +185,7 @@ async def one_dev(dev):
             await connect_wifi(dev)
         await asyncio.sleep(SLEEP_SECONDS)
 
-async def get_html(client_ip, page_url, port=80, server_ip='172.18.96.1'):
+async def get_html(client_ip, page_url, port=80, server_ip='10.10.10.10'):
     print_msg('Retrieving page for ' + client_ip)
     BUF_SIZE = 4096
 

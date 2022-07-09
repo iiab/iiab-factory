@@ -190,7 +190,7 @@ def one_dev(dev):
         #time.sleep(random.uniform(.5 * SLEEP_SECONDS, 1.5 * SLEEP_SECONDS)) # makes no difference
         time.sleep(SLEEP_SECONDS)
 
-def get_html(client_ip, page_url, port=80, server_ip='172.18.96.1'):
+def get_html(client_ip, page_url, port=80, server_ip='10.10.10.10'):
     print_msg('Retrieving page for ' + client_ip)
     BUF_SIZE = 4096
 

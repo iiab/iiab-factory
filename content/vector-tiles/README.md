@@ -36,7 +36,7 @@ See ["How do I add zoomable maps for my region?"](http://FAQ.IIAB.IO#How_do_I_ad
    1. **Create a symbolic link to replace "details.mbtiles -> 2017-07-03_california_san-francisco-bay.mbtiles" by running: `ln -sf ./<full filename of the downloaded region> details.mbtiles`**
 1. Test it:
    1. Connect another device to your IIAB's Wi-Fi (SSID is typically "Internet in a Box")
-   1. Browse to http://box/modules/osm-min (occasionally "box" needs to be replaced by "box.lan" or "172.18.96.1")
+   1. Browse to http://box/modules/osm-min (occasionally "box" needs to be replaced by "box.lan" or "10.10.10.10")
    1. Zoom into your region of interest to confirm local details appear!
    1. If so, recover 109 MB by running: `rm 2017-07-03_california_san-francisco-bay.mbtiles`
 1. Configure http://box/maps so teachers and students get to maps quickly:
