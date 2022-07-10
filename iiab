@@ -439,13 +439,13 @@ if ! $($MFABT); then
         fi
     fi
 
-# 2021-09-03 #2975: Is a reboot needed? We check after reboot too, safeguarding
-# against users (or apt above, or unattended-upgrades) spontaneously AGAIN apt
-# updating /boot e.g. kernel AT ANYTIME -- also many weeks could have passed.
+    # 2021-09-03 #2975: Is a reboot needed? We check after reboot too, safeguarding
+    # against users (or apt above, or unattended-upgrades) spontaneously AGAIN apt
+    # updating /boot e.g. kernel AT ANYTIME -- also many weeks could have passed.
     bootupTime=$(($(date +%s) - $(cut -d. -f1 /proc/uptime)))    # Seconds since...
     bootDirLastModFile=$(date +%s -r "/boot/$(ls -t /boot | head -1)") # 1970-01-01
-# Works w/o RTC (real-time clock, i.e. battery) because:
-# Both 'apt' installs to /boot and IIAB installs require Internet (e.g. NTP).
+    # Works w/o RTC (real-time clock, i.e. battery) because:
+    # Both 'apt' installs to /boot and IIAB installs require Internet (e.g. NTP).
     if (( bootupTime < bootDirLastModFile )); then
         reboot
         exit 0    # Nec to avoid bogus continuation & misleading output below
