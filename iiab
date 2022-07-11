@@ -566,8 +566,6 @@ fi
 # OLD WAY ABOVE - fails w/ sev ISPs per https://github.com/iiab/iiab/issues/871
 
 # I. Start BitTorrent downloads, e.g. if /etc/iiab/local_vars.yml requested any
-# odd this runs when kalite is not installed
-#if systemctl -q is-active transmission-daemon; then
 if $(systemctl -q is-active transmission-daemon) && ! $(ischroot -t); then
     echo -e "\n\nSTARTING BITTORRENT DOWNLOAD(S) for KA Lite...Please Monitor: http://box:9091\n"
     transmission-remote -n Admin:changeme -t all --start
