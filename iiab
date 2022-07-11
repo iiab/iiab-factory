@@ -566,7 +566,9 @@ fi
 # OLD WAY ABOVE - fails w/ sev ISPs per https://github.com/iiab/iiab/issues/871
 
 # I. Start BitTorrent downloads, e.g. if /etc/iiab/local_vars.yml requested any
-if systemctl -q is-active transmission-daemon; then
+# odd this runs when kalite is not installed
+#if systemctl -q is-active transmission-daemon; then
+if $(systemctl -q is-active transmission-daemon) && ! $(ischroot -t); then
     echo -e "\n\nSTARTING BITTORRENT DOWNLOAD(S) for KA Lite...Please Monitor: http://box:9091\n"
     transmission-remote -n Admin:changeme -t all --start
 fi
@@ -608,8 +610,14 @@ echo -e "global community, learning from other initiatives in your region and be
 #echo -e "(over Wi-Fi anyway) until you later run 'iiab-hotspot-off'.  CAVEAT: these"
 #echo -e "two commands only work with Raspberry Pi as of 2019-09-30.\n"
 
-echo -ne "HIT [Enter] TO REBOOT, CONFIRMING YOU'VE" '"photographed" THE ABOVE PARAGRAPHS: '
-read ans < /dev/tty
+if ! $(ischroot -t); then
+    echo -ne "HIT [Enter] TO REBOOT, CONFIRMING YOU'VE" '"photographed" THE ABOVE PARAGRAPHS: '
+    read ans < /dev/tty
 
-# Sets hostname, improves RTC + memory mgmt, starts BitTorrents if needed, etc!
-reboot
+    # Sets hostname, improves RTC + memory mgmt, starts BitTorrents if needed, etc!
+    reboot
+else
+    echo -ne "IIAB Done"
+    exit 0
+fi
+
