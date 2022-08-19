@@ -57,7 +57,7 @@ pr_changes_local_vars=false
 clones_and_pulls_done=false
 
 if [[ $(id -un) != "root" ]]; then
-    echo "Please run 'sudo iiab'"
+    echo -e "\nPlease run: sudo iiab\n"
     exit 1
 fi
 
