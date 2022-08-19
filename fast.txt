@@ -46,7 +46,7 @@ export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
 # Save script to /usr/sbin/iiab (easy resume/continue mnemonic 'sudo iiab')
 sudo mv /usr/sbin/iiab /usr/sbin/iiab.old 2> /dev/null || true    # Overrides 'set -e'
 curl https://raw.githubusercontent.com/iiab/iiab-factory/master/iiab | sudo tee /usr/sbin/iiab > /dev/null
-sudo chmod 0744 /usr/sbin/iiab
+sudo chmod 0755 /usr/sbin/iiab
 
 # Run install script!
 sudo /usr/sbin/iiab --fast "$@"    # Pass on all CLI params (PR #s) for
