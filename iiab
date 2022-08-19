@@ -2,9 +2,9 @@
 # Copied from: https://github.com/iiab/iiab-factory/blob/master/iiab
 
 # To install Internet-in-a-Box (IIAB) 8.0 / pre-release onto Raspberry Pi OS,
-# Ubuntu 20.04+, Linux Mint 20 or Debian 11+, run this 1-line installer:
+# Ubuntu 20.04+, Linux Mint 20+ or Debian 11+, run this 1-line installer:
 #
-#                  curl iiab.io/install.txt | sudo bash
+#                     curl iiab.io/install.txt | bash
 
 # 1. WARNING: NOOBS IS *NOT* SUPPORTED, as its partitioning is very different.
 #    On a Raspberry Pi, WE RECOMMEND YOU INSTALL THE LATEST RASPBERRY PI OS:
@@ -18,19 +18,15 @@
 #    PHONES/TABLETS (WHICH REQUIRE 2.4 GHz) FROM CONNECTING TO YOUR IIAB'S
 #    INTERNAL HOTSPOT.  See: "wifi_up_down: True" in /etc/iiab/local_vars.yml
 
-# 3. Run 'sudo raspi-config' on RPi, to set LOCALISATION OPTIONS
+# 3. Run 'sudo raspi-config' on Raspberry Pi, to set LOCALISATION OPTIONS
 
 # 4. OPTIONAL: if you have slow/pricey Internet, pre-position KA Lite's
-#    mandatory 0.9 GB English Pack (en.zip) within /tmp -- you can grab a copy
-#    from https://pantry.learningequality.org/downloads/ka-lite/0.17/content/contentpacks/en.zip
+#    mandatory 0.9 GB English Pack (en.zip) within /tmp -- you can grab it from
+#    https://pantry.learningequality.org/downloads/ka-lite/0.17/content/contentpacks/en.zip
 
-# 5. WHEN YOU RUN 1-LINE INSTALLER 'curl iiab.io/install.txt | sudo bash'
-#    YOU THEN NEED TO TYPE IN YOUR PASSWORD IF ON UBUNTU/DEBIAN/ETC (for sudo)
-#    ^^^ ^^^^ ^^^^ ^^ ^^^^ ^^ ^^^^ ^^^^^^^^
+# 5. Follow on-screen instructions (TYPE 'sudo iiab' TO RESUME IF EVER NECESS!)
 
-# 6. Follow on-screen instructions (TYPE 'sudo iiab' TO RESUME IF EVER NECESS!)
-
-# 7. Within about 1-2 hours, it will announce that INTERNET-IN-A-BOX (IIAB)
+# 6. Within about 1-2 hours, it will announce that INTERNET-IN-A-BOX (IIAB)
 #    SOFTWARE INSTALL IS COMPLETE, prompting you to reboot...TO ADD CONTENT!
 
 # Thanks   For   Building   Your   Own   Library   To   Serve   One   &   All
@@ -38,8 +34,8 @@
 # DRAFT IIAB 8.0 Release Notes:
 # https://github.com/iiab/iiab/wiki/IIAB-8.0-Release-Notes
 #
-# Write to bugs @ iiab.io if you find issues, Thank You!  Special Thanks to the
-# countries+communities+volunteers who worked non-stop to bring about IIAB 8.0!
+# SPECIAL THANKS to countries + communities + volunteers who worked non-stop
+# to bring about IIAB 8.0!  https://internet-in-a-box.org/contributing.html
 #
 # IIAB Dev Team
 # http://FAQ.IIAB.IO
@@ -66,11 +62,11 @@ if [[ $(id -un) != "root" ]]; then
 fi
 
 if [[ $1 == "-f" || $1 == "--fast" ]]; then
-    # EXAMPLE: 'curl iiab.io/fast.txt | sudo bash [-s 361 2604 2607]' AND 'sudo iiab -f' TO CONTINUE
+    # EXAMPLE: 'curl iiab.io/fast.txt | bash [-s 361 2604 2607]' AND 'sudo iiab -f' TO CONTINUE
     FAST=true
     shift
 elif [[ $1 == "-r" || $1 == "--risky" ]]; then
-    # EXAMPLE: 'curl iiab.io/risky.txt | sudo bash [-s 361 2604 2607]' AND 'sudo iiab -r' TO CONTINUE
+    # EXAMPLE: 'curl iiab.io/risky.txt | bash [-s 361 2604 2607]' AND 'sudo iiab -r' TO CONTINUE
     FAST=true
     MFABT=true
     shift
@@ -145,7 +141,7 @@ clone-repos() {                        # PREREQ: 'apt update'
 pull-prs() {
     echo -e "\n\nINSTALL PR's FROM iiab/iiab OR iiab/iiab-admin-console -- USAGE EXAMPLES:\n"
     echo -e "   sudo iiab 361 2604 2607"
-    echo -e "   curl iiab.io/install.txt | sudo bash -s 361 2604 2607\n"
+    echo -e "   curl iiab.io/install.txt | bash -s 361 2604 2607\n"
     if [ -s /etc/iiab/pr-queue ]; then    # Set an email address for 'git pull' if one isn't yet set
         git config --get user.email 1> /dev/null ||
             git config --global user.email "albert@einstein.edu"
@@ -396,7 +392,9 @@ else
         if [[ $ans != "n" && $ans != "N" ]]; then    # ! [[ $ans =~ ^[nN]$ ]]
             echo -e "\n1) PLEASE RUN: sudo nano /etc/iiab/local_vars.yml\n"
 
-            echo -e "2) After you're done editing, RUN 'sudo iiab' TO CONTINUE!\n"
+            echo -e "2) NEED HELP?  Type CTRL+G to learn...the nano editor\n"
+
+            echo -e "3) After you're done editing, RUN 'sudo iiab' TO CONTINUE!\n"
             exit 0
         fi
     fi
