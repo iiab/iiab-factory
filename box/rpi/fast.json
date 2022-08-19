@@ -29,6 +29,26 @@
             "extract_sha256": "2ce421eebdf857ada6f15977da292c6baf88bc9301a8531a2be92c4eb41d8968",
             "image_download_size": 1268882064,
             "release_date": "2022-06-16"
+        },
+        {
+            "name": "IIAB testing ∙ BASE ∙ ubuntu-mate-22.04-desktop",
+            "description": "iiab-base-ubuntu-mate-22.04-desktop-arm64+raspi.img",
+            "icon": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/iiab40.png",
+            "url": "http://104.193.111.252/local_content/uploads/iiab-base-0802-ubuntu-mate-22.04-desktop-arm64+raspi.img.zip",
+            "extract_size": 8589934592,
+            "extract_sha256": "c29e858b101e2e90d494575a1bbf4d0661a7fd6c1caa8cf6f474fa580f86ac96",
+            "image_download_size": 3393073344,
+            "release_date": "2022-08-02"
+        },
+        {
+            "name": "IIAB testing ∙ SMALL ∙ ubuntu-mate-22.04-desktop",
+            "description": "iiab-min-ubuntu-mate-22.04-desktop-arm64+raspi.img",
+            "icon": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/iiab40.png",
+            "url": "http://104.193.111.252/local_content/uploads/iiab-small-0802-ubuntu-mate-22.04-desktop-arm64+raspi.img.zip",
+            "extract_size": 12884901888,
+            "extract_sha256": "197e99819cdb853a16d4fc12241e986309a7338e13ab0dd198642d0f539e0e64",
+            "image_download_size": 4518463815,
+            "release_date": "2022-08-02"
         }
     ]
 }
