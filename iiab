@@ -2,7 +2,7 @@
 # Copied from: https://github.com/iiab/iiab-factory/blob/master/iiab
 
 # To install Internet-in-a-Box (IIAB) 8.0 / pre-release onto Raspberry Pi OS,
-# Ubuntu 20.04+, Linux Mint 20+ or Debian 11+, run this 1-line installer:
+# Ubuntu 22.04+, Linux Mint 21+ or Debian 11+, run this 1-line installer:
 #
 #                     curl iiab.io/install.txt | bash
 
