@@ -413,8 +413,11 @@ if ! $($MFABT); then
     # echo -e "2019-07-11 TEMP WORKAROUND FOR RASPBIAN BUSTER'S testing->stable apt GLITCH...\nDetails @ https://github.com/iiab/iiab/issues/1856\n"
     # apt -y update || true    # Overrides 'set -e'
     # echo -e "\nNOW THE REAL 'apt update' WILL RUN...\n"
-    $APTPATH/apt -qq update > /tmp/apt.stdout 2> /tmp/apt.stderr || true    # Overrides 'set -e'
-    if (( $(wc -c < /tmp/apt.stderr) > 82 )); then    # apt.stderr typically contains exactly 82 characters when there are no errors, no matter the primary locale, i.e. 3-line file "\nWARNING: apt does not have a stable CLI interface. Use with caution in scripts.\n\n" ...OR... in other cases more than 82, e.g. many lines of errors when apt is busy/locked/offline/etc
+    $APTPATH/apt -qq update > /tmp/apt.stdout 2> /tmp/apt.stderr; rc=$(echo $?) || true    # Overrides 'set -e'
+    #if (( $(wc -c < /tmp/apt.stderr) > 82 )); then    # apt.stderr typically contains exactly 82 characters when there are no errors, no matter the primary locale, i.e. 3-line file "\nWARNING: apt does not have a stable CLI interface. Use with caution in scripts.\n\n" ...OR... in other cases more than 82, e.g. many lines of errors when apt is busy/locked/offline/etc
+    # 2022-10-28: BEWARE 'apt -qq update 2> /tmp/apt.stderr' would behave very differently (i.e. if STDIN isn't being redirected, then [1] /tmp/apt.stderr DOESN'T contain 82-char warning "\nWARNING: apt does not have a stable CLI interface. Use with caution in scripts.\n\n" and [2] /tmp/apt.stderr DOES contain ANSI color escape codes, which grep [BELOW] would need to scan for using https://unix.stackexchange.com/questions/324835/grep-for-an-ansi-escape-code)
+    #if grep -q '^E: ' /tmp/apt.stderr; then    # We ignore '^W: ' warnings and '^N: ' notices (per: https://unix.stackexchange.com/questions/590027/what-does-the-error-line-prefix-w-mean-like-from-apt-get-or-other-similar) to avoid 'sudo iiab' holdups arising from {MongoDB, Yarn, etc} "Key is stored in legacy trusted.gpg keyring (/etc/apt/trusted.gpg)"
+    if [[ $rc != "0" ]]; then    # apt's Return Code simpler (than both conditions above!)
         echo -e "'apt update' FAILED. VERIFY YOU'RE ONLINE and resolve all errors below:\n"
         cat /tmp/apt.stderr
         exit 1
