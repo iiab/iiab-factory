@@ -18,6 +18,7 @@ sudo ./install-zim-tools.sh
 * This ```zimfilter``` program can be set up into a python virtual environment using a role in the iiab-factory repository:
 
 ```
+cd /opt/iiab/iiab-factory/ansible/
 sudo ./runrole youtube
 ```
 
