@@ -1,15 +1,15 @@
 #!/bin/bash
 # Copied from: https://github.com/iiab/iiab-factory/blob/master/iiab
 
-# To install Internet-in-a-Box (IIAB) 8.0 / pre-release onto Raspberry Pi OS,
-# Ubuntu 22.04+, Linux Mint 21+ or Debian 11+, run this 1-line installer:
+# To install Internet-in-a-Box (IIAB) 8.1 / pre-release onto Raspberry Pi OS,
+# Ubuntu 22.04+, Linux Mint 21+ or Debian 12+, run this 1-line installer:
 #
 #                     curl iiab.io/install.txt | bash
 
 # 1. WARNING: NOOBS IS *NOT* SUPPORTED, as its partitioning is very different.
 #    On a Raspberry Pi, WE RECOMMEND YOU INSTALL THE LATEST RASPBERRY PI OS:
 #    https://www.raspberrypi.com/documentation/computers/getting-started.html
-#    To attempt IIAB 8.0 on another Linux see the manual/legacy instructions:
+#    To attempt IIAB 8.1 on another Linux see the manual/legacy instructions:
 #    https://github.com/iiab/iiab/wiki/IIAB-Installation#do-everything-from-scratch
 
 # 2. An Ethernet cable is HIGHLY RECOMMENDED during installation, as this is
@@ -31,11 +31,11 @@
 
 # Thanks   For   Building   Your   Own   Library   To   Serve   One   &   All
 #
-# DRAFT IIAB 8.0 Release Notes:
-# https://github.com/iiab/iiab/wiki/IIAB-8.0-Release-Notes
+# DRAFT IIAB 8.1 Release Notes:
+# https://github.com/iiab/iiab/wiki/IIAB-8.1-Release-Notes
 #
 # SPECIAL THANKS to countries + communities + volunteers who worked non-stop
-# to bring about IIAB 8.0!  https://internet-in-a-box.org/contributing.html
+# to bring about IIAB 8.1!  https://internet-in-a-box.org/contributing.html
 #
 # IIAB Dev Team
 # http://FAQ.IIAB.IO
