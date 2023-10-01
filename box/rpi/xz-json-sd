@@ -15,7 +15,7 @@
 # https://downloads.raspberrypi.org/os_list_imagingutility_v3.json [Last modified 2023-07-31]
 
 if [ $# -ne 2 ]; then
-    echo "Usage: $0 <input-filename.img> <URL-prefix-where-its-.xz-will-be-published>"
+    echo "Usage: $0 <URL-prefix-where-its-.xz-will-be-published> <input-filename.img>"
     exit 1
 fi
 
