@@ -1,0 +1,44 @@
+#!/bin/bash -x
+# Compress <file> to <file>.xz and create a DRAFT <file>.json snippet for Raspberry Pi Imager.
+
+# parameter 1 - URL prefix where .xz will be published e.g. https://iiab.io/8.1/
+# parameter 2 - input filename e.g. iiab-8.1preview3-230930-MEDICAL-raspios32-lite-g3ba6364c8.img
+
+# INSPIRED BY zip-json-sd
+# AND @tim-moody's zip-sd & meta-sd
+# AND @georgejhunt's iiab-imager/top_level.py
+
+# EXPLANATION:
+# https://github.com/iiab/iiab/wiki/Raspberry-Pi-Images-~-Summary
+# https://downloads.raspberrypi.org/os_list_imagingutility.json [Last modified 2023-02-22]
+# https://downloads.raspberrypi.org/os_list_imagingutility_v2.json [Last modified 2023-05-03]
+# https://downloads.raspberrypi.org/os_list_imagingutility_v3.json [Last modified 2023-07-31]
+
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <input-filename.img> <URL-prefix-where-its-.xz-will-be-published>"
+    exit 1
+fi
+
+URL_PREFIX=$1
+FILENAME=$2
+
+#zip $FILENAME.zip $FILENAME
+xz -k -T8 $FILENAME    # -k to keep input file, -T8 to use up to 8 threads
+#md5sum $FILENAME.zip > $FILENAME.zip.md5.txt
+#sha256sum $FILENAME > $FILENAME.sha256.txt
+
+# https://en.wikipedia.org/wiki/Here_document
+cat > $FILENAME.json << EOF
+{
+    "os_list": [
+        {
+            "name": "$FILENAME",
+            "description": "$FILENAME",
+            "icon": "https://raw.githubusercontent.com/iiab/iiab-factory/master/box/rpi/iiab40.png",
+            "url": "${URL_PREFIX}$FILENAME.xz",
+            "extract_size": $(stat --format=%s $FILENAME),
+            "extract_sha256": "$(sha256sum $FILENAME | cut -d " " -f 1)",
+            "image_download_size": $(stat --format=%s $FILENAME.xz),
+            "release_date": "$(date +%Y-%m-%d)"
+        },
+EOF
