@@ -1,5 +1,5 @@
 #!/bin/bash -x
-# Zip up image file and create a DRAFT .json snippet for Raspberry Pi Imager.
+# Compress <file> to <file>.zip and create a DRAFT <file>.json snippet for Raspberry Pi Imager.
 
 # parameter 1 - URL prefix where .zip will be published e.g. https://download.iiab.io/8.0/
 # parameter 2 - input filename e.g. iiab-8.0beta1-SMALL-raspios-11-lite.img
@@ -8,13 +8,13 @@
 # AND @georgejhunt's iiab-imager/top_level.py
 
 # EXPLANATION:
-# https://github.com/iiab/iiab/wiki/Raspberry-Pi-Images:-Summary
+# https://github.com/iiab/iiab/wiki/Raspberry-Pi-Images-~-Summary
 # https://downloads.raspberrypi.org/os_list_imagingutility.json [Last modified 2021-05-28]
 # https://downloads.raspberrypi.org/os_list_imagingutility_v2.json [Last modified 2022-02-03]
 # https://downloads.raspberrypi.org/os_list_imagingutility_v3.json [Last modified 2022-02-03]
 
 if [ $# -ne 2 ]; then
-    echo "Usage: $0 <input-filename.img> <URL-prefix-where-its-.zip-will-be-published>"
+    echo "Usage: $0 <URL-prefix-where-its-.zip-will-be-published> <input-filename.img>"
     exit 1
 fi
 
