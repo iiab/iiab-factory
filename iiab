@@ -424,9 +424,9 @@ if ! $($MFABT); then
         exit 1
     elif grep -q 'apt list --upgradable' /tmp/apt.stdout; then    # apt.stdout typically contains {"All packages are up to date.\n" [even if primary locale is French & Hindi!], "Todos los paquetes están actualizados.\n", "所有软件包均为最新。\n"} ...OR... {"5 packages can be upgraded. Run 'apt list --upgradable' to see them.\n" [even if primary locale is French & Hindi!], "Se puede actualizar 1 paquete. Ejecute «apt list --upgradable» para verlo.\n", "有 1 个软件包可以升级。请执行 ‘apt list --upgradable’ 来查看它们。\n"}
         cat /tmp/apt.stdout    # e.g. "5 packages can be upgraded. Run 'apt list --upgradable' to see them.\n"
-        if ! $($FAST); then
-            echo -e "\nYour OS will now be upgraded...this takes time. THEN IT WILL REBOOT (IF NEC!)\n"
+        echo -e "\nYour OS will now be upgraded...this takes time. THEN IT WILL REBOOT (IF NEC!)\n"
 
+        if ! $($FAST); then
             echo -n "Hit any key to confirm you'll RUN 'sudo iiab' AFTER IT REBOOTS: "
             read -n 1 -r ans < /dev/tty
             echo; echo
@@ -437,7 +437,7 @@ if ! $($MFABT); then
         if ! $($FAST); then
             echo -ne "\nHit any key to confirm you'll TRY TO RERUN 'sudo iiab' IF THERE IS A PROBLEM: "
             read -n 1 -r ans < /dev/tty
-            echo
+            echo; echo
         fi
     fi
 
