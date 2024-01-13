@@ -81,6 +81,8 @@ fi
 
 
 # 1. Subroutine for B.  Returns true (0) if username ($1) exists with password ($2)
+$($MFABT) &&
+    $APTPATH/apt update
 command -v grep &> /dev/null ||
     $APTPATH/apt -y install grep    # AVOID UX CLUTTER+DELAYS: 5 MORE BELOW
 command -v perl &> /dev/null ||
@@ -111,14 +113,10 @@ iiab_var_value() {
 }
 
 # 3. Subroutine for C. and F.  Clone 3 IIAB repos
-clone-repos() {                        # SOFT PREREQ: 'apt update'
+clone-repos() {                        # PREREQ: 'apt update'
     echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO /opt/iiab ..."
-    if ! command -v git &> /dev/null; then
-        if $($MFABT); then
-            apt update
-        fi
+    command -v git &> /dev/null ||
         $APTPATH/apt -y install git    # AVOID UX CLUTTER+DELAYS: 3 MORE BELOW
-    fi
     mkdir -p /opt/iiab
     cd /opt/iiab
     echo
