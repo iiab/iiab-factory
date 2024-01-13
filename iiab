@@ -111,10 +111,14 @@ iiab_var_value() {
 }
 
 # 3. Subroutine for C. and F.  Clone 3 IIAB repos
-clone-repos() {                        # PREREQ: 'apt update'
+clone-repos() {                        # SOFT PREREQ: 'apt update'
     echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO /opt/iiab ..."
-    command -v git &> /dev/null ||
+    if ! command -v git &> /dev/null; then
+        if $($MFABT); then
+            apt update
+        fi
         $APTPATH/apt -y install git    # AVOID UX CLUTTER+DELAYS: 3 MORE BELOW
+    fi
     mkdir -p /opt/iiab
     cd /opt/iiab
     echo
