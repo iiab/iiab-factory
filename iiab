@@ -82,7 +82,7 @@ fi
 
 # 1. Subroutine for B.  Returns true (0) if username ($1) exists with password ($2)
 $($MFABT) &&
-    $APTPATH/apt update
+    $APTPATH/apt update             # PREREQ for clone-repos() too!
 command -v grep &> /dev/null ||
     $APTPATH/apt -y install grep    # AVOID UX CLUTTER+DELAYS: 5 MORE BELOW
 command -v perl &> /dev/null ||
