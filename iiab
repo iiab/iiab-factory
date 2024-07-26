@@ -1,8 +1,8 @@
 #!/bin/bash
 # Copied from: https://github.com/iiab/iiab-factory/blob/master/iiab
 
-# To install Internet-in-a-Box (IIAB) 8.1 / pre-release onto Raspberry Pi OS,
-# Ubuntu 22.04+, Linux Mint 21+ or Debian 12+, run this 1-line installer:
+# To install Internet-in-a-Box (IIAB) 8.2 / pre-release onto Raspberry Pi OS,
+# Ubuntu 24.04+, Linux Mint 22+ or Debian 12+, run this 1-line installer:
 #
 #                     curl iiab.io/install.txt | bash
 
