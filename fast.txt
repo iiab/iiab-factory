@@ -51,4 +51,4 @@ sudo chmod 0755 /usr/sbin/iiab
 # Run install script!
 sudo /usr/sbin/iiab --fast "$@"    # Pass on all CLI params (PR #s) for
 # easy community testing -- SEE "Install optional PR's" in /usr/sbin/iiab
-# EXAMPLE: curl iiab.io/install.txt | bash -s 361 2604 2607
+# EXAMPLE: curl iiab.io/fast.txt | bash -s 361 2604 2607
