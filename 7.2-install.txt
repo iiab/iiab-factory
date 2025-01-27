@@ -1,0 +1,125 @@
+#!/bin/bash
+# Copied https://github.com/jvonau/iiab-factory/master/7.2-install.txt
+# Copied from: https://github.com/jvonau/iiab-factory/blob/jv-pi-gen/install.txt
+# Copied from: https://github.com/iiab/iiab-factory/blob/master/install.txt
+# To install Internet-in-a-Box (IIAB) 7.2 / pre-release onto Raspberry Pi OS,
+# Ubuntu 20.04 or Debian 10, run this 1-line installer:
+#
+# curl https://raw.githubusercontent.com/jvonau/iiab-factory/master/7.2-install.txt | sudo bash
+#
+# 1. WHEN YOU RUN 1-LINE INSTALLER FROM ABOVE
+#    YOU THEN NEED TO TYPE IN YOUR PASSWORD IF ON UBUNTU/DEBIAN/ETC (for sudo)
+#    ^^^ ^^^^ ^^^^ ^^ ^^^^ ^^ ^^^^ ^^^^^^^^
+#
+# 2. WARNING: NOOBS IS *NOT* SUPPORTED, as its partitioning is very different.
+#    On a Raspberry Pi, WE RECOMMEND YOU INSTALL THE LATEST RASPBERRY PI OS:
+#    https://www.raspberrypi.org/documentation/installation/installing-images/README.md
+#    To attempt IIAB 7.2 on another Linux see the full/manual instructions:
+#    https://github.com/iiab/iiab/wiki/IIAB-Installation#do-everything-from-scratch
+
+# 3. An Ethernet cable is HIGHLY RECOMMENDED during installation, as this is
+#    more reliable than Wi-Fi (and faster!)
+
+# 4. Run 'sudo raspi-config' on RPi, to set LOCALISATION OPTIONS
+
+# 5. OPTIONAL: if you have slow/pricey Internet, pre-position KA Lite's
+#    mandatory 0.9 GB English Pack (en.zip) within /tmp -- you can grab a copy
+#    from http://pantry.learningequality.org/downloads/ka-lite/0.17/content/contentpacks/en.zip
+
+# 6. Follow on-screen instructions (TYPE 'sudo iiab-upgrade' TO RESUME IF EVER NECESS!)
+
+# 7. About 1-2 hours later, it will announce that INTERNET-IN-A-BOX (IIAB)
+#    SOFTWARE INSTALL IS COMPLETE, prompting you to reboot...TO ADD CONTENT!
+
+# Thanks   For   Building   Your   Own   Library   To   Serve   One   &   All
+#
+# DRAFT IIAB 7.2 Release Notes:
+# https://github.com/iiab/iiab/wiki/IIAB-7.2-Release-Notes
+#
+# Write to bugs @ iiab.io if you find issues, Thank You!  Special Thanks to the
+# countries+communities+volunteers who worked non-stop to bring about IIAB 7.2!
+#
+# IIAB Development Team
+# http://FAQ.IIAB.IO
+
+set -e                                   # Exit on error (avoids snowballing)
+export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
+BASE=/opt/iiab
+BRANCH=release-7.2
+ADMBRANCH=master
+OS=`grep ^ID= /etc/*elease|cut -d= -f2`
+OS=${OS//\"/}
+if [ -f /etc/rpi-issue ]; then
+    OS="raspbian"
+fi
+VERSION_ID=`grep VERSION_ID /etc/*elease | cut -d= -f2`
+VERSION_ID=${VERSION_ID//\"/}
+VERSION_ID=${VERSION_ID%%.*}
+OS_VER=$OS-$VERSION_ID
+
+not_supported(){
+    echo "Can't detect supported Distro"
+}
+
+case $OS_VER in
+"debian-10" | "ubuntu-20" | "linuxmint-20" | "raspbian-10")
+    ;;
+*)
+    not_supported
+    exit 1
+    ;;
+esac
+
+# Everything else needs to be run as root
+if [ $(id -u) -ne 0 ]; then
+    echo -e "$SCRIPT must be run as root. Try 'sudo $SCRIPT'\n"
+    exit 1
+fi
+
+
+echo -e "\n\nDOWNLOAD (CLONE) IIAB'S 3 KEY REPOS INTO $BASE ...\n"
+/usr/bin/apt -y install git nano whiptail
+mkdir -p $BASE
+cd $BASE
+echo
+if [ -d iiab-factory ]; then
+    echo -e "REPO iiab-factory EXISTS? -- updating master branch"
+    cd iiab-factory
+    git checkout master
+    git pull -q
+    echo -e "Creating branch $BRANCH"
+    git branch -D $BRANCH &> /dev/null || true
+    git checkout -b $BRANCH
+    cp --remove-destination $BASE/iiab-factory/iiab /usr/sbin/iiab
+    cp --remove-destination $BASE/iiab-factory/iiab-upgrade /usr/sbin/iiab-upgrade
+else
+    echo -e "Cloning iiab-factory"
+    git clone https://github.com/iiab/iiab-factory --depth 1
+    cd iiab-factory
+    echo -e "Creating branch $BRANCH"
+    git checkout -b $BRANCH
+    cp $BASE/iiab-factory/iiab /usr/sbin/iiab
+    cp $BASE/iiab-factory/iiab-upgrade /usr/sbin/iiab-upgrade
+fi
+cd $BASE
+echo
+if [ -d iiab ]; then
+    echo -e "REPO iiab EXISTS?"
+else
+    cd iiab
+    git clone https://github.com/iiab/iiab --depth 10 --branch master
+    echo -e "Creating branch $BRANCH"
+    git checkout -b $BRANCH
+fi
+cd $BASE
+echo
+if [ -d iiab-admin-console ]; then
+    echo -e "REPO iiab-admin-console EXISTS?"
+else
+    git clone https://github.com/iiab/iiab-admin-console --depth 1 --branch ADMBRANCH
+    echo -e "Creating branch $BRANCH"
+    git checkout -b $BRANCH
+fi
+
+# Run install script!
+/usr/sbin/iiab-upgrade --interactive
