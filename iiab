@@ -300,6 +300,7 @@ command -v nano &> /dev/null ||
 if [ -f /etc/iiab/local_vars.yml ]; then
 
     # FUTURE: Test if their local_vars.yml is sufficiently version-compatible ?
+    # FUTURE: Mandate 'apt install fonts-noto-color-emoji' (~11MB) to avoid "tofu" rectangles across OS's -- typically these contain 6 tiny hex digits, for each missing Unicode special character.
 
     echo -e "\n\n  EXISTING /etc/iiab/local_vars.yml is being used to install Internet-in-a-Box\n"
 
