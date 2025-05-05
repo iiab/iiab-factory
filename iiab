@@ -474,6 +474,10 @@ if ! $($clones_and_pulls_done); then
     pull-prs
 fi
 
+# F.1. Special OS preparation.
+grep -qx 'ID=trisquel' /etc/os-release && \
+/opt/iiab/iiab/scripts/trisquel-profile-setup.sh
+
 # G. Install Ansible + 2 IIAB repos
 echo -e "\n\nINSTALL ANSIBLE + CORE IIAB SOFTWARE + ADMIN CONSOLE / CONTENT PACK MENUS...\n"
 
