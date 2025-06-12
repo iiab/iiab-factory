@@ -2,7 +2,8 @@
 # Copied from: https://github.com/iiab/iiab-factory/blob/master/fast.txt
 
 # To install Internet-in-a-Box (IIAB) 8.3 / pre-release onto Raspberry Pi OS,
-# Ubuntu 24.04+, Linux Mint 22+ or Debian 12+, run this 1-line installer:
+# Ubuntu 24.04+, Linux Mint 22+, Debian 12+ or Trisquel 12+, run this 1-line
+# installer:
 #
 #                      curl iiab.io/fast.txt | bash
 
