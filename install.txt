@@ -39,7 +39,7 @@
 # to bring about IIAB 8.3!  https://internet-in-a-box.org/contributing.html
 #
 # IIAB Dev Team
-# http://FAQ.IIAB.IO
+# https://FAQ.IIAB.IO
 
 set -e                                   # Exit on error (avoids snowballing)
 export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
