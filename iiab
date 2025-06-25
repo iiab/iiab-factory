@@ -39,7 +39,7 @@
 # to bring about IIAB 8.3!  https://internet-in-a-box.org/contributing.html
 #
 # IIAB Dev Team
-# http://FAQ.IIAB.IO
+# https://FAQ.IIAB.IO
 
 
 set -e                                   # Exit on error (avoids snowballing)
@@ -275,7 +275,7 @@ fi
 
 # B. If 'iiab-admin' (or equivalent) use default password, prompt for change
 if check_user_pwd "$IIAB_ADMIN_USER" "$IIAB_ADMIN_PUBLISHED_PWD"; then
-    echo -e "\n\n\e[41;1mDANGER: User '$IIAB_ADMIN_USER' has public password '$IIAB_ADMIN_PUBLISHED_PWD' per http://FAQ.IIAB.IO\e[0m\n"
+    echo -e "\n\n\e[41;1mDANGER: User '$IIAB_ADMIN_USER' has public password '$IIAB_ADMIN_PUBLISHED_PWD' per https://FAQ.IIAB.IO\e[0m\n"
 
     echo -e "This is for login to Internet-in-a-Box's Admin Console (http://box.lan/admin)"
     echo -e "Technical Details: https://github.com/iiab/iiab/blob/master/roles/iiab-admin"
@@ -315,7 +315,7 @@ else
     echo -e "Or try (m) for 🚑 MEDICAL.\n"
 
     echo -e 'See "What services (IIAB apps) are suggested during installation?" and'
-    echo -e '"What can I do with E-books and Internet-in-a-Box?" in http://FAQ.IIAB.IO\n'
+    echo -e '"What can I do with E-books and Internet-in-a-Box?" in https://FAQ.IIAB.IO\n'
 
     echo -e "WARNING: This Can Take More Than An Hour, depending on Internet speed, CPU,"
     echo -e "temperature, and the speed of your microSD card.\n"
@@ -601,7 +601,7 @@ hostname -I
 
 echo -e '\e[0m\n(2) ADD CONTENT using http://box.lan/admin (changing "box.lan" to be as above!)'
 echo -e 'PLEASE READ "What are the default passwords?" and "How do I customize my'
-echo -e 'Internet-in-a-Box home page?" at http://FAQ.IIAB.IO\n'
+echo -e 'Internet-in-a-Box home page?" at https://FAQ.IIAB.IO\n'
 
 echo -e "(3) Please run the 'iiab-diagnostics' command, to generate a URL summarizing"
 echo -e "your IIAB configuration, for volunteers seeking to help you.  We strongly"
