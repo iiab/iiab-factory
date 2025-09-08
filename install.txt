@@ -42,7 +42,30 @@
 # https://FAQ.IIAB.IO
 
 set -e                                   # Exit on error (avoids snowballing)
-export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
+#export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
+# doesn't work with child shells
+OS=`grep ^ID= /etc/*elease|cut -d= -f2`
+OS=${OS//\"/}
+if [ -f /etc/rpi-issue ]; then
+    OS="raspbian"
+fi
+VERSION_ID=`grep VERSION_ID /etc/*elease | cut -d= -f2`
+VERSION_ID=${VERSION_ID//\"/}
+VERSION_ID=${VERSION_ID%%.*}
+OS_VER=$OS-$VERSION_ID
+
+not_supported(){
+    echo "Can't detect supported Distro"
+}
+
+case $OS_VER in
+"debian-10" | "debian-11" | "linuxmint-20" | "raspbian-10" | "raspbian-11" | "ubuntu-20" | "ubuntu-21")
+    ;;
+*)
+    not_supported
+    exit 1
+    ;;
+esac
 
 # Save script to /usr/sbin/iiab (easy resume/continue mnemonic 'sudo iiab')
 sudo mv /usr/sbin/iiab /usr/sbin/iiab.old 2> /dev/null || true    # Overrides 'set -e'
