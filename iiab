@@ -410,6 +410,8 @@ echo -e "\n\n ██████████████████████
 echo -e " ██                                                                          ██"
 echo -e " ██  RUN 'sudo iiab' IF THIS INSTALL SCRIPT EVER FAILS, TO TRY TO CONTINUE!  ██"
 echo -e " ██                                                                          ██"
+echo -e " ██  (Remember this command. This message will disappear from your screen.)  ██"
+echo -e " ██                                                                          ██"
 echo -e " ██████████████████████████████████████████████████████████████████████████████"
 
 if ! $($MFABT); then
