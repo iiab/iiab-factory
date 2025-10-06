@@ -404,7 +404,22 @@ else
     fi
 fi
 
-# D. Mandate OS SECURITY/UPDATES if 'apt update' has any (THEN REBOOT, AS NEC)
+# D. RasPiOS prevents things like 'journalctl --list-boots' since May 2025, so
+# we restore systemd logging across boots, overriding 'Storage=volatile' that
+# they set in /usr/lib/systemd/journald.conf.d/40-rpi-volatile-storage.conf
+# https://github.com/iiab/iiab/issues/4047
+# https://github.com/raspberrypi/bookworm-feedback/issues/415
+persistent_just_enabled=false
+if [ -f /etc/rpi-issue ] && [ ! -f /usr/lib/systemd/journald.conf.d/90-iiab-persistent-storage.conf ]; then
+    echo -e "\n\nSystemd logging across RasPiOS reboots being enabled, \e[1mwhich may force a reboot...\e[0m\n"
+    cat << EOF > /usr/lib/systemd/journald.conf.d/90-iiab-persistent-storage.conf
+[Journal]
+Storage=persistent
+EOF
+    persistent_just_enabled=true
+fi
+
+# E. Mandate OS SECURITY/UPDATES if 'apt update' has any (THEN REBOOT, AS NEC)
 # Educate implementer while waiting for 'apt update'
 echo -e "\n\n ██████████████████████████████████████████████████████████████████████████████"
 echo -e " ██                                                                          ██"
@@ -454,7 +469,7 @@ if ! $($MFABT); then
     bootDirLastModFile=$(date +%s -r "/boot/$(ls -t /boot | head -1)") # 1970-01-01
     # Works w/o RTC (real-time clock, i.e. battery) because:
     # Both 'apt' installs to /boot and IIAB installs require Internet (e.g. NTP).
-    if (( bootupTime < bootDirLastModFile )); then
+    if (( bootupTime < bootDirLastModFile )) || $($persistent_just_enabled); then
         reboot
         exit 0    # Nec to avoid bogus continuation & misleading output below
     fi
@@ -464,20 +479,20 @@ fi
 ################### MAIN INTERACTIVE STUFF (ABOVE) DONE!!! ###################
 ##############################################################################
 
-# E. If microSD, lower reserve disk space from ~5% to 2%
+# F. If microSD, lower reserve disk space from ~5% to 2%
 # if [ -f /proc/device-tree/model ] && grep -qi raspberry /proc/device-tree/model; then
 if [ -e /dev/mmcblk0p2 ]; then
     echo -e "\n\nFound microSD card /dev/mmcblk0p2: Lower its reserve disk space from ~5% to 2%\n"
     tune2fs -m 2 /dev/mmcblk0p2
 fi
 
-# F. For a smoother + tighter UX in above interactive portion
+# G. For a smoother + tighter UX in above interactive portion
 if ! $($clones_and_pulls_done); then
     clone-repos
     pull-prs
 fi
 
-# G. Install Ansible + 2 IIAB repos
+# H. Install Ansible + 2 IIAB repos
 echo -e "\n\nINSTALL ANSIBLE + CORE IIAB SOFTWARE + ADMIN CONSOLE / CONTENT PACK MENUS...\n"
 
 if [ -f $FLAGDIR/iiab-ansible-complete ]; then
@@ -533,7 +548,7 @@ else
     systemctl start iiab-cmdsrv || true    # Overrides 'set -e'
 fi
 
-# H. KA Lite prep
+# I. KA Lite prep
 if [ -d /library/ka-lite ]; then
     echo -e "\n\nKA LITE REQUIRES 2 THINGS...\n"
 
@@ -573,7 +588,7 @@ fi
 # kalite manage retrievecontentpack download en
 # OLD WAY ABOVE - fails w/ sev ISPs per https://github.com/iiab/iiab/issues/871
 
-# I. Start BitTorrent downloads, e.g. if /etc/iiab/local_vars.yml requested any
+# J. Start BitTorrent downloads, e.g. if /etc/iiab/local_vars.yml requested any
 if $(systemctl -q is-active transmission-daemon) && ! $(ischroot -t); then
     echo -e "\n\nSTARTING BITTORRENT DOWNLOAD(S) for KA Lite...Please Monitor: http://box:9091\n"
     transmission-remote -n Admin:changeme -t all --start
@@ -581,7 +596,7 @@ fi
 
 touch $FLAGDIR/iiab-complete
 
-# J. Educate Implementers prior to rebooting!
+# K. Educate Implementers prior to rebooting!
 echo -e "\n\n         ┌───────────────────────────────────────────────────────────┐"
 echo -e "         │                                                           │"
 echo -e "         │   INTERNET-IN-A-BOX (IIAB) SOFTWARE INSTALL IS COMPLETE   │"
