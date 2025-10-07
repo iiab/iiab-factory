@@ -412,13 +412,15 @@ fi
 # rpi-systemd-config systemd/journald.conf JRNL_STRG Journal::Storage
 # https://github.com/iiab/iiab/issues/4047
 # https://github.com/raspberrypi/bookworm-feedback/issues/415
+# https://github.com/iiab/iiab-factory/pull/251
+# https://github.com/iiab/iiab-factory/pull/252
 if [ -f /etc/rpi-issue ] && [ ! -f /usr/lib/systemd/journald.conf.d/90-iiab-persistent-storage.conf ]; then
-    echo -e "\n\nSystemd logging across RasPiOS reboots being enabled, \e[1mwhich may force a reboot...\e[0m\n"
+    echo -e "\nSystemd logging across RasPiOS reboots being enabled...\n"
     cat << EOF > /usr/lib/systemd/journald.conf.d/90-iiab-persistent-storage.conf
 [Journal]
 Storage=persistent
 EOF
-    reboot_needed=true
+    systemctl restart systemd-journald
 fi
 
 # E. RasPiOS 13 Trixie apt package 'rpi-swap' mandates a reboot to expand swap
@@ -427,7 +429,7 @@ fi
 # https://github.com/iiab/iiab/pull/4094
 # https://github.com/iiab/iiab/issues/4108
 if [ -f /etc/rpi/swap.conf ] && [ ! -f /etc/rpi/swap.conf.d/90-iiab-swap.conf ]; then
-    echo -e "\n\nExpanding RasPiOS swap (see 'man swap.conf'), \e[1mwhich may force a reboot...\e[0m\n"
+    echo -e "\nExpanding RasPiOS swap (see 'man swap.conf'), \e[1mwhich may force a reboot...\e[0m\n"
     PI_SWAP_FILE_SIZE=$(iiab_var_value pi_swap_file_size)
     mkdir -p /etc/rpi/swap.conf.d/
     cat << EOF > /etc/rpi/swap.conf.d/90-iiab-swap.conf
