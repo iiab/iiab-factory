@@ -415,7 +415,7 @@ fi
 # https://github.com/iiab/iiab-factory/pull/251
 # https://github.com/iiab/iiab-factory/pull/252
 if [ -f /etc/rpi-issue ] && [ ! -f /usr/lib/systemd/journald.conf.d/90-iiab-persistent-storage.conf ]; then
-    echo -e "\nSystemd logging across RasPiOS reboots being enabled..."
+    echo -e "\nEnabling systemd logging across Raspberry Pi OS reboots..."
     cat << EOF > /usr/lib/systemd/journald.conf.d/90-iiab-persistent-storage.conf
 [Journal]
 Storage=persistent
