@@ -308,7 +308,7 @@ if [ -f /etc/iiab/local_vars.yml ]; then
 
     echo -e "   🚂 🚃 🚄 🚅 🚆 🚇 🚈 🚉 🚊 🚋 🚌 🚍 🚎 🚏 🚐 🚑 🚒 🚚 🚛 🚜 🚞 🚟 🚠 🚡 🚲\n"
 
-    echo -e "                     Google 'local_vars.yml' to learn more!"
+    echo -e "                     Google 'local_vars.yml' to learn more!\n"
 else
     echo -e "\n\nInstalling Internet-in-a-Box requires /etc/iiab/local_vars.yml\n"
 
@@ -323,7 +323,7 @@ else
 
     echo -n "Please press a key — 1, 2, 3 or m: "
     read -n 1 -r local_vars_size < /dev/tty
-    echo; echo
+    echo
     case $local_vars_size in
         0)
             local_vars_src_file=local_vars_unittest.yml
@@ -415,7 +415,7 @@ fi
 # https://github.com/iiab/iiab-factory/pull/251
 # https://github.com/iiab/iiab-factory/pull/252
 if [ -f /etc/rpi-issue ] && [ ! -f /usr/lib/systemd/journald.conf.d/90-iiab-persistent-storage.conf ]; then
-    echo -e "\nSystemd logging across RasPiOS reboots being enabled...\n"
+    echo -e "\nSystemd logging across RasPiOS reboots being enabled..."
     cat << EOF > /usr/lib/systemd/journald.conf.d/90-iiab-persistent-storage.conf
 [Journal]
 Storage=persistent
@@ -429,7 +429,7 @@ fi
 # https://github.com/iiab/iiab/pull/4094
 # https://github.com/iiab/iiab/issues/4108
 if [ -f /etc/rpi/swap.conf ] && [ ! -f /etc/rpi/swap.conf.d/90-iiab-swap.conf ]; then
-    echo -e "\nExpanding RasPiOS swap (see 'man swap.conf'), \e[1mwhich may force a reboot...\e[0m\n"
+    echo -e "\nExpanding RasPiOS swap (see 'man swap.conf') \e[1mwhich may force a reboot...\e[0m"
     PI_SWAP_FILE_SIZE=$(iiab_var_value pi_swap_file_size)
     mkdir -p /etc/rpi/swap.conf.d/
     cat << EOF > /etc/rpi/swap.conf.d/90-iiab-swap.conf
