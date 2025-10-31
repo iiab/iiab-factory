@@ -86,9 +86,7 @@ fi
 $($MFABT) &&
     $APTPATH/apt update             # PREREQ for clone-repos() too!
 command -v grep &> /dev/null ||
-    $APTPATH/apt -y install grep    # AVOID UX CLUTTER+DELAYS: 6 MORE BELOW
-command -v sudo &> /dev/null ||
-    $APTPATH/apt -y install sudo    # AVOID UX CLUTTER+DELAYS: 5 MORE BELOW
+    $APTPATH/apt -y install grep    # AVOID UX CLUTTER+DELAYS: 5 MORE BELOW
 command -v perl &> /dev/null ||
     $APTPATH/apt -y install perl    # AVOID UX CLUTTER+DELAYS: 4 MORE BELOW
 check_user_pwd() {
