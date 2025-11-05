@@ -44,7 +44,7 @@
 set -e                                   # Exit on error (avoids snowballing)
 export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
 sudo=""
-[[ $EUID -ne 0 ]] && \
+[ "$(id -u)" -ne 0 ] && \
   sudo="sudo"
 
 # Save script to /usr/sbin/iiab (easy resume/continue mnemonic 'sudo iiab')
