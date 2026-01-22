@@ -58,8 +58,21 @@ REPO_BOUNDARY=1561    # iiab/iiab's lowest PR as of October 2020
 pr_changes_local_vars=false
 clones_and_pulls_done=false
 
-ifconfig_trimed_rev() {
-  ifconfig 2>/dev/null | awk '/inet / && !/127.0.0.1/ {print $2}' | tac
+ifconfig_trimmed_rev() {
+  # use ifconfig instead of hostname on android
+  printf 'http://localhost:8085\n'
+  ifconfig 2>/dev/null | \
+    awk '/inet / && !/127.0.0.1/ {print $2}' | \
+    tac | \
+    sed 's#^#http://#; s/$/:8085/'
+}
+hostname() {
+  # Intercept only: hostname -I
+  if [[ "$1" == "-I" && $# -eq 1 ]]; then
+    hostname -I | xargs -n1 | sort -V | sed 's#^#http://#'
+  else
+    hostname "$@"
+  fi
 }
 
 if [[ $(id -un) != "root" ]]; then
