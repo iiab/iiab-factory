@@ -59,8 +59,7 @@ pr_changes_local_vars=false
 clones_and_pulls_done=false
 
 ifconfig_trimed_rev() {
-  ifconfig 2>/dev/null | grep -w 'inet' | grep -v '127.0.0.1' | awk '{print $2}'| \
-    xargs | awk '{for(i=NF;i>=1;i--) printf "%s%s",$i,(i>1?OFS:ORS)}'
+  ifconfig 2>/dev/null | awk '/inet / && !/127.0.0.1/ {print $2}' | tac
 }
 
 if [[ $(id -un) != "root" ]]; then
