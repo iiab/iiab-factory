@@ -67,7 +67,8 @@ custom_ifconfig() {
     sed 's#^#http://#; s/$/:8085/'
 }
 custom_hostname() {
-    hostname -I | xargs -n1 | sort -V | sed 's#^#http://#'
+  grep -q box.lan /etc/hosts && printf 'http://box.lan\n'
+  hostname -I | xargs -n1 | sort -V | sed 's#^#http://#'
 }
 
 if [[ $(id -un) != "root" ]]; then
