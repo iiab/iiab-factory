@@ -67,12 +67,7 @@ custom_ifconfig() {
     sed 's#^#http://#; s/$/:8085/'
 }
 custom_hostname() {
-  # Intercept only: hostname -I
-  if [[ "$1" == "-I" && $# -eq 1 ]]; then
     hostname -I | xargs -n1 | sort -V | sed 's#^#http://#'
-  else
-    hostname "$@"
-  fi
 }
 
 if [[ $(id -un) != "root" ]]; then
