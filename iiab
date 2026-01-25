@@ -655,10 +655,11 @@ echo -e "(1C) IF ALL 5 ABOVE DON'T WORK, ask the person who set up the network/r
 echo -e "in your building for the IP address of your IIAB, so you can browse to it"
 echo -e "using (something like) http://192.168.0.100 -- FOR NOW, IP ADDRESS(ES) ARE:\n\e[1m"
 
-if [ -z "$ANDROID_ROOT" ]; then
-  custom_hostname
-else
+is_proot=$(iiab_var_value is_proot)
+if [[ "$is_proot" == [Tt]rue ]]; then
   custom_ifconfig
+else
+  custom_hostname
 fi
 
 echo -e '\e[0m\n(2) ADD CONTENT using http://box.lan/admin (changing "box.lan" to be as above!)'
