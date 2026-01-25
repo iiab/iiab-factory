@@ -58,10 +58,6 @@ REPO_BOUNDARY=1561    # iiab/iiab's lowest PR as of October 2020
 pr_changes_local_vars=false
 clones_and_pulls_done=false
 
-is_proot() {
-  [ -r /etc/iiab/local_vars.yml ] && \
-    grep -Eiq '^[[:space:]]*is_proot:[[:space:]]*true([[:space:]]*(#.*)?)?$' /etc/iiab/local_vars.yml
-}
 custom_ifconfig() {
   # use ifconfig instead of hostname on android
   printf 'http://localhost:8085\n'
@@ -659,7 +655,8 @@ echo -e "(1C) IF ALL 5 ABOVE DON'T WORK, ask the person who set up the network/r
 echo -e "in your building for the IP address of your IIAB, so you can browse to it"
 echo -e "using (something like) http://192.168.0.100 -- FOR NOW, IP ADDRESS(ES) ARE:\n\e[1m"
 
-if is_proot ; then
+is_proot=$(iiab_var_value is_proot)
+if [[ "$is_proot" == [Tt]rue ]]; then
   custom_ifconfig
 else
   custom_hostname
