@@ -520,11 +520,11 @@ fi
 ################### MAIN INTERACTIVE STUFF (ABOVE) DONE!!! ###################
 ##############################################################################
 
-# G. If microSD, lower reserve disk space from ~5% to 2%
+# G. If microSD, lower reserve disk space from ~5% to 1%
 # if [ -f /proc/device-tree/model ] && grep -qi raspberry /proc/device-tree/model; then
 if [ -e /dev/mmcblk0p2 ]; then
-    echo -e "\n\nFound microSD card /dev/mmcblk0p2: Lower its reserve disk space from ~5% to 2%\n"
-    tune2fs -m 2 /dev/mmcblk0p2
+    echo -e "\n\nFound microSD card /dev/mmcblk0p2: Lower its reserve disk space from ~5% to 1%\n"
+    tune2fs -m 1 /dev/mmcblk0p2
 fi
 
 # H. For a smoother + tighter UX in above interactive portion
