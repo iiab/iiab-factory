@@ -358,6 +358,9 @@ else
         n)
             local_vars_src_file=local_vars_none.yml
             ;;
+        t)
+            local_vars_src_file=local_vars_tiny.yml
+            ;;
         *)
             local_vars_src_file=local_vars_medium.yml
             ;;
