@@ -21,13 +21,9 @@
 
 # 3. Run 'sudo raspi-config' on Raspberry Pi, to set LOCALISATION OPTIONS
 
-# 4. OPTIONAL: if you have slow/pricey Internet, pre-position KA Lite's
-#    mandatory 0.9 GB English Pack (en.zip) within /tmp -- you can grab it from
-#    https://pantry.learningequality.org/downloads/ka-lite/0.17/content/contentpacks/en.zip
+# 4. Follow on-screen instructions (TYPE 'sudo iiab' TO RESUME IF EVER NECESS!)
 
-# 5. Follow on-screen instructions (TYPE 'sudo iiab' TO RESUME IF EVER NECESS!)
-
-# 6. Within about 1-2 hours, it will announce that INTERNET-IN-A-BOX (IIAB)
+# 5. Within about 1-2 hours, it will announce that INTERNET-IN-A-BOX (IIAB)
 #    SOFTWARE INSTALL IS COMPLETE, prompting you to reboot...TO ADD CONTENT!
 
 # Thanks   For   Building   Your   Own   Library   To   Serve   One   &   All
