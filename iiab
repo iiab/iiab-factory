@@ -453,7 +453,7 @@ fi
 # https://github.com/iiab/iiab/pull/4094
 # https://github.com/iiab/iiab/issues/4108
 if [ -f /etc/rpi/swap.conf ] && [ ! -f /etc/rpi/swap.conf.d/90-iiab-swap.conf ]; then
-    echo -e "\nExpanding RasPiOS swap (see 'man swap.conf') \e[1mwhich may force a reboot...\e[0m"
+    echo -e "\nExpanding RasPiOS swap (see 'man swap.conf') \e[1mwhich will force a reboot...\e[0m"
     PI_SWAP_FILE_SIZE=$(iiab_var_value pi_swap_file_size)
     mkdir -p /etc/rpi/swap.conf.d/
     cat << EOF > /etc/rpi/swap.conf.d/90-iiab-swap.conf
@@ -517,6 +517,7 @@ if ! $($MFABT); then
     # Works w/o RTC (real-time clock, i.e. battery) because:
     # Both 'apt' installs to /boot and IIAB installs require Internet (e.g. NTP).
     if ! $IS_CHROOT && { (( bootupTime < bootDirLastModFile )) || $($reboot_needed); }; then
+        echo -e "\nREBOOTING NOW - please RUN 'sudo iiab' AFTER IT REBOOTS"
         reboot
         exit 0    # Nec to avoid bogus continuation & misleading output below
     fi
