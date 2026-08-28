@@ -517,7 +517,7 @@ if ! $($MFABT); then
     # Works w/o RTC (real-time clock, i.e. battery) because:
     # Both 'apt' installs to /boot and IIAB installs require Internet (e.g. NTP).
     if ! $IS_CHROOT && { (( bootupTime < bootDirLastModFile )) || $($reboot_needed); }; then
-        echo -e "\nREBOOTING NOW - please RUN 'sudo iiab' AFTER IT REBOOTS"
+        echo -e "\nREBOOTING NOW - please RUN 'sudo iiab' AFTER IT REBOOTS\n"
         reboot
         exit 0    # Nec to avoid bogus continuation & misleading output below
     fi
