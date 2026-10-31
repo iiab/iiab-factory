@@ -285,8 +285,7 @@ pull-prs() {
 # account to admin_console_group.
 #
 # Image builders that need the historical iiab-admin account can enable
-# iiab_admin_user_install in their local_vars.  secure-accounts.sh only sets
-# the legacy password when that account exists.
+# iiab_admin_user_install in their local_vars (the iiab-admin role runs later).
 
 if [ -f $FLAGDIR/iiab-complete ]; then
     echo -e "\n\nIIAB INSTALLATION (/usr/sbin/iiab) IS ALREADY COMPLETE -- per existence of:"
