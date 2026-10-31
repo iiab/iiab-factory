@@ -276,71 +276,17 @@ pull-prs() {
 # fi
 
 
-# A. Choose the administrator account, and create it locked if it does not
-# exist.  IIAB does not own the admin password: the account and password come
-# from the OS installer, Raspberry Pi Imager, cloud-init, or an explicit
-# 'passwd'.  By default the administrator is the account that ran 'sudo iiab',
-# so reinstalls and upgrades reuse the same login instead of creating a
-# separate 'iiab-admin' account.
+# A. Admin account
 #
-# If customizing this is important to you, please pre-position
-# /etc/iiab/local_vars.yml specifying iiab_admin_user (and optionally
-# iiab_admin_user_install: False).
-
-iiab_ini_value() {
-    # Read a value from /etc/iiab/iiab.ini, written by earlier IIAB runs.
-    # Usage: iiab_ini_value <section> <key>
-    [ -r /etc/iiab/iiab.ini ] || return 0
-    awk -v section="[$1]" -v key="$2" '
-        /^\[/ { in_section = ($0 == section); next }
-        in_section {
-            line = $0
-            sub(/^[[:space:]]*/, "", line)
-            if (index(line, key) == 1) {
-                rest = substr(line, length(key) + 1)
-                if (rest ~ /^[[:space:]]*=/) {
-                    sub(/^[[:space:]]*=[[:space:]]*/, "", rest)
-                    print rest
-                    exit
-                }
-            }
-        }' /etc/iiab/iiab.ini
-}
-
-IIAB_ADMIN_USER=$(iiab_var_value iiab_admin_user)
-[[ $IIAB_ADMIN_USER == "" ]] &&
-    IIAB_ADMIN_USER=$(iiab_ini_value iiab-admin iiab_admin_user)
-[[ $IIAB_ADMIN_USER == "" ]] &&
-    IIAB_ADMIN_USER=${SUDO_USER:-$USER}
-[[ $IIAB_ADMIN_USER == "" || $IIAB_ADMIN_USER == "root" ]] &&
-    IIAB_ADMIN_USER="iiab-admin"
-
-# Password shipped by IIAB before 2026.  IIAB never assigns it; it is kept only
-# so upgrades that still use it can be warned.
-IIAB_ADMIN_LEGACY_PWD=$(iiab_var_value iiab_admin_legacy_pwd)
-[[ $IIAB_ADMIN_LEGACY_PWD == "" ]] &&
-    IIAB_ADMIN_LEGACY_PWD=$(iiab_var_value iiab_admin_published_pwd)
-[[ $IIAB_ADMIN_LEGACY_PWD == "" ]] &&
-    IIAB_ADMIN_LEGACY_PWD="g0adm1n"
-
-if ! [[ $(iiab_var_value iiab_admin_user_install) =~ ^[fF]alse$ ]]; then
-    if ! id -u "$IIAB_ADMIN_USER" &> /dev/null; then
-        /usr/sbin/useradd "$IIAB_ADMIN_USER"
-        echo -e "\n\e[1mUser '$IIAB_ADMIN_USER' did not exist, so IIAB created it without a password.\e[0m"
-        echo -e "Set one before logging in: \e[1msudo passwd $IIAB_ADMIN_USER\e[0m\n"
-    fi
-fi
-
-# B. Warn if an upgraded install still uses the old published password
-if id -u "$IIAB_ADMIN_USER" &> /dev/null &&
-    check_user_pwd "$IIAB_ADMIN_USER" "$IIAB_ADMIN_LEGACY_PWD"; then
-    echo -e "\n\n\e[41;1mDANGER: User '$IIAB_ADMIN_USER' still has the legacy public password '$IIAB_ADMIN_LEGACY_PWD' per https://FAQ.IIAB.IO\e[0m\n"
-
-    echo -e "This is for login to Internet-in-a-Box's Admin Console (http://box.lan/admin)"
-    echo -e "Technical Details: https://github.com/iiab/iiab/blob/master/roles/iiab-admin"
-
-    echo -e "Change it now with: \e[1msudo passwd $IIAB_ADMIN_USER\e[0m\n"
-fi
+# IIAB no longer creates or configures an admin account by default: the Admin
+# Console accepts any member of the sudo group, and the account created by the
+# OS installer is normally a sudoer.  Set iiab_admin_user_install: True in
+# /etc/iiab/local_vars.yml if you want the iiab-admin role to create/add an
+# account to admin_console_group.
+#
+# Image builders that need the historical iiab-admin account can enable
+# iiab_admin_user_install in their local_vars.  secure-accounts.sh only sets
+# the legacy password when that account exists.
 
 if [ -f $FLAGDIR/iiab-complete ]; then
     echo -e "\n\nIIAB INSTALLATION (/usr/sbin/iiab) IS ALREADY COMPLETE -- per existence of:"
