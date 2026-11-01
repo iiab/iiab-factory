@@ -1,0 +1,61 @@
+#!/bin/bash
+# Copied from: https://github.com/iiab/iiab-factory/blob/master/test.txt
+
+# TESTING-ONLY VARIANT OF https://iiab.io/install.txt
+#
+# To test an Internet-in-a-Box (IIAB) 8.3 / pre-release deploy onto Raspberry
+# Pi OS, Ubuntu 26.04+, Linux Mint 22+, Debian 13+ or Trisquel 12+, run this
+# 1-line installer:
+#
+#                     curl iiab.io/test.txt | bash
+#
+# This runs '-t' (test deploy), which sets iiab_admin_user_install: True in
+# /etc/iiab/local_vars.yml so that the iiab-admin role exercises its
+# account-creation path.  NOTE: '-t' alone still prompts for a profile and for
+# editing local_vars.yml.  For a non-interactive unittest-profile deploy, run
+# 'sudo iiab -tr0' instead.
+
+# 1. WARNING: NOOBS IS *NOT* SUPPORTED, as its partitioning is very different.
+#    On a Raspberry Pi, WE RECOMMEND YOU INSTALL THE LATEST RASPBERRY PI OS:
+#    https://www.raspberrypi.com/documentation/computers/getting-started.html
+#    To attempt IIAB 8.3 on another Linux see the manual/legacy instructions:
+#    https://github.com/iiab/iiab/wiki/IIAB-Installation#do-everything-from-scratch
+
+# 2. An Ethernet cable is HIGHLY RECOMMENDED during installation, as this is
+#    more reliable than WiFi (and faster!)  WARNING: IF YOU CONNECT YOUR IIAB'S
+#    INTERNAL WIFI TO THE INTERNET OVER 5 GHz, YOU'LL PREVENT OLDER LAPTOPS/
+#    PHONES/TABLETS (WHICH REQUIRE 2.4 GHz) FROM CONNECTING TO YOUR IIAB'S
+#    INTERNAL HOTSPOT.  See: "wifi_up_down: True" in /etc/iiab/local_vars.yml
+
+# 3. Run 'sudo raspi-config' on Raspberry Pi, to set LOCALISATION OPTIONS
+
+# 4. Follow on-screen instructions (TYPE 'sudo iiab' TO RESUME IF EVER NECESS!)
+
+# 5. Within about 1-2 hours, it will announce that INTERNET-IN-A-BOX (IIAB)
+#    SOFTWARE INSTALL IS COMPLETE, prompting you to reboot...TO ADD CONTENT!
+
+# Thanks   For   Building   Your   Own   Library   To   Serve   One   &   All
+#
+# DRAFT IIAB 8.3 Release Notes:
+# https://github.com/iiab/iiab/wiki/IIAB-8.3-Release-Notes
+#
+# SPECIAL THANKS to the countries + communities + volunteers working non-stop
+# to bring about IIAB 8.3!  https://internet-in-a-box.org/contributing.html
+#
+# IIAB Dev Team
+# https://FAQ.IIAB.IO
+
+set -e                                   # Exit on error (avoids snowballing)
+export DEBIAN_FRONTEND=noninteractive    # Bypass (most!) interactive questions
+
+# Save script to /usr/sbin/iiab (easy resume/continue mnemonic 'sudo iiab')
+sudo mv /usr/sbin/iiab /usr/sbin/iiab.old 2> /dev/null || true    # Overrides 'set -e'
+curl https://raw.githubusercontent.com/iiab/iiab-factory/master/iiab | sudo tee /usr/sbin/iiab > /dev/null
+sudo chmod 0755 /usr/sbin/iiab
+
+# Run install script!  '-t' is the test-deploy flag (see the note above).  Add
+# -r0 (i.e. 'sudo iiab -tr0') for a non-interactive unittest-profile deploy.
+# CLI params (PR #s) are passed on for easy community testing -- SEE "Install
+# optional PR's" in /usr/sbin/iiab
+# EXAMPLE: curl iiab.io/test.txt | bash -s 361 2604 2607
+sudo /usr/sbin/iiab -t "$@"
