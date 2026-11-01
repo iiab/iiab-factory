@@ -56,6 +56,9 @@ MFABT=false   # As above BUT bypasses editing of local_vars.yml + apt updates.
 # When you have no time to read the MFABT book: "Move Fast and Break Things:
 # How Facebook, Google, and Amazon Cornered Culture and Undermined Democracy"
 
+TEST_DEPLOY=false    # Enables iiab_admin_user_install: True (for test deploys)
+local_vars_size=""   # Profile chosen by a flag (0/1/2/3/m/n/t); empty = prompt
+
 REPO_BOUNDARY=1561    # iiab/iiab's lowest PR as of October 2020
 pr_changes_local_vars=false
 clones_and_pulls_done=false
@@ -84,16 +87,74 @@ if [[ $(id -un) != "root" ]]; then
     exit 1
 fi
 
-if [[ $1 == "-f" || $1 == "--fast" ]]; then
-    # EXAMPLE: 'curl iiab.io/fast.txt | bash [-s 361 2604 2607]' AND 'sudo iiab -f' TO CONTINUE
-    FAST=true
-    shift
-elif [[ $1 == "-r" || $1 == "--risky" ]]; then
-    # EXAMPLE: 'curl iiab.io/risky.txt | bash [-s 361 2604 2607]' AND 'sudo iiab -r' TO CONTINUE
-    FAST=true
-    MFABT=true
-    shift
-fi
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -f|--fast)
+            # EXAMPLE: 'curl iiab.io/fast.txt | bash [-s 361 2604 2607]' AND 'sudo iiab -f' TO CONTINUE
+            FAST=true
+            shift
+            ;;
+        -r|--risky)
+            # EXAMPLE: 'curl iiab.io/risky.txt | bash [-s 361 2604 2607]' AND 'sudo iiab -r' TO CONTINUE
+            FAST=true
+            MFABT=true
+            shift
+            ;;
+        -t|--test)
+            # EXAMPLE: 'curl iiab.io/test.txt | bash [-s 361 2604 2607]' AND 'sudo iiab -t' TO CONTINUE
+            TEST_DEPLOY=true
+            shift
+            ;;
+        -p|--profile)
+            # EXAMPLE: 'sudo iiab -p 0' (or 'sudo iiab -p t')
+            if [[ $# -lt 2 ]]; then
+                echo -e "\nMissing profile: -p {0|1|2|3|m|n|t}\n" >&2
+                exit 1
+            fi
+            local_vars_size=$2
+            shift 2
+            ;;
+        --profile=*)
+            local_vars_size=${1#*=}
+            shift
+            ;;
+        -*)
+            # Combined short flags: -tr0 == -t -r + profile 0
+            short_flags=${1#-}
+            while [[ -n $short_flags ]]; do
+                case ${short_flags:0:1} in
+                    f)
+                        FAST=true
+                        ;;
+                    r)
+                        FAST=true
+                        MFABT=true
+                        ;;
+                    t)
+                        TEST_DEPLOY=true
+                        ;;
+                    0|1|2|3|m|n)
+                        local_vars_size=${short_flags:0:1}
+                        ;;
+                    p)
+                        short_flags=${short_flags:1}
+                        local_vars_size=$short_flags
+                        break
+                        ;;
+                    *)
+                        echo -e "\nUnknown option: -${short_flags:0:1}\n" >&2
+                        exit 1
+                        ;;
+                esac
+                short_flags=${short_flags:1}
+            done
+            shift
+            ;;
+        *)
+            break    # Leaves PR numbers for /etc/iiab/pr-queue
+            ;;
+    esac
+done
 
 mkdir -p $FLAGDIR    # Which also creates /etc/iiab for the step just below
 
@@ -309,20 +370,22 @@ if [ -f /etc/iiab/local_vars.yml ]; then
 
     echo -e "                     Google 'local_vars.yml' to learn more!\n"
 else
-    echo -e "\n\nInstalling Internet-in-a-Box requires /etc/iiab/local_vars.yml\n"
+    if [[ -z $local_vars_size ]]; then
+        echo -e "\n\nInstalling Internet-in-a-Box requires /etc/iiab/local_vars.yml\n"
 
-    echo -e "PLEASE PICK (1) 🚵 SMALL (2) 🚢🚣 MEDIUM or (3) 🚂🚃🚃 LARGE (NEEDS 2+ GB RAM)."
-    echo -e "Or try (m) for 🚑 MEDICAL.\n"
+        echo -e "PLEASE PICK (1) 🚵 SMALL (2) 🚢🚣 MEDIUM or (3) 🚂🚃🚃 LARGE (NEEDS 2+ GB RAM)."
+        echo -e "Or try (m) for 🚑 MEDICAL.\n"
 
-    echo -e 'See "What services (IIAB apps) are suggested during installation?" and'
-    echo -e '"What can I do with E-books and Internet-in-a-Box?" in https://FAQ.IIAB.IO\n'
+        echo -e 'See "What services (IIAB apps) are suggested during installation?" and'
+        echo -e '"What can I do with E-books and Internet-in-a-Box?" in https://FAQ.IIAB.IO\n'
 
-    echo -e "WARNING: This Can Take More Than An Hour, depending on Internet speed, CPU,"
-    echo -e "temperature, and the speed of your microSD card.\n"
+        echo -e "WARNING: This Can Take More Than An Hour, depending on Internet speed, CPU,"
+        echo -e "temperature, and the speed of your microSD card.\n"
 
-    echo -n "Please press a key — 1, 2, 3 or m: "
-    read -n 1 -r local_vars_size < /dev/tty
-    echo
+        echo -n "Please press a key — 1, 2, 3 or m: "
+        read -n 1 -r local_vars_size < /dev/tty
+        echo
+    fi
     case $local_vars_size in
         0)
             local_vars_src_file=local_vars_unittest.yml
@@ -404,6 +467,17 @@ else
             echo -e "3) After you're done editing, RUN 'sudo iiab' TO CONTINUE!\n"
             exit 0
         fi
+    fi
+fi
+
+# Test deploys exercise the legacy "create/configure an admin user" path.
+# Applied after section C, so PRs that edit vars/local_vars_*.yml still apply.
+if $($TEST_DEPLOY); then
+    echo -e "\nTEST DEPLOY: setting iiab_admin_user_install: True in /etc/iiab/local_vars.yml\n"
+    if grep -q '^iiab_admin_user_install:' /etc/iiab/local_vars.yml; then
+        sed -i 's/^iiab_admin_user_install:.*/iiab_admin_user_install: True/' /etc/iiab/local_vars.yml
+    else
+        echo 'iiab_admin_user_install: True' >> /etc/iiab/local_vars.yml
     fi
 fi
 
