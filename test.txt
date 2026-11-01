@@ -9,10 +9,11 @@
 #
 #                     curl iiab.io/test.txt | bash
 #
-# This runs '-tr0' (test + risky + unittest profile), which installs
-# non-interactively and sets iiab_admin_user_install: True in
+# This runs '-t' (test deploy), which sets iiab_admin_user_install: True in
 # /etc/iiab/local_vars.yml so that the iiab-admin role exercises its
-# account-creation path.
+# account-creation path.  NOTE: '-t' alone still prompts for a profile and for
+# editing local_vars.yml.  For a non-interactive unittest-profile deploy, run
+# 'sudo iiab -tr0' instead.
 
 # 1. WARNING: NOOBS IS *NOT* SUPPORTED, as its partitioning is very different.
 #    On a Raspberry Pi, WE RECOMMEND YOU INSTALL THE LATEST RASPBERRY PI OS:
@@ -52,7 +53,8 @@ sudo mv /usr/sbin/iiab /usr/sbin/iiab.old 2> /dev/null || true    # Overrides 's
 curl https://raw.githubusercontent.com/iiab/iiab-factory/master/iiab | sudo tee /usr/sbin/iiab > /dev/null
 sudo chmod 0755 /usr/sbin/iiab
 
-# Run install script!  -tr0 == -t (test) -r (risky) + profile 0 (unittest).
+# Run install script!  '-t' is the test-deploy flag (see the note above).  Add
+# -r0 (i.e. 'sudo iiab -tr0') for a non-interactive unittest-profile deploy.
 # CLI params (PR #s) are passed on for easy community testing -- SEE "Install
 # optional PR's" in /usr/sbin/iiab
 # EXAMPLE: curl iiab.io/test.txt | bash -s 361 2604 2607
