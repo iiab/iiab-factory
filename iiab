@@ -455,6 +455,17 @@ else
         wget -O /etc/iiab/local_vars.yml https://github.com/iiab/iiab/raw/master/vars/$local_vars_src_file
     fi
 
+    # Test deploys exercise the legacy "create/configure an admin user" path.
+    # Apply this before the edit prompt so users can override it.
+    if $($TEST_DEPLOY); then
+        echo -e "\nTEST DEPLOY: setting iiab_admin_user_install: True in /etc/iiab/local_vars.yml\n"
+        if grep -q '^iiab_admin_user_install:' /etc/iiab/local_vars.yml; then
+            sed -i 's/^iiab_admin_user_install:.*/iiab_admin_user_install: True/' /etc/iiab/local_vars.yml
+        else
+            echo 'iiab_admin_user_install: True' >> /etc/iiab/local_vars.yml
+        fi
+    fi
+
     if ! $($MFABT); then
         echo -en "\nEdit /etc/iiab/local_vars.yml to customize your Internet-in-a-Box? [Y/n] "
         read -n 1 -r ans < /dev/tty
@@ -467,17 +478,6 @@ else
             echo -e "3) After you're done editing, RUN 'sudo iiab' TO CONTINUE!\n"
             exit 0
         fi
-    fi
-fi
-
-# Test deploys exercise the legacy "create/configure an admin user" path.
-# Applied after section C, so PRs that edit vars/local_vars_*.yml still apply.
-if $($TEST_DEPLOY); then
-    echo -e "\nTEST DEPLOY: setting iiab_admin_user_install: True in /etc/iiab/local_vars.yml\n"
-    if grep -q '^iiab_admin_user_install:' /etc/iiab/local_vars.yml; then
-        sed -i 's/^iiab_admin_user_install:.*/iiab_admin_user_install: True/' /etc/iiab/local_vars.yml
-    else
-        echo 'iiab_admin_user_install: True' >> /etc/iiab/local_vars.yml
     fi
 fi
 
